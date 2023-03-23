@@ -16,6 +16,3 @@ template:
         icon: fa-linkedin
         href: https://www.linkedin.com/in/evandeilton/
         aria-label: linkedin
-   with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      branch: ${{ github.ref }}
