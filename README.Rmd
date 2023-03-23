@@ -1,0 +1,300 @@
+---
+output: github_document
+---
+
+[![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# betaroti
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+Um pacote de funções para realizar ajuste de um mdoelo de regressão beta para dados com resposta ordinal transformada intervalar
+
+## Instalação
+
+Você pode instalar o pacote com esse comando abaixo.
+
+``` r
+# install.packages("devtools")
+devtools::install_github("evandeilton/betaroti")
+```
+
+## Exemplos
+
+Esses são alguns exemplos de uso das funções do pacote.
+
+```{r example}
+library(betaroti)
+```
+
+### Simula dados do modelo beta ordinal com dispersão fixa
+
++ Esta função simula dados de uma variável beta ordinal com dispersão fixa, aplicando diferentes funções de ligação.
+
+```{r}
+# Criar um conjunto de dados de exemplo
+set.seed(42)
+dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
+
+# Simular dados usando a função beta_ordinal_simula_dados com parâmetros personalizados
+dados_simulados <- beta_ordinal_simula_dados(
+  formula = ~ x1 + x2,
+  dados = dados,
+  betas = c(1,-0.3, 0.4),
+  phi = 30,
+  link = "probit",
+  ncuts = 100,
+  type = "m"
+)
+dados_simulados %>%
+  head() %>%
+  knitr::kable(digits = 4, caption = "Dados simulados")
+```
+
+### Simula dados do modelo beta ordinal com dispersão variável
+
+Esta função simula dados de uma variável beta ordinal, aplicando diferentes funções de ligação tanto para betas como para zetas de phi
+
+```{r}
+# Criar um conjunto de dados de exemplo
+set.seed(421)
+n <- 50
+fx <- ~ x1 + x2
+fz <- ~ z1
+
+dados <- data.frame(
+  x1 = rnorm(n),
+  x2 = rnorm(n),
+  z1 = runif(n),
+  z2 = runif(n)
+)
+
+dados_simulados <- beta_ordinal_simula_dados_z(
+  formula_x = fx,
+  formula_z = fz,
+  dados = dados,
+  betas = c(0.2,-0.5, 0.3),
+  zetas = c(1, 1.2),
+  link_x = "logit",
+  link_z = "log",
+  ncuts = 100,
+  type = "m"
+)
+
+dados_simulados %>% 
+  head() %>%
+  knitr::kable(digits = 4, caption = "Dados simulados")
+```
+
+### Log-verossimilhança do modelo beta ordinal com dispersão fixa
+
+Esta função calcula a log-verossimilhança de um conjunto de dados para uma variável beta ordinal, aplicando diferentes funções de ligação.
+
+```{r}
+# Criar um conjunto de dados de exemplo
+set.seed(421)
+dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
+# Calcular a log-verossimilhança usando a função log_vero_beta_ordinal
+param <- c(0, 0.5,-0.2, 50)
+phi <- 30
+formula <- ~ x1 + x2
+dados_simulados <-
+  beta_ordinal_simula_dados(
+    formula = formula,
+    dados = dados,
+    betas = c(0, 0.5,-0.2),
+    phi = phi,
+    link = "logit",
+    ncuts = 10,
+    type = "m"
+  )
+log_verossimilhanca <-
+  beta_ordinal_log_vero(param, formula, dados_simulados)
+print(log_verossimilhanca)
+```
+
+
+### Log-verossimilhança do modelo beta ordinal com dispersão variável
+
+Esta função calcula a log-verossimilhança de um conjunto de dados para uma variável beta ordinal, aplicando diferentes funções de ligação tanto no betas de mu como no zetas de phi.
+
+```{r}
+# Criar um conjunto de dados de exemplo
+n <- 50
+fx <- ~ x1 + x2
+fz <- ~ z1
+
+dados <- data.frame(
+  x1 = rnorm(n),
+  x2 = rnorm(n),
+  z1 = runif(n),
+  z2 = runif(n)
+)
+
+dados_simulados <- beta_ordinal_simula_dados_z(
+  formula_x = fx,
+  formula_z = fz,
+  dados = dados,
+  betas = c(0.2,-0.5, 0.3),
+  zetas = c(1, 1.2),
+  link_x = "logit",
+  link_z = "log",
+  ncuts = 100
+)
+# Calcular a log-verossimilhança usando a função log_vero_beta_ordinal
+log_verossimilhanca <- beta_ordinal_log_vero_z(
+  param = c(c(0.2,-0.5, 0.3), c(1, 1.2)),
+  formula_x = fx,
+  formula_z = fz,
+  dados = dados_simulados,
+  link_x = "logit",
+  link_z = "log",
+  acumulada = TRUE
+)
+print(log_verossimilhanca)
+```
+
+
+## Função para ajustar um modelo beta ordinal com dispersão fixa
+
+A função beta_ordinal_fit ajusta um modelo beta ordinal usando a função optim do pacote stats, retornando uma lista com as principais informações do ajuste.
+
+```{r}
+# Criar um conjunto de dados de exemplo
+set.seed(42)
+n <- 100
+betas <- c(0.2, 0.3,-0.4, 0.1)
+formula <- ~ x1 + x2 + x3
+phi <- 50
+
+dados <- data.frame(
+  x1 = rnorm(n, mean = 1, sd = 0.5),
+  x2 = rbinom(n, size = 1, prob = 0.5),
+  x3 = rnorm(n, mean = 2, sd = 1)
+)
+
+dados_simulados <- beta_ordinal_simula_dados(
+  formula = formula,
+  dados = dados,
+  betas = betas,
+  phi = phi,
+  link = "logit",
+  ncuts = 100
+)
+
+fit <- beta_ordinal_fit(
+  formula = formula,
+  dados = dados_simulados,
+  link = "probit",
+  num_hessiana = TRUE
+)
+coe <- beta_ordinal_coef(fit)
+
+coe$est %>% 
+  knitr::kable(digits = 4, caption = "Estimativas")
+
+coe$gof %>% 
+  knitr::kable(digits = 4, caption = "Bondade do ajuste")
+```
+
+
+## Função para ajustar um modelo beta ordinal com dispersão variável
+
+A função beta_ordinal_fit_z ajusta um modelo beta ordinal com dispersão variável, isto é, com um preditor para os betas e outro para o phi, onde covariáveis são aplicadas para explicar a dispersão. A função usa optim do pacote stats e retorna uma lista com as principais informações do ajuste.
+
+```{r}
+n <- 50
+fx <- ~ x1 + x2
+fz <- ~ z1
+
+dados <- data.frame(
+  x1 = rnorm(n),
+  x2 = rnorm(n),
+  z1 = runif(n),
+  z2 = runif(n)
+)
+
+dados_simulados <- beta_ordinal_simula_dados_z(
+  formula_x = fx,
+  formula_z = fz,
+  dados = dados,
+  betas = c(0.2,-0.5, 0.3),
+  zetas = c(1, 1.2),
+  link_x = "logit",
+  link_z = "log",
+  ncuts = 100
+)
+fit_z <- beta_ordinal_fit_z(
+  formula_x = fx,
+  formula_z = fz,
+  dados = dados_simulados,
+  link_x = "logit",
+  link_z = "log",
+  num_hessiana = TRUE
+)
+coe <- beta_ordinal_coef(fit_z)
+
+coe$est %>% 
+  knitr::kable(digits = 4, caption = "Estimativas")
+
+coe$gof %>% 
+  knitr::kable(digits = 4, caption = "Bondade do ajuste")
+```
+
+### Coleta estatística do ajuste
+
+Coleta as estimativas e suas estatísticas para um objeto de ajuste do modelo beta ordinal com censura intervalar. Coleta também as estatísticas de bondade do ajuste como a log-verossimilhança, o AIC e o BIC do modelo tanto para o modelo de dispersão fixa como aquele com dispersão variável.
+
+```{r}
+n <- 50
+fx <- ~ x1 + x2
+fz <- ~ z1
+
+dados <- data.frame(
+  x1 = rnorm(n),
+  x2 = rnorm(n),
+  z1 = runif(n),
+  z2 = runif(n)
+)
+
+dados_simulados <- beta_ordinal_simula_dados_z(
+  formula_x = fx,
+  formula_z = fz,
+  dados = dados,
+  betas = c(0.2,-0.5, 0.3),
+  zetas = c(1, 1.2),
+  link_x = "logit",
+  link_z = "log",
+  ncuts = 100
+)
+fit_z <- beta_ordinal_fit_z(
+  formula_x = fx,
+  formula_z = fz,
+  dados = dados_simulados,
+  link_x = "logit",
+  link_z = "log",
+  num_hessiana = TRUE
+)
+coe <- beta_ordinal_coef(fit_z)
+
+coe$est %>% 
+  knitr::kable(digits = 4, caption = "Estimativas")
+
+coe$gof %>% 
+  knitr::kable(digits = 4, caption = "Bondade do ajuste")
+```
+
+## Updating!
+
