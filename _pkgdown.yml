@@ -1,0 +1,18 @@
+url: https://evandeilton.github.io/betaroti/
+template:
+  bootstrap: 5
+  bootswatch: minty
+  #theme: breeze-light
+  navbar:
+    structure:
+      left: [intro, reference, articles, tutorials, news]
+      right: [github]
+    components:
+      twitter:
+        icon: fa-github
+        href: http://github.com/evandeilton
+        aria-label: Github
+      linkedin:
+        icon: fa-linkedin
+        href: https://www.linkedin.com/in/evandeilton/
+        aria-label: linkedin
