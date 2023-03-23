@@ -1,0 +1,16 @@
+Package: betaroti
+Type: Package
+Title: Regressão beta para dados com resposta ordinal transformada intervalar
+Version: 0.1.0
+Author: Lopes, J. E.
+Maintainer: <evandeilton@gmail.com>
+Description: Pacote para o programa de mestrado do PPGMNE. O Objetivo é fazer ajuste do modelo regressão beta para dados com resposta ordinal transformada intervalar, objeto da dissertação de mestrado.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    betareg,
+    magrittr,
+    numDeriv
+RoxygenNote: 7.2.3
+URL: https://evandeilton.github.io/betaroti/
