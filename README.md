@@ -74,14 +74,13 @@ library(betaroti)
 Esta função gera amostras de uma variável beta ordinal com dispersão
 fixa, empregando diversas funções de ligação.
 
-- Neste bloco de código R, apresentamos um exemplo de como utilizar a
-  função beta_ordinal_simula_dados para simular dados de uma variável
-  beta ordinal com dispersão fixa. Segue uma descrição detalhada do
-  processo:
+Neste bloco de código R, apresentamos um exemplo de como utilizar a
+função beta_ordinal_simula_dados para simular dados de uma variável beta
+ordinal com dispersão fixa. Segue uma descrição detalhada do processo:
 
-1.  Criamos um conjunto de dados de exemplo com 100 observações e duas
-    variáveis explicativas independentes (x1 e x2), geradas a partir de
-    uma distribuição normal:
+- Criamos um conjunto de dados de exemplo com 100 observações e duas
+  variáveis explicativas independentes (x1 e x2), geradas a partir de
+  uma distribuição normal:
 
 ``` r
 # Criar um conjunto de dados de exemplo
@@ -89,10 +88,9 @@ set.seed(42)
 dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
 ```
 
-2.  Em seguida, utilizamos a função `beta_ordinal_simula_dados` para
-    simular dados com base nos parâmetros personalizados fornecidos. A
-    função recebe os seguintes argumentos:
-
+- Em seguida, utilizamos a função `beta_ordinal_simula_dados` para
+  simular dados com base nos parâmetros personalizados fornecidos. A
+  função recebe os seguintes argumentos:
 - `formula`: especifica a relação entre a variável resposta e as
   variáveis explicativas.
 - `dados`: fornece o conjunto de dados de entrada.
