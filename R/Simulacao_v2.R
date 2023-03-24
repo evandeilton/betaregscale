@@ -5,12 +5,12 @@
 ## Code:    Simulação da beta
 ## -------------------------------------------------------------------------- ##
 
-#' Escolha das funções de ligação inversas
+#' Seleção das funções de ligação inversas
 #'
-#' Chave para escolha das funções de ligação inversas para os preditores de X e Z
+#' Função para escolher e aplicar as funções de ligação inversas aos preditores de X e Z
 #' @param eta Preditor linear dado por X*param.
-#' @param link Função de ligação preferida.
-#' @return Transformação inversa em eta, ou seja, mu.
+#' @param link Função de ligação escolhida.
+#' @return Valor de mu, resultante da aplicação da transformação inversa em eta.
 fn_switch_link <- function(eta, link){
   switch(link,
          logit = make.link("logit")$linkinv(eta),
