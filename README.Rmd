@@ -41,17 +41,20 @@ Acesse a documentação detalhada de cada função e exemplos de uso neste site 
 Você pode instalar o pacote com esse comando abaixo.
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("evandeilton/betaroti")
+if(!require(betaroti)){
+  devtools::install_github("evandeilton/betaroti")  
+}
+require(betaroti)
 ```
+
+```{r, eval=TRUE, echo=FALSE}
+require(betaroti, quietly = TRUE)
+```
+
 
 ## Exemplos
 
 Esses são alguns exemplos de uso das funções do pacote.
-
-```{r example}
-library(betaroti)
-```
 
 ### Simula dados do modelo beta ordinal com dispersão fixa
 
@@ -62,6 +65,7 @@ Neste bloco de código R, apresentamos um exemplo de como utilizar a função be
 + Criamos um conjunto de dados de exemplo com 100 observações e duas variáveis explicativas independentes (x1 e x2), geradas a partir de uma distribuição normal:
 
 ```{r}
+
 # Criar um conjunto de dados de exemplo
 set.seed(42)
 dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))

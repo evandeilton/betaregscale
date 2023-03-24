@@ -57,17 +57,15 @@ suas análises.
 Você pode instalar o pacote com esse comando abaixo.
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("evandeilton/betaroti")
+if(!require(betaroti)){
+  devtools::install_github("evandeilton/betaroti")  
+}
+require(betaroti)
 ```
 
 ## Exemplos
 
 Esses são alguns exemplos de uso das funções do pacote.
-
-``` r
-library(betaroti)
-```
 
 ### Simula dados do modelo beta ordinal com dispersão fixa
 
@@ -83,6 +81,7 @@ ordinal com dispersão fixa. Segue uma descrição detalhada do processo:
   uma distribuição normal:
 
 ``` r
+
 # Criar um conjunto de dados de exemplo
 set.seed(42)
 dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
