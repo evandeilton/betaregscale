@@ -1,15 +1,56 @@
 
-[![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # betaroti
 
 <!-- badges: start -->
+
+[![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-Um pacote de funções para realizar ajuste de um mdoelo de regressão beta
-para dados com resposta ordinal transformada intervalar
+Este pacote foi desenvolvido para fornecer uma biblioteca de funções em
+R, especialmente projetadas para ajustar modelos de regressão beta em
+dados com resposta ordinal transformada intervalar, tanto com dispersão
+fixa quanto variável. Além disso, permite realizar simulações para
+avaliar o desempenho dos modelos no processo de estimação. Acesse o
+[repositório oficial](https://github.com/evandeilton/betaroti) no GitHub
+para visualizar o código-fonte e contribuir com o projeto. Nesta página,
+você encontrará informações detalhadas sobre a instalação, uso e
+funcionamento interno das funções oferecidas pelo pacote “betaroti”.
+
+O pacote “betaroti” foi criado para facilitar a modelagem e análise de
+dados em situações onde a variável resposta é ordinal numérica, mas pode
+ser transformada em um intervalo contínuo, que forma um tipo de dado
+limitado, ex. $y = (y_s;y_i)$. Nesses casos, pode haver censura à
+esquerda, censura à direita ou intervalar.
+
+Aplicações desse tipo de modelo encontram espaço em dados de pesquisas
+de opinião, avaliações de produtos, escala de dor, avaliação de reação
+de compostos quimicos, etc. Ao utilizar a distribuição beta, o pacote
+permite acomodar características específicas dos dados numa estrutura
+que permite associar variáveis explicativas com a variável resposta
+intervalar, através de uma estrutura de regressão covenciente e que
+permite o uso de preditores lineares tanto pros coeficientes
+relacionados com a média como para aqueles relacionados com a dispersão,
+fornecendo estimativas robustas e confiáveis dos parâmetros do modelo.
+
+## Principais funcionalidades
+
+O pacote “betaroti” oferece uma série de funções úteis para lidar com
+modelos de regressão beta e dados com resposta ordinal transformada
+intervalar, abrangendo cenários com dispersão fixa e variável. As
+principais funcionalidades incluem:
+
+- Ajuste de modelos de regressão beta com dispersão fixa e variável.
+- Funções para simulação de dados, permitindo a avaliação do desempenho
+  dos modelos em diferentes cenários.
+- Estatística de bondade do ajuste como AIC e BIC.
+- Funções para ajuste e comparação de modelos com diferentes combinações
+  de variáveis explicativas tanto para $\mu$ como $\phi$.
+
+Acesse a documentação detalhada de cada função e exemplos de uso neste
+site para obter informações sobre como utilizar o pacote “betaroti” em
+suas análises.
 
 ## Instalação
 
@@ -30,19 +71,46 @@ library(betaroti)
 
 ### Simula dados do modelo beta ordinal com dispersão fixa
 
-- Esta função simula dados de uma variável beta ordinal com dispersão
-  fixa, aplicando diferentes funções de ligação.
+Esta função gera amostras de uma variável beta ordinal com dispersão
+fixa, empregando diversas funções de ligação.
+
+- Neste bloco de código R, apresentamos um exemplo de como utilizar a
+  função beta_ordinal_simula_dados para simular dados de uma variável
+  beta ordinal com dispersão fixa. Segue uma descrição detalhada do
+  processo:
+
+1.  Criamos um conjunto de dados de exemplo com 100 observações e duas
+    variáveis explicativas independentes (x1 e x2), geradas a partir de
+    uma distribuição normal:
 
 ``` r
 # Criar um conjunto de dados de exemplo
 set.seed(42)
 dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
+```
 
-# Simular dados usando a função beta_ordinal_simula_dados com parâmetros personalizados
+2.  Em seguida, utilizamos a função `beta_ordinal_simula_dados` para
+    simular dados com base nos parâmetros personalizados fornecidos. A
+    função recebe os seguintes argumentos:
+
+- `formula`: especifica a relação entre a variável resposta e as
+  variáveis explicativas.
+- `dados`: fornece o conjunto de dados de entrada.
+- `betas`: vetor de coeficientes de regressão.
+- `phi`: valor do parâmetro de dispersão.
+- `link`: função de ligação a ser utilizada (neste caso, “probit”).
+- `ncuts`: número de pontos de corte para a discretização da variável
+  resposta.
+- `type`: tipo de tratamento do intervalo. `m` centraliza `y` ao meio.
+  Ex. Se foi coletado o valor $y = 6$, transforma-se $y_t = 6/10 = 0.6$.
+  Assim, para tratar a incerteza do instrumento, sugere-se que a medida
+  anotada pode estar limitada a $y_{left} = 5.5$ e $y_{right} = 6.6$.
+
+``` r
 dados_simulados <- beta_ordinal_simula_dados(
   formula = ~ x1 + x2,
   dados = dados,
-  betas = c(1,-0.3, 0.4),
+  betas = c(1, -0.3, 0.4),
   phi = 30,
   link = "probit",
   ncuts = 100,
@@ -64,10 +132,23 @@ dados_simulados %>%
 
 Dados simulados
 
-### Simula dados do modelo beta ordinal com dispersão variável
+### Simula dados provenientes de um modelo beta ordinal com dispersão variável.
 
-Esta função simula dados de uma variável beta ordinal, aplicando
-diferentes funções de ligação tanto para betas como para zetas de phi
+Neste bloco de código R, é criado um conjunto de dados simulados de um
+modelo beta ordinal com dispersão variável utilizando a função
+`beta_ordinal_simula_dados_z.` O processo é resumido abaixo:
+
+- Definir semente e tamanho da amostra, além das fórmulas para as
+  variáveis explicativas x e z.
+
+- Criar um conjunto de dados de exemplo com 50 observações e quatro
+  variáveis independentes (x1, x2, z1 e z2), geradas a partir de
+  distribuições normal e uniforme.
+
+- Utilizar a função `beta_ordinal_simula_dados_z` para gerar dados
+  simulados com base nos parâmetros fornecidos, como fórmulas,
+  coeficientes de regressão, funções de ligação e número de pontos de
+  corte.
 
 ``` r
 # Criar um conjunto de dados de exemplo
@@ -116,6 +197,27 @@ Dados simulados
 Esta função calcula a log-verossimilhança de um conjunto de dados para
 uma variável beta ordinal, aplicando diferentes funções de ligação.
 
+Neste bloco de código R, calculamos a log-verossimilhança de um modelo
+beta ordinal com dispersão constante utilizando a função
+`beta_ordinal_log_vero`. O processo é resumido abaixo:
+
+- Definir semente e criar um conjunto de dados de exemplo com 100
+  observações e duas variáveis explicativas independentes (x1 e x2),
+  geradas a partir de uma distribuição normal.
+
+- Definir os parâmetros do modelo, incluindo coeficientes de regressão,
+  parâmetro de dispersão e a fórmula da relação entre as variáveis.
+
+- Utilizar a função beta_ordinal_simula_dados para gerar dados simulados
+  com base nos parâmetros fornecidos.
+
+- Calcular a log-verossimilhança do modelo ajustado com os dados
+  simulados usando a função `beta_ordinal_log_vero`.
+
+Como resultado, obtemos a log-verossimilhança do modelo ajustado aos
+dados simulados, que é uma medida de quão bem o modelo se ajusta aos
+dados observados.
+
 ``` r
 # Criar um conjunto de dados de exemplo
 set.seed(421)
@@ -145,6 +247,29 @@ print(log_verossimilhanca)
 Esta função calcula a log-verossimilhança de um conjunto de dados para
 uma variável beta ordinal, aplicando diferentes funções de ligação tanto
 no betas de mu como no zetas de phi.
+
+Neste bloco de código R, calculamos a log-verossimilhança de um modelo
+beta ordinal com dispersão variável utilizando a função
+`beta_ordinal_log_vero_z`. O processo é resumido abaixo:
+
+- Definir o tamanho da amostra e as fórmulas para as variáveis
+  explicativas x e z.
+
+- Criar um conjunto de dados de exemplo com 50 observações e quatro
+  variáveis independentes (x1, x2, z1 e z2), geradas a partir de
+  distribuições normal e uniforme.
+
+- Utilizar a função `beta_ordinal_simula_dados_z` para gerar dados
+  simulados com base nos parâmetros fornecidos, como fórmulas,
+  coeficientes de regressão e funções de ligação.
+
+- Calcular a log-verossimilhança do modelo ajustado com os dados
+  simulados usando a função `beta_ordinal_log_vero_z`.
+
+Como resultado, obtemos a log-verossimilhança do modelo ajustado aos
+dados simulados, que é uma medida de quão bem o modelo se ajusta aos
+dados observados no caso de um modelo beta ordinal com dispersão
+variável.
 
 ``` r
 # Criar um conjunto de dados de exemplo
@@ -185,9 +310,37 @@ print(log_verossimilhanca)
 
 ## Função para ajustar um modelo beta ordinal com dispersão fixa
 
-A função beta_ordinal_fit ajusta um modelo beta ordinal usando a função
-optim do pacote stats, retornando uma lista com as principais
-informações do ajuste.
+A função `beta_ordinal_fit` realiza o ajuste de um modelo beta ordinal
+por meio da função `optim` do pacote stats, retornando uma lista
+contendo as informações essenciais do ajuste realizado.
+
+Neste bloco de código R, ajustamos um modelo beta ordinal a partir de um
+conjunto de dados simulados, utilizando as funções
+`beta_ordinal_simula_dados` e `beta_ordinal_fit`. O processo é resumido
+abaixo:
+
+- Definir semente, tamanho da amostra, coeficientes de regressão,
+  fórmula da relação entre as variáveis e parâmetro de dispersão.
+
+- Criar um conjunto de dados de exemplo com 100 observações e três
+  variáveis independentes (x1, x2 e x3), geradas a partir de
+  distribuições normal e binomial.
+
+- Utilizar a função beta_ordinal_simula_dados para gerar dados simulados
+  com base nos parâmetros fornecidos, como fórmula, coeficientes de
+  regressão e função de ligação.
+
+- Ajustar o modelo beta ordinal aos dados simulados utilizando a função
+  beta_ordinal_fit, especificando a fórmula, os dados, a função de
+  ligação e a opção de cálculo da matriz hessiana numérica.
+
+- Extrair os coeficientes estimados do ajuste do modelo usando a função
+  beta_ordinal_coef.
+
+Como resultado, obtemos os coeficientes estimados do modelo beta ordinal
+ajustado aos dados simulados, que podem ser utilizados para análise e
+interpretação das relações entre a variável resposta ordinal e as
+variáveis explicativas.
 
 ``` r
 # Criar um conjunto de dados de exemplo
@@ -248,11 +401,11 @@ Bondade do ajuste
 
 ## Função para ajustar um modelo beta ordinal com dispersão variável
 
-A função beta_ordinal_fit_z ajusta um modelo beta ordinal com dispersão
-variável, isto é, com um preditor para os betas e outro para o phi, onde
-covariáveis são aplicadas para explicar a dispersão. A função usa optim
-do pacote stats e retorna uma lista com as principais informações do
-ajuste.
+A função `beta_ordinal_fit_z` ajusta um modelo beta ordinal com
+dispersão variável, isto é, com um preditor para os betas e outro para o
+phi, onde covariáveis são aplicadas para explicar a dispersão. A função
+usa optim do pacote stats e retorna uma lista com as principais
+informações do ajuste.
 
 ``` r
 n <- 50
