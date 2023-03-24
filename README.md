@@ -80,30 +80,20 @@ ordinal com dispersão fixa. Segue uma descrição detalhada do processo:
   variáveis explicativas independentes (x1 e x2), geradas a partir de
   uma distribuição normal:
 
-``` r
+- Em seguida, utilizamos a função `beta_ordinal_simula_dados` para
+  simular dados com base nos parâmetros personalizados fornecidos.
 
+> OBS.: `type` é o tipo de tratamento do intervalo. `m` centraliza `y`
+> ao meio. Ex. Se foi coletado o valor $y = 6$, transforma-se
+> $y_t = 6/10 = 0.6$. Assim, para tratar a incerteza do instrumento,
+> sugere-se que a medida anotada pode estar limitada a $y_{left} = 5.5$
+> e $y_{right} = 6.6$.
+
+``` r
 # Criar um conjunto de dados de exemplo
 set.seed(42)
 dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
-```
 
-- Em seguida, utilizamos a função `beta_ordinal_simula_dados` para
-  simular dados com base nos parâmetros personalizados fornecidos. A
-  função recebe os seguintes argumentos:
-- `formula`: especifica a relação entre a variável resposta e as
-  variáveis explicativas.
-- `dados`: fornece o conjunto de dados de entrada.
-- `betas`: vetor de coeficientes de regressão.
-- `phi`: valor do parâmetro de dispersão.
-- `link`: função de ligação a ser utilizada (neste caso, “probit”).
-- `ncuts`: número de pontos de corte para a discretização da variável
-  resposta.
-- `type`: tipo de tratamento do intervalo. `m` centraliza `y` ao meio.
-  Ex. Se foi coletado o valor $y = 6$, transforma-se $y_t = 6/10 = 0.6$.
-  Assim, para tratar a incerteza do instrumento, sugere-se que a medida
-  anotada pode estar limitada a $y_{left} = 5.5$ e $y_{right} = 6.6$.
-
-``` r
 dados_simulados <- beta_ordinal_simula_dados(
   formula = ~ x1 + x2,
   dados = dados,
