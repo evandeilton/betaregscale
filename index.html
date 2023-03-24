@@ -88,20 +88,16 @@
 <h3 id="simula-dados-do-modelo-beta-ordinal-com-dispersão-fixa">Simula dados do modelo beta ordinal com dispersão fixa<a class="anchor" aria-label="anchor" href="#simula-dados-do-modelo-beta-ordinal-com-dispers%C3%A3o-fixa"></a>
 </h3>
 <p>Esta função gera amostras de uma variável beta ordinal com dispersão fixa, empregando diversas funções de ligação.</p>
+<p>Neste bloco de código R, apresentamos um exemplo de como utilizar a função beta_ordinal_simula_dados para simular dados de uma variável beta ordinal com dispersão fixa. Segue uma descrição detalhada do processo:</p>
 <ul>
-<li>Neste bloco de código R, apresentamos um exemplo de como utilizar a função beta_ordinal_simula_dados para simular dados de uma variável beta ordinal com dispersão fixa. Segue uma descrição detalhada do processo:</li>
-</ul>
-<ol style="list-style-type: decimal">
 <li>Criamos um conjunto de dados de exemplo com 100 observações e duas variáveis explicativas independentes (x1 e x2), geradas a partir de uma distribuição normal:</li>
-</ol>
+</ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<ol start="2" style="list-style-type: decimal">
-<li>Em seguida, utilizamos a função <code>beta_ordinal_simula_dados</code> para simular dados com base nos parâmetros personalizados fornecidos. A função recebe os seguintes argumentos:</li>
-</ol>
 <ul>
+<li>Em seguida, utilizamos a função <code>beta_ordinal_simula_dados</code> para simular dados com base nos parâmetros personalizados fornecidos. A função recebe os seguintes argumentos:</li>
 <li>
 <code>formula</code>: especifica a relação entre a variável resposta e as variáveis explicativas.</li>
 <li>
