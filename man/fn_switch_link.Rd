@@ -2,18 +2,18 @@
 % Please edit documentation in R/Simulacao_v2.R
 \name{fn_switch_link}
 \alias{fn_switch_link}
-\title{Escolha das funções de ligação inversas}
+\title{Seleção das funções de ligação inversas}
 \usage{
 fn_switch_link(eta, link)
 }
 \arguments{
 \item{eta}{Preditor linear dado por X*param.}
 
-\item{link}{Função de ligação preferida.}
+\item{link}{Função de ligação escolhida.}
 }
 \value{
-Transformação inversa em eta, ou seja, mu.
+Valor de mu, resultante da aplicação da transformação inversa em eta.
 }
 \description{
-Chave para escolha das funções de ligação inversas para os preditores de X e Z
+Função para escolher e aplicar as funções de ligação inversas aos preditores de X e Z
 }
