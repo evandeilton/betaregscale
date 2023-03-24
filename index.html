@@ -92,32 +92,18 @@
 <p>Esta função gera amostras de uma variável beta ordinal com dispersão fixa, empregando diversas funções de ligação.</p>
 <p>Neste bloco de código R, apresentamos um exemplo de como utilizar a função beta_ordinal_simula_dados para simular dados de uma variável beta ordinal com dispersão fixa. Segue uma descrição detalhada do processo:</p>
 <ul>
-<li>Criamos um conjunto de dados de exemplo com 100 observações e duas variáveis explicativas independentes (x1 e x2), geradas a partir de uma distribuição normal:</li>
+<li><p>Criamos um conjunto de dados de exemplo com 100 observações e duas variáveis explicativas independentes (x1 e x2), geradas a partir de uma distribuição normal:</p></li>
+<li><p>Em seguida, utilizamos a função <code>beta_ordinal_simula_dados</code> para simular dados com base nos parâmetros personalizados fornecidos.</p></li>
 </ul>
+<blockquote>
+<p>OBS.: <code>type</code> é o tipo de tratamento do intervalo. <code>m</code> centraliza <code>y</code> ao meio. Ex. Se foi coletado o valor <span class="math inline"><em>y</em> = 6</span>, transforma-se <span class="math inline"><em>y</em><sub><em>t</em></sub> = 6/10 = 0.6</span>. Assim, para tratar a incerteza do instrumento, sugere-se que a medida anotada pode estar limitada a <span class="math inline"><em>y</em><sub><em>l</em><em>e</em><em>f</em><em>t</em></sub> = 5.5</span> e <span class="math inline"><em>y</em><sub><em>r</em><em>i</em><em>g</em><em>h</em><em>t</em></sub> = 6.6</span>.</p>
+</blockquote>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
+<code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<ul>
-<li>Em seguida, utilizamos a função <code>beta_ordinal_simula_dados</code> para simular dados com base nos parâmetros personalizados fornecidos. A função recebe os seguintes argumentos:</li>
-<li>
-<code>formula</code>: especifica a relação entre a variável resposta e as variáveis explicativas.</li>
-<li>
-<code>dados</code>: fornece o conjunto de dados de entrada.</li>
-<li>
-<code>betas</code>: vetor de coeficientes de regressão.</li>
-<li>
-<code>phi</code>: valor do parâmetro de dispersão.</li>
-<li>
-<code>link</code>: função de ligação a ser utilizada (neste caso, “probit”).</li>
-<li>
-<code>ncuts</code>: número de pontos de corte para a discretização da variável resposta.</li>
-<li>
-<code>type</code>: tipo de tratamento do intervalo. <code>m</code> centraliza <code>y</code> ao meio. Ex. Se foi coletado o valor <span class="math inline"><em>y</em> = 6</span>, transforma-se <span class="math inline"><em>y</em><sub><em>t</em></sub> = 6/10 = 0.6</span>. Assim, para tratar a incerteza do instrumento, sugere-se que a medida anotada pode estar limitada a <span class="math inline"><em>y</em><sub><em>l</em><em>e</em><em>f</em><em>t</em></sub> = 5.5</span> e <span class="math inline"><em>y</em><sub><em>r</em><em>i</em><em>g</em><em>h</em><em>t</em></sub> = 6.6</span>.</li>
-</ul>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/beta_ordinal_simula_dados.html">beta_ordinal_simula_dados</a></span><span class="op">(</span></span>
+<span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/beta_ordinal_simula_dados.html">beta_ordinal_simula_dados</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  dados <span class="op">=</span> <span class="va">dados</span>,</span>
 <span>  betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
@@ -199,7 +185,7 @@
 <li><p>Criar um conjunto de dados de exemplo com 50 observações e quatro variáveis independentes (x1, x2, z1 e z2), geradas a partir de distribuições normal e uniforme.</p></li>
 <li><p>Utilizar a função <code>beta_ordinal_simula_dados_z</code> para gerar dados simulados com base nos parâmetros fornecidos, como fórmulas, coeficientes de regressão, funções de ligação e número de pontos de corte.</p></li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">421</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
@@ -308,7 +294,7 @@
 <li><p>Calcular a log-verossimilhança do modelo ajustado com os dados simulados usando a função <code>beta_ordinal_log_vero</code>.</p></li>
 </ul>
 <p>Como resultado, obtemos a log-verossimilhança do modelo ajustado aos dados simulados, que é uma medida de quão bem o modelo se ajusta aos dados observados.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">421</span><span class="op">)</span></span>
 <span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
@@ -343,7 +329,7 @@
 <li><p>Calcular a log-verossimilhança do modelo ajustado com os dados simulados usando a função <code>beta_ordinal_log_vero_z</code>.</p></li>
 </ul>
 <p>Como resultado, obtemos a log-verossimilhança do modelo ajustado aos dados simulados, que é uma medida de quão bem o modelo se ajusta aos dados observados no caso de um modelo beta ordinal com dispersão variável.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
 <span><span class="va">fx</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span></span>
@@ -393,7 +379,7 @@
 <li><p>Extrair os coeficientes estimados do ajuste do modelo usando a função beta_ordinal_coef.</p></li>
 </ul>
 <p>Como resultado, obtemos os coeficientes estimados do modelo beta ordinal ajustado aos dados simulados, que podem ser utilizados para análise e interpretação das relações entre a variável resposta ordinal e as variáveis explicativas.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
@@ -493,7 +479,7 @@
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">coe</span><span class="op">$</span><span class="va">gof</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
@@ -514,7 +500,7 @@
 <h2 id="função-para-ajustar-um-modelo-beta-ordinal-com-dispersão-variável">Função para ajustar um modelo beta ordinal com dispersão variável<a class="anchor" aria-label="anchor" href="#fun%C3%A7%C3%A3o-para-ajustar-um-modelo-beta-ordinal-com-dispers%C3%A3o-vari%C3%A1vel"></a>
 </h2>
 <p>A função <code>beta_ordinal_fit_z</code> ajusta um modelo beta ordinal com dispersão variável, isto é, com um preditor para os betas e outro para o phi, onde covariáveis são aplicadas para explicar a dispersão. A função usa optim do pacote stats e retorna uma lista com as principais informações do ajuste.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
 <span><span class="va">fx</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span></span>
 <span><span class="va">fz</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">z1</span></span>
@@ -615,7 +601,7 @@
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">coe</span><span class="op">$</span><span class="va">gof</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
@@ -635,7 +621,7 @@
 <h3 id="coleta-estatística-do-ajuste">Coleta estatística do ajuste<a class="anchor" aria-label="anchor" href="#coleta-estat%C3%ADstica-do-ajuste"></a>
 </h3>
 <p>Coleta as estimativas e suas estatísticas para um objeto de ajuste do modelo beta ordinal com censura intervalar. Coleta também as estatísticas de bondade do ajuste como a log-verossimilhança, o AIC e o BIC do modelo tanto para o modelo de dispersão fixa como aquele com dispersão variável.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
 <span><span class="va">fx</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span></span>
 <span><span class="va">fz</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">z1</span></span>
@@ -736,7 +722,7 @@
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">coe</span><span class="op">$</span><span class="va">gof</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
@@ -778,7 +764,8 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li> <br><small class="roles"> Maintainer </small>  </li>
+<li> Lopes <br><small class="roles"> Maintainer </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
@@ -795,7 +782,7 @@
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by .</p>
+<p>Developed by Lopes.</p>
 </div>
 
 <div class="pkgdown-footer-right">
