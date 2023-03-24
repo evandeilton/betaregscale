@@ -116,7 +116,7 @@ dados_simulados <- beta_ordinal_simula_dados(
 )
 dados_simulados %>%
   head() %>%
-  knitr::kable(digits = 4, caption = "Dados simulados")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 |      y |  yr |  left | right |      x1 |      x2 |
@@ -127,8 +127,6 @@ dados_simulados %>%
 | 0.9856 |  99 | 0.985 | 0.995 |  0.6329 |  1.8485 |
 | 0.8270 |  83 | 0.825 | 0.835 |  0.4043 | -0.6668 |
 | 0.9044 |  90 | 0.895 | 0.905 | -0.1061 |  0.1055 |
-
-Dados simulados
 
 ### Simula dados provenientes de um modelo beta ordinal com dispersão variável.
 
@@ -176,7 +174,7 @@ dados_simulados <- beta_ordinal_simula_dados_z(
 
 dados_simulados %>% 
   head() %>%
-  knitr::kable(digits = 4, caption = "Dados simulados")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 |      y |  yr |  left | right |      x1 |      x2 |     z1 |
@@ -187,8 +185,6 @@ dados_simulados %>%
 | 0.3401 |  34 | 0.335 | 0.345 |  1.2838 |  0.4173 | 0.1075 |
 | 0.4315 |  43 | 0.425 | 0.435 |  0.0747 |  0.8039 | 0.5592 |
 | 0.7773 |  78 | 0.775 | 0.785 | -0.4731 | -0.1909 | 0.5579 |
-
-Dados simulados
 
 ### Log-verossimilhança do modelo beta ordinal com dispersão fixa
 
@@ -372,7 +368,7 @@ fit <- beta_ordinal_fit(
 coe <- beta_ordinal_coef(fit)
 
 coe$est %>% 
-  knitr::kable(digits = 4, caption = "Estimativas")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 | variable    | estimate | ci_lower | ci_upper |     se | t_value | p_value |
@@ -383,19 +379,15 @@ coe$est %>%
 | x3          |   0.1003 |   0.0376 |   0.1630 | 0.0320 |  3.1357 |  0.0023 |
 | (phi)       |  51.1296 |  36.7673 |  65.4919 | 7.3278 |  6.9774 |  0.0000 |
 
-Estimativas
-
 ``` r
 
 coe$gof %>% 
-  knitr::kable(digits = 4, caption = "Bondade do ajuste")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 | log_likelihood |       AIC |       BIC |
 |---------------:|----------:|----------:|
 |       330.5828 | -649.1657 | -633.5347 |
-
-Bondade do ajuste
 
 ## Função para ajustar um modelo beta ordinal com dispersão variável
 
@@ -438,7 +430,7 @@ fit_z <- beta_ordinal_fit_z(
 coe <- beta_ordinal_coef(fit_z)
 
 coe$est %>% 
-  knitr::kable(digits = 4, caption = "Estimativas")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 | variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
@@ -449,19 +441,15 @@ coe$est %>%
 | (phi)\_(Intercept) |   0.5855 |  -0.2018 |   1.3728 | 0.4017 |  1.4576 |  0.1519 |
 | (phi)\_z1          |   1.3097 |  -0.0996 |   2.7189 | 0.7190 |  1.8214 |  0.0752 |
 
-Estimativas
-
 ``` r
 
 coe$gof %>% 
-  knitr::kable(digits = 4, caption = "Bondade do ajuste")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 | log_likelihood |       AIC |       BIC |
 |---------------:|----------:|----------:|
 |       222.5784 | -433.1567 | -421.6846 |
-
-Bondade do ajuste
 
 ### Coleta estatística do ajuste
 
@@ -504,7 +492,7 @@ fit_z <- beta_ordinal_fit_z(
 coe <- beta_ordinal_coef(fit_z)
 
 coe$est %>% 
-  knitr::kable(digits = 4, caption = "Estimativas")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 | variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
@@ -515,18 +503,14 @@ coe$est %>%
 | (phi)\_(Intercept) |   1.6446 |   0.8457 |   2.4436 | 0.4076 |  4.0346 |  0.0002 |
 | (phi)\_z1          |   0.7760 |  -0.5975 |   2.1495 | 0.7008 |  1.1074 |  0.2740 |
 
-Estimativas
-
 ``` r
 
 coe$gof %>% 
-  knitr::kable(digits = 4, caption = "Bondade do ajuste")
+  knitr::kable(digits = 4, caption = "")
 ```
 
 | log_likelihood |       AIC |       BIC |
 |---------------:|----------:|----------:|
 |        205.461 | -398.9221 | -387.4499 |
-
-Bondade do ajuste
 
 ## Updating!

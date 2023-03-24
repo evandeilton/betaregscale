@@ -1,16 +1,23 @@
 url: https://evandeilton.github.io/betaroti/
+
 home:
   title: Regressão Beta para Resposta Ordinal Transformada Intervalar
+  
 authors:
-  José E. Lopes:
+  Lopes, J. E.:
     href: http://github.com/evandeilton
-
+    
 template:
   bootstrap: 5
-    bslib:
-    base_font: {google: "Roboto"}
-    heading_font: {google: "Roboto Slab"}
-    code_font: {google: "JetBrains Mono"}
+  #bslib:
+  #  base_font: {google: "Roboto"}
+  #  heading_font: {google: "Roboto Slab"}
+  #  code_font: {google: "JetBrains Mono"}
+  bslib:
+    base_font: {google: "Ubuntu"}
+    heading_font: {google: "Ubuntu"}
+    code_font: {google: "Fira Code"}
+    
   bootswatch: minty
   #theme: breeze-light
   navbar:
