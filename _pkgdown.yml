@@ -2,6 +2,8 @@ url: https://evandeilton.github.io/betaroti/
 
 home:
   title: Regressão Beta para Resposta Ordinal Transformada Intervalar
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
   
 authors:
   Lopes, J. E.:
@@ -33,3 +35,7 @@ template:
         icon: fa-linkedin
         href: https://www.linkedin.com/in/evandeilton/
         aria-label: linkedin
+
+footer:
+  components:
+    legal: Conteúdo sem nenhum tipo de garantia. Use por sua conta em risco.
