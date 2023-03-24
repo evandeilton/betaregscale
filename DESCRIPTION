@@ -3,7 +3,7 @@ Type: Package
 Title: Regressão beta para dados com resposta ordinal transformada intervalar
 Version: 0.1.1
 Author: Lopes, J. E.
-Maintainer: <evandeilton@gmail.com>
+Maintainer: Lopes, J. E. <evandeilton@gmail.com>
 Description: Pacote para o programa de mestrado do PPGMNE. O Objetivo é fazer ajuste do modelo regressão beta para dados com resposta ordinal transformada intervalar, objeto da dissertação de mestrado.
 License: MIT + file LICENSE
 Encoding: UTF-8
