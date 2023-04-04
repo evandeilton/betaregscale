@@ -417,6 +417,10 @@ beta_ordinal_fit <- function(formula, dados, link = "logit", link_phi = "identit
   hatmu <- fn_switch_link(eta = X%*%est[1:ncol(X)], link = link)
   hatphi <- est[ncol(X)+1]
   opt_result$dados <- cbind(dados, hatmu, hatphi)
+  opt_result$link <- link
+  opt_result$link_phi <- link_phi
+  opt_result$formula_x <- formula
+  opt_result$formula_z <- ~ 1
   
   class(opt_result) <- c("betaroti","betarotidv")
   
@@ -493,7 +497,8 @@ beta_ordinal_fit_z <- function(formula_x,
                       link_z = link_z,
                       dados = dados,
                       hessian = !num_hessiana,
-                      method = "BFGS", acumulada = TRUE,
+                      method = "BFGS",
+                      acumulada = TRUE,
                       control=list(fnscale = -1))
 
   if(num_hessiana){
@@ -511,6 +516,10 @@ beta_ordinal_fit_z <- function(formula_x,
   hatmu  <- fn_switch_link(eta = X%*%est[p], link = link_x)
   hatphi <- fn_switch_link(eta = Z%*%est[q], link = link_z)
   opt_result$dados <- cbind(dados, hatmu, hatphi)
+  opt_result$link <- link_x
+  opt_result$link_phi <- link_z
+  opt_result$formula_x <- formula_x
+  opt_result$formula_z <- formula_z
   
   class(opt_result) <- c("betaroti","betarotidv")
   
@@ -1306,4 +1315,64 @@ betaroti <- function(formula, dados, link = "logit", link_phi = "identity", num_
   }
   class(out) <- c("betaroti","betarotidv")
   return(out)
+}
+
+
+#' @title Intervalos de confiança
+#'
+#' @description
+#' Esta função retorna a matriz de covariância para objetos das classes 'betaroti' e 'betarotidv'.
+#'
+#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @examples
+#' \dontrun{
+#' # Exemplo de uso da função hessian
+#' # Primeiro, gere um objeto de classe 'betaroti' ou 'betarotidv'
+#' set.seed(42)
+#' n <- 100
+#' dados <- data.frame(
+#'   x1 = rnorm(n, mean = 1, sd = 0.5),
+#'   x2 = rbinom(n, size = 1, prob = 0.5),
+#'   x3 = rnorm(n, mean = 2, sd = 1))
+#' betas <- c(0.2, 0.3, -0.4, 0.1)
+#' formula <- ~x1 + x2 + x3
+#' phi <- 50
+#' dados_simulados <- beta_ordinal_simula_dados(
+#'   formula = formula,
+#'   dados = dados,
+#'   betas = betas,
+#'   phi = phi,
+#'   link = "logit",
+#'   ncuts = 100)
+#' fit <- beta_ordinal_fit(
+#'  formula = formula,
+#'  dados = dados_simulados,
+#'  link = "probit",
+#'  num_hessiana = TRUE)
+#' confint(fit)
+#' }
+#' @export
+confint.betaroti <- function(fit, alpha = 0.05){
+  if(!inherits(fit, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+  }
+  beta_hat <- fit$par
+  dfs <- nrow(fit$dados) - length(beta_hat)
+  cov_mat <- -solve(fit$hessian)
+  se_beta <- sqrt(diag(cov_mat))
+  z_alpha <- qnorm(1 - alpha/2)
+  ci_lower <- beta_hat - z_alpha * se_beta
+  ci_upper <- beta_hat + z_alpha * se_beta
+  
+  ci_table <- data.frame(
+    variable = names(beta_hat),
+    estimate = beta_hat,
+    ci_lower = ci_lower,
+    ci_upper = ci_upper,
+    se = se_beta,
+    t_value = beta_hat/se_beta,
+    p_value = 2 * pt(-abs(beta_hat/se_beta), df = dfs)
+  )
+  row.names(ci_table) <- NULL
+  return(ci_table)
 }
