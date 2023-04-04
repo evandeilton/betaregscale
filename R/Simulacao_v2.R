@@ -1228,7 +1228,7 @@ print.betaroti <- function(fit, digits = max(3, getOption("digits") - 2)){
 #' sumarizadas do ajuste, tanto para dispesão fixa como variável.
 #'
 #' @param formula Fórmula para expressar a relação das preditoras X1, X2, Xn
-#' relacionadas com os betas e também Z1, Z2, Zn para aquelas relacionadas com phi, se houver.
+#' relacionadas com os betas e também Z1, Z2, ..., Zn para aquelas relacionadas com phi, se houver.
 #' Ela deve ser referenciada em Y. Ex. formula = ~X1 + X2 ou formula = ~X1 + X2 | Z1
 #' ou formula = ~X1 + X2 | Z1 + Z2, etc. Como a variável resposta é intervalar
 #' ela deverá ser passada como left e right no objeto dados.
@@ -1241,7 +1241,19 @@ print.betaroti <- function(fit, digits = max(3, getOption("digits") - 2)){
 #' @param link_phi Nome da função de ligação a ser usada para as preditoras Z1, Z2, ..., Zn relacionadas com phi.
 #' Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".
 #' @param num_hessiana Se TRUE, calcula a matriz Hessian numericamente com o
-#' pacote numDeriv. Se FALSE, calcula com o padrão da optim
+#' pacote numDeriv. Se FALSE, calcula com o padrão da optim.
+#' 
+#' @details
+#' O objeto dados precisa ter duas colunas nomeadas contendo os dados do 
+#' limite inferior (\code{left}) e superior (\code{right}) da variável resposta.
+#' Isto é, além de conter as preditoras que serão inserida no modelo via formula,
+#' os dados devem conter as duas colunas de y em forma de intervalo.
+#' As formulas não devem conter mensão a y. Como descrito no parâmtro formula, 
+#' opções válidas formula = ~X1 + X2 ou formula = ~X1 + X2 | Z1 ou 
+#' formula = ~X1 + X2 | Z1 + Z2 sem parte esquerda. Essa formula vai definir
+#' apenas as preditoras que entram no modelo sejam para mu ou para phi.
+#' 
+#' 
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @importFrom Formula as.Formula
