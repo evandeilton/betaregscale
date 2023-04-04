@@ -2,6 +2,7 @@
 
 S3method(AIC,betaroti)
 S3method(coef,betaroti)
+S3method(confint,betaroti)
 S3method(fitted,betaroti)
 S3method(logLik,betaroti)
 S3method(predict,betaroti)

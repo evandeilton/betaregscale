@@ -30,7 +30,7 @@ O pacote "betaroti" oferece uma série de funções úteis para lidar com modelo
 + Ajuste de modelos de regressão beta com dispersão fixa e variável.
 + Funções para simulação de dados, permitindo a avaliação do desempenho dos modelos em diferentes cenários.
 + Estatística de bondade do ajuste como AIC e BIC, por exemplo em `gof()`.
-+ Funções genéricas como `coef`, `vcov`, `fitted`, `confint`, `residuals`, `summary` e `print` foram implementadas para a classe `betaroti` para facilitar o acesso às medidas do ajuste.
++ Funções genéricas como `coef`, `vcov`, `fitted`, `residuals`, `summary` e `print` foram implementadas para a classe `betaroti` para facilitar o acesso às medidas do ajuste.
 + Funções para ajuste e comparação de modelos com diferentes combinações de variáveis explicativas tanto para $\mu$ como $\phi$.
 
 Acesse a documentação detalhada de cada função e exemplos de uso neste site para obter informações sobre como utilizar o pacote "betaroti" em suas análises.
