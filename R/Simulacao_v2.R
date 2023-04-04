@@ -859,8 +859,8 @@ coef.betaroti <- function(fit){
 #' @export
 gof <- function(fit){
   data.frame(
-    logLik = betaroti::logLik(fit),
-    AIC = betaroti::AIC(fit),
+    logLik = logLik(fit),
+    AIC = AIC(fit),
     BIC = betaroti::BIC(fit)
   )
 }
@@ -1122,8 +1122,8 @@ predict.betaroti <- function(fit, type = "quantile", at = 0.5){
     rval   
   }
   if(type == "quantile") {
-    mu  <- betaroti::fitted(fit, type = "mu")
-    phi <- betaroti::fitted(fit, type = "phi")
+    mu  <- fitted(fit, type = "mu")
+    phi <- fitted(fit, type = "phi")
     return(qfun(at, mu, phi))
   }
 }
@@ -1213,10 +1213,85 @@ print.betaroti <- function(fit, digits = max(3, getOption("digits") - 2)){
   colnames(be) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
   rownames(be) <- cf$est$variable
   stats::printCoefmat(be, digits = digits, P.values = TRUE)
-  cat("\nLog-Likelihood:", formatC(betaroti::logLik(fit), digits = digits),
-      "AIC:", formatC(betaroti::AIC(fit), digits = digits),
+  cat("\nLog-Likelihood:", formatC(logLik(fit), digits = digits),
+      "AIC:", formatC(AIC(fit), digits = digits),
       "BIC:", formatC(betaroti::BIC(fit), digits = digits)
   )
 }
 
 
+#' Ajuste modelo beta com resposta ordinal transformada intervalar
+#' 
+#'
+#' A função função core que ajusta um modelo beta ordinal usando a função optim
+#' do pacote stats, retornando uma tabela com estatísticas sumarizadas do ajuste,
+#' tabto para dispesão fixa como variável.
+#'
+#' @param formula Fórmula para expressar a relação das preditoras X1, X2, Xn
+#' relacionadas com os betas e também Z1, Z2, Zn para aquelas relacionadas com phi, se houver.
+#' Ela deve ser referenciada em Y. Ex. formula = ~X1 + X2 ou formula = ~X1 + X2 | Z1
+#' ou formula = ~X1 + X2 | Z1 + Z2, etc. Como a variável resposta é intervalar
+#' ela deverá ser passada como left e right no objeto dados.
+#' Veja os detalhes para mais informação.
+#' @param dados Um conjunto de dados que contém a variável dependente e as variáveis
+#'  independentes especificadas na fórmula. Ele dever conter o limite inferior (left)
+#'  e o limite superior (right) da variável resposta intervalar Y.
+#' @param link Nome da função de ligação a ser usada para as preditoras X1, X2, ..., Xn.
+#' Pode ser uma das seguintes: "logit", "probit", "cauchit", "cloglog" ou "identity". O padrão é "logit".
+#' @param link_phi Nome da função de ligação a ser usada para as preditoras Z1, Z2, ..., Zn relacionadas com phi.
+#' Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".
+#' @param num_hessiana Se TRUE, calcula a matriz Hessian numericamente com o
+#' pacote numDeriv. Se FALSE, calcula com o padrão da optim
+#' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
+#' estatísticas sumarizadas do ajuste.
+#' @importFrom Formula as.Formula
+#' @examples
+#' \dontrun{
+#' n <- 100
+#' dados <- data.frame(x1 = rnorm(n), x2 = rnorm(n),
+#'                     z1 = runif(n), z2 = runif(n))
+#' fx <- ~ x1 + x2
+#' fz <- ~ z1
+#' dados_simulados <- beta_ordinal_simula_dados_z(
+#' formula_x = fx,
+#' formula_z = fz,
+#' dados = dados,
+#' betas = c(0.2, -0.5, 0.3),
+#' zetas = c(1, 1.2),
+#' link_x = "logit",
+#' link_z = "log",
+#' ncuts = 100)
+#' fit1 <- betaroti( ~ x1 + x2,
+#' dados = dados_simulados,
+#' link = "logit",
+#' link_phi = "log",
+#' num_hessiana = TRUE)
+#' print(fit1)
+#' 
+#' fit2 <- betaroti( ~ x1 + x2 | z1,
+#' dados = dados_simulados,
+#' link = "logit",
+#' link_phi = "log",
+#' num_hessiana = TRUE)
+#' print(fit2)
+#' }
+#' @export
+betaroti <- function(formula, dados, link = "logit", link_phi = "identity", num_hessiana = TRUE){
+  formula <- Formula::as.Formula(formula)
+  if(length(formula)[2L] < 2L) {
+    formula <- Formula::as.Formula(formula(formula), ~ 1)
+    fx <- formula(terms(formula, rhs = 1L))
+    out <- beta_ordinal_fit(formula = fx, dados = dados, link = link, 
+                            link_phi = link_phi, num_hessiana = num_hessiana)
+  } else {
+    if(length(formula)[2L] > 2L) {
+      formula <- Formula::Formula(formula(formula, rhs = 1:2))
+    }
+    fx <- formula(terms(formula, rhs = 1L))
+    fz <- formula(terms(formula, rhs = 2L))
+    out <- beta_ordinal_fit_z(formula_x = fx, formula_z = fz, dados = dados, 
+                              link_x = link, link_z = link_phi, num_hessiana = num_hessiana)
+  }
+  class(out) <- c("betaroti","betarotidv")
+  return(out)
+}
