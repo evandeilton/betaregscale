@@ -1318,61 +1318,137 @@ betaroti <- function(formula, dados, link = "logit", link_phi = "identity", num_
 }
 
 
-#' @title Intervalos de confiança
+
+
+
+
+
+
+
+#' Ajuste modelo beta com resposta ordinal transformada intervalar via bbmle
+#' 
 #'
-#' @description
-#' Esta função retorna a matriz de covariância para objetos das classes 'betaroti' e 'betarotidv'.
+#' Função core que ajusta um modelo beta ordinal para resposta intervalar 
+#' usando a função optim do pacote stats, retornando uma tabela com estatísticas
+#' sumarizadas do ajuste, tanto para dispesão fixa como variável.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param formula Fórmula para expressar a relação das preditoras X1, X2, Xn
+#' relacionadas com os betas e também Z1, Z2, ..., Zn para aquelas relacionadas com phi, se houver.
+#' Ela deve ser referenciada em Y. Ex. formula = ~X1 + X2 ou formula = ~X1 + X2 | Z1
+#' ou formula = ~X1 + X2 | Z1 + Z2, etc. Como a variável resposta é intervalar
+#' ela deverá ser passada como left e right no objeto dados.
+#' Veja os detalhes para mais informação.
+#' @param dados Um conjunto de dados que contém a variável dependente e as variáveis
+#'  independentes especificadas na fórmula. Ele dever conter o limite inferior (left)
+#'  e o limite superior (right) da variável resposta intervalar Y.
+#' @param link Nome da função de ligação a ser usada para as preditoras X1, X2, ..., Xn.
+#' Pode ser uma das seguintes: "logit", "probit", "cauchit", "cloglog" ou "identity". O padrão é "logit".
+#' @param link_phi Nome da função de ligação a ser usada para as preditoras Z1, Z2, ..., Zn relacionadas com phi.
+#' Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".
+#' @param num_hessiana Se TRUE, calcula a matriz Hessian numericamente com o
+#' pacote numDeriv. Se FALSE, calcula com o padrão da optim.
+#' 
+#' @param optimizer Algoritmo de otimização. Pode ser "optim" (padrão) ou "nlminb". Veja
+#' \code{\link{mle2}} para mais detalhes.
+#' 
+#' @param acumulada Se acumulada ou distribuição.
+#' 
+#' @details
+#' O objeto dados precisa ter duas colunas nomeadas contendo os dados do 
+#' limite inferior (\code{left}) e superior (\code{right}) da variável resposta.
+#' Isto é, além de conter as preditoras que serão inserida no modelo via formula,
+#' os dados devem conter as duas colunas de y em forma de intervalo.
+#' As formulas não devem conter mensão a y. Como descrito no parâmtro formula, 
+#' opções válidas formula = ~X1 + X2 ou formula = ~X1 + X2 | Z1 ou 
+#' formula = ~X1 + X2 | Z1 + Z2 sem parte esquerda. Essa formula vai definir
+#' apenas as preditoras que entram no modelo sejam para mu ou para phi.
+#' 
+#' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
+#' estatísticas sumarizadas do ajuste.
+#' @importFrom Formula as.Formula
 #' @examples
 #' \dontrun{
-#' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaroti' ou 'betarotidv'
-#' set.seed(42)
+#' require(bbmle)
 #' n <- 100
-#' dados <- data.frame(
-#'   x1 = rnorm(n, mean = 1, sd = 0.5),
-#'   x2 = rbinom(n, size = 1, prob = 0.5),
-#'   x3 = rnorm(n, mean = 2, sd = 1))
-#' betas <- c(0.2, 0.3, -0.4, 0.1)
-#' formula <- ~x1 + x2 + x3
-#' phi <- 50
-#' dados_simulados <- beta_ordinal_simula_dados(
-#'   formula = formula,
-#'   dados = dados,
-#'   betas = betas,
-#'   phi = phi,
-#'   link = "logit",
-#'   ncuts = 100)
-#' fit <- beta_ordinal_fit(
-#'  formula = formula,
-#'  dados = dados_simulados,
-#'  link = "probit",
-#'  num_hessiana = TRUE)
-#' confint(fit)
+#' dados <- data.frame(x1 = rnorm(n), x2 = rnorm(n),
+#'                     z1 = runif(n), z2 = runif(n))
+#' fx <- ~ x1 + x2
+#' fz <- ~ z1
+#' dados_simulados <- beta_ordinal_simula_dados_z(
+#' formula_x = fx,
+#' formula_z = fz,
+#' dados = dados,
+#' betas = c(0.2, -0.5, 0.3),
+#' zetas = c(1, 1.2),
+#' link_x = "logit",
+#' link_z = "log",
+#' ncuts = 100)
+#' fit <- betaroti_bbmle(formula =  ~ x1 + x2|z1,
+#' dados = dados_simulados, link = "logit", link_phi = "log")
+#' p <- profile(fit)
+#' plot(p)
 #' }
+#' @importFrom betareg betareg
+#' @importFrom bbmle parnames
 #' @export
-confint.betaroti <- function(fit, alpha = 0.05){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
-  }
-  beta_hat <- fit$par
-  dfs <- nrow(fit$dados) - length(beta_hat)
-  cov_mat <- -solve(fit$hessian)
-  se_beta <- sqrt(diag(cov_mat))
-  z_alpha <- qnorm(1 - alpha/2)
-  ci_lower <- beta_hat - z_alpha * se_beta
-  ci_upper <- beta_hat + z_alpha * se_beta
+betaroti_bbmle <- function(formula, dados, link = "logit", link_phi = "identity", 
+                           num_hessiana = TRUE, acumulada = TRUE, optimizer = "optim"){
   
-  ci_table <- data.frame(
-    variable = names(beta_hat),
-    estimate = beta_hat,
-    ci_lower = ci_lower,
-    ci_upper = ci_upper,
-    se = se_beta,
-    t_value = beta_hat/se_beta,
-    p_value = 2 * pt(-abs(beta_hat/se_beta), df = dfs)
-  )
-  row.names(ci_table) <- NULL
-  return(ci_table)
+  optimizer <- match.arg(optimizer, c("optim","nlminb"))
+  
+  formula <- Formula::as.Formula(formula)
+  if(length(formula)[2L] < 2L) {
+    formula <- Formula::as.Formula(formula(formula), ~ 1)
+    fx <- formula(terms(formula, rhs = 1L))
+    fb <- betareg::betareg(formula = formula(paste0("y ~ ", paste0(fx)[2])),
+                           data = dados, link = "logit")
+    ini <- coef(fb)
+    ll <- function(param, formula, dados, link, link_phi, acumulada){
+      -betaroti::beta_ordinal_log_vero(
+        param = param, formula = formula, dados = dados,
+        link = link, link_phi = link_phi, 
+        acumulada = acumulada
+      )
+    }
+    bbmle::parnames(ll) <- names(ini)
+    out <- bbmle::mle2(minuslogl = ll, 
+                       vecpar = TRUE,
+                       optimizer = optimizer,
+                       data = list(hessian=TRUE,
+                                   dados = dados,
+                                   formula = fx,
+                                   link = link, 
+                                   link_phi = link_phi, 
+                                   acumulada = acumulada),
+                       start = as.list(ini))
+  } else {
+    if(length(formula)[2L] > 2L) {
+      formula <- Formula::Formula(formula(formula, rhs = 1:2))
+    }
+    fx <- formula(terms(formula, rhs = 1L))
+    fz <- formula(terms(formula, rhs = 2L))
+    fb <- betareg::betareg(formula = formula(paste0("y ~ ", paste0(formula)[2])),
+                           data = dados, link = "logit")
+    ini <- coef(fb)
+    ll <- function(param, dados, formula_x, formula_z, link_x, link_z, acumulada){
+      -betaroti::beta_ordinal_log_vero_z(
+        param = param, formula_x = formula_x, formula_z = formula_z,
+        dados = dados, link_x = link_x, link_z = link_z, 
+        acumulada = acumulada
+      )
+    }
+    bbmle::parnames(ll) <- names(ini)
+    out <- bbmle::mle2(minuslogl = ll, 
+                       vecpar = TRUE,
+                       optimizer = optimizer,
+                       data = list(hessian=TRUE,
+                                   dados = dados,
+                                   formula_x = fx,
+                                   formula_z = fz,
+                                   link_x = link,
+                                   link_z = link_phi, 
+                                   acumulada = acumulada),
+                       start = as.list(ini))
+  }
+  return(out)
 }
