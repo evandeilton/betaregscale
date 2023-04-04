@@ -4,7 +4,13 @@
 \alias{beta_ordinal_fit}
 \title{Função para ajustar um modelo beta ordinal}
 \usage{
-beta_ordinal_fit(formula, dados, link = "logit", num_hessiana = TRUE)
+beta_ordinal_fit(
+  formula,
+  dados,
+  link = "logit",
+  link_phi = "identity",
+  num_hessiana = TRUE
+)
 }
 \arguments{
 \item{formula}{Fórmula para expressar a relação das preditoras X1, X2, Xn.
@@ -16,6 +22,8 @@ independentes especificadas na fórmula.}
 
 \item{link}{Nome da função de ligação a ser usada. Pode ser uma das
 seguintes: "logit", "probit", "cauchit", "cloglog" ou "identity". O padrão é "logit".}
+
+\item{link_phi}{Função de ligação para phi. Uma dentre "log","sqrt","identity"}
 
 \item{num_hessiana}{Se TRUE, calcula a matriz Hessian numericamente com o
 pacote numDeriv. Se FALSE, calcula com o padrão da optim}
