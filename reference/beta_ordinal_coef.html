@@ -14,7 +14,7 @@ de bondade do ajuste como a log-verossimilhança, o AIC e o BIC do modelo"><!-- 
     
     <a class="navbar-brand me-2" href="../index.html">betaroti</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ de bondade do ajuste como a log-verossimilhança, o AIC e o BIC do modelo</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">beta_ordinal_coef</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">beta_ordinal_coef</span><span class="op">(</span><span class="va">fit</span>, alpha <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -56,6 +56,11 @@ de bondade do ajuste como a log-verossimilhança, o AIC e o BIC do modelo</p>
     <dl><dt>fit</dt>
 <dd><p>Objeto do sjuste retornado das funções <a href="beta_ordinal_fit.html">beta_ordinal_fit</a> e
 <a href="beta_ordinal_fit_z.html">beta_ordinal_fit_z</a></p></dd>
+
+
+<dt>alpha</dt>
+<dd><p>Nível de significância do alpha para os intervalos de confiança.
+Padrão 0.05 bilateral.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -99,21 +104,21 @@ de bondade do ajuste como a log-verossimilhança, o AIC e o BIC do modelo</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">coe</span> <span class="op">&lt;-</span> <span class="fu">beta_ordinal_coef</span><span class="op">(</span><span class="va">fit_z</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">coe</span><span class="op">$</span><span class="va">est</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            variable   estimate   ci_lower   ci_upper         se   t_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       (Intercept)  0.3474400  0.1329788  0.5619013 0.10942101  3.175259</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                x1 -0.4107392 -0.6146956 -0.2067829 0.10406127 -3.947090</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                x2  0.4244406  0.2464262  0.6024550 0.09082533  4.673152</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 (phi)_(Intercept)  1.3262902  0.7101331  1.9424473 0.31437165  4.218861</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5          (phi)_z1  1.1207521  0.0452620  2.1962422 0.54872953  2.042449</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            variable    estimate     ci_lower   ci_upper        se    t_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       (Intercept) -0.01148300 -0.236371142  0.2134051 0.1147410 -0.1000776</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                x1 -0.63392558 -0.871206321 -0.3966448 0.1210638 -5.2362922</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                x2  0.28195154 -0.004084989  0.5679881 0.1459397  1.9319730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 (phi)_(Intercept)  1.73811400  1.052322674  2.4239053 0.3499000  4.9674598</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5          (phi)_z1  0.07907813 -1.006577560  1.1647338 0.5539161  0.1427619</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        p_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2.701823e-03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2.748998e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2.708071e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 1.172619e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 4.699226e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 9.207273e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 4.172398e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 5.967372e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 1.025104e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 8.871155e-01</span>
 <span class="r-in"><span><span class="va">coe</span><span class="op">$</span><span class="va">gof</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   log_likelihood       AIC       BIC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       210.1951 -408.3903 -396.9181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     logLik       AIC       BIC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 212.5383 -413.0767 -401.6045</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
