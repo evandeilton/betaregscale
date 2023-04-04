@@ -4,7 +4,14 @@
 \alias{beta_ordinal_log_vero}
 \title{Log-verossimilhança do modelo beta ordinal com dispersão fixa}
 \usage{
-beta_ordinal_log_vero(param, formula, dados, link = "logit", acumulada = TRUE)
+beta_ordinal_log_vero(
+  param,
+  formula,
+  dados,
+  link = "logit",
+  link_phi = "log",
+  acumulada = TRUE
+)
 }
 \arguments{
 \item{param}{Vetor numérico de parâmetros, incluindo coeficientes de
@@ -19,6 +26,8 @@ variáveis independentes especificadas na fórmula.}
 \item{link}{Nome da função de ligação a ser usada. Pode ser uma das
 seguintes: "logit", "probit", "cauchit", "cloglog" ou "identity".
 O padrão é "logit".}
+
+\item{link_phi}{Função de ligação para phi. Uma dentre "log","sqrt","identity"}
 
 \item{acumulada}{Um valor lógico indicando se a log-verossimilhança
 acumulada deve ser calculada. O padrão é TRUE.}

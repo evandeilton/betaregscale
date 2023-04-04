@@ -4,11 +4,14 @@
 \alias{beta_ordinal_coef}
 \title{Coleta estatística do ajuste}
 \usage{
-beta_ordinal_coef(fit)
+beta_ordinal_coef(fit, alpha = 0.05)
 }
 \arguments{
 \item{fit}{Objeto do sjuste retornado das funções \link{beta_ordinal_fit} e
 \link{beta_ordinal_fit_z}}
+
+\item{alpha}{Nível de significância do alpha para os intervalos de confiança.
+Padrão 0.05 bilateral.}
 }
 \value{
 Lista contendo as estimativas coeficientes, suas estatísticas e a bondade do ajuste.
