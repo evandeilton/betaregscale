@@ -12,7 +12,7 @@ variável beta ordinal, aplicando diferentes funções de ligação."><!-- mathj
     
     <a class="navbar-brand me-2" href="../index.html">betaroti</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,14 @@ variável beta ordinal, aplicando diferentes funções de ligação.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">beta_ordinal_log_vero</span><span class="op">(</span><span class="va">param</span>, <span class="va">formula</span>, <span class="va">dados</span>, link <span class="op">=</span> <span class="st">"logit"</span>, acumulada <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">beta_ordinal_log_vero</span><span class="op">(</span></span>
+<span>  <span class="va">param</span>,</span>
+<span>  <span class="va">formula</span>,</span>
+<span>  <span class="va">dados</span>,</span>
+<span>  link <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  link_phi <span class="op">=</span> <span class="st">"log"</span>,</span>
+<span>  acumulada <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -69,6 +76,10 @@ variáveis independentes especificadas na fórmula.</p></dd>
 <dd><p>Nome da função de ligação a ser usada. Pode ser uma das
 seguintes: "logit", "probit", "cauchit", "cloglog" ou "identity".
 O padrão é "logit".</p></dd>
+
+
+<dt>link_phi</dt>
+<dd><p>Função de ligação para phi. Uma dentre "log","sqrt","identity"</p></dd>
 
 
 <dt>acumulada</dt>
@@ -96,7 +107,7 @@ acumulada deve ser calculada. O padrão é TRUE.</p></dd>
 <span class="r-in"><span>betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.2</span><span class="op">)</span>, phi <span class="op">=</span> <span class="va">phi</span>, link <span class="op">=</span> <span class="st">"logit"</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">log_verossimilhanca</span> <span class="op">&lt;-</span> <span class="fu">beta_ordinal_log_vero</span><span class="op">(</span><span class="va">param</span>, <span class="va">formula</span>, <span class="va">dados_simulados</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">log_verossimilhanca</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -156.2426</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -748.3398</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
