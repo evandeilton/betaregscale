@@ -1223,9 +1223,9 @@ print.betaroti <- function(fit, digits = max(3, getOption("digits") - 2)){
 #' Ajuste modelo beta com resposta ordinal transformada intervalar
 #' 
 #'
-#' A função função core que ajusta um modelo beta ordinal usando a função optim
-#' do pacote stats, retornando uma tabela com estatísticas sumarizadas do ajuste,
-#' tabto para dispesão fixa como variável.
+#' Função core que ajusta um modelo beta ordinal para resposta intervalar 
+#' usando a função optim do pacote stats, retornando uma tabela com estatísticas
+#' sumarizadas do ajuste, tanto para dispesão fixa como variável.
 #'
 #' @param formula Fórmula para expressar a relação das preditoras X1, X2, Xn
 #' relacionadas com os betas e também Z1, Z2, Zn para aquelas relacionadas com phi, se houver.

@@ -8,31 +8,24 @@
 [![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-Este pacote foi desenvolvido para fornecer uma biblioteca de funções em
-R, especialmente projetadas para ajustar modelos de regressão beta em
-dados com resposta ordinal transformada intervalar, tanto com dispersão
-fixa quanto variável. Além disso, permite realizar simulações para
-avaliar o desempenho dos modelos no processo de estimação. Acesse o
-[repositório oficial](https://github.com/evandeilton/betaroti) no GitHub
-para visualizar o código-fonte e contribuir com o projeto. Nesta página,
-você encontrará informações detalhadas sobre a instalação, uso e
-funcionamento interno das funções oferecidas pelo pacote “betaroti”.
+O pacote “betaroti” oferece uma biblioteca de funções em R para ajuste
+de modelos de regressão beta em dados ordinais transformados
+intervalares, com dispersão fixa ou variável. Possibilita simulações
+para avaliação do desempenho dos modelos no processo de estimação. O
+código-fonte e contribuições podem ser acessados no repositório oficial
+do GitHub. Informações detalhadas sobre instalação e uso estão
+disponíveis na documentação do pacote.
 
-O pacote “betaroti” foi criado para facilitar a modelagem e análise de
-dados em situações onde a variável resposta é ordinal numérica, mas pode
-ser transformada em um intervalo contínuo, que forma um tipo de dado
-limitado, ex. $y = (y_s;y_i)$. Nesses casos, pode haver censura à
-esquerda, censura à direita ou intervalar.
-
-Aplicações desse tipo de modelo encontram espaço em dados de pesquisas
-de opinião, avaliações de produtos, escala de dor, avaliação de reação
-de compostos quimicos, etc. Ao utilizar a distribuição beta, o pacote
-permite acomodar características específicas dos dados numa estrutura
-que permite associar variáveis explicativas com a variável resposta
-intervalar, através de uma estrutura de regressão covenciente e que
-permite o uso de preditores lineares tanto pros coeficientes
-relacionados com a média como para aqueles relacionados com a dispersão,
-fornecendo estimativas robustas e confiáveis dos parâmetros do modelo.
+O “betaroti” é voltado para modelagem de dados com variável resposta
+ordinal numérica transformável em intervalo contínuo (e.g.,
+$y = (y_s;y_i)$), abrangendo censura à esquerda, direita ou intervalar.
+Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de
+dor, e avaliações de compostos químicos, entre outros. Utilizando a
+distribuição beta, acomoda características dos dados em estrutura de
+regressão, associando variáveis explicativas à variável resposta
+intervalar e permitindo preditores lineares para coeficientes
+relacionados à média e dispersão, fornecendo estimativas robustas e
+confiáveis dos parâmetros do modelo.
 
 ## Principais funcionalidades
 
@@ -44,7 +37,11 @@ principais funcionalidades incluem:
 - Ajuste de modelos de regressão beta com dispersão fixa e variável.
 - Funções para simulação de dados, permitindo a avaliação do desempenho
   dos modelos em diferentes cenários.
-- Estatística de bondade do ajuste como AIC e BIC.
+- Estatística de bondade do ajuste como AIC e BIC, por exemplo em
+  `gof()`.
+- Funções genéricas como `coef`, `vcov`, `fitted`, `confint`,
+  `residuals`, `summary` e `print` foram implementadas para a classe
+  `betaroti` para facilitar o acesso às medidas do ajuste.
 - Funções para ajuste e comparação de modelos com diferentes combinações
   de variáveis explicativas tanto para $\mu$ como $\phi$.
 
@@ -63,25 +60,30 @@ if(!require(betaroti)){
 require(betaroti)
 ```
 
+    #> 
+    #> Attaching package: 'betaroti'
+    #> The following object is masked from 'package:stats':
+    #> 
+    #>     BIC
+
 ## Exemplos
 
 Esses são alguns exemplos de uso das funções do pacote.
 
 ### Simula dados do modelo beta ordinal com dispersão fixa
 
-Esta função gera amostras de uma variável beta ordinal com dispersão
-fixa, empregando diversas funções de ligação.
+Esta função gera amostras de variável beta ordinal com dispersão fixa
+usando várias funções de ligação.
 
-Neste bloco de código R, apresentamos um exemplo de como utilizar a
-função beta_ordinal_simula_dados para simular dados de uma variável beta
-ordinal com dispersão fixa. Segue uma descrição detalhada do processo:
+No exemplo a seguir em código R, demonstramos como usar a função
+beta_ordinal_simula_dados para simular dados de variável beta ordinal
+com dispersão fixa:
 
-- Criamos um conjunto de dados de exemplo com 100 observações e duas
-  variáveis explicativas independentes (x1 e x2), geradas a partir de
-  uma distribuição normal:
-
-- Em seguida, utilizamos a função `beta_ordinal_simula_dados` para
-  simular dados com base nos parâmetros personalizados fornecidos.
+- Criamos um conjunto de dados com 100 observações e duas variáveis
+  explicativas independentes (x1 e x2) a partir de uma distribuição
+  normal.
+- Utilizamos a função beta_ordinal_simula_dados para simular dados com
+  parâmetros personalizados fornecidos.
 
 > OBS.: `type` é o tipo de tratamento do intervalo. `m` centraliza `y`
 > ao meio. Ex. Se foi coletado o valor $y = 6$, transforma-se
@@ -222,7 +224,7 @@ dados_simulados <-
 log_verossimilhanca <-
   beta_ordinal_log_vero(param, formula, dados_simulados)
 print(log_verossimilhanca)
-#> [1] -156.2426
+#> [1] -748.3398
 ```
 
 ### Log-verossimilhança do modelo beta ordinal com dispersão variável
@@ -362,11 +364,11 @@ coe$est %>%
 
 | variable    | estimate | ci_lower | ci_upper |     se | t_value | p_value |
 |:------------|---------:|---------:|---------:|-------:|--------:|--------:|
-| (Intercept) |   0.2156 |   0.0353 |   0.3958 | 0.0920 |  2.3437 |  0.0212 |
-| x1          |   0.3067 |   0.1965 |   0.4168 | 0.0562 |  5.4551 |  0.0000 |
-| x2          |  -0.4558 |  -0.5734 |  -0.3381 | 0.0600 | -7.5940 |  0.0000 |
-| x3          |   0.1003 |   0.0376 |   0.1630 | 0.0320 |  3.1357 |  0.0023 |
-| (phi)       |  51.1296 |  36.7673 |  65.4919 | 7.3278 |  6.9774 |  0.0000 |
+| (Intercept) |   0.1360 |   0.0249 |   0.2471 | 0.0567 |  2.3998 |  0.0184 |
+| x1          |   0.1891 |   0.1213 |   0.2569 | 0.0346 |  5.4645 |  0.0000 |
+| x2          |  -0.2819 |  -0.3545 |  -0.2093 | 0.0371 | -7.6075 |  0.0000 |
+| x3          |   0.0616 |   0.0232 |   0.1000 | 0.0196 |  3.1419 |  0.0022 |
+| (phi)       |  51.1206 |  36.7688 |  65.4725 | 7.3225 |  6.9813 |  0.0000 |
 
 ``` r
 
@@ -374,9 +376,9 @@ coe$gof %>%
   knitr::kable(digits = 4, caption = "")
 ```
 
-| log_likelihood |       AIC |       BIC |
-|---------------:|----------:|----------:|
-|       330.5828 | -649.1657 | -633.5347 |
+|   logLik |       AIC |       BIC |
+|---------:|----------:|----------:|
+| 330.5883 | -649.1766 | -633.5455 |
 
 ## Função para ajustar um modelo beta ordinal com dispersão variável
 
@@ -436,9 +438,9 @@ coe$gof %>%
   knitr::kable(digits = 4, caption = "")
 ```
 
-| log_likelihood |       AIC |       BIC |
-|---------------:|----------:|----------:|
-|       222.5784 | -433.1567 | -421.6846 |
+|   logLik |       AIC |       BIC |
+|---------:|----------:|----------:|
+| 222.5784 | -433.1567 | -421.6846 |
 
 ### Coleta estatística do ajuste
 
@@ -498,8 +500,8 @@ coe$gof %>%
   knitr::kable(digits = 4, caption = "")
 ```
 
-| log_likelihood |       AIC |       BIC |
-|---------------:|----------:|----------:|
-|        205.461 | -398.9221 | -387.4499 |
+|  logLik |       AIC |       BIC |
+|--------:|----------:|----------:|
+| 205.461 | -398.9221 | -387.4499 |
 
 ## Updating!
