@@ -38,9 +38,9 @@ Retorna uma lista contendo o resultado da otimização e uma tabela com
 estatísticas sumarizadas do ajuste.
 }
 \description{
-A função função core que ajusta um modelo beta ordinal usando a função optim
-do pacote stats, retornando uma tabela com estatísticas sumarizadas do ajuste,
-tabto para dispesão fixa como variável.
+Função core que ajusta um modelo beta ordinal para resposta intervalar 
+usando a função optim do pacote stats, retornando uma tabela com estatísticas
+sumarizadas do ajuste, tanto para dispesão fixa como variável.
 }
 \examples{
 \dontrun{
