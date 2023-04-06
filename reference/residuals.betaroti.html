@@ -43,13 +43,25 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for betaroti</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rqa"</span>, <span class="st">"deviance"</span>, <span class="st">"pearson"</span>, <span class="st">"response"</span>, <span class="st">"weighted"</span>, <span class="st">"sweighted"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>fit</dt>
+    <dl><dt>object</dt>
 <dd><p>Um objeto das classes 'betaroti' ou 'betarotidv'.</p></dd>
+
+
+<dt>type</dt>
+<dd><p>Tipo de resíduo. Um entre "rqa","deviance", "pearson", "response", "weighted", "sweighted". O padrão é Resíduo Quantílico Aleatorizado (rqa)</p></dd>
+
+
+<dt>...</dt>
+<dd><p>Outros argumentos</p></dd>
 
 </dl></div>
 

@@ -22,6 +22,9 @@
     <loc>https://evandeilton.github.io/betaroti/reference/BIC.html</loc>
   </url>
   <url>
+    <loc>https://evandeilton.github.io/betaroti/reference/Variaveis.html</loc>
+  </url>
+  <url>
     <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_coef.html</loc>
   </url>
   <url>
@@ -49,10 +52,13 @@
     <loc>https://evandeilton.github.io/betaroti/reference/betaroti_bbmle.html</loc>
   </url>
   <url>
+    <loc>https://evandeilton.github.io/betaroti/reference/cls-betaroti.html</loc>
+  </url>
+  <url>
     <loc>https://evandeilton.github.io/betaroti/reference/coef.betaroti.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/est.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/est.html</loc>
   </url>
   <url>
     <loc>https://evandeilton.github.io/betaroti/reference/fitted.betaroti.html</loc>
