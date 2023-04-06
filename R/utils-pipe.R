@@ -14,3 +14,17 @@
 #' @return The result of calling `rhs(lhs)`.
 NULL
 
+#' Classe betaroti
+#' 
+#' @name cls betaroti
+#' @keywords internal
+#' @importFrom methods setOldClass
+methods::setOldClass(Classes = c("betaroti","betarotidv"))  
+
+#' Variaveis globais
+#' @name Variaveis
+#' @keywords internal
+#@export
+utils::globalVariables(c(".","::",":::","ll","fit","est"))
+
+
