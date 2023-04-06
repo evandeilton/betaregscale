@@ -13,7 +13,7 @@ Imports:
     betareg,
     Formula,
     magrittr,
-    methods,
-    numDeriv
+    numDeriv,
+    methods
 RoxygenNote: 7.2.3
 URL: https://evandeilton.github.io/betaroti/

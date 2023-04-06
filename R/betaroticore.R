@@ -5,8 +5,6 @@
 ## Code:    Simulação da beta
 ## -------------------------------------------------------------------------- ##
 
-methods::setOldClass(Classes = c("betaroti","betarotidv"))
-
 #' Seleção das funções de ligação inversas
 #'
 #' Função para escolher e aplicar as funções de ligação inversas aos preditores de X e Z
@@ -390,6 +388,7 @@ beta_ordinal_log_vero_z <- function(param,
 #' coe$est
 #' @importFrom betareg betareg
 #' @importFrom numDeriv hessian
+#' @importFrom stats AIC cor fitted hatvalues logLik qlogis runif terms
 #' @export
 beta_ordinal_fit <- function(formula, dados, link = "logit", link_phi = "identity", num_hessiana = TRUE) {
   formula_ini <- paste0("y ", paste0(as.character(formula), collapse = " "))
@@ -413,14 +412,22 @@ beta_ordinal_fit <- function(formula, dados, link = "logit", link_phi = "identit
 
   # Mu chapéu
   est <- opt_result$par
+  y  <- as.matrix(dados[,c("left","right")])
   X <- model.matrix(formula, data = dados)
   hatmu <- fn_switch_link(eta = X%*%est[1:ncol(X)], link = link)
   hatphi <- est[ncol(X)+1]
-  opt_result$dados <- cbind(dados, hatmu, hatphi)
+  pseudor2 <- cor(X%*%est[1:ncol(X)], make.link(link)$linkfun(apply(y, 1, mean)))^2
+  
+  opt_result$dados <- dados
   opt_result$link <- link
   opt_result$link_phi <- link_phi
   opt_result$formula_x <- formula
   opt_result$formula_z <- ~ 1
+  
+  opt_result$residuals <- apply(y, 1, mean) - hatmu
+  opt_result$hatmu  <- hatmu
+  opt_result$hatphi <- hatphi
+  opt_result$pseudo.r.squared = pseudor2
   
   class(opt_result) <- c("betaroti","betarotidv")
   
@@ -509,17 +516,24 @@ beta_ordinal_fit_z <- function(formula_x,
   }
   # Mu chapéu
   est <- opt_result$par
+  y  <- as.matrix(dados[,c("left","right")])
   X <- model.matrix(formula_x, data = dados)
   Z <- model.matrix(formula_z, data = dados)
   p <- 1:ncol(X)
   q <- (ncol(X)+1):length(est)
   hatmu  <- fn_switch_link(eta = X%*%est[p], link = link_x)
   hatphi <- fn_switch_link(eta = Z%*%est[q], link = link_z)
-  opt_result$dados <- cbind(dados, hatmu, hatphi)
+  pseudor2 <- cor(X%*%est[p], make.link(link_x)$linkfun(apply(y, 1, mean)))^2
+
+  opt_result$dados <- dados
   opt_result$link <- link_x
   opt_result$link_phi <- link_z
   opt_result$formula_x <- formula_x
   opt_result$formula_z <- formula_z
+  opt_result$residuals <- apply(y, 1, mean) - hatmu
+  opt_result$hatmu  <- hatmu
+  opt_result$hatphi <- hatphi
+  opt_result$pseudo.r.squared = pseudor2
   
   class(opt_result) <- c("betaroti","betarotidv")
   
@@ -619,7 +633,8 @@ beta_ordinal_coef <- function(fit, alpha = 0.05){
 #' @description
 #' Esta função calcula a log-verossimilhança negativa para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param ... Argumentos extras
 #' 
 #' @examples
 #' \dontrun{
@@ -649,12 +664,14 @@ beta_ordinal_coef <- function(fit, alpha = 0.05){
 #' # Em seguida, use a função logLik.betaroti
 #' log_likelihood <- logLik(fit)
 #'}
+#' @method logLik betaroti
 #' @export
-logLik.betaroti <- function(fit){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+logLik.betaroti <- function(object, ...){
+  
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  -fit$value
+  -object$value
 }
 
 
@@ -663,8 +680,9 @@ logLik.betaroti <- function(fit){
 #' @description
 #' Esta função calcula o Critério de Informação de Akaike (AIC) para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
-#'
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param ... Argumentos extras
+#' @param k Penalidade por parâmetro a ser utilizado; o padrão k = 2 é o AIC clássico.
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função AIC
@@ -693,12 +711,13 @@ logLik.betaroti <- function(fit){
 #' # Em seguida, use a função AIC
 #' aic_result <- AIC(fit)
 #'}
+#' @method AIC betaroti
 #' @export
-AIC.betaroti <- function(fit){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+AIC.betaroti <- function(object, ..., k = 2){
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  2 * (length(fit$par) + 1) - 2 * (-fit$value)
+  k * (length(object$par) + 1) - 2 * (-object$value)
 }
 
 
@@ -707,7 +726,7 @@ AIC.betaroti <- function(fit){
 #' @description
 #' Esta função calcula o Critério de Informação Bayesiano (BIC) para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
 #'
 #' @examples
 #' \dontrun{
@@ -738,20 +757,19 @@ AIC.betaroti <- function(fit){
 #' bic_result <- BIC(fit)
 #' }
 #' @export
-BIC <- function(fit){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+BIC <- function(object){
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  log(nrow(fit$dados)) * (length(fit$par) + 1) - 2 * (-fit$value)
+  log(nrow(object$dados)) * (length(object$par) + 1) - 2 * (-object$value)
 }
-
 
 #' @title Matriz hessiana
 #'
 #' @description
 #' Esta função retorna a matriz hessiana para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
 #'
 #' @examples
 #' \dontrun{
@@ -782,11 +800,11 @@ BIC <- function(fit){
 #' hessian_result <- hessian(fit)
 #' }
 #' @export
-hessian <- function(fit){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+hessian <- function(object){
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  fit$hessian
+  object$hessian
 }
 
 #' @title Coeficientes
@@ -794,7 +812,8 @@ hessian <- function(fit){
 #' @description
 #' Esta função retorna os coeficientes para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param ... outros argumentos.
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
@@ -822,12 +841,13 @@ hessian <- function(fit){
 #'  num_hessiana = TRUE)
 #' coef(fit)
 #' }
+#' @method coef betaroti
 #' @export
-coef.betaroti <- function(fit){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+coef.betaroti <- function(object, ...){
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  fit$par
+  object$par
 }
 
 #' @title Medidas de ajuste
@@ -835,7 +855,7 @@ coef.betaroti <- function(fit){
 #' @description
 #' Esta função retorna um conjunto de medidas de ajuste, incluindo log-verossimilhança, AIC e BIC, para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
@@ -866,11 +886,11 @@ coef.betaroti <- function(fit){
 #' @return Retorna um data.frame contendo log-verossimilhança, AIC e BIC do objeto fornecido.
 #' 
 #' @export
-gof <- function(fit){
+gof <- function(object){
   data.frame(
-    logLik = logLik(fit),
-    AIC = AIC(fit),
-    BIC = betaroti::BIC(fit)
+    logLik = logLik(object),
+    AIC = AIC(object),
+    BIC = betaroti::BIC(object)
   )
 }
 
@@ -879,7 +899,7 @@ gof <- function(fit){
 #' @description
 #' Esta função retorna estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
 #' @param alpha Nível de significância para os intervalos de confiança (padrão é 0,05).
 #' @examples
 #' \dontrun{
@@ -911,13 +931,13 @@ gof <- function(fit){
 #' @return
 #' Retorna um data.frame contendo estimativas, erros padrão, intervalos de confiança, estatísticas t e valores-p do objeto fornecido.
 #' @export
-est.betaroti <- function(fit, alpha = 0.05){
+est <- function(object, alpha = 0.05){
   if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  beta_hat <- fit$par
-  dfs <- nrow(fit$dados) - length(beta_hat)
-  cov_mat <- -solve(fit$hessian)
+  beta_hat <- object$par
+  dfs <- nrow(object$dados) - length(beta_hat)
+  cov_mat <- -solve(object$hessian)
   se_beta <- sqrt(diag(cov_mat))
   z_alpha <- qnorm(1 - alpha/2)
   ci_lower <- beta_hat - z_alpha * se_beta
@@ -941,8 +961,9 @@ est.betaroti <- function(fit, alpha = 0.05){
 #' @description
 #' Esta função retorna um resumo das estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
 #' @param alpha Nível de significância para os intervalos de confiança (padrão é 0,05).
+#' @param ... Outros argumentos
 #'
 #' @return
 #' Retorna um resumo das estimativas, erros padrão, intervalos de confiança e valores-p do objeto fornecido.
@@ -975,12 +996,13 @@ est.betaroti <- function(fit, alpha = 0.05){
 #' # Em seguida, use a função summary.betaroti
 #' summary_result <- summary.betaroti(fit, alpha = 0.05)
 #'}
+#' @method summary betaroti
 #' @export
-summary.betaroti <- function(fit, alpha = 0.05){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+summary.betaroti <- function(object, ..., alpha = 0.05){
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  beta_ordinal_coef(fit, alpha = alpha)
+  beta_ordinal_coef(object, alpha = alpha)
 }
 
 #' @title Resíduos do modelo
@@ -988,7 +1010,9 @@ summary.betaroti <- function(fit, alpha = 0.05){
 #' @description
 #' Esta função retorna os resíduos para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param type Tipo de resíduo. Um entre "rqa","deviance", "pearson", "response", "weighted", "sweighted". O padrão é Resíduo Quantílico Aleatorizado (rqa)
+#' @param ... Outros argumentos
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
@@ -1016,16 +1040,65 @@ summary.betaroti <- function(fit, alpha = 0.05){
 #'  num_hessiana = TRUE)
 #' residuals(fit)
 #' }
+#' @method residuals betaroti
 #' @export
-residuals.betaroti <- function(fit){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+residuals.betaroti <- function(object, type = c("rqa","deviance", "pearson", "response", "weighted", "sweighted"), ...){
+  type <- match.arg(type)
+  
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   
-  y  <- as.matrix(fit$dados[,c("left","right")])
-  mu <- fit$dados$hatmu
-  out <- apply(y, 1, mean) - mu
-  return(out)
+  y  <- apply(as.matrix(object$dados[,c("left","right")]), 1, mean)
+  mu <- object$hatmu
+  phi <- object$hatphi
+  res <- object$residuals
+  wts <- 1
+  
+  if(type == "response"){
+	return(res)
+  }
+
+  res <- switch(type,
+
+    "pearson" = {
+      sqrt(wts) * res / sqrt(mu * (1 - mu) / (1 + phi))
+    },
+
+    "deviance" = {
+      ll <- function(mu, phi){
+        (lgamma(phi) - lgamma(mu * phi) - lgamma((1 - mu) * phi) +
+        (mu * phi - 1) * log(y) + ((1 - mu) * phi - 1) * log(1 - y))	  
+	  }		
+      sqrt(wts) * sign(res) * sqrt(2 * abs(ll(y, phi) - ll(mu, phi)))
+    },
+	
+	"rqa" = {
+      ll <- function(mu, phi){
+	    p <- mu * phi
+		q <- (1 - mu) * phi
+		rqa <- qbeta(runif(length(y)), p, q)
+		qnorm(rqa)
+	  }
+		ll(mu, phi)
+    },
+
+    "weighted" = {
+      ystar <- qlogis(y)
+      mustar <- digamma(mu * phi) - digamma((1 - mu) * phi)
+      v <- trigamma(mu * phi) + trigamma((1 - mu) * phi)
+      sqrt(wts) * (ystar - mustar) / sqrt(phi * v)
+    },
+
+    "sweighted" = {
+      ystar <- qlogis(y)
+      mustar <- digamma(mu * phi) - digamma((1 - mu) * phi)
+      v <- trigamma(mu * phi) + trigamma((1 - mu) * phi)
+      sqrt(wts) * (ystar - mustar) / sqrt(v)
+    }
+	)
+
+	return(res)
 }
 
 
@@ -1034,8 +1107,9 @@ residuals.betaroti <- function(fit){
 #' @description
 #' Esta função retorna os valores ajustados (mu ou phi) para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
 #' @param type Tipo de valor ajustado a ser retornado: "mu" ou "phi" (padrão é "mu").
+#' @param ... Outros argumentos
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
@@ -1063,16 +1137,17 @@ residuals.betaroti <- function(fit){
 #'  num_hessiana = TRUE)
 #' fitted(fit)
 #' }
+#' @method fitted betaroti
 #' @export
-fitted.betaroti <- function(fit, type = "mu"){
+fitted.betaroti <- function(object, type = "mu", ...){
   type <- match.arg(type, c("mu","phi"))
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   if(type == "mu"){
-    return(fit$dados$hatmu)
+    return(object$hatmu)
   } else {
-    return(fit$dados$hatphi)
+    return(object$hatphi)
   }
 }
 
@@ -1081,9 +1156,10 @@ fitted.betaroti <- function(fit, type = "mu"){
 #' @description
 #' Esta função retorna as previsões de quantis para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
 #' @param type Tipo de previsão a ser retornado: "quantile" (padrão é "quantile").
 #' @param at Valor numérico entre 0 e 1 para o qual o quantil é desejado (padrão é 0,5).
+#' @param ... Outros argumentos
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
@@ -1112,11 +1188,12 @@ fitted.betaroti <- function(fit, type = "mu"){
 #' predict(fit)
 #' }
 #' @importFrom stats qbeta
+#' @method predict betaroti
 #' @export
-predict.betaroti <- function(fit, type = "quantile", at = 0.5){
+predict.betaroti <- function(object, type = "quantile", at = 0.5, ...){
   type <- match.arg(type, c("quantile"))
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   
   qfun <- function(at, mu, phi) {
@@ -1131,8 +1208,8 @@ predict.betaroti <- function(fit, type = "quantile", at = 0.5){
     rval   
   }
   if(type == "quantile") {
-    mu  <- fitted(fit, type = "mu")
-    phi <- fitted(fit, type = "phi")
+    mu  <- fitted(object, type = "mu")
+    phi <- fitted(object, type = "phi")
     return(qfun(at, mu, phi))
   }
 }
@@ -1143,7 +1220,8 @@ predict.betaroti <- function(fit, type = "quantile", at = 0.5){
 #' @description
 #' Esta função retorna a matriz de covariância para objetos das classes 'betaroti' e 'betarotidv'.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param object Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param ... Outros parametros
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
@@ -1171,13 +1249,14 @@ predict.betaroti <- function(fit, type = "quantile", at = 0.5){
 #'  num_hessiana = TRUE)
 #' vcov(fit)
 #' }
+#' @method vcov betaroti
 #' @export
-vcov.betaroti <- function(fit){
+vcov.betaroti <- function(object, ...){
   
-  if(!inherits(fit, c("betaroti","betarotidv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaroti","betarotidv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  return(solve(-as.matrix(fit$hessian)))
+  return(solve(-as.matrix(object$hessian)))
 }
 
 #' @title Print
@@ -1185,8 +1264,9 @@ vcov.betaroti <- function(fit){
 #' @description
 #' Esta função imprime um resumo do objeto das classes 'betaroti' e 'betarotidv' fornecido, incluindo estimativas, erros padrão, valores t e valores-p.
 #'
-#' @param fit Um objeto das classes 'betaroti' ou 'betarotidv'.
+#' @param x Um objeto das classes 'betaroti' ou 'betarotidv'.
 #' @param digits Número de dígitos significativos para a impressão dos valores (padrão é max(3, getOption("digits") - 2)).
+#' @param ... outros parametros
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
@@ -1215,16 +1295,17 @@ vcov.betaroti <- function(fit){
 #' print(fit)
 #' }
 #' @importFrom stats printCoefmat qbeta
+#' @method print betaroti
 #' @export
-print.betaroti <- function(fit, digits = max(3, getOption("digits") - 2)){
-  cf <- beta_ordinal_coef(fit)
+print.betaroti <- function(x, digits = max(3, getOption("digits") - 2), ...){
+  cf <- beta_ordinal_coef(x)
   be <- cf$est[,c("estimate","se","t_value","p_value")]
   colnames(be) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
   rownames(be) <- cf$est$variable
   stats::printCoefmat(be, digits = digits, P.values = TRUE)
-  cat("\nLog-Likelihood:", formatC(logLik(fit), digits = digits),
-      "AIC:", formatC(AIC(fit), digits = digits),
-      "BIC:", formatC(betaroti::BIC(fit), digits = digits)
+  cat("\nLog-Likelihood:", formatC(logLik(x), digits = digits),
+      "AIC:", formatC(AIC(x), digits = digits),
+      "BIC:", formatC(betaroti::BIC(x), digits = digits)
   )
 }
 
@@ -1316,13 +1397,6 @@ betaroti <- function(formula, dados, link = "logit", link_phi = "identity", num_
   class(out) <- c("betaroti","betarotidv")
   return(out)
 }
-
-
-
-
-
-
-
 
 
 #' Ajuste modelo beta com resposta ordinal transformada intervalar via bbmle
@@ -1430,15 +1504,15 @@ betaroti_bbmle <- function(formula, dados, link = "logit", link_phi = "identity"
     fb <- betareg::betareg(formula = formula(paste0("y ~ ", paste0(formula)[2])),
                            data = dados, link = "logit")
     ini <- coef(fb)
-    ll <- function(param, dados, formula_x, formula_z, link_x, link_z, acumulada){
+    ll2 <- function(param, dados, formula_x, formula_z, link_x, link_z, acumulada){
       -betaroti::beta_ordinal_log_vero_z(
         param = param, formula_x = formula_x, formula_z = formula_z,
         dados = dados, link_x = link_x, link_z = link_z, 
         acumulada = acumulada
       )
     }
-    bbmle::parnames(ll) <- names(ini)
-    out <- bbmle::mle2(minuslogl = ll, 
+    bbmle::parnames(ll2) <- names(ini)
+    out <- bbmle::mle2(minuslogl = ll2, 
                        vecpar = TRUE,
                        optimizer = optimizer,
                        data = list(hessian=TRUE,
