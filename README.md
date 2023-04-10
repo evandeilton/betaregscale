@@ -374,10 +374,11 @@ purrr::walk(names(fit_variavel_profiles), function(p){
   <img src="man/figures/README-unnamed-chunk-17-2.png" width="100%" />
 - cloglog
   <img src="man/figures/README-unnamed-chunk-17-3.png" width="100%" />
-  \### Outras funções genéricas
+
+### Outras funções genéricas
 
 ``` r
-## Resumo das estimatiavs e bondades
+## Resumo das estimativas e bondades
 summary(fit_fixo$logit)
 
 ## Coeficientes do modelo
