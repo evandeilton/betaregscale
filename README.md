@@ -8,7 +8,7 @@
 [![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-O pacote “betaroti” oferece uma biblioteca de funções em R para ajuste
+O pacote `betaroti` oferece uma biblioteca de funções em R para ajuste
 de modelos de regressão beta em dados ordinais transformados
 intervalares, com dispersão fixa ou variável. Possibilita simulações
 para avaliação do desempenho dos modelos no processo de estimação. O
@@ -29,7 +29,7 @@ confiáveis dos parâmetros do modelo.
 
 ## Principais funcionalidades
 
-O pacote “betaroti” oferece uma série de funções úteis para lidar com
+O pacote `betaroti` oferece uma série de funções úteis para lidar com
 modelos de regressão beta e dados com resposta ordinal transformada
 intervalar, abrangendo cenários com dispersão fixa e variável. As
 principais funcionalidades incluem:
@@ -57,6 +57,7 @@ Você pode instalar o pacote com esse comando abaixo.
 if(!require(betaroti)){
   devtools::install_github("evandeilton/betaroti")  
 }
+require(betaroti, quietly = TRUE)
 ```
 
 ## Exemplos
@@ -192,7 +193,7 @@ fit_fixo_bbmle <- purrr::map(links, .f = function(link){
 })
 ```
 
-- Gráficos dos perfis de verossimilhaça
+- Gráficos dos perfis de verossimilhança
 
 ``` r
 fit_fixo_profiles <- purrr::map(fit_fixo_bbmle, profile)
@@ -357,7 +358,7 @@ fit_variavel_bbmle <- purrr::map(links, .f = function(link){
 })
 ```
 
-- Gráficos dos perfis de verossimilhaça
+- Gráficos dos perfis de verossimilhança
 
 ``` r
 fit_variavel_profiles <- purrr::map(fit_variavel_bbmle, profile)
@@ -373,5 +374,26 @@ purrr::walk(names(fit_variavel_profiles), function(p){
   <img src="man/figures/README-unnamed-chunk-17-2.png" width="100%" />
 - cloglog
   <img src="man/figures/README-unnamed-chunk-17-3.png" width="100%" />
+  \### Outras funções genéricas
+
+``` r
+## Resumo das estimatiavs e bondades
+summary(fit_fixo$logit)
+
+## Coeficientes do modelo
+coef(fit_fixo$logit)
+
+## Matriz de covariâncias
+vcov(fit_fixo$logit)
+
+## Resíduo dos valores preditos em relação ao ponto médio do intervalo de y, isto é (left + right) / 2
+resid(fit_fixo$logit)
+
+## Valores preditos
+fitted(fit_fixo$logit)
+
+## Print do modelo
+print(fit_fixo$logit)
+```
 
 ## On going!
