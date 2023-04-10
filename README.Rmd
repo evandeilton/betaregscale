@@ -265,10 +265,11 @@ purrr::walk(names(fit_variavel_profiles), function(p){
   plot(fit_variavel_profiles[[p]])
 })
 ```
+
 ### Outras funções genéricas
 
 ```{r, eval=FALSE}
-## Resumo das estimatiavs e bondades
+## Resumo das estimativas e bondades
 summary(fit_fixo$logit)
 
 ## Coeficientes do modelo
