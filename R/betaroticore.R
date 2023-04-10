@@ -926,13 +926,13 @@ gof <- function(object){
 #'  dados = dados_simulados,
 #'  link = "probit",
 #'  num_hessiana = TRUE)
-#' est.betaroti(fit)
+#' est(fit)
 #' }
 #' @return
 #' Retorna um data.frame contendo estimativas, erros padrão, intervalos de confiança, estatísticas t e valores-p do objeto fornecido.
 #' @export
 est <- function(object, alpha = 0.05){
-  if(!inherits(fit, c("betaroti","betarotidv"))){
+  if(!inherits(object, c("betaroti","betarotidv"))){
     stop(paste0("log: Preciso de um objeto da classe 'betaroti' ou 'betarotidv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   beta_hat <- object$par

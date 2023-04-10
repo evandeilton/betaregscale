@@ -42,6 +42,6 @@ fit <- beta_ordinal_fit(
  dados = dados_simulados,
  link = "probit",
  num_hessiana = TRUE)
-est.betaroti(fit)
+est(fit)
 }
 }
