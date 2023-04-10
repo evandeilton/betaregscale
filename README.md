@@ -39,9 +39,9 @@ principais funcionalidades incluem:
   dos modelos em diferentes cenários.
 - Estatística de bondade do ajuste como AIC e BIC, por exemplo em
   `gof()`.
-- Funções genéricas como `coef`, `vcov`, `fitted`, `confint`,
-  `residuals`, `summary` e `print` foram implementadas para a classe
-  `betaroti` para facilitar o acesso às medidas do ajuste.
+- Funções genéricas como `coef`, `vcov`, `fitted`, `residuals`,
+  `summary` e `print` foram implementadas para a classe `betaroti` para
+  facilitar o acesso às medidas do ajuste.
 - Funções para ajuste e comparação de modelos com diferentes combinações
   de variáveis explicativas tanto para $\mu$ como $\phi$.
 
@@ -57,14 +57,7 @@ Você pode instalar o pacote com esse comando abaixo.
 if(!require(betaroti)){
   devtools::install_github("evandeilton/betaroti")  
 }
-require(betaroti)
 ```
-
-    #> 
-    #> Attaching package: 'betaroti'
-    #> The following object is masked from 'package:stats':
-    #> 
-    #>     BIC
 
 ## Exemplos
 
@@ -85,8 +78,8 @@ com dispersão fixa:
 - Utilizamos a função beta_ordinal_simula_dados para simular dados com
   parâmetros personalizados fornecidos.
 
-> OBS.: `type` é o tipo de tratamento do intervalo. `m` centraliza `y`
-> ao meio. Ex. Se foi coletado o valor $y = 6$, transforma-se
+> OBS.: `type` é o tipo de tratamento do intervalo `m` centraliza `y` ao
+> meio. Ex. Se foi coletado o valor $y = 6$, transforma-se
 > $y_t = 6/10 = 0.6$. Assim, para tratar a incerteza do instrumento,
 > sugere-se que a medida anotada pode estar limitada a $y_{left} = 5.5$
 > e $y_{right} = 6.6$.
@@ -119,6 +112,103 @@ dados_simulados %>%
 | 0.8270 |  83 | 0.825 | 0.835 |  0.4043 | -0.6668 |
 | 0.9044 |  90 | 0.895 | 0.905 | -0.1061 |  0.1055 |
 
+### Ajuste de modelos com dispersão fixa
+
+- Exemplo do ajuste com optim direto para uma lista de links
+
+``` r
+links <- c("logit", "probit", "cloglog")
+names(links) <- links
+
+fit_fixo <- purrr::map(links, .f = function(link){
+  betaroti(
+    formula = ~x1 + x2,
+    dados = dados_simulados,
+    link = link,
+    link_phi = "identity",
+    num_hessiana = TRUE)
+})
+```
+
+- Resumo das estimativas e bondade
+
+- Estimativas do ajuste e Bondade
+
+``` r
+resumo <- purrr::map(fit_fixo, function(fit){
+  summary(fit)
+})
+```
+
+``` r
+purrr::map_df(resumo, function(res){
+  res$est
+  }, .id = "link") %>% 
+  knitr::kable(digits = 4, caption = "")  
+```
+
+| link    | variable    | estimate | ci_lower | ci_upper |     se |  t_value | p_value |
+|:--------|:------------|---------:|---------:|---------:|-------:|---------:|--------:|
+| logit   | (Intercept) |   1.7168 |   1.6138 |   1.8199 | 0.0526 |  32.6556 |       0 |
+| logit   | x1          |  -0.5225 |  -0.6149 |  -0.4302 | 0.0471 | -11.0865 |       0 |
+| logit   | x2          |   0.7326 |   0.6262 |   0.8390 | 0.0543 |  13.4911 |       0 |
+| logit   | (phi)       |  32.9500 |  23.5197 |  42.3804 | 4.8115 |   6.8482 |       0 |
+| probit  | (Intercept) |   1.0091 |   0.9552 |   1.0630 | 0.0275 |  36.7154 |       0 |
+| probit  | x1          |  -0.2893 |  -0.3395 |  -0.2391 | 0.0256 | -11.2963 |       0 |
+| probit  | x2          |   0.4088 |   0.3512 |   0.4664 | 0.0294 |  13.9075 |       0 |
+| probit  | (phi)       |  34.1445 |  24.3752 |  43.9138 | 4.9844 |   6.8502 |       0 |
+| cloglog | (Intercept) |   0.5935 |   0.5500 |   0.6371 | 0.0222 |  26.7189 |       0 |
+| cloglog | x1          |  -0.2367 |  -0.2786 |  -0.1947 | 0.0214 | -11.0477 |       0 |
+| cloglog | x2          |   0.3384 |   0.2903 |   0.3865 | 0.0245 |  13.7909 |       0 |
+| cloglog | (phi)       |  34.3315 |  24.3100 |  44.3529 | 5.1131 |   6.7144 |       0 |
+
+``` r
+purrr::map_df(resumo, function(res){
+  res$gof
+  }, .id = "link") %>% 
+  knitr::kable(digits = 4, caption = "")
+```
+
+| link    |   logLik |       AIC |       BIC |
+|:--------|---------:|----------:|----------:|
+| logit   | 322.0392 | -634.0784 | -621.0526 |
+| probit  | 321.3533 | -632.7067 | -619.6808 |
+| cloglog | 322.9948 | -635.9895 | -622.9637 |
+
+- Exemplo do ajuste com `bbmle` direto para uma lista de links
+
+``` r
+require(bbmle, quietly = TRUE)
+links <- c("logit", "probit", "cloglog")
+names(links) <- links
+
+fit_fixo_bbmle <- purrr::map(links, .f = function(link){
+  betaroti_bbmle(
+    formula = ~x1 + x2,
+    dados = dados_simulados,
+    link = link,
+    link_phi = "identity",
+    num_hessiana = TRUE)
+})
+```
+
+- Gráficos dos perfis de verossimilhaça
+
+``` r
+fit_fixo_profiles <- purrr::map(fit_fixo_bbmle, profile)
+purrr::walk(names(fit_fixo_profiles), function(p){
+  cat("\n+", p, "\n")
+  plot(fit_fixo_profiles[[p]])
+})
+```
+
+- logit
+  <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+- probit
+  <img src="man/figures/README-unnamed-chunk-10-2.png" width="100%" />
+- cloglog
+  <img src="man/figures/README-unnamed-chunk-10-3.png" width="100%" />
+
 ### Simula dados provenientes de um modelo beta ordinal com dispersão variável.
 
 Neste bloco de código R, é criado um conjunto de dados simulados de um
@@ -139,14 +229,15 @@ modelo beta ordinal com dispersão variável utilizando a função
 
 ``` r
 # Criar um conjunto de dados de exemplo
-set.seed(421)
+set.seed(2222)
 n <- 50
-fx <- ~ x1 + x2
-fz <- ~ z1
+fx <- ~ x1 + x2 + x3
+fz <- ~ z1 + z2
 
 dados <- data.frame(
   x1 = rnorm(n),
   x2 = rnorm(n),
+  x3 = rbinom(n, size = 1, prob = 1/2),
   z1 = runif(n),
   z2 = runif(n)
 )
@@ -155,10 +246,10 @@ dados_simulados <- beta_ordinal_simula_dados_z(
   formula_x = fx,
   formula_z = fz,
   dados = dados,
-  betas = c(0.2,-0.5, 0.3),
-  zetas = c(1, 1.2),
+  betas = c(0.2, -0.6, 0.2, 0.2),
+  zetas = c(0.5, 1, 2),
   link_x = "logit",
-  link_z = "log",
+  link_z = "sqrt",
   ncuts = 100,
   type = "m"
 )
@@ -168,340 +259,119 @@ dados_simulados %>%
   knitr::kable(digits = 4, caption = "")
 ```
 
-|      y |  yr |  left | right |      x1 |      x2 |     z1 |
-|-------:|----:|------:|------:|--------:|--------:|-------:|
-| 0.3492 |  35 | 0.345 | 0.355 |  0.8048 |  1.3698 | 0.4632 |
-| 0.6844 |  68 | 0.675 | 0.685 |  0.5694 |  0.1462 | 0.3954 |
-| 0.1605 |  16 | 0.155 | 0.165 |  1.0160 | -0.3881 | 0.3554 |
-| 0.3401 |  34 | 0.335 | 0.345 |  1.2838 |  0.4173 | 0.1075 |
-| 0.4315 |  43 | 0.425 | 0.435 |  0.0747 |  0.8039 | 0.5592 |
-| 0.7773 |  78 | 0.775 | 0.785 | -0.4731 | -0.1909 | 0.5579 |
+|      y |  yr |  left | right |      x1 |      x2 |  x3 |     z1 |     z2 |
+|-------:|----:|------:|------:|--------:|--------:|----:|-------:|-------:|
+| 0.7458 |  75 | 0.745 | 0.755 | -0.3381 | -0.5606 |   0 | 0.9154 | 0.6295 |
+| 0.5467 |  55 | 0.545 | 0.555 |  0.9392 | -0.4519 |   1 | 0.3437 | 0.3239 |
+| 0.1459 |  15 | 0.145 | 0.155 |  1.7377 |  0.5993 |   1 | 0.5909 | 0.1956 |
+| 0.4424 |  44 | 0.435 | 0.445 |  0.6963 | -0.4836 |   0 | 0.7916 | 0.7053 |
+| 0.2753 |  28 | 0.275 | 0.285 |  0.4623 | -0.7956 |   1 | 0.9538 | 0.5312 |
+| 0.4916 |  49 | 0.485 | 0.495 | -0.3151 | -0.9410 |   0 | 0.2544 | 0.8612 |
 
-### Log-verossimilhança do modelo beta ordinal com dispersão fixa
+### Ajuste de modelos com dispersão variável
 
-Esta função calcula a log-verossimilhança de um conjunto de dados para
-uma variável beta ordinal, aplicando diferentes funções de ligação.
-
-Neste bloco de código R, calculamos a log-verossimilhança de um modelo
-beta ordinal com dispersão constante utilizando a função
-`beta_ordinal_log_vero`. O processo é resumido abaixo:
-
-- Definir semente e criar um conjunto de dados de exemplo com 100
-  observações e duas variáveis explicativas independentes (x1 e x2),
-  geradas a partir de uma distribuição normal.
-
-- Definir os parâmetros do modelo, incluindo coeficientes de regressão,
-  parâmetro de dispersão e a fórmula da relação entre as variáveis.
-
-- Utilizar a função beta_ordinal_simula_dados para gerar dados simulados
-  com base nos parâmetros fornecidos.
-
-- Calcular a log-verossimilhança do modelo ajustado com os dados
-  simulados usando a função `beta_ordinal_log_vero`.
-
-Como resultado, obtemos a log-verossimilhança do modelo ajustado aos
-dados simulados, que é uma medida de quão bem o modelo se ajusta aos
-dados observados.
+- Exemplo do ajuste com optim direto para uma lista de links
 
 ``` r
-# Criar um conjunto de dados de exemplo
-set.seed(421)
-dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
-# Calcular a log-verossimilhança usando a função log_vero_beta_ordinal
-param <- c(0, 0.5,-0.2, 50)
-phi <- 30
-formula <- ~ x1 + x2
-dados_simulados <-
-  beta_ordinal_simula_dados(
-    formula = formula,
-    dados = dados,
-    betas = c(0, 0.5,-0.2),
-    phi = phi,
-    link = "logit",
-    ncuts = 10,
-    type = "m"
-  )
-log_verossimilhanca <-
-  beta_ordinal_log_vero(param, formula, dados_simulados)
-print(log_verossimilhanca)
-#> [1] -748.3398
+links <- c("logit", "probit", "cloglog")
+names(links) <- links
+
+fit_variavel <- purrr::map(links, .f = function(link){
+  betaroti(
+    formula = ~x1 + x2 + x3 | z1 + z2,
+    dados = dados_simulados,
+    link = link,
+    link_phi = "log",
+    num_hessiana = TRUE)
+})
 ```
 
-### Log-verossimilhança do modelo beta ordinal com dispersão variável
+- Resumo das estimativas e bondade
 
-Esta função calcula a log-verossimilhança de um conjunto de dados para
-uma variável beta ordinal, aplicando diferentes funções de ligação tanto
-no betas de mu como no zetas de phi.
-
-Neste bloco de código R, calculamos a log-verossimilhança de um modelo
-beta ordinal com dispersão variável utilizando a função
-`beta_ordinal_log_vero_z`. O processo é resumido abaixo:
-
-- Definir o tamanho da amostra e as fórmulas para as variáveis
-  explicativas x e z.
-
-- Criar um conjunto de dados de exemplo com 50 observações e quatro
-  variáveis independentes (x1, x2, z1 e z2), geradas a partir de
-  distribuições normal e uniforme.
-
-- Utilizar a função `beta_ordinal_simula_dados_z` para gerar dados
-  simulados com base nos parâmetros fornecidos, como fórmulas,
-  coeficientes de regressão e funções de ligação.
-
-- Calcular a log-verossimilhança do modelo ajustado com os dados
-  simulados usando a função `beta_ordinal_log_vero_z`.
-
-Como resultado, obtemos a log-verossimilhança do modelo ajustado aos
-dados simulados, que é uma medida de quão bem o modelo se ajusta aos
-dados observados no caso de um modelo beta ordinal com dispersão
-variável.
+- Estimativas do ajuste e Bondade
 
 ``` r
-# Criar um conjunto de dados de exemplo
-n <- 50
-fx <- ~ x1 + x2
-fz <- ~ z1
-
-dados <- data.frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  z1 = runif(n),
-  z2 = runif(n)
-)
-
-dados_simulados <- beta_ordinal_simula_dados_z(
-  formula_x = fx,
-  formula_z = fz,
-  dados = dados,
-  betas = c(0.2,-0.5, 0.3),
-  zetas = c(1, 1.2),
-  link_x = "logit",
-  link_z = "log",
-  ncuts = 100
-)
-# Calcular a log-verossimilhança usando a função log_vero_beta_ordinal
-log_verossimilhanca <- beta_ordinal_log_vero_z(
-  param = c(c(0.2,-0.5, 0.3), c(1, 1.2)),
-  formula_x = fx,
-  formula_z = fz,
-  dados = dados_simulados,
-  link_x = "logit",
-  link_z = "log",
-  acumulada = TRUE
-)
-print(log_verossimilhanca)
-#> [1] -212.9946
+resumo <- purrr::map(fit_variavel, function(fit){
+  summary(fit)
+})
 ```
 
-## Função para ajustar um modelo beta ordinal com dispersão fixa
+``` r
+purrr::map_df(resumo, function(res){
+  res$est
+  }, .id = "link") %>% 
+  knitr::kable(digits = 4, caption = "")  
+```
 
-A função `beta_ordinal_fit` realiza o ajuste de um modelo beta ordinal
-por meio da função `optim` do pacote stats, retornando uma lista
-contendo as informações essenciais do ajuste realizado.
-
-Neste bloco de código R, ajustamos um modelo beta ordinal a partir de um
-conjunto de dados simulados, utilizando as funções
-`beta_ordinal_simula_dados` e `beta_ordinal_fit`. O processo é resumido
-abaixo:
-
-- Definir semente, tamanho da amostra, coeficientes de regressão,
-  fórmula da relação entre as variáveis e parâmetro de dispersão.
-
-- Criar um conjunto de dados de exemplo com 100 observações e três
-  variáveis independentes (x1, x2 e x3), geradas a partir de
-  distribuições normal e binomial.
-
-- Utilizar a função beta_ordinal_simula_dados para gerar dados simulados
-  com base nos parâmetros fornecidos, como fórmula, coeficientes de
-  regressão e função de ligação.
-
-- Ajustar o modelo beta ordinal aos dados simulados utilizando a função
-  beta_ordinal_fit, especificando a fórmula, os dados, a função de
-  ligação e a opção de cálculo da matriz hessiana numérica.
-
-- Extrair os coeficientes estimados do ajuste do modelo usando a função
-  beta_ordinal_coef.
-
-Como resultado, obtemos os coeficientes estimados do modelo beta ordinal
-ajustado aos dados simulados, que podem ser utilizados para análise e
-interpretação das relações entre a variável resposta ordinal e as
-variáveis explicativas.
+| link    | variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
+|:--------|:-------------------|---------:|---------:|---------:|-------:|--------:|--------:|
+| logit   | (Intercept)        |   0.4605 |   0.2144 |   0.7066 | 0.1256 |  3.6671 |  0.0007 |
+| logit   | x1                 |  -0.5781 |  -0.8006 |  -0.3556 | 0.1135 | -5.0921 |  0.0000 |
+| logit   | x2                 |   0.0381 |  -0.1771 |   0.2534 | 0.1098 |  0.3474 |  0.7300 |
+| logit   | x3                 |  -0.1979 |  -0.5819 |   0.1861 | 0.1959 | -1.0100 |  0.3182 |
+| logit   | (phi)\_(Intercept) |  -0.3644 |  -1.4231 |   0.6943 | 0.5401 | -0.6746 |  0.5035 |
+| logit   | (phi)\_z1          |   2.4138 |   1.0331 |   3.7946 | 0.7045 |  3.4264 |  0.0014 |
+| logit   | (phi)\_z2          |   1.6194 |   0.0689 |   3.1699 | 0.7911 |  2.0471 |  0.0468 |
+| probit  | (Intercept)        |   0.2855 |   0.0368 |   0.5341 | 0.1269 |  2.2498 |  0.0296 |
+| probit  | x1                 |  -0.3536 |  -0.5645 |  -0.1428 | 0.1076 | -3.2875 |  0.0020 |
+| probit  | x2                 |   0.0221 |  -0.1824 |   0.2266 | 0.1043 |  0.2115 |  0.8335 |
+| probit  | x3                 |  -0.1245 |  -0.5011 |   0.2520 | 0.1921 | -0.6482 |  0.5203 |
+| probit  | (phi)\_(Intercept) |  -0.3717 |  -1.4069 |   0.6636 | 0.5282 | -0.7037 |  0.4854 |
+| probit  | (phi)\_z1          |   2.4348 |   1.1570 |   3.7125 | 0.6519 |  3.7348 |  0.0005 |
+| probit  | (phi)\_z2          |   1.6180 |   0.2073 |   3.0287 | 0.7198 |  2.2480 |  0.0298 |
+| cloglog | (Intercept)        |  -0.0760 |  -0.4926 |   0.3406 | 0.2126 | -0.3575 |  0.7225 |
+| cloglog | x1                 |  -0.3754 |  -0.5976 |  -0.1533 | 0.1134 | -3.3118 |  0.0019 |
+| cloglog | x2                 |   0.0233 |  -0.1792 |   0.2258 | 0.1033 |  0.2256 |  0.8225 |
+| cloglog | x3                 |  -0.1213 |  -0.5014 |   0.2588 | 0.1939 | -0.6255 |  0.5349 |
+| cloglog | (phi)\_(Intercept) |  -0.4400 |  -1.3810 |   0.5010 | 0.4801 | -0.9164 |  0.3646 |
+| cloglog | (phi)\_z1          |   2.5081 |   1.2985 |   3.7176 | 0.6171 |  4.0641 |  0.0002 |
+| cloglog | (phi)\_z2          |   1.7133 |   0.4721 |   2.9544 | 0.6333 |  2.7054 |  0.0097 |
 
 ``` r
-# Criar um conjunto de dados de exemplo
-set.seed(42)
-n <- 100
-betas <- c(0.2, 0.3,-0.4, 0.1)
-formula <- ~ x1 + x2 + x3
-phi <- 50
-
-dados <- data.frame(
-  x1 = rnorm(n, mean = 1, sd = 0.5),
-  x2 = rbinom(n, size = 1, prob = 0.5),
-  x3 = rnorm(n, mean = 2, sd = 1)
-)
-
-dados_simulados <- beta_ordinal_simula_dados(
-  formula = formula,
-  dados = dados,
-  betas = betas,
-  phi = phi,
-  link = "logit",
-  ncuts = 100
-)
-
-fit <- beta_ordinal_fit(
-  formula = formula,
-  dados = dados_simulados,
-  link = "probit",
-  num_hessiana = TRUE
-)
-coe <- beta_ordinal_coef(fit)
-
-coe$est %>% 
+purrr::map_df(resumo, function(res){
+  res$gof
+  }, .id = "link") %>% 
   knitr::kable(digits = 4, caption = "")
 ```
 
-| variable    | estimate | ci_lower | ci_upper |     se | t_value | p_value |
-|:------------|---------:|---------:|---------:|-------:|--------:|--------:|
-| (Intercept) |   0.1360 |   0.0249 |   0.2471 | 0.0567 |  2.3998 |  0.0184 |
-| x1          |   0.1891 |   0.1213 |   0.2569 | 0.0346 |  5.4645 |  0.0000 |
-| x2          |  -0.2819 |  -0.3545 |  -0.2093 | 0.0371 | -7.6075 |  0.0000 |
-| x3          |   0.0616 |   0.0232 |   0.1000 | 0.0196 |  3.1419 |  0.0022 |
-| (phi)       |  51.1206 |  36.7688 |  65.4725 | 7.3225 |  6.9813 |  0.0000 |
+| link    |   logLik |       AIC |       BIC |
+|:--------|---------:|----------:|----------:|
+| logit   | 205.0974 | -394.1949 | -378.8987 |
+| probit  | 205.0196 | -394.0392 | -378.7431 |
+| cloglog | 204.5744 | -393.1489 | -377.8527 |
+
+- Exemplo do ajuste com `bbmle` direto para uma lista de links
 
 ``` r
+require(bbmle, quietly = TRUE)
+links <- c("logit", "probit", "cloglog")
+names(links) <- links
 
-coe$gof %>% 
-  knitr::kable(digits = 4, caption = "")
+fit_variavel_bbmle <- purrr::map(links, .f = function(link){
+  betaroti_bbmle(
+    formula = ~x1 + x2 + x3 | z1,
+    dados = dados_simulados,
+    link = link,
+    link_phi = "sqrt",
+    num_hessiana = TRUE)
+})
 ```
 
-|   logLik |       AIC |       BIC |
-|---------:|----------:|----------:|
-| 330.5883 | -649.1766 | -633.5455 |
-
-## Função para ajustar um modelo beta ordinal com dispersão variável
-
-A função `beta_ordinal_fit_z` ajusta um modelo beta ordinal com
-dispersão variável, isto é, com um preditor para os betas e outro para o
-phi, onde covariáveis são aplicadas para explicar a dispersão. A função
-usa optim do pacote stats e retorna uma lista com as principais
-informações do ajuste.
+- Gráficos dos perfis de verossimilhaça
 
 ``` r
-n <- 50
-fx <- ~ x1 + x2
-fz <- ~ z1
-
-dados <- data.frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  z1 = runif(n),
-  z2 = runif(n)
-)
-
-dados_simulados <- beta_ordinal_simula_dados_z(
-  formula_x = fx,
-  formula_z = fz,
-  dados = dados,
-  betas = c(0.2,-0.5, 0.3),
-  zetas = c(1, 1.2),
-  link_x = "logit",
-  link_z = "log",
-  ncuts = 100
-)
-fit_z <- beta_ordinal_fit_z(
-  formula_x = fx,
-  formula_z = fz,
-  dados = dados_simulados,
-  link_x = "logit",
-  link_z = "log",
-  num_hessiana = TRUE
-)
-coe <- beta_ordinal_coef(fit_z)
-
-coe$est %>% 
-  knitr::kable(digits = 4, caption = "")
+fit_variavel_profiles <- purrr::map(fit_variavel_bbmle, profile)
+purrr::walk(names(fit_variavel_profiles), function(p){
+  cat("\n+", p, "\n")
+  plot(fit_variavel_profiles[[p]])
+})
 ```
 
-| variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
-|:-------------------|---------:|---------:|---------:|-------:|--------:|--------:|
-| (Intercept)        |   0.1225 |  -0.1384 |   0.3833 | 0.1331 |  0.9203 |  0.3623 |
-| x1                 |  -0.3995 |  -0.6869 |  -0.1121 | 0.1466 | -2.7247 |  0.0091 |
-| x2                 |   0.3626 |   0.0953 |   0.6299 | 0.1364 |  2.6591 |  0.0108 |
-| (phi)\_(Intercept) |   0.5855 |  -0.2018 |   1.3728 | 0.4017 |  1.4576 |  0.1519 |
-| (phi)\_z1          |   1.3097 |  -0.0996 |   2.7189 | 0.7190 |  1.8214 |  0.0752 |
-
-``` r
-
-coe$gof %>% 
-  knitr::kable(digits = 4, caption = "")
-```
-
-|   logLik |       AIC |       BIC |
-|---------:|----------:|----------:|
-| 222.5784 | -433.1567 | -421.6846 |
-
-### Coleta estatística do ajuste
-
-Coleta as estimativas e suas estatísticas para um objeto de ajuste do
-modelo beta ordinal com censura intervalar. Coleta também as
-estatísticas de bondade do ajuste como a log-verossimilhança, o AIC e o
-BIC do modelo tanto para o modelo de dispersão fixa como aquele com
-dispersão variável.
-
-``` r
-n <- 50
-fx <- ~ x1 + x2
-fz <- ~ z1
-
-dados <- data.frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  z1 = runif(n),
-  z2 = runif(n)
-)
-
-dados_simulados <- beta_ordinal_simula_dados_z(
-  formula_x = fx,
-  formula_z = fz,
-  dados = dados,
-  betas = c(0.2,-0.5, 0.3),
-  zetas = c(1, 1.2),
-  link_x = "logit",
-  link_z = "log",
-  ncuts = 100
-)
-fit_z <- beta_ordinal_fit_z(
-  formula_x = fx,
-  formula_z = fz,
-  dados = dados_simulados,
-  link_x = "logit",
-  link_z = "log",
-  num_hessiana = TRUE
-)
-coe <- beta_ordinal_coef(fit_z)
-
-coe$est %>% 
-  knitr::kable(digits = 4, caption = "")
-```
-
-| variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
-|:-------------------|---------:|---------:|---------:|-------:|--------:|--------:|
-| (Intercept)        |   0.2752 |   0.0765 |   0.4738 | 0.1013 |  2.7154 |  0.0094 |
-| x1                 |  -0.5384 |  -0.7388 |  -0.3380 | 0.1023 | -5.2649 |  0.0000 |
-| x2                 |   0.4141 |   0.2219 |   0.6064 | 0.0981 |  4.2227 |  0.0001 |
-| (phi)\_(Intercept) |   1.6446 |   0.8457 |   2.4436 | 0.4076 |  4.0346 |  0.0002 |
-| (phi)\_z1          |   0.7760 |  -0.5975 |   2.1495 | 0.7008 |  1.1074 |  0.2740 |
-
-``` r
-
-coe$gof %>% 
-  knitr::kable(digits = 4, caption = "")
-```
-
-|  logLik |       AIC |       BIC |
-|--------:|----------:|----------:|
-| 205.461 | -398.9221 | -387.4499 |
+- logit
+  <img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+- probit
+  <img src="man/figures/README-unnamed-chunk-17-2.png" width="100%" />
+- cloglog
+  <img src="man/figures/README-unnamed-chunk-17-3.png" width="100%" />
 
 ## On going!
