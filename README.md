@@ -387,7 +387,8 @@ coef(fit_fixo$logit)
 ## Matriz de covariâncias
 vcov(fit_fixo$logit)
 
-## Resíduo dos valores preditos em relação ao ponto médio do intervalo de y, isto é (left + right) / 2
+## Resíduo dos valores preditos em relação ao ponto médio do intervalo de y, 
+## isto é (left + right) / 2
 resid(fit_fixo$logit)
 
 ## Valores preditos
@@ -397,4 +398,8 @@ fitted(fit_fixo$logit)
 print(fit_fixo$logit)
 ```
 
-## On going!
+------------------------------------------------------------------------
+
+## Work in progress …
+
+![](https://media4.giphy.com/media/LHZyixOnHwDDy/giphy.gif)
