@@ -1,10 +1,10 @@
-Package: betaroti
+Package: betaregesc
 Type: Package
-Title: Regressão beta para dados com resposta ordinal transformada intervalar
+Title: Regressão beta para dados de escala
 Version: 1.0.2
 Author: Lopes, J. E.
 Maintainer: Lopes, J. E. <evandeilton@gmail.com>
-Description: Pacote para o programa de mestrado do PPGMNE. O Objetivo é fazer ajuste do modelo regressão beta para dados com resposta ordinal transformada intervalar, objeto da dissertação de mestrado.
+Description: Pacote para o programa de mestrado do PPGMNE. O Objetivo é fazer ajuste do modelo regressão beta para dados com resposta oriunda escalas intervalares, objeto da dissertação de mestrado.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -16,4 +16,4 @@ Imports:
     numDeriv,
     methods
 RoxygenNote: 7.2.3
-URL: https://evandeilton.github.io/betaroti/
+URL: https://evandeilton.github.io/betaregesc/
