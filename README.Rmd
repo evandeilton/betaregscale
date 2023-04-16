@@ -20,13 +20,13 @@ knitr::opts_chunk$set(
 [![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-O pacote `betaregesc` oferece uma biblioteca de funções em R para ajuste de modelos de regressão beta em dados ordinais transformados intervalares, com dispersão fixa ou variável. Possibilita simulações para avaliação do desempenho dos modelos no processo de estimação. O código-fonte e contribuições podem ser acessados no repositório oficial do GitHub. Informações detalhadas sobre instalação e uso estão disponíveis na documentação do pacote.
+O pacote `betaregesc` oferece uma biblioteca de funções em R para ajuste de modelos de regressão beta para dados oriundos de escalas mapeáveis no suporte da distribuição beta, como por exemplo Escaldas de dor, Likert entre outras, do modo que a incertea do instrumento é avaliada de forma intervalar. O _framework_ aqui suporta modelos com dispersão fixa ou variável, tudo no paradigma de máxima verossimilhança. São oferecidas ainda, funções para simulações e avaliação do desempenho dos modelos no processo de estimação e outras para akjuste do modelo a dados reais. O código-fonte e contribuições podem ser acessados no repositório oficial do GitHub. Informações detalhadas sobre instalação e uso estão disponíveis na documentação do pacote.
 
-O `betaregesc` é voltado para modelagem de dados com variável resposta ordinal numérica transformável em intervalo contínuo (e.g., $y = (y_s;y_i)$), abrangendo censura à esquerda, direita ou intervalar. Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de dor, e avaliações de compostos químicos, entre outros. Utilizando a distribuição beta, acomoda características dos dados em estrutura de regressão, associando variáveis explicativas à variável resposta intervalar e permitindo preditores lineares para coeficientes relacionados à média e dispersão, fornecendo estimativas robustas e confiáveis dos parâmetros do modelo.
+O `betaregesc` é voltado para modelagem de dados com variável resposta mapeável em intervalo contínuo, e.g., $y = (y_s;y_i)$, abrangendo censura à esquerda, direita ou intervalar independente do tempo. Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de dor no estilo NRS-11, NRS-21 e NRS-101, avaliações de compostos químicos, entre outros. Utilizando a distribuição beta, acomoda características dos dados em estrutura de regressão, associando variáveis explicativas à variável resposta intervalar e permitindo preditores lineares para coeficientes relacionados à média e dispersão, fornecendo estimativas robustas e confiáveis dos parâmetros do modelo.
 
 ## Principais funcionalidades
 
-O pacote `betaregesc` oferece uma série de funções úteis para lidar com modelos de regressão beta e dados com resposta ordinal transformada intervalar, abrangendo cenários com dispersão fixa e variável. As principais funcionalidades incluem:
+Entre as principais funcionalidades ten-se:
 
 + Ajuste de modelos de regressão beta com dispersão fixa e variável.
 + Funções para simulação de dados, permitindo a avaliação do desempenho dos modelos em diferentes cenários.
@@ -34,7 +34,7 @@ O pacote `betaregesc` oferece uma série de funções úteis para lidar com mode
 + Funções genéricas como `coef`, `vcov`, `fitted`, `residuals`, `summary` e `print` foram implementadas para a classe `betaregesc` para facilitar o acesso às medidas do ajuste.
 + Funções para ajuste e comparação de modelos com diferentes combinações de variáveis explicativas tanto para $\mu$ como $\phi$.
 
-Acesse a documentação detalhada de cada função e exemplos de uso neste site para obter informações sobre como utilizar o pacote `betaregesc` em suas análises.
+> Acesse a documentação detalhada de cada função e exemplos de uso neste site para obter informações sobre como utilizar o pacote `betaregesc` em suas análises.
 
 ## Instalação
 
@@ -56,11 +56,11 @@ require(betaregesc, quietly = TRUE)
 
 Esses são alguns exemplos de uso das funções do pacote.
 
-### Simula dados do modelo beta ordinal com dispersão fixa
+### Simula dados do modelo beta intervalar com dispersão fixa
 
-Esta função gera amostras de variável beta ordinal com dispersão fixa usando várias funções de ligação.
+Esta função gera amostras de variável beta com dispersão fixa usando várias funções de ligação.
 
-No exemplo a seguir em código R, demonstramos como usar a função beta_ordinal_simula_dados para simular dados de variável beta ordinal com dispersão fixa:
+No exemplo a seguir em código R, demonstramos como usar a função `betaregesc_simula_dados` para simular dados de variável beta com dispersão fixa:
 
 + Criamos um conjunto de dados com 100 observações e duas variáveis explicativas independentes (x1 e x2) a partir de uma distribuição normal.
 + Utilizamos a função beta_ordinal_simula_dados para simular dados com parâmetros personalizados fornecidos.
@@ -155,15 +155,15 @@ purrr::walk(names(fit_fixo_profiles), function(p){
 ```
 
 
-### Simula dados provenientes de um modelo beta ordinal com dispersão variável.
+### Simula dados do modelo beta intervalar com dispersão variável
 
-Neste bloco de código R, é criado um conjunto de dados simulados de um modelo beta ordinal com dispersão variável utilizando a função `beta_ordinal_simula_dados_z.` O processo é resumido abaixo:
+Neste bloco de código R, é criado um conjunto de dados simulados de um modelo beta com dispersão variável utilizando a função `betaregesc_simula_dados_z.` O processo é resumido abaixo:
 
 + Definir semente e tamanho da amostra, além das fórmulas para as variáveis explicativas x e z.
 
 + Criar um conjunto de dados de exemplo com 50 observações e quatro variáveis independentes (x1, x2, z1 e z2), geradas a partir de distribuições normal e uniforme.
 
-+ Utilizar a função `beta_ordinal_simula_dados_z` para gerar dados simulados com base nos parâmetros fornecidos, como fórmulas, coeficientes de regressão, funções de ligação e número de pontos de corte.
++ Utilizar a função `betaregesc_simula_dados_z` para gerar dados simulados com base nos parâmetros fornecidos, como fórmulas, coeficientes de regressão, funções de ligação e número de pontos de corte.
 
 ```{r}
 # Criar um conjunto de dados de exemplo
@@ -266,10 +266,7 @@ purrr::walk(names(fit_variavel_profiles), function(p){
 })
 ```
 
-
-
 ### Outras funções genéricas
-
 
 ```{r, eval=FALSE}
 ## Resumo das estimativas e bondades
