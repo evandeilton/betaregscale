@@ -16,7 +16,7 @@
     <loc>https://evandeilton.github.io/betaroti/index.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/AIC.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/AIC.betaregesc.html</loc>
   </url>
   <url>
     <loc>https://evandeilton.github.io/betaroti/reference/BIC.html</loc>
@@ -25,43 +25,46 @@
     <loc>https://evandeilton.github.io/betaroti/reference/Variaveis.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_coef.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_fit.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_bbmle.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_fit_z.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_coef.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_log_vero.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_fit.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_log_vero_z.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_fit_z.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_simula_dados.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_log_vero.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/beta_ordinal_simula_dados_z.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_log_vero_z.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_simula_dados.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/betaroti_bbmle.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/betaregesc_simula_dados_z.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/cls-betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/cls-betaregesc.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/coef.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/coef.betaregesc.html</loc>
   </url>
   <url>
     <loc>https://evandeilton.github.io/betaroti/reference/est.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/fitted.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/fitted.betaregesc.html</loc>
+  </url>
+  <url>
+    <loc>https://evandeilton.github.io/betaroti/reference/fn_check_response.html</loc>
   </url>
   <url>
     <loc>https://evandeilton.github.io/betaroti/reference/fn_switch_link.html</loc>
@@ -76,24 +79,24 @@
     <loc>https://evandeilton.github.io/betaroti/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/logLik.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/logLik.betaregesc.html</loc>
   </url>
   <url>
     <loc>https://evandeilton.github.io/betaroti/reference/pipe.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/predict.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/predict.betaregesc.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/print.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/print.betaregesc.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/residuals.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/residuals.betaregesc.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/summary.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/summary.betaregesc.html</loc>
   </url>
   <url>
-    <loc>https://evandeilton.github.io/betaroti/reference/vcov.betaroti.html</loc>
+    <loc>https://evandeilton.github.io/betaroti/reference/vcov.betaregesc.html</loc>
   </url>
 </urlset>
