@@ -8,7 +8,7 @@
 [![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-O pacote `betaroti` oferece uma biblioteca de funções em R para ajuste
+O pacote `betaregesc` oferece uma biblioteca de funções em R para ajuste
 de modelos de regressão beta em dados ordinais transformados
 intervalares, com dispersão fixa ou variável. Possibilita simulações
 para avaliação do desempenho dos modelos no processo de estimação. O
@@ -16,7 +16,7 @@ código-fonte e contribuições podem ser acessados no repositório oficial
 do GitHub. Informações detalhadas sobre instalação e uso estão
 disponíveis na documentação do pacote.
 
-O “betaroti” é voltado para modelagem de dados com variável resposta
+O `betaregesc` é voltado para modelagem de dados com variável resposta
 ordinal numérica transformável em intervalo contínuo (e.g.,
 $y = (y_s;y_i)$), abrangendo censura à esquerda, direita ou intervalar.
 Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de
@@ -29,7 +29,7 @@ confiáveis dos parâmetros do modelo.
 
 ## Principais funcionalidades
 
-O pacote `betaroti` oferece uma série de funções úteis para lidar com
+O pacote `betaregesc` oferece uma série de funções úteis para lidar com
 modelos de regressão beta e dados com resposta ordinal transformada
 intervalar, abrangendo cenários com dispersão fixa e variável. As
 principais funcionalidades incluem:
@@ -40,13 +40,13 @@ principais funcionalidades incluem:
 - Estatística de bondade do ajuste como AIC e BIC, por exemplo em
   `gof()`.
 - Funções genéricas como `coef`, `vcov`, `fitted`, `residuals`,
-  `summary` e `print` foram implementadas para a classe `betaroti` para
-  facilitar o acesso às medidas do ajuste.
+  `summary` e `print` foram implementadas para a classe `betaregesc`
+  para facilitar o acesso às medidas do ajuste.
 - Funções para ajuste e comparação de modelos com diferentes combinações
   de variáveis explicativas tanto para $\mu$ como $\phi$.
 
 Acesse a documentação detalhada de cada função e exemplos de uso neste
-site para obter informações sobre como utilizar o pacote “betaroti” em
+site para obter informações sobre como utilizar o pacote `betaregesc` em
 suas análises.
 
 ## Instalação
