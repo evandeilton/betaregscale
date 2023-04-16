@@ -1475,21 +1475,18 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
   formula <- Formula::as.Formula(formula)
   
   if(length(formula)[2L] < 2L) {
-    formula <- Formula::as.Formula(formula(formula), ~ 1)
-    fx <- formula(terms(formula, rhs = 1L))
-    
-    mf <- model.frame(fx, data = dados)
+    mf <- model.frame(formula, data = dados)
     mtX <- terms(formula, data = dados, rhs = 1L)
     Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
+    X <- model.matrix(mtX, mf)
     
-    fb <- betareg::betareg(formula = formula(paste0("yt ~ ", paste0(fx)[2])), 
+    fb <- betareg::betareg(formula = formula(paste0("yt ~ ", paste0(formula)[3])), 
                            data = data.frame(Y, X[,-1, drop = FALSE]), link = "logit")
     ini <- coef(fb)
-    ll <- function(param, formula, dados, link, link_phi, acumulada){
+    ll <- function(param, formula, dados, link, link_phi, acumulada, ncuts, type, lim){
       -betaregesc::betaregesc_log_vero(
-        param = param, formula = formula, dados = dados,
-        link = link, link_phi = link_phi, 
-        acumulada = acumulada
+        param = param, formula = formula, dados = dados, link = link, link_phi = link_phi,
+        ncuts = ncuts, type = type, lim = lim, acumulada = acumulada
       )
     }
     bbmle::parnames(ll) <- names(ini)
@@ -1505,10 +1502,6 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
                                    acumulada = acumulada),
                        start = as.list(ini))
   } else {
-    if(length(formula)[2L] > 2L) {
-      formula <- Formula::Formula(formula(formula, rhs = 1:2))
-    }
-
     mf <- model.frame(formula, data = dados)
     mtX <- terms(formula, data = dados, rhs = 1L)
     mtZ <- delete.response(terms(formula, data = dados, rhs = 2L))
@@ -1517,14 +1510,15 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
     X <- model.matrix(mtX, mf)
     Z <- model.matrix(mtZ, mf)
 
-    fb <- betareg::betareg(formula = formula(paste0("yt ~ ", paste0(formula)[3])),
+    fb <- betareg::betareg(formula = as.formula(paste0("yt ~ ", paste0(formula)[3])),
                            data = data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE]),
                            link = "logit")
     ini <- coef(fb)
-    ll2 <- function(param, dados, formula_x, formula_z, link_x, link_z, acumulada){
+    ll2 <- function(param, dados, formula, link, link_phi, acumulada, ncuts, type, lim){
       -betaregesc::betaregesc_log_vero_z(
         param = param, formula = formula, 
         dados = dados, link = link, link_phi = link_phi, 
+        ncuts = ncuts, type = type, lim = lim,
         acumulada = acumulada
       )
     }
@@ -1534,10 +1528,9 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
                        optimizer = optimizer,
                        data = list(hessian=TRUE,
                                    dados = dados,
-                                   formula_x = fx,
-                                   formula_z = fz,
-                                   link_x = link,
-                                   link_z = link_phi,
+                                   formula = formula,
+                                   link = link,
+                                   link_phi = link_phi,
                                    ncuts = ncuts, type = type, lim = lim,
                                    acumulada = acumulada),
                        start = as.list(ini))
