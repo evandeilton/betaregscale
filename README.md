@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# betaroti
+# betaregesc
 
 <!-- badges: start -->
 
@@ -54,10 +54,10 @@ suas análises.
 Você pode instalar o pacote com esse comando abaixo.
 
 ``` r
-if(!require(betaroti)){
-  devtools::install_github("evandeilton/betaroti")  
+if(!require(betaregesc)){
+  devtools::install_github("evandeilton/betaregesc")  
 }
-require(betaroti, quietly = TRUE)
+require(betaregesc, quietly = TRUE)
 ```
 
 ## Exemplos
@@ -87,13 +87,13 @@ com dispersão fixa:
 
 ``` r
 # Criar um conjunto de dados de exemplo
-set.seed(42)
+set.seed(4255)
 dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
 
-dados_simulados <- beta_ordinal_simula_dados(
+dados_simulados <- betaregesc_simula_dados(
   formula = ~ x1 + x2,
   dados = dados,
-  betas = c(1, -0.3, 0.4),
+  betas = c(0.3, -0.6, 0.4),
   phi = 30,
   link = "probit",
   ncuts = 100,
@@ -104,14 +104,14 @@ dados_simulados %>%
   knitr::kable(digits = 4, caption = "")
 ```
 
-|      y |  yr |  left | right |      x1 |      x2 |
-|-------:|----:|------:|------:|--------:|--------:|
-| 0.9623 |  96 | 0.955 | 0.965 |  1.3710 |  1.2010 |
-| 0.9221 |  92 | 0.915 | 0.925 | -0.5647 |  1.0448 |
-| 0.5581 |  56 | 0.555 | 0.565 |  0.3631 | -1.0032 |
-| 0.9856 |  99 | 0.985 | 0.995 |  0.6329 |  1.8485 |
-| 0.8270 |  83 | 0.825 | 0.835 |  0.4043 | -0.6668 |
-| 0.9044 |  90 | 0.895 | 0.905 | -0.1061 |  0.1055 |
+|  left | right |   yt |   y |      x1 |      x2 |
+|------:|------:|-----:|----:|--------:|--------:|
+| 0.215 | 0.225 | 0.22 |  22 |  1.9510 |  0.6403 |
+| 0.385 | 0.395 | 0.39 |  39 |  0.7725 | -0.2677 |
+| 0.495 | 0.505 | 0.50 |  50 |  0.7264 |  0.0222 |
+| 0.595 | 0.605 | 0.60 |  60 |  0.0487 |  0.0113 |
+| 0.815 | 0.825 | 0.82 |  82 | -0.5445 |  0.3109 |
+| 0.595 | 0.605 | 0.60 |  60 |  0.3600 |  0.4195 |
 
 ### Ajuste de modelos com dispersão fixa
 
@@ -122,11 +122,11 @@ links <- c("logit", "probit", "cloglog")
 names(links) <- links
 
 fit_fixo <- purrr::map(links, .f = function(link){
-  betaroti(
-    formula = ~x1 + x2,
+  betaregesc(
+    formula = y ~ x1 + x2,
     dados = dados_simulados,
     link = link,
-    link_phi = "identity",
+    link_phi = "sqrt",
     num_hessiana = TRUE)
 })
 ```
@@ -148,20 +148,20 @@ purrr::map_df(resumo, function(res){
   knitr::kable(digits = 4, caption = "")  
 ```
 
-| link    | variable    | estimate | ci_lower | ci_upper |     se |  t_value | p_value |
-|:--------|:------------|---------:|---------:|---------:|-------:|---------:|--------:|
-| logit   | (Intercept) |   1.7168 |   1.6138 |   1.8199 | 0.0526 |  32.6556 |       0 |
-| logit   | x1          |  -0.5225 |  -0.6149 |  -0.4302 | 0.0471 | -11.0865 |       0 |
-| logit   | x2          |   0.7326 |   0.6262 |   0.8390 | 0.0543 |  13.4911 |       0 |
-| logit   | (phi)       |  32.9500 |  23.5197 |  42.3804 | 4.8115 |   6.8482 |       0 |
-| probit  | (Intercept) |   1.0091 |   0.9552 |   1.0630 | 0.0275 |  36.7154 |       0 |
-| probit  | x1          |  -0.2893 |  -0.3395 |  -0.2391 | 0.0256 | -11.2963 |       0 |
-| probit  | x2          |   0.4088 |   0.3512 |   0.4664 | 0.0294 |  13.9075 |       0 |
-| probit  | (phi)       |  34.1445 |  24.3752 |  43.9138 | 4.9844 |   6.8502 |       0 |
-| cloglog | (Intercept) |   0.5935 |   0.5500 |   0.6371 | 0.0222 |  26.7189 |       0 |
-| cloglog | x1          |  -0.2367 |  -0.2786 |  -0.1947 | 0.0214 | -11.0477 |       0 |
-| cloglog | x2          |   0.3384 |   0.2903 |   0.3865 | 0.0245 |  13.7909 |       0 |
-| cloglog | (phi)       |  34.3315 |  24.3100 |  44.3529 | 5.1131 |   6.7144 |       0 |
+| link    | variable           | estimate | ci_lower | ci_upper |     se |  t_value | p_value |
+|:--------|:-------------------|---------:|---------:|---------:|-------:|---------:|--------:|
+| logit   | (Intercept)        |   0.4695 |   0.3906 |   0.5484 | 0.0403 |  11.6636 |       0 |
+| logit   | x1                 |  -0.9485 |  -1.0447 |  -0.8522 | 0.0491 | -19.3154 |       0 |
+| logit   | x2                 |   0.6897 |   0.6101 |   0.7692 | 0.0406 |  16.9906 |       0 |
+| logit   | (phi)\_(Intercept) |   5.6981 |   4.9004 |   6.4958 | 0.4070 |  14.0000 |       0 |
+| probit  | (Intercept)        |   0.2812 |   0.2341 |   0.3283 | 0.0240 |  11.7041 |       0 |
+| probit  | x1                 |  -0.5695 |  -0.6256 |  -0.5134 | 0.0286 | -19.8981 |       0 |
+| probit  | x2                 |   0.4116 |   0.3656 |   0.4577 | 0.0235 |  17.5212 |       0 |
+| probit  | (phi)\_(Intercept) |   5.6762 |   4.8761 |   6.4764 | 0.4083 |  13.9033 |       0 |
+| cloglog | (Intercept)        |  -0.1180 |  -0.1699 |  -0.0661 | 0.0265 |  -4.4557 |       0 |
+| cloglog | x1                 |  -0.5929 |  -0.6545 |  -0.5314 | 0.0314 | -18.8795 |       0 |
+| cloglog | x2                 |   0.4243 |   0.3736 |   0.4750 | 0.0259 |  16.4066 |       0 |
+| cloglog | (phi)\_(Intercept) |   5.4515 |   4.6605 |   6.2424 | 0.4036 |  13.5084 |       0 |
 
 ``` r
 purrr::map_df(resumo, function(res){
@@ -172,9 +172,9 @@ purrr::map_df(resumo, function(res){
 
 | link    |   logLik |       AIC |       BIC |
 |:--------|---------:|----------:|----------:|
-| logit   | 322.0392 | -634.0784 | -621.0526 |
-| probit  | 321.3533 | -632.7067 | -619.6808 |
-| cloglog | 322.9948 | -635.9895 | -622.9637 |
+| logit   | 341.1732 | -672.3465 | -659.3206 |
+| probit  | 341.9841 | -673.9683 | -660.9424 |
+| cloglog | 347.7286 | -685.4573 | -672.4314 |
 
 - Exemplo do ajuste com `bbmle` direto para uma lista de links
 
@@ -184,11 +184,11 @@ links <- c("logit", "probit", "cloglog")
 names(links) <- links
 
 fit_fixo_bbmle <- purrr::map(links, .f = function(link){
-  betaroti_bbmle(
-    formula = ~x1 + x2,
+  betaregesc_bbmle(
+    formula = y ~ x1 + x2,
     dados = dados_simulados,
     link = link,
-    link_phi = "identity",
+    link_phi = "sqrt",
     num_hessiana = TRUE)
 })
 ```
@@ -243,14 +243,14 @@ dados <- data.frame(
   z2 = runif(n)
 )
 
-dados_simulados <- beta_ordinal_simula_dados_z(
+dados_simulados <- betaregesc_simula_dados_z(
   formula_x = fx,
   formula_z = fz,
   dados = dados,
   betas = c(0.2, -0.6, 0.2, 0.2),
   zetas = c(0.5, 1, 2),
-  link_x = "logit",
-  link_z = "sqrt",
+  link = "logit",
+  link_phi = "sqrt",
   ncuts = 100,
   type = "m"
 )
@@ -260,14 +260,14 @@ dados_simulados %>%
   knitr::kable(digits = 4, caption = "")
 ```
 
-|      y |  yr |  left | right |      x1 |      x2 |  x3 |     z1 |     z2 |
-|-------:|----:|------:|------:|--------:|--------:|----:|-------:|-------:|
-| 0.7458 |  75 | 0.745 | 0.755 | -0.3381 | -0.5606 |   0 | 0.9154 | 0.6295 |
-| 0.5467 |  55 | 0.545 | 0.555 |  0.9392 | -0.4519 |   1 | 0.3437 | 0.3239 |
-| 0.1459 |  15 | 0.145 | 0.155 |  1.7377 |  0.5993 |   1 | 0.5909 | 0.1956 |
-| 0.4424 |  44 | 0.435 | 0.445 |  0.6963 | -0.4836 |   0 | 0.7916 | 0.7053 |
-| 0.2753 |  28 | 0.275 | 0.285 |  0.4623 | -0.7956 |   1 | 0.9538 | 0.5312 |
-| 0.4916 |  49 | 0.485 | 0.495 | -0.3151 | -0.9410 |   0 | 0.2544 | 0.8612 |
+|  left | right |   yt |   y |      x1 |      x2 |  x3 |     z1 |     z2 |
+|------:|------:|-----:|----:|--------:|--------:|----:|-------:|-------:|
+| 0.745 | 0.755 | 0.75 |  75 | -0.3381 | -0.5606 |   0 | 0.9154 | 0.6295 |
+| 0.545 | 0.555 | 0.55 |  55 |  0.9392 | -0.4519 |   1 | 0.3437 | 0.3239 |
+| 0.145 | 0.155 | 0.15 |  15 |  1.7377 |  0.5993 |   1 | 0.5909 | 0.1956 |
+| 0.435 | 0.445 | 0.44 |  44 |  0.6963 | -0.4836 |   0 | 0.7916 | 0.7053 |
+| 0.275 | 0.285 | 0.28 |  28 |  0.4623 | -0.7956 |   1 | 0.9538 | 0.5312 |
+| 0.485 | 0.495 | 0.49 |  49 | -0.3151 | -0.9410 |   0 | 0.2544 | 0.8612 |
 
 ### Ajuste de modelos com dispersão variável
 
@@ -278,8 +278,8 @@ links <- c("logit", "probit", "cloglog")
 names(links) <- links
 
 fit_variavel <- purrr::map(links, .f = function(link){
-  betaroti(
-    formula = ~x1 + x2 + x3 | z1 + z2,
+  betaregesc(
+    formula = y ~x1 + x2 + x3 | z1 + z2,
     dados = dados_simulados,
     link = link,
     link_phi = "log",
@@ -306,27 +306,27 @@ purrr::map_df(resumo, function(res){
 
 | link    | variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
 |:--------|:-------------------|---------:|---------:|---------:|-------:|--------:|--------:|
-| logit   | (Intercept)        |   0.4605 |   0.2144 |   0.7066 | 0.1256 |  3.6671 |  0.0007 |
+| logit   | (Intercept)        |   0.4605 |   0.2144 |   0.7066 | 0.1256 |  3.6673 |  0.0007 |
 | logit   | x1                 |  -0.5781 |  -0.8006 |  -0.3556 | 0.1135 | -5.0921 |  0.0000 |
 | logit   | x2                 |   0.0381 |  -0.1771 |   0.2534 | 0.1098 |  0.3474 |  0.7300 |
-| logit   | x3                 |  -0.1979 |  -0.5819 |   0.1861 | 0.1959 | -1.0100 |  0.3182 |
-| logit   | (phi)\_(Intercept) |  -0.3644 |  -1.4231 |   0.6943 | 0.5401 | -0.6746 |  0.5035 |
-| logit   | (phi)\_z1          |   2.4138 |   1.0331 |   3.7946 | 0.7045 |  3.4264 |  0.0014 |
-| logit   | (phi)\_z2          |   1.6194 |   0.0689 |   3.1699 | 0.7911 |  2.0471 |  0.0468 |
-| probit  | (Intercept)        |   0.2855 |   0.0368 |   0.5341 | 0.1269 |  2.2498 |  0.0296 |
-| probit  | x1                 |  -0.3536 |  -0.5645 |  -0.1428 | 0.1076 | -3.2875 |  0.0020 |
-| probit  | x2                 |   0.0221 |  -0.1824 |   0.2266 | 0.1043 |  0.2115 |  0.8335 |
-| probit  | x3                 |  -0.1245 |  -0.5011 |   0.2520 | 0.1921 | -0.6482 |  0.5203 |
-| probit  | (phi)\_(Intercept) |  -0.3717 |  -1.4069 |   0.6636 | 0.5282 | -0.7037 |  0.4854 |
-| probit  | (phi)\_z1          |   2.4348 |   1.1570 |   3.7125 | 0.6519 |  3.7348 |  0.0005 |
-| probit  | (phi)\_z2          |   1.6180 |   0.2073 |   3.0287 | 0.7198 |  2.2480 |  0.0298 |
-| cloglog | (Intercept)        |  -0.0760 |  -0.4926 |   0.3406 | 0.2126 | -0.3575 |  0.7225 |
-| cloglog | x1                 |  -0.3754 |  -0.5976 |  -0.1533 | 0.1134 | -3.3118 |  0.0019 |
-| cloglog | x2                 |   0.0233 |  -0.1792 |   0.2258 | 0.1033 |  0.2256 |  0.8225 |
-| cloglog | x3                 |  -0.1213 |  -0.5014 |   0.2588 | 0.1939 | -0.6255 |  0.5349 |
-| cloglog | (phi)\_(Intercept) |  -0.4400 |  -1.3810 |   0.5010 | 0.4801 | -0.9164 |  0.3646 |
-| cloglog | (phi)\_z1          |   2.5081 |   1.2985 |   3.7176 | 0.6171 |  4.0641 |  0.0002 |
-| cloglog | (phi)\_z2          |   1.7133 |   0.4721 |   2.9544 | 0.6333 |  2.7054 |  0.0097 |
+| logit   | x3                 |  -0.1979 |  -0.5819 |   0.1861 | 0.1959 | -1.0102 |  0.3181 |
+| logit   | (phi)\_(Intercept) |  -0.3645 |  -1.4231 |   0.6942 | 0.5402 | -0.6747 |  0.5034 |
+| logit   | (phi)\_z1          |   2.4141 |   1.0334 |   3.7949 | 0.7045 |  3.4269 |  0.0014 |
+| logit   | (phi)\_z2          |   1.6193 |   0.0688 |   3.1697 | 0.7911 |  2.0469 |  0.0468 |
+| probit  | (Intercept)        |   0.2855 |   0.1353 |   0.4356 | 0.0766 |  3.7261 |  0.0006 |
+| probit  | x1                 |  -0.3536 |  -0.4846 |  -0.2226 | 0.0668 | -5.2915 |  0.0000 |
+| probit  | x2                 |   0.0221 |  -0.1094 |   0.1535 | 0.0671 |  0.3291 |  0.7437 |
+| probit  | x3                 |  -0.1245 |  -0.3609 |   0.1118 | 0.1206 | -1.0325 |  0.3076 |
+| probit  | (phi)\_(Intercept) |  -0.3716 |  -1.4281 |   0.6848 | 0.5390 | -0.6894 |  0.4942 |
+| probit  | (phi)\_z1          |   2.4347 |   1.0525 |   3.8170 | 0.7052 |  3.4524 |  0.0013 |
+| probit  | (phi)\_z2          |   1.6180 |   0.0698 |   3.1661 | 0.7899 |  2.0484 |  0.0467 |
+| cloglog | (Intercept)        |  -0.0760 |  -0.2299 |   0.0779 | 0.0785 | -0.9680 |  0.3385 |
+| cloglog | x1                 |  -0.3754 |  -0.5074 |  -0.2435 | 0.0673 | -5.5783 |  0.0000 |
+| cloglog | x2                 |   0.0233 |  -0.1090 |   0.1557 | 0.0675 |  0.3452 |  0.7316 |
+| cloglog | x3                 |  -0.1213 |  -0.3722 |   0.1296 | 0.1280 | -0.9476 |  0.3486 |
+| cloglog | (phi)\_(Intercept) |  -0.4400 |  -1.4888 |   0.6088 | 0.5351 | -0.8223 |  0.4155 |
+| cloglog | (phi)\_z1          |   2.5081 |   1.1222 |   3.8939 | 0.7071 |  3.5470 |  0.0010 |
+| cloglog | (phi)\_z2          |   1.7133 |   0.1706 |   3.2559 | 0.7871 |  2.1768 |  0.0350 |
 
 ``` r
 purrr::map_df(resumo, function(res){
@@ -349,8 +349,8 @@ links <- c("logit", "probit", "cloglog")
 names(links) <- links
 
 fit_variavel_bbmle <- purrr::map(links, .f = function(link){
-  betaroti_bbmle(
-    formula = ~x1 + x2 + x3 | z1,
+  betaregesc_bbmle(
+    formula = y ~ x1 + x2 + x3 | z1,
     dados = dados_simulados,
     link = link,
     link_phi = "sqrt",
