@@ -7,7 +7,7 @@
 est(object, alpha = 0.05)
 }
 \arguments{
-\item{object}{Um objeto das classes 'betaroti' ou 'betarotidv'.}
+\item{object}{Um objeto das classes 'betaregesc' ou 'betaregescdv'.}
 
 \item{alpha}{Nível de significância para os intervalos de confiança (padrão é 0,05).}
 }
@@ -15,12 +15,12 @@ est(object, alpha = 0.05)
 Retorna um data.frame contendo estimativas, erros padrão, intervalos de confiança, estatísticas t e valores-p do objeto fornecido.
 }
 \description{
-Esta função retorna estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaroti' e 'betarotidv'.
+Esta função retorna estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaregesc' e 'betaregescdv'.
 }
 \examples{
 \dontrun{
 # Exemplo de uso da função hessian
-# Primeiro, gere um objeto de classe 'betaroti' ou 'betarotidv'
+# Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
 set.seed(42)
 n <- 100
 dados <- data.frame(
@@ -30,7 +30,7 @@ dados <- data.frame(
 betas <- c(0.2, 0.3, -0.4, 0.1)
 formula <- ~x1 + x2 + x3
 phi <- 50
-dados_simulados <- beta_ordinal_simula_dados(
+dados_simulados <- betaregesc_simula_dados(
   formula = formula,
   dados = dados,
   betas = betas,

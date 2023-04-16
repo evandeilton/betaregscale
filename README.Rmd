@@ -292,7 +292,6 @@ fitted(fit_fixo$logit)
 print(fit_fixo$logit)
 ```
 
-
 ----
 
 ## Work in progress ...

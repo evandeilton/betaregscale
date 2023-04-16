@@ -7,15 +7,15 @@
 BIC(object)
 }
 \arguments{
-\item{object}{Um objeto das classes 'betaroti' ou 'betarotidv'.}
+\item{object}{Um objeto das classes 'betaregesc' ou 'betaregescdv'.}
 }
 \description{
-Esta função calcula o Critério de Informação Bayesiano (BIC) para objetos das classes 'betaroti' e 'betarotidv'.
+Esta função calcula o Critério de Informação Bayesiano (BIC) para objetos das classes 'betaregesc' e 'betaregescdv'.
 }
 \examples{
 \dontrun{
 # Exemplo de uso da função BIC
-# Primeiro, gere um objeto de classe 'betaroti' ou 'betarotidv'
+# Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
 set.seed(42)
 n <- 100
 dados <- data.frame(
@@ -25,7 +25,7 @@ dados <- data.frame(
 betas <- c(0.2, 0.3, -0.4, 0.1)
 formula <- ~x1 + x2 + x3
 phi <- 50
-dados_simulados <- beta_ordinal_simula_dados(
+dados_simulados <- betaregesc_simula_dados(
   formula = formula,
   dados = dados,
   betas = betas,
