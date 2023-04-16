@@ -1,7 +1,7 @@
-url: https://evandeilton.github.io/betaroti/
+url: https://evandeilton.github.io/betaregesc/
 
 home:
-  title: Regressão Beta para Resposta Ordinal Transformada Intervalar
+  title: Regressão beta para dados de escala
   sidebar:
     structure: [links, license, community, citation, authors, dev]
   
