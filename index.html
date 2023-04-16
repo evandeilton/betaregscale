@@ -53,7 +53,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="betaroti">betaroti<a class="anchor" aria-label="anchor" href="#betaroti"></a>
+<div class="page-header"><h1 id="betaregesc">betaregesc<a class="anchor" aria-label="anchor" href="#betaregesc"></a>
 </h1></div>
 <!-- badges: start -->
 
@@ -77,10 +77,10 @@
 </h2>
 <p>Você pode instalar o pacote com esse comando abaixo.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaroti/">betaroti</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evandeilton/betaroti"</span><span class="op">)</span>  </span>
+<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregesc/" class="external-link">betaregesc</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evandeilton/betaregesc"</span><span class="op">)</span>  </span>
 <span><span class="op">}</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaroti/">betaroti</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregesc/" class="external-link">betaregesc</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="exemplos">Exemplos<a class="anchor" aria-label="anchor" href="#exemplos"></a>
@@ -100,13 +100,13 @@
 </blockquote>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4255</span><span class="op">)</span></span>
 <span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://evandeilton.github.io/betaroti/reference/beta_ordinal_simula_dados.html">beta_ordinal_simula_dados</a></span><span class="op">(</span></span>
+<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregesc_simula_dados.html">betaregesc_simula_dados</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  dados <span class="op">=</span> <span class="va">dados</span>,</span>
-<span>  betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>  betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
 <span>  phi <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"probit"</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -117,61 +117,61 @@
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th align="right">y</th>
-<th align="right">yr</th>
 <th align="right">left</th>
 <th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
 <th align="right">x1</th>
 <th align="right">x2</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.9623</td>
-<td align="right">96</td>
-<td align="right">0.955</td>
-<td align="right">0.965</td>
-<td align="right">1.3710</td>
-<td align="right">1.2010</td>
+<td align="right">0.215</td>
+<td align="right">0.225</td>
+<td align="right">0.22</td>
+<td align="right">22</td>
+<td align="right">1.9510</td>
+<td align="right">0.6403</td>
 </tr>
 <tr class="even">
-<td align="right">0.9221</td>
-<td align="right">92</td>
-<td align="right">0.915</td>
-<td align="right">0.925</td>
-<td align="right">-0.5647</td>
-<td align="right">1.0448</td>
+<td align="right">0.385</td>
+<td align="right">0.395</td>
+<td align="right">0.39</td>
+<td align="right">39</td>
+<td align="right">0.7725</td>
+<td align="right">-0.2677</td>
 </tr>
 <tr class="odd">
-<td align="right">0.5581</td>
-<td align="right">56</td>
-<td align="right">0.555</td>
-<td align="right">0.565</td>
-<td align="right">0.3631</td>
-<td align="right">-1.0032</td>
+<td align="right">0.495</td>
+<td align="right">0.505</td>
+<td align="right">0.50</td>
+<td align="right">50</td>
+<td align="right">0.7264</td>
+<td align="right">0.0222</td>
 </tr>
 <tr class="even">
-<td align="right">0.9856</td>
-<td align="right">99</td>
-<td align="right">0.985</td>
-<td align="right">0.995</td>
-<td align="right">0.6329</td>
-<td align="right">1.8485</td>
+<td align="right">0.595</td>
+<td align="right">0.605</td>
+<td align="right">0.60</td>
+<td align="right">60</td>
+<td align="right">0.0487</td>
+<td align="right">0.0113</td>
 </tr>
 <tr class="odd">
-<td align="right">0.8270</td>
-<td align="right">83</td>
+<td align="right">0.815</td>
 <td align="right">0.825</td>
-<td align="right">0.835</td>
-<td align="right">0.4043</td>
-<td align="right">-0.6668</td>
+<td align="right">0.82</td>
+<td align="right">82</td>
+<td align="right">-0.5445</td>
+<td align="right">0.3109</td>
 </tr>
 <tr class="even">
-<td align="right">0.9044</td>
-<td align="right">90</td>
-<td align="right">0.895</td>
-<td align="right">0.905</td>
-<td align="right">-0.1061</td>
-<td align="right">0.1055</td>
+<td align="right">0.595</td>
+<td align="right">0.605</td>
+<td align="right">0.60</td>
+<td align="right">60</td>
+<td align="right">0.3600</td>
+<td align="right">0.4195</td>
 </tr>
 </tbody>
 </table>
@@ -187,11 +187,11 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_fixo</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://evandeilton.github.io/betaroti/reference/betaroti.html">betaroti</a></span><span class="op">(</span></span>
-<span>    formula <span class="op">=</span> <span class="op">~</span><span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
+<span>  <span class="fu"><a href="reference/betaregesc.html">betaregesc</a></span><span class="op">(</span></span>
+<span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
-<span>    link_phi <span class="op">=</span> <span class="st">"identity"</span>,</span>
+<span>    link_phi <span class="op">=</span> <span class="st">"sqrt"</span>,</span>
 <span>    num_hessiana <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <ul>
@@ -209,14 +209,14 @@
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">""</span><span class="op">)</span>  </span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="11%">
-<col width="16%">
-<col width="12%">
-<col width="12%">
-<col width="12%">
 <col width="10%">
-<col width="12%">
+<col width="23%">
 <col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="9%">
+<col width="11%">
+<col width="10%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">link</th>
@@ -232,121 +232,121 @@
 <tr class="odd">
 <td align="left">logit</td>
 <td align="left">(Intercept)</td>
-<td align="right">1.7168</td>
-<td align="right">1.6138</td>
-<td align="right">1.8199</td>
-<td align="right">0.0526</td>
-<td align="right">32.6556</td>
+<td align="right">0.4695</td>
+<td align="right">0.3906</td>
+<td align="right">0.5484</td>
+<td align="right">0.0403</td>
+<td align="right">11.6636</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">logit</td>
 <td align="left">x1</td>
-<td align="right">-0.5225</td>
-<td align="right">-0.6149</td>
-<td align="right">-0.4302</td>
-<td align="right">0.0471</td>
-<td align="right">-11.0865</td>
+<td align="right">-0.9485</td>
+<td align="right">-1.0447</td>
+<td align="right">-0.8522</td>
+<td align="right">0.0491</td>
+<td align="right">-19.3154</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">logit</td>
 <td align="left">x2</td>
-<td align="right">0.7326</td>
-<td align="right">0.6262</td>
-<td align="right">0.8390</td>
-<td align="right">0.0543</td>
-<td align="right">13.4911</td>
+<td align="right">0.6897</td>
+<td align="right">0.6101</td>
+<td align="right">0.7692</td>
+<td align="right">0.0406</td>
+<td align="right">16.9906</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">logit</td>
-<td align="left">(phi)</td>
-<td align="right">32.9500</td>
-<td align="right">23.5197</td>
-<td align="right">42.3804</td>
-<td align="right">4.8115</td>
-<td align="right">6.8482</td>
+<td align="left">(phi)_(Intercept)</td>
+<td align="right">5.6981</td>
+<td align="right">4.9004</td>
+<td align="right">6.4958</td>
+<td align="right">0.4070</td>
+<td align="right">14.0000</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">probit</td>
 <td align="left">(Intercept)</td>
-<td align="right">1.0091</td>
-<td align="right">0.9552</td>
-<td align="right">1.0630</td>
-<td align="right">0.0275</td>
-<td align="right">36.7154</td>
+<td align="right">0.2812</td>
+<td align="right">0.2341</td>
+<td align="right">0.3283</td>
+<td align="right">0.0240</td>
+<td align="right">11.7041</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
 <td align="left">x1</td>
-<td align="right">-0.2893</td>
-<td align="right">-0.3395</td>
-<td align="right">-0.2391</td>
-<td align="right">0.0256</td>
-<td align="right">-11.2963</td>
+<td align="right">-0.5695</td>
+<td align="right">-0.6256</td>
+<td align="right">-0.5134</td>
+<td align="right">0.0286</td>
+<td align="right">-19.8981</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">probit</td>
 <td align="left">x2</td>
-<td align="right">0.4088</td>
-<td align="right">0.3512</td>
-<td align="right">0.4664</td>
-<td align="right">0.0294</td>
-<td align="right">13.9075</td>
+<td align="right">0.4116</td>
+<td align="right">0.3656</td>
+<td align="right">0.4577</td>
+<td align="right">0.0235</td>
+<td align="right">17.5212</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
-<td align="left">(phi)</td>
-<td align="right">34.1445</td>
-<td align="right">24.3752</td>
-<td align="right">43.9138</td>
-<td align="right">4.9844</td>
-<td align="right">6.8502</td>
+<td align="left">(phi)_(Intercept)</td>
+<td align="right">5.6762</td>
+<td align="right">4.8761</td>
+<td align="right">6.4764</td>
+<td align="right">0.4083</td>
+<td align="right">13.9033</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">cloglog</td>
 <td align="left">(Intercept)</td>
-<td align="right">0.5935</td>
-<td align="right">0.5500</td>
-<td align="right">0.6371</td>
-<td align="right">0.0222</td>
-<td align="right">26.7189</td>
+<td align="right">-0.1180</td>
+<td align="right">-0.1699</td>
+<td align="right">-0.0661</td>
+<td align="right">0.0265</td>
+<td align="right">-4.4557</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
 <td align="left">x1</td>
-<td align="right">-0.2367</td>
-<td align="right">-0.2786</td>
-<td align="right">-0.1947</td>
-<td align="right">0.0214</td>
-<td align="right">-11.0477</td>
+<td align="right">-0.5929</td>
+<td align="right">-0.6545</td>
+<td align="right">-0.5314</td>
+<td align="right">0.0314</td>
+<td align="right">-18.8795</td>
 <td align="right">0</td>
 </tr>
 <tr class="odd">
 <td align="left">cloglog</td>
 <td align="left">x2</td>
-<td align="right">0.3384</td>
-<td align="right">0.2903</td>
-<td align="right">0.3865</td>
-<td align="right">0.0245</td>
-<td align="right">13.7909</td>
+<td align="right">0.4243</td>
+<td align="right">0.3736</td>
+<td align="right">0.4750</td>
+<td align="right">0.0259</td>
+<td align="right">16.4066</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
-<td align="left">(phi)</td>
-<td align="right">34.3315</td>
-<td align="right">24.3100</td>
-<td align="right">44.3529</td>
-<td align="right">5.1131</td>
-<td align="right">6.7144</td>
+<td align="left">(phi)_(Intercept)</td>
+<td align="right">5.4515</td>
+<td align="right">4.6605</td>
+<td align="right">6.2424</td>
+<td align="right">0.4036</td>
+<td align="right">13.5084</td>
 <td align="right">0</td>
 </tr>
 </tbody>
@@ -366,21 +366,21 @@
 <tbody>
 <tr class="odd">
 <td align="left">logit</td>
-<td align="right">322.0392</td>
-<td align="right">-634.0784</td>
-<td align="right">-621.0526</td>
+<td align="right">341.1732</td>
+<td align="right">-672.3465</td>
+<td align="right">-659.3206</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
-<td align="right">321.3533</td>
-<td align="right">-632.7067</td>
-<td align="right">-619.6808</td>
+<td align="right">341.9841</td>
+<td align="right">-673.9683</td>
+<td align="right">-660.9424</td>
 </tr>
 <tr class="odd">
 <td align="left">cloglog</td>
-<td align="right">322.9948</td>
-<td align="right">-635.9895</td>
-<td align="right">-622.9637</td>
+<td align="right">347.7286</td>
+<td align="right">-685.4573</td>
+<td align="right">-672.4314</td>
 </tr>
 </tbody>
 </table>
@@ -393,11 +393,11 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_fixo_bbmle</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://evandeilton.github.io/betaroti/reference/betaroti_bbmle.html">betaroti_bbmle</a></span><span class="op">(</span></span>
-<span>    formula <span class="op">=</span> <span class="op">~</span><span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
+<span>  <span class="fu"><a href="reference/betaregesc_bbmle.html">betaregesc_bbmle</a></span><span class="op">(</span></span>
+<span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
-<span>    link_phi <span class="op">=</span> <span class="st">"identity"</span>,</span>
+<span>    link_phi <span class="op">=</span> <span class="st">"sqrt"</span>,</span>
 <span>    num_hessiana <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 <ul>
@@ -442,14 +442,14 @@
 <span>  z2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://evandeilton.github.io/betaroti/reference/beta_ordinal_simula_dados_z.html">beta_ordinal_simula_dados_z</a></span><span class="op">(</span></span>
+<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregesc_simula_dados_z.html">betaregesc_simula_dados_z</a></span><span class="op">(</span></span>
 <span>  formula_x <span class="op">=</span> <span class="va">fx</span>,</span>
 <span>  formula_z <span class="op">=</span> <span class="va">fz</span>,</span>
 <span>  dados <span class="op">=</span> <span class="va">dados</span>,</span>
 <span>  betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span><span class="op">)</span>,</span>
 <span>  zetas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  link_x <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  link_z <span class="op">=</span> <span class="st">"sqrt"</span>,</span>
+<span>  link <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  link_phi <span class="op">=</span> <span class="st">"sqrt"</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"m"</span></span>
 <span><span class="op">)</span></span>
@@ -459,21 +459,21 @@
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>, caption <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="12%">
+<col width="10%">
+<col width="10%">
+<col width="9%">
 <col width="7%">
-<col width="10%">
-<col width="10%">
-<col width="13%">
-<col width="13%">
+<col width="14%">
+<col width="14%">
 <col width="7%">
 <col width="12%">
 <col width="12%">
 </colgroup>
 <thead><tr class="header">
-<th align="right">y</th>
-<th align="right">yr</th>
 <th align="right">left</th>
 <th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
 <th align="right">x1</th>
 <th align="right">x2</th>
 <th align="right">x3</th>
@@ -482,10 +482,10 @@
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.7458</td>
-<td align="right">75</td>
 <td align="right">0.745</td>
 <td align="right">0.755</td>
+<td align="right">0.75</td>
+<td align="right">75</td>
 <td align="right">-0.3381</td>
 <td align="right">-0.5606</td>
 <td align="right">0</td>
@@ -493,10 +493,10 @@
 <td align="right">0.6295</td>
 </tr>
 <tr class="even">
-<td align="right">0.5467</td>
-<td align="right">55</td>
 <td align="right">0.545</td>
 <td align="right">0.555</td>
+<td align="right">0.55</td>
+<td align="right">55</td>
 <td align="right">0.9392</td>
 <td align="right">-0.4519</td>
 <td align="right">1</td>
@@ -504,10 +504,10 @@
 <td align="right">0.3239</td>
 </tr>
 <tr class="odd">
-<td align="right">0.1459</td>
-<td align="right">15</td>
 <td align="right">0.145</td>
 <td align="right">0.155</td>
+<td align="right">0.15</td>
+<td align="right">15</td>
 <td align="right">1.7377</td>
 <td align="right">0.5993</td>
 <td align="right">1</td>
@@ -515,10 +515,10 @@
 <td align="right">0.1956</td>
 </tr>
 <tr class="even">
-<td align="right">0.4424</td>
-<td align="right">44</td>
 <td align="right">0.435</td>
 <td align="right">0.445</td>
+<td align="right">0.44</td>
+<td align="right">44</td>
 <td align="right">0.6963</td>
 <td align="right">-0.4836</td>
 <td align="right">0</td>
@@ -526,10 +526,10 @@
 <td align="right">0.7053</td>
 </tr>
 <tr class="odd">
-<td align="right">0.2753</td>
-<td align="right">28</td>
 <td align="right">0.275</td>
 <td align="right">0.285</td>
+<td align="right">0.28</td>
+<td align="right">28</td>
 <td align="right">0.4623</td>
 <td align="right">-0.7956</td>
 <td align="right">1</td>
@@ -537,10 +537,10 @@
 <td align="right">0.5312</td>
 </tr>
 <tr class="even">
-<td align="right">0.4916</td>
-<td align="right">49</td>
 <td align="right">0.485</td>
 <td align="right">0.495</td>
+<td align="right">0.49</td>
+<td align="right">49</td>
 <td align="right">-0.3151</td>
 <td align="right">-0.9410</td>
 <td align="right">0</td>
@@ -561,8 +561,8 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_variavel</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://evandeilton.github.io/betaroti/reference/betaroti.html">betaroti</a></span><span class="op">(</span></span>
-<span>    formula <span class="op">=</span> <span class="op">~</span><span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span> <span class="op">|</span> <span class="va">z1</span> <span class="op">+</span> <span class="va">z2</span>,</span>
+<span>  <span class="fu"><a href="reference/betaregesc.html">betaregesc</a></span><span class="op">(</span></span>
+<span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span><span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span> <span class="op">|</span> <span class="va">z1</span> <span class="op">+</span> <span class="va">z2</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
 <span>    link_phi <span class="op">=</span> <span class="st">"log"</span>,</span>
@@ -610,7 +610,7 @@
 <td align="right">0.2144</td>
 <td align="right">0.7066</td>
 <td align="right">0.1256</td>
-<td align="right">3.6671</td>
+<td align="right">3.6673</td>
 <td align="right">0.0007</td>
 </tr>
 <tr class="even">
@@ -640,178 +640,178 @@
 <td align="right">-0.5819</td>
 <td align="right">0.1861</td>
 <td align="right">0.1959</td>
-<td align="right">-1.0100</td>
-<td align="right">0.3182</td>
+<td align="right">-1.0102</td>
+<td align="right">0.3181</td>
 </tr>
 <tr class="odd">
 <td align="left">logit</td>
 <td align="left">(phi)_(Intercept)</td>
-<td align="right">-0.3644</td>
+<td align="right">-0.3645</td>
 <td align="right">-1.4231</td>
-<td align="right">0.6943</td>
-<td align="right">0.5401</td>
-<td align="right">-0.6746</td>
-<td align="right">0.5035</td>
+<td align="right">0.6942</td>
+<td align="right">0.5402</td>
+<td align="right">-0.6747</td>
+<td align="right">0.5034</td>
 </tr>
 <tr class="even">
 <td align="left">logit</td>
 <td align="left">(phi)_z1</td>
-<td align="right">2.4138</td>
-<td align="right">1.0331</td>
-<td align="right">3.7946</td>
+<td align="right">2.4141</td>
+<td align="right">1.0334</td>
+<td align="right">3.7949</td>
 <td align="right">0.7045</td>
-<td align="right">3.4264</td>
+<td align="right">3.4269</td>
 <td align="right">0.0014</td>
 </tr>
 <tr class="odd">
 <td align="left">logit</td>
 <td align="left">(phi)_z2</td>
-<td align="right">1.6194</td>
-<td align="right">0.0689</td>
-<td align="right">3.1699</td>
+<td align="right">1.6193</td>
+<td align="right">0.0688</td>
+<td align="right">3.1697</td>
 <td align="right">0.7911</td>
-<td align="right">2.0471</td>
+<td align="right">2.0469</td>
 <td align="right">0.0468</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
 <td align="left">(Intercept)</td>
 <td align="right">0.2855</td>
-<td align="right">0.0368</td>
-<td align="right">0.5341</td>
-<td align="right">0.1269</td>
-<td align="right">2.2498</td>
-<td align="right">0.0296</td>
+<td align="right">0.1353</td>
+<td align="right">0.4356</td>
+<td align="right">0.0766</td>
+<td align="right">3.7261</td>
+<td align="right">0.0006</td>
 </tr>
 <tr class="odd">
 <td align="left">probit</td>
 <td align="left">x1</td>
 <td align="right">-0.3536</td>
-<td align="right">-0.5645</td>
-<td align="right">-0.1428</td>
-<td align="right">0.1076</td>
-<td align="right">-3.2875</td>
-<td align="right">0.0020</td>
+<td align="right">-0.4846</td>
+<td align="right">-0.2226</td>
+<td align="right">0.0668</td>
+<td align="right">-5.2915</td>
+<td align="right">0.0000</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
 <td align="left">x2</td>
 <td align="right">0.0221</td>
-<td align="right">-0.1824</td>
-<td align="right">0.2266</td>
-<td align="right">0.1043</td>
-<td align="right">0.2115</td>
-<td align="right">0.8335</td>
+<td align="right">-0.1094</td>
+<td align="right">0.1535</td>
+<td align="right">0.0671</td>
+<td align="right">0.3291</td>
+<td align="right">0.7437</td>
 </tr>
 <tr class="odd">
 <td align="left">probit</td>
 <td align="left">x3</td>
 <td align="right">-0.1245</td>
-<td align="right">-0.5011</td>
-<td align="right">0.2520</td>
-<td align="right">0.1921</td>
-<td align="right">-0.6482</td>
-<td align="right">0.5203</td>
+<td align="right">-0.3609</td>
+<td align="right">0.1118</td>
+<td align="right">0.1206</td>
+<td align="right">-1.0325</td>
+<td align="right">0.3076</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
 <td align="left">(phi)_(Intercept)</td>
-<td align="right">-0.3717</td>
-<td align="right">-1.4069</td>
-<td align="right">0.6636</td>
-<td align="right">0.5282</td>
-<td align="right">-0.7037</td>
-<td align="right">0.4854</td>
+<td align="right">-0.3716</td>
+<td align="right">-1.4281</td>
+<td align="right">0.6848</td>
+<td align="right">0.5390</td>
+<td align="right">-0.6894</td>
+<td align="right">0.4942</td>
 </tr>
 <tr class="odd">
 <td align="left">probit</td>
 <td align="left">(phi)_z1</td>
-<td align="right">2.4348</td>
-<td align="right">1.1570</td>
-<td align="right">3.7125</td>
-<td align="right">0.6519</td>
-<td align="right">3.7348</td>
-<td align="right">0.0005</td>
+<td align="right">2.4347</td>
+<td align="right">1.0525</td>
+<td align="right">3.8170</td>
+<td align="right">0.7052</td>
+<td align="right">3.4524</td>
+<td align="right">0.0013</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
 <td align="left">(phi)_z2</td>
 <td align="right">1.6180</td>
-<td align="right">0.2073</td>
-<td align="right">3.0287</td>
-<td align="right">0.7198</td>
-<td align="right">2.2480</td>
-<td align="right">0.0298</td>
+<td align="right">0.0698</td>
+<td align="right">3.1661</td>
+<td align="right">0.7899</td>
+<td align="right">2.0484</td>
+<td align="right">0.0467</td>
 </tr>
 <tr class="odd">
 <td align="left">cloglog</td>
 <td align="left">(Intercept)</td>
 <td align="right">-0.0760</td>
-<td align="right">-0.4926</td>
-<td align="right">0.3406</td>
-<td align="right">0.2126</td>
-<td align="right">-0.3575</td>
-<td align="right">0.7225</td>
+<td align="right">-0.2299</td>
+<td align="right">0.0779</td>
+<td align="right">0.0785</td>
+<td align="right">-0.9680</td>
+<td align="right">0.3385</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
 <td align="left">x1</td>
 <td align="right">-0.3754</td>
-<td align="right">-0.5976</td>
-<td align="right">-0.1533</td>
-<td align="right">0.1134</td>
-<td align="right">-3.3118</td>
-<td align="right">0.0019</td>
+<td align="right">-0.5074</td>
+<td align="right">-0.2435</td>
+<td align="right">0.0673</td>
+<td align="right">-5.5783</td>
+<td align="right">0.0000</td>
 </tr>
 <tr class="odd">
 <td align="left">cloglog</td>
 <td align="left">x2</td>
 <td align="right">0.0233</td>
-<td align="right">-0.1792</td>
-<td align="right">0.2258</td>
-<td align="right">0.1033</td>
-<td align="right">0.2256</td>
-<td align="right">0.8225</td>
+<td align="right">-0.1090</td>
+<td align="right">0.1557</td>
+<td align="right">0.0675</td>
+<td align="right">0.3452</td>
+<td align="right">0.7316</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
 <td align="left">x3</td>
 <td align="right">-0.1213</td>
-<td align="right">-0.5014</td>
-<td align="right">0.2588</td>
-<td align="right">0.1939</td>
-<td align="right">-0.6255</td>
-<td align="right">0.5349</td>
+<td align="right">-0.3722</td>
+<td align="right">0.1296</td>
+<td align="right">0.1280</td>
+<td align="right">-0.9476</td>
+<td align="right">0.3486</td>
 </tr>
 <tr class="odd">
 <td align="left">cloglog</td>
 <td align="left">(phi)_(Intercept)</td>
 <td align="right">-0.4400</td>
-<td align="right">-1.3810</td>
-<td align="right">0.5010</td>
-<td align="right">0.4801</td>
-<td align="right">-0.9164</td>
-<td align="right">0.3646</td>
+<td align="right">-1.4888</td>
+<td align="right">0.6088</td>
+<td align="right">0.5351</td>
+<td align="right">-0.8223</td>
+<td align="right">0.4155</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
 <td align="left">(phi)_z1</td>
 <td align="right">2.5081</td>
-<td align="right">1.2985</td>
-<td align="right">3.7176</td>
-<td align="right">0.6171</td>
-<td align="right">4.0641</td>
-<td align="right">0.0002</td>
+<td align="right">1.1222</td>
+<td align="right">3.8939</td>
+<td align="right">0.7071</td>
+<td align="right">3.5470</td>
+<td align="right">0.0010</td>
 </tr>
 <tr class="odd">
 <td align="left">cloglog</td>
 <td align="left">(phi)_z2</td>
 <td align="right">1.7133</td>
-<td align="right">0.4721</td>
-<td align="right">2.9544</td>
-<td align="right">0.6333</td>
-<td align="right">2.7054</td>
-<td align="right">0.0097</td>
+<td align="right">0.1706</td>
+<td align="right">3.2559</td>
+<td align="right">0.7871</td>
+<td align="right">2.1768</td>
+<td align="right">0.0350</td>
 </tr>
 </tbody>
 </table>
@@ -857,8 +857,8 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_variavel_bbmle</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://evandeilton.github.io/betaroti/reference/betaroti_bbmle.html">betaroti_bbmle</a></span><span class="op">(</span></span>
-<span>    formula <span class="op">=</span> <span class="op">~</span><span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span> <span class="op">|</span> <span class="va">z1</span>,</span>
+<span>  <span class="fu"><a href="reference/betaregesc_bbmle.html">betaregesc_bbmle</a></span><span class="op">(</span></span>
+<span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
 <span>    link_phi <span class="op">=</span> <span class="st">"sqrt"</span>,</span>

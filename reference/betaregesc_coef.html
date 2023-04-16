@@ -100,22 +100,14 @@ Padrão 0.05 bilateral.</p></dd>
 <span class="r-in"><span>  link_phi <span class="op">=</span> <span class="st">"log"</span>,</span></span>
 <span class="r-in"><span>  num_hessiana <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in betareg::betareg(formula = as.formula(paste0("yt ~", as.character(formula)[3])),     data = dados):</span> invalid dependent variable, all observations must be in (0, 1)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">coe</span> <span class="op">&lt;-</span> <span class="fu">betaregesc_coef</span><span class="op">(</span><span class="va">fit_z</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in betaregesc_coef(fit_z):</span> object 'fit_z' not found</span>
 <span class="r-in"><span><span class="va">coe</span><span class="op">$</span><span class="va">est</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            variable    estimate    ci_lower   ci_upper        se    t_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       (Intercept)  0.09328965 -0.13348360  0.3200629 0.1157028  0.8062871</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                x1 -0.51391721 -0.72741488 -0.3004195 0.1089294 -4.7178932</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                x2  0.18453246 -0.02057956  0.3896445 0.1046509  1.7633144</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 (phi)_(Intercept)  1.66192854  1.29737178  2.0264853 0.1860018  8.9350149</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        p_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 4.242262e-01</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2.250483e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 8.448924e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 1.288163e-11</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'coe' not found</span>
 <span class="r-in"><span><span class="va">coe</span><span class="op">$</span><span class="va">gof</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     logLik       AIC      BIC</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 215.7046 -421.4091 -411.849</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'coe' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
