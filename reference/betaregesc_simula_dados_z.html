@@ -12,7 +12,7 @@ funções de ligação tanto para betas como para zetas de phi"><!-- mathjax -->
     
     <a class="navbar-brand me-2" href="../index.html">betaregesc</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,8 @@ funções de ligação tanto para betas como para zetas de phi</p>
 <span>  link_phi <span class="op">=</span> <span class="st">"log"</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"m"</span>,</span>
-<span>  lim <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  repar <span class="op">=</span> <span class="st">"2"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,6 +112,10 @@ Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".</p></
 <dt>lim</dt>
 <dd><p>Limite numérico a ser utilizado para ajustar os intervalos. O padrão é 0.5.</p></dd>
 
+
+<dt>repar</dt>
+<dd><p>Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -124,22 +129,24 @@ ordinal e as variáveis independentes.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">421</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">50</span></span></span>
+<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">100</span></span></span>
 <span class="r-in"><span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, z2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fx</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span></span></span>
-<span class="r-in"><span><span class="va">fz</span> <span class="op">&lt;-</span> <span class="op">~</span> <span class="va">z1</span></span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  z2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-in"><span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu">betaregesc_simula_dados_z</span><span class="op">(</span></span></span>
-<span class="r-in"><span>formula_x <span class="op">=</span> <span class="va">fx</span>,</span></span>
-<span class="r-in"><span>formula_z <span class="op">=</span> <span class="va">fz</span>,</span></span>
-<span class="r-in"><span>dados <span class="op">=</span> <span class="va">dados</span>,</span></span>
-<span class="r-in"><span>betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>zetas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>link <span class="op">=</span> <span class="st">"logit"</span>,</span></span>
-<span class="r-in"><span>link_phi <span class="op">=</span> <span class="st">"log"</span>,</span></span>
-<span class="r-in"><span>ncuts <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span></span></span>
+<span class="r-in"><span> formula_x <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span></span>
+<span class="r-in"><span> formula_z <span class="op">=</span> <span class="op">~</span> <span class="va">z1</span> <span class="op">+</span> <span class="va">z2</span>,</span></span>
+<span class="r-in"><span> dados <span class="op">=</span> <span class="va">dados</span>,</span></span>
+<span class="r-in"><span> betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>,<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> zetas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> link <span class="op">=</span> <span class="st">"logit"</span>,</span></span>
+<span class="r-in"><span> link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span></span>
+<span class="r-in"><span> ncuts <span class="op">=</span> <span class="fl">100</span>,</span></span>
+<span class="r-in"><span> repar <span class="op">=</span> <span class="st">"2"</span></span></span>
+<span class="r-in"><span> <span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

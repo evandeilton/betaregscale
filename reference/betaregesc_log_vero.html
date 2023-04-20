@@ -12,7 +12,7 @@ variável beta ordinal, aplicando diferentes funções de ligação."><!-- mathj
     
     <a class="navbar-brand me-2" href="../index.html">betaregesc</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,11 +50,12 @@ variável beta ordinal, aplicando diferentes funções de ligação.</p>
 <span>  <span class="va">formula</span>,</span>
 <span>  <span class="va">dados</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  link_phi <span class="op">=</span> <span class="st">"log"</span>,</span>
+<span>  link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  acumulada <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"m"</span>,</span>
-<span>  lim <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  repar <span class="op">=</span> <span class="st">"2"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -101,6 +102,10 @@ acumulada deve ser calculada. O padrão é TRUE.</p></dd>
 <dt>lim</dt>
 <dd><p>Região de incerteza da medida. Padrão 0.5.</p></dd>
 
+
+<dt>repar</dt>
+<dd><p>Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -114,15 +119,22 @@ acumulada deve ser calculada. O padrão é TRUE.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">421</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Calcular a log-verossimilhança usando a função log_vero_beta_ordinal</span></span></span>
-<span class="r-in"><span><span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="fl">50</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">phi</span> <span class="op">&lt;-</span> <span class="fl">30</span></span></span>
+<span class="r-in"><span><span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>,<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1</span> <span class="op">/</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">phi</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span></span></span>
-<span class="r-in"><span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="betaregesc_simula_dados.html">betaregesc_simula_dados</a></span><span class="op">(</span>formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, dados <span class="op">=</span> <span class="va">dados</span>,</span></span>
-<span class="r-in"><span>betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.2</span><span class="op">)</span>, phi <span class="op">=</span> <span class="va">phi</span>, link <span class="op">=</span> <span class="st">"logit"</span>, ncuts <span class="op">=</span> <span class="fl">100</span>, type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="betaregesc_simula_dados.html">betaregesc_simula_dados</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span> formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span></span>
+<span class="r-in"><span> dados <span class="op">=</span> <span class="va">dados</span>,</span></span>
+<span class="r-in"><span> betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>,<span class="op">-</span><span class="fl">0.2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span> phi <span class="op">=</span> <span class="va">phi</span>,</span></span>
+<span class="r-in"><span> link <span class="op">=</span> <span class="st">"logit"</span>,</span></span>
+<span class="r-in"><span> link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span></span>
+<span class="r-in"><span> ncuts <span class="op">=</span> <span class="fl">100</span>,</span></span>
+<span class="r-in"><span> type <span class="op">=</span> <span class="st">"m"</span></span></span>
+<span class="r-in"><span> <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">log_verossimilhanca</span> <span class="op">&lt;-</span> <span class="fu">betaregesc_log_vero</span><span class="op">(</span><span class="va">param</span>, <span class="va">formula</span>, <span class="va">dados_simulados</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">log_verossimilhanca</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -1093.728</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -390.8556</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

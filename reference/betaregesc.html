@@ -14,7 +14,7 @@ sumarizadas do ajuste, tanto para dispesão fixa como variável."><!-- mathjax -
     
     <a class="navbar-brand me-2" href="../index.html">betaregesc</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,6 +57,7 @@ sumarizadas do ajuste, tanto para dispesão fixa como variável.</p>
 <span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"m"</span>,</span>
 <span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  repar <span class="op">=</span> <span class="st">"2"</span>,</span>
 <span>  num_hessiana <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -102,6 +103,10 @@ Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".</p></
 
 <dt>lim</dt>
 <dd><p>Região de incerteza da medida. Padrão 0.5.</p></dd>
+
+
+<dt>repar</dt>
+<dd><p>Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.</p></dd>
 
 
 <dt>num_hessiana</dt>
