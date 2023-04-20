@@ -19,6 +19,8 @@ fn_switch_link <- function(eta, link){
          cloglog = make.link("cloglog")$linkinv(eta),
          log = make.link("log")$linkinv(eta),
          sqrt = make.link("sqrt")$linkinv(eta),
+         "1/mu^2" = make.link("1/mu^2")$linkinv(eta),
+         inverse = make.link("inverse")$linkinv(eta),
          identity = eta
   )
 }
@@ -40,35 +42,53 @@ fn_switch_link <- function(eta, link){
 #' @param ncuts Número de cortes para a variável ordinal. O padrão é 100.
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Limite numérico a ser utilizado para ajustar os intervalos. O padrão é 0.5.
+#' @param link_phi Nome da função de ligação a ser usada para transformar phi.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
 #' @return Retorna um data.frame contendo os dados simulados da variável
 #'  beta ordinal e as variáveis independentes.
 #' @examples
 #' # Criar um conjunto de dados de exemplo
-#' set.seed(42)
-#' dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
-#'
-#' # Simular dados usando a função betaregesc_simula_dados com parâmetros personalizados
+#' set.seed(421)
+#' n <- 100
+#' dados <- data.frame(
+#'   x1 = rnorm(n),
+#'   x2 = rnorm(n)
+#'  )
+#' formula <- ~ x1 + x2
 #' dados_simulados <- betaregesc_simula_dados(
-#'  formula = ~x1 + x2, dados = dados,
-#'  betas = c(1, -0.3, 0.4), phi = 30,
-#'  link = "logit", ncuts = 100, type = "m")
-#' head(dados_simulados)
+#'  formula = formula,
+#'  dados = dados,
+#'  betas = c(0.2,-0.5, 0.3),
+#'  link = "logit",
+#'  link_phi = "logit",
+#'  ncuts = 100,
+#'  repar = "2"
+#'  )
 #' @export
-betaregesc_simula_dados <- function(formula, dados, betas, phi = 50, link = "logit", 
-                                    ncuts = 100, type = "m", lim = 0.5){
+betaregesc_simula_dados <- function(formula, dados, betas, phi = 1/5,
+                                    link = "logit", link_phi = "logit",
+                                    ncuts = 100, type = "m", lim = 0.5, repar = '2'){
 
+  link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
+  link_phi <- if(repar == "2"){
+    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
+  } else {
+    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
+  }
+  
   mfx <- model.frame(formula, data = dados)
   X   <- model.matrix(mfx, data = dados)
   n   <- nrow(dados)
 
   # Aplicação do preditor linear nos betas
-  eta <- X%*%betas
-  mu <- fn_switch_link(eta = eta, link = link)
+  eta  <- X%*%betas
+  mu_  <- fn_switch_link(eta = eta, link = link)
+  phi_ <- fn_switch_link(eta = phi, link = link_phi)
 
   # Prepara a log-verossimilhança com dados intervalares
-  alpha <- as.numeric(mu * phi)
-  beta <- as.numeric((1 - mu)*phi)
-  y <- rbeta(n = n, shape1 = mu*phi, shape2 = (1-mu)*phi)
+  pars <- betarepar(mu = mu_, phi = phi_, repar = repar)
+  
+  y <- rbeta(n = n, shape1 = pars$shape1, shape2 = pars$shape2)
   y_meio <- round(y*ncuts, 0)
 
   out_y <- fn_check_response(y = y_meio, type = type, ncuts = ncuts, lim = lim)
@@ -103,27 +123,30 @@ betaregesc_simula_dados <- function(formula, dados, betas, phi = 50, link = "log
 #' @param ncuts Número de cortes para a variável ordinal. O padrão é 100.
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Limite numérico a ser utilizado para ajustar os intervalos. O padrão é 0.5.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
 #' @return Retorna um data.frame contendo os dados simulados da variável beta
 #' ordinal e as variáveis independentes.
 #' @examples
 #' # Criar um conjunto de dados de exemplo
 #' set.seed(421)
-#' n <- 50
+#' n <- 100
 #' dados <- data.frame(
-#' x1 = rnorm(n), x2 = rnorm(n),
-#' z1 = runif(n), z2 = runif(n))
-#' fx <- ~ x1 + x2
-#' fz <- ~ z1
+#'   x1 = rnorm(n),
+#'   x2 = rnorm(n),
+#'   z1 = runif(n),
+#'   z2 = runif(n)
+#'  )
 #' dados_simulados <- betaregesc_simula_dados_z(
-#' formula_x = fx,
-#' formula_z = fz,
-#' dados = dados,
-#' betas = c(0.2, -0.5, 0.3),
-#' zetas = c(1, 1.2),
-#' link = "logit",
-#' link_phi = "log",
-#' ncuts = 100,
-#' type = "m")
+#'  formula_x = ~ x1 + x2,
+#'  formula_z = ~ z1 + z2,
+#'  dados = dados,
+#'  betas = c(0.2,-0.5, 0.3),
+#'  zetas = c(0.2, -0.4, 0.2),
+#'  link = "logit",
+#'  link_phi = "logit",
+#'  ncuts = 100,
+#'  repar = "2"
+#'  )
 #' @export
 betaregesc_simula_dados_z <- function(formula_x = ~x1 + x2,
                                       formula_z = ~z1 + z2,
@@ -134,24 +157,31 @@ betaregesc_simula_dados_z <- function(formula_x = ~x1 + x2,
                                       link_phi = "log",
                                       ncuts = 100,
                                       type = "m", 
-                                      lim = 0.5){
+                                      lim = 0.5,
+                                      repar = '2'
+                                      ){
   mfx <- model.frame(formula_x, data = dados)
   mfz <- model.frame(formula_z, data = dados)
   X   <- model.matrix(mfx, data = dados)
   Z   <- model.matrix(mfz, data = dados)
   n   <- nrow(X)
 
-  link <- match.arg(link, c("logit","probit","cauchit","cloglog","identity"))
-  link_phi <- match.arg(link_phi, c("log","sqrt","identity"))
+  link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
+  link_phi <- if(repar == "2"){
+    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
+  } else {
+    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
+  }
 
   # Aplicação do preditor linear nos betas
   mu_x <- fn_switch_link(eta = X%*%betas, link = link)
-  mu_p <- fn_switch_link(eta = Z%*%zetas, link = link_phi)
+  mu_z <- fn_switch_link(eta = Z%*%zetas, link = link_phi)
 
   # Prepara a log-verossimilhança com dados intervalares
-  alpha <- as.numeric(mu_x * mu_p)
-  beta <- as.numeric((1 - mu_x)*mu_p)
-  y <- rbeta(n = n, shape1 = mu_x*mu_p, shape2 = (1-mu_x)*mu_p)
+  pars <- betarepar(mu = mu_x, phi = mu_z, repar = repar)
+  
+  set.seed(12)
+  y <- rbeta(n = n, shape1 = pars$shape1, shape2 = pars$shape2)
   y_meio <- round(y*ncuts, 0)
   
   out_y <- fn_check_response(y = y_meio, type = type, ncuts = ncuts, lim = lim)
@@ -180,26 +210,40 @@ betaregesc_simula_dados_z <- function(formula_x = ~x1 + x2,
 #' @param ncuts Número de cortes para a variável ordinal. O padrão é 100.
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Região de incerteza da medida. Padrão 0.5.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
 #' @return Retorna a soma da log-verossimilhança dos dados.
 #' @examples
 #' # Criar um conjunto de dados de exemplo
 #' set.seed(421)
 #' dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
-#' # Calcular a log-verossimilhança usando a função log_vero_beta_ordinal
-#' param <- c(0, 0.5, -0.2, 50)
-#' phi <- 30
+#' param <- c(0, 0.5,-0.2, 1 / 5)
+#' phi <- 1 / 5
 #' formula <- y ~ x1 + x2
-#' dados_simulados <- betaregesc_simula_dados(formula = ~ x1 + x2, dados = dados,
-#' betas = c(0, 0.5, -0.2), phi = phi, link = "logit", ncuts = 100, type = "m")
+#' dados_simulados <- betaregesc_simula_dados(
+#'  formula = ~ x1 + x2,
+#'  dados = dados,
+#'  betas = c(0, 0.5,-0.2),
+#'  phi = phi,
+#'  link = "logit",
+#'  link_phi = "logit",
+#'  ncuts = 100,
+#'  type = "m"
+#'  )
 #' log_verossimilhanca <- betaregesc_log_vero(param, formula, dados_simulados)
 #' print(log_verossimilhanca)
 #' @importFrom stats as.formula delete.response model.response
 #' @export
-betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi = "log",
-                                acumulada = TRUE, ncuts = 100, type = "m", lim = 0.5
+betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi = "logit",
+                                acumulada = TRUE, ncuts = 100, type = "m", lim = 0.5, repar = '2'
                                 ){
+  
   link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
-  link_phi <- match.arg(link_phi, c("log","sqrt","identity"))
+  link_phi <- if(repar == "2"){
+    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
+  } else {
+    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
+  }
+  
   
   mfx <- model.frame(formula, data = dados)
   Y <- fn_check_response(model.response(mfx), ncuts = ncuts, type = type, lim = lim)
@@ -208,22 +252,24 @@ betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi 
   betas  <- param[1:ncol(X)]
 
   # Aplicação do preditor linear nos betas
-  eta <- X%*%betas
-  mu <- fn_switch_link(eta = eta, link = link)
+  mu <- fn_switch_link(eta = X%*%betas, link = link)
   phi <- fn_switch_link(eta = param[(length(betas)+1)], link = link_phi)
 
   # Prepara a log-verossimilhança com dados intervalares
-  alpha <- as.numeric(mu * phi)
-  beta <- as.numeric((1 - mu)*phi)
+  # alpha <- as.numeric(mu * phi)
+  # beta <- as.numeric((1 - mu)*phi)
+  
+  # Prepara a log-verossimilhança com dados intervalares
+  pars <- betarepar(mu = mu, phi = phi, repar = repar)
 
   ll <- if(acumulada){
-    p1 <- pbeta(q = as.numeric(Y[,"left"]), shape1 = alpha, shape2 = beta)
-    p2 <- pbeta(q = as.numeric(Y[,"right"]), shape1 = alpha, shape2 = beta)
+    p1 <- pbeta(q = as.numeric(Y[,"left"]),  shape1 = pars$shape1, shape2 = pars$shape2)
+    p2 <- pbeta(q = as.numeric(Y[,"right"]), shape1 = pars$shape1, shape2 = pars$shape2)
     area <- p2 - p1
     area <- area + 0.00001
     log(area)
   } else {
-    suppressWarnings(dbeta(dados[,"y"], shape1 = alpha, shape2 = beta, log = TRUE))
+    suppressWarnings(dbeta(dados[,"y"], shape1 = pars$shape1, shape2 = pars$shape2, log = TRUE))
   }
 
   ll[is.infinite(ll)] <- NaN
@@ -254,38 +300,51 @@ betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi 
 #' @param ncuts Número de cortes para a variável ordinal. O padrão é 100.
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Região de incerteza da medida. Padrão 0.5.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
 #' @return Retorna a soma da log-verossimilhança dos dados.
 #' @examples
 #' # Criar um conjunto de dados de exemplo
-#' n <- 50
+#' n <- 100
 #' dados <- data.frame(x1 = rnorm(n), x2 = rnorm(n),
 #'                     z1 = runif(n), z2 = runif(n))
 #' fx <- ~ x1 + x2
 #' fz <- ~ z1
 #' dados_simulados <- betaregesc_simula_dados_z(
-#'   formula_x = fx,
-#'   formula_z = fz,
-#'   dados = dados,
-#'   betas = c(0.2, -0.5, 0.3),
-#'   zetas = c(1, 1.2),
-#'   link = "logit",
-#'   link_phi = "log",
-#'   ncuts = 100)
+#'  formula_x = fx,
+#'  formula_z = fz,
+#'  dados = dados,
+#'  betas = c(0.2,-0.5, 0.3),
+#'  zetas = c(0.5, -0.5),
+#'  link = "logit",
+#'  link_phi = "logit",
+#'  repar = "2",
+#'  ncuts = 100)
+#' 
 #' # Calcular a log-verossimilhança usando a função betaregesc_log_vero_z
 #' log_verossimilhanca <- betaregesc_log_vero_z(
-#'   param = c(c(0.2, -0.5, 0.3), c(1, 1.2)),
+#'   param = c(c(0.2,-0.5, 0.3), c(0.5, -0.5)),
 #'   formula = y ~ x1 + x2 | z1,
 #'   dados = dados_simulados,
 #'   link = "logit",
-#'   link_phi = "log",
-#'   acumulada = TRUE)
-#'   print(log_verossimilhanca)
+#'   link_phi = "logit",
+#'   acumulada = TRUE,
+#'   repar = "2")
+#'   
 #' @export
 betaregesc_log_vero_z <- function(param,
-                                  formula = y ~x1 + x2 | z1, dados, 
+                                  formula = y ~ x1 + x2 | z1, dados, 
                                   link = "logit", link_phi = "log",
                                   ncuts = 100, type = "m", lim = 0.5,
-                                  acumulada = TRUE){
+                                  acumulada = TRUE, repar = "2"){
+  
+  link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
+  link_phi <- if(repar == "2"){
+    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
+  } else {
+    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
+  }
+  
+  
   formula <- Formula::as.Formula(formula)
   if(length(formula)[2L] < 2L) {
     formula <- Formula::as.Formula(formula(formula), ~ 1)
@@ -294,7 +353,6 @@ betaregesc_log_vero_z <- function(param,
   }
   
   mf <- model.frame(formula, data = dados)
-  
   mtX <- terms(formula, data = dados, rhs = 1L)
   mtZ <- delete.response(terms(formula, data = dados, rhs = 2L))
   Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
@@ -302,29 +360,29 @@ betaregesc_log_vero_z <- function(param,
   Z <- model.matrix(mtZ, mf)
   n   <- nrow(X)
 
-  link_x <- match.arg(link, c("logit","probit","cauchit","cloglog"))
-  link_z <- match.arg(link_phi, c("log","sqrt","identity"))
-
   betas  <- param[1:ncol(X)]
   zetas  <- param[(ncol(X)+1):length(param)]
   names(zetas) <- paste0("phi", names(zetas))
 
   # Aplicação do preditor linear nos betas
-  mu_x <- fn_switch_link(eta = X%*%betas, link = link_x)
-  mu_p <- fn_switch_link(eta = Z%*%zetas, link = link_z)
+  mu_x <- fn_switch_link(eta = X%*%betas, link = link)
+  mu_z <- fn_switch_link(eta = Z%*%zetas, link = link_phi)
 
   # Prepara a log-verossimilhança com dados intervalares
-  alpha <- as.numeric(mu_x * mu_p)
-  beta <- as.numeric((1 - mu_x)*mu_p)
+  #alpha <- as.numeric(mu_x * mu_p)
+  #beta <- as.numeric((1 - mu_x)*mu_p)
 
+  # Prepara a log-verossimilhança com dados intervalares
+  pars <- betarepar(mu = mu_x, phi = mu_z, repar = repar)
+  
   ll <- if(acumulada){
-    p1 <- pbeta(q = as.numeric(Y[,"left"]), shape1 = alpha, shape2 = beta)
-    p2 <- pbeta(q = as.numeric(Y[,"right"]), shape1 = alpha, shape2 = beta)
+    p1 <- pbeta(q = as.numeric(Y[,"left"]), shape1 = pars$shape1, shape2 = pars$shape2)
+    p2 <- pbeta(q = as.numeric(Y[,"right"]), shape1 = pars$shape1, shape2 = pars$shape2)
     area <- p2 - p1
     area <- area + 0.00001
     log(area)
   } else {
-    suppressWarnings(dbeta(Y[,"yt"], shape1 = alpha, shape2 = beta, log = TRUE))
+    suppressWarnings(dbeta(Y[,"yt"], shape1 = pars$shape1, shape2 = pars$shape2, log = TRUE))
   }
 
   ll[is.infinite(ll)] <- NaN
@@ -351,6 +409,7 @@ betaregesc_log_vero_z <- function(param,
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @examples
@@ -381,25 +440,35 @@ betaregesc_log_vero_z <- function(param,
 #' @importFrom numDeriv hessian
 #' @importFrom stats AIC cor fitted hatvalues logLik qlogis runif terms
 #' @export
-betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "identity",
-                           ncuts = 100, type = "m", lim = 0.5, num_hessiana = TRUE, acumulada = TRUE) {
-
-  ini <- coef(betareg::betareg(formula = as.formula(paste0("yt ~", as.character(formula)[3])),
-                               data = dados, link = link, link.phi = link_phi))
+betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "logit",
+                           ncuts = 100, type = "m", lim = 0.5, num_hessiana = TRUE,
+                           acumulada = TRUE, repar = "2") {
+  
+  link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
+  
+  link_phi <- if(repar == "2"){
+    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
+  } else {
+    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
+  }
+  
+  ini <- suppressWarnings(
+    coef(betareg::betareg(formula = as.formula(paste0("yt ~", as.character(formula)[3])), data = dados))
+    )
 
   # Ajustando o modelo com a função optim
   opt_result <- optim(par = ini, 
                       fn = betaregesc_log_vero, formula = formula, 
                       dados = dados, link = link, link_phi = link_phi,
                       hessian = !num_hessiana, ncuts = ncuts, type = type, lim = lim,
-                      method = "BFGS", acumulada = acumulada,
+                      method = "BFGS", acumulada = acumulada, repar = repar,
                       control=list(fnscale = -1))
 
   if(num_hessiana){
     hessiana <- numDeriv::hessian(betaregesc_log_vero, opt_result$par, 
                                   formula = formula, dados = dados, acumulada = acumulada,
                                   ncuts = ncuts, type = type, lim = lim,
-                                  link = link, link_phi = link_phi)
+                                  link = link, link_phi = link_phi, repar = repar)
     opt_result$hessian <- hessiana
   }
 
@@ -431,8 +500,6 @@ betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "identity"
   return(invisible(opt_result))
 }
 
-
-
 #' Função para ajustar um modelo beta ordinal
 #'
 #' A função betaregesc ajusta um modelo beta para escala usando a função optim
@@ -455,6 +522,7 @@ betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "identity"
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @importFrom betareg betareg
@@ -494,8 +562,17 @@ betaregesc_fit_z <- function(formula,
                              acumulada = TRUE,
                              ncuts = 100,
                              type = "m",
-                             lim = 0.5
+                             lim = 0.5,
+                             repar = "2"
                              ) {
+  
+  link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
+  link_phi <- if(repar == "2"){
+    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
+  } else {
+    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
+  }
+  
   formula <- Formula::as.Formula(formula)
   if(length(formula)[2L] < 2L) {
     formula <- Formula::as.Formula(formula(formula), ~ 1)
@@ -503,7 +580,9 @@ betaregesc_fit_z <- function(formula,
     formula <- Formula::Formula(formula(formula, rhs = 1:2))
   }
   
-  ini <- c(coef(betareg::betareg(formula = as.formula(paste0("yt ~", as.character(formula)[3])), data = dados)))
+  ini <- c(suppressWarnings(
+    coef(betareg::betareg(formula = as.formula(paste0("yt ~", as.character(formula)[3])), data = dados))
+  ))
 
   # Ajustando o modelo com a função optim
   opt_result <- optim(par = ini,
@@ -515,14 +594,17 @@ betaregesc_fit_z <- function(formula,
                       hessian = !num_hessiana,
                       method = "BFGS",
                       acumulada = acumulada,
-                      ncuts = ncuts, type = type, lim = lim,
+                      ncuts = ncuts, type = type, 
+                      lim = lim, repar = repar,
                       control=list(fnscale = -1))
 
   if(num_hessiana){
     hessiana <- numDeriv::hessian(betaregesc_log_vero_z,
                                   opt_result$par,
                                   ncuts = ncuts, type = type, lim = lim,
-                                  formula = formula, link = link, link_phi = link_phi, dados = dados)
+                                  formula = formula, link = link, 
+                                  link_phi = link_phi, repar = repar,
+                                  dados = dados)
     opt_result$hessian <- hessiana
   }
   # Mu chapéu
@@ -1349,6 +1431,8 @@ print.betaregesc <- function(x, digits = max(3, getOption("digits") - 2), ...){
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2. 
+#' 
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @importFrom Formula as.Formula
@@ -1384,14 +1468,14 @@ print.betaregesc <- function(x, digits = max(3, getOption("digits") - 2), ...){
 #' }
 #' @export
 betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", acumulada = TRUE,
-                       ncuts = 100, type = "m", lim = 0.5, num_hessiana = TRUE){
+                       ncuts = 100, type = "m", lim = 0.5, repar = "2", num_hessiana = TRUE){
   formula <- Formula::as.Formula(formula)
   if(length(formula)[2L] < 2L) {
     formula <- Formula::as.Formula(formula(formula), ~ 1)
     #fx <- formula(terms(formula, rhs = 1L))
     out <- betaregesc_fit(formula = formula, dados = dados, link = link, link_phi = link_phi,
                           ncuts = ncuts, type = type, lim = lim, acumulada = acumulada,
-                          num_hessiana = num_hessiana)
+                          num_hessiana = num_hessiana, repar = repar)
   } else {
     if(length(formula)[2L] > 2L) {
       formula <- Formula::Formula(formula(formula, rhs = 1:2))
@@ -1400,7 +1484,7 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
     #fz <- formula(terms(formula, rhs = 2L))
     out <- betaregesc_fit_z(formula = formula, dados = dados, link = link, link_phi = link_phi,
                             ncuts = ncuts, type = type, lim = lim, num_hessiana = num_hessiana, 
-                            acumulada = acumulada)
+                            acumulada = acumulada, repar = repar)
   }
   class(out) <- c("betaregesc","betaregescdv")
   return(out)
@@ -1436,6 +1520,7 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
 #' @param type Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2. 
 #' 
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
@@ -1455,10 +1540,10 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
 #' betas = c(0.2, -0.5, 0.3),
 #' zetas = c(1, 1.2),
 #' link = "logit",
-#' link_phi = "log",
+#' link_phi = "logit",
 #' ncuts = 100)
 #' fit <- betaregesc_bbmle(formula = y ~ x1 + x2|z1,
-#' dados = dados_simulados, link = "logit", link_phi = "log")
+#' dados = dados_simulados, link = "logit", link_phi = "logit")
 #' p <- profile(fit)
 #' plot(p)
 #' }
@@ -1468,7 +1553,7 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
 #' @export
 betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identity", 
                            num_hessiana = TRUE, acumulada = TRUE, optimizer = "optim",
-                           ncuts = 100, type = "m", lim = 0.5
+                           ncuts = 100, type = "m", lim = 0.5, repar = "2"
                            ){
   
   optimizer <- match.arg(optimizer, c("optim","nlminb"))
@@ -1480,13 +1565,15 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
     Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
     X <- model.matrix(mtX, mf)
     
-    fb <- betareg::betareg(formula = formula(paste0("yt ~ ", paste0(formula)[3])), 
-                           data = data.frame(Y, X[,-1, drop = FALSE]), link = "logit")
-    ini <- coef(fb)
-    ll <- function(param, formula, dados, link, link_phi, acumulada, ncuts, type, lim){
+    ini <- suppressWarnings(
+      coef(betareg::betareg(formula = formula(paste0("yt ~ ", paste0(formula)[3])), 
+                            data = data.frame(Y, X[,-1, drop = FALSE])))
+    )
+    
+    ll <- function(param, formula, dados, link, link_phi, acumulada, ncuts, type, lim, repar){
       -betaregesc::betaregesc_log_vero(
         param = param, formula = formula, dados = dados, link = link, link_phi = link_phi,
-        ncuts = ncuts, type = type, lim = lim, acumulada = acumulada
+        ncuts = ncuts, type = type, lim = lim, acumulada = acumulada, repar = repar
       )
     }
     bbmle::parnames(ll) <- names(ini)
@@ -1498,7 +1585,8 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
                                    formula = formula,
                                    link = link, 
                                    link_phi = link_phi, 
-                                   ncuts = ncuts, type = type, lim = lim,
+                                   ncuts = ncuts, type = type,
+                                   lim = lim, repar = repar,
                                    acumulada = acumulada),
                        start = as.list(ini))
   } else {
@@ -1510,16 +1598,18 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
     X <- model.matrix(mtX, mf)
     Z <- model.matrix(mtZ, mf)
 
-    fb <- betareg::betareg(formula = as.formula(paste0("yt ~ ", paste0(formula)[3])),
-                           data = data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE]),
-                           link = "logit")
-    ini <- coef(fb)
-    ll2 <- function(param, dados, formula, link, link_phi, acumulada, ncuts, type, lim){
+    ini <- suppressWarnings(
+      coef(betareg::betareg(formula = as.formula(paste0("yt ~ ", paste0(formula)[3])),
+                            data = data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE]),
+                            link = link))
+    )
+    
+    ll2 <- function(param, dados, formula, link, link_phi, acumulada, ncuts, type, lim, repar){
       -betaregesc::betaregesc_log_vero_z(
         param = param, formula = formula, 
         dados = dados, link = link, link_phi = link_phi, 
-        ncuts = ncuts, type = type, lim = lim,
-        acumulada = acumulada
+        ncuts = ncuts, type = type, lim = lim, 
+        repar = repar, acumulada = acumulada
       )
     }
     bbmle::parnames(ll2) <- names(ini)
@@ -1531,7 +1621,8 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
                                    formula = formula,
                                    link = link,
                                    link_phi = link_phi,
-                                   ncuts = ncuts, type = type, lim = lim,
+                                   ncuts = ncuts, type = type, 
+                                   lim = lim, repar = repar,
                                    acumulada = acumulada),
                        start = as.list(ini))
   }
@@ -1580,7 +1671,35 @@ fn_check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5){
   y_inf[y_inf >= 1] <- 0.99999
   y_sup[y_sup >= 1] <- 0.99999
   
-  Y <- cbind(left = y_inf, right = y_sup, yt=y/ncuts, y)
+  yt=y/ncuts
+  yt[yt == 0] <- 0.00001
+  yt[yt == 1] <- 0.99999
+  
+  Y <- cbind(left = y_inf, right = y_sup, yt, y)
   return(Y)
 }
 
+
+fn_min_max <- function(x){
+  xmin <- min(x, na.rm = TRUE)
+  xmax <- max(x, na.rm = TRUE)
+  o <- (x-xmin)/(xmax-xmin)
+  o[round(o, 8) == 0] <- 0.00001
+  o[round(o, 8) == 1] <- 0.99999
+  attr(o, "min") <- xmin
+  attr(o, "max") <- xmax
+  return(o)
+}
+
+
+betarepar <- function(mu, phi, repar = '2'){
+  repar <- match.arg(repar, c('0','1','2'))
+  switch(repar,
+         '0' = data.frame(shape1 = as.numeric(mu),
+                          shape2 = as.numeric(phi)),
+         '1' = data.frame(shape1 = as.numeric(mu*phi),
+                          shape2 = as.numeric((1-mu)*phi)),
+         '2' = data.frame(shape1 = as.numeric(mu*((1-phi)/phi)),
+                          shape2 = as.numeric((1-mu)*((1-phi)/phi)))
+  )
+}

@@ -9,11 +9,12 @@ betaregesc_log_vero(
   formula,
   dados,
   link = "logit",
-  link_phi = "log",
+  link_phi = "logit",
   acumulada = TRUE,
   ncuts = 100,
   type = "m",
-  lim = 0.5
+  lim = 0.5,
+  repar = "2"
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ acumulada deve ser calculada. O padrão é TRUE.}
 \item{type}{Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.}
 
 \item{lim}{Região de incerteza da medida. Padrão 0.5.}
+
+\item{repar}{Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.}
 }
 \value{
 Retorna a soma da log-verossimilhança dos dados.
@@ -52,12 +55,19 @@ variável beta ordinal, aplicando diferentes funções de ligação.
 # Criar um conjunto de dados de exemplo
 set.seed(421)
 dados <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
-# Calcular a log-verossimilhança usando a função log_vero_beta_ordinal
-param <- c(0, 0.5, -0.2, 50)
-phi <- 30
+param <- c(0, 0.5,-0.2, 1 / 5)
+phi <- 1 / 5
 formula <- y ~ x1 + x2
-dados_simulados <- betaregesc_simula_dados(formula = ~ x1 + x2, dados = dados,
-betas = c(0, 0.5, -0.2), phi = phi, link = "logit", ncuts = 100, type = "m")
+dados_simulados <- betaregesc_simula_dados(
+ formula = ~ x1 + x2,
+ dados = dados,
+ betas = c(0, 0.5,-0.2),
+ phi = phi,
+ link = "logit",
+ link_phi = "logit",
+ ncuts = 100,
+ type = "m"
+ )
 log_verossimilhanca <- betaregesc_log_vero(param, formula, dados_simulados)
 print(log_verossimilhanca)
 }

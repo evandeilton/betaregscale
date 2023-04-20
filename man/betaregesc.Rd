@@ -13,6 +13,7 @@ betaregesc(
   ncuts = 100,
   type = "m",
   lim = 0.5,
+  repar = "2",
   num_hessiana = TRUE
 )
 }
@@ -41,6 +42,8 @@ Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".}
 \item{type}{Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.}
 
 \item{lim}{Região de incerteza da medida. Padrão 0.5.}
+
+\item{repar}{Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.}
 
 \item{num_hessiana}{Se TRUE, calcula a matriz Hessian numericamente com o
 pacote numDeriv. Se FALSE, calcula com o padrão da optim.}
