@@ -14,7 +14,7 @@ sumarizadas do ajuste, tanto para dispesão fixa como variável."><!-- mathjax -
     
     <a class="navbar-brand me-2" href="../index.html">betaregesc</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,8 @@ sumarizadas do ajuste, tanto para dispesão fixa como variável.</p>
 <span>  optimizer <span class="op">=</span> <span class="st">"optim"</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"m"</span>,</span>
-<span>  lim <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  repar <span class="op">=</span> <span class="st">"2"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -114,6 +115,10 @@ pacote numDeriv. Se FALSE, calcula com o padrão da optim.</p></dd>
 <dt>lim</dt>
 <dd><p>Região de incerteza da medida. Padrão 0.5.</p></dd>
 
+
+<dt>repar</dt>
+<dd><p>Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -139,10 +144,10 @@ estatísticas sumarizadas do ajuste.</p>
 <span class="r-in"><span>betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>zetas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>link <span class="op">=</span> <span class="st">"logit"</span>,</span></span>
-<span class="r-in"><span>link_phi <span class="op">=</span> <span class="st">"log"</span>,</span></span>
+<span class="r-in"><span>link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span></span>
 <span class="r-in"><span>ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">betaregesc_bbmle</span><span class="op">(</span>formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span><span class="op">|</span><span class="va">z1</span>,</span></span>
-<span class="r-in"><span>dados <span class="op">=</span> <span class="va">dados_simulados</span>, link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"log"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>dados <span class="op">=</span> <span class="va">dados_simulados</span>, link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/profile.html" class="external-link">profile</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
