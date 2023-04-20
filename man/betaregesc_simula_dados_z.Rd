@@ -14,7 +14,8 @@ betaregesc_simula_dados_z(
   link_phi = "log",
   ncuts = 100,
   type = "m",
-  lim = 0.5
+  lim = 0.5,
+  repar = "2"
 )
 }
 \arguments{
@@ -48,6 +49,8 @@ Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".}
 \item{type}{Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.}
 
 \item{lim}{Limite numérico a ser utilizado para ajustar os intervalos. O padrão é 0.5.}
+
+\item{repar}{Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.}
 }
 \value{
 Retorna um data.frame contendo os dados simulados da variável beta
@@ -60,20 +63,22 @@ funções de ligação tanto para betas como para zetas de phi
 \examples{
 # Criar um conjunto de dados de exemplo
 set.seed(421)
-n <- 50
+n <- 100
 dados <- data.frame(
-x1 = rnorm(n), x2 = rnorm(n),
-z1 = runif(n), z2 = runif(n))
-fx <- ~ x1 + x2
-fz <- ~ z1
+  x1 = rnorm(n),
+  x2 = rnorm(n),
+  z1 = runif(n),
+  z2 = runif(n)
+ )
 dados_simulados <- betaregesc_simula_dados_z(
-formula_x = fx,
-formula_z = fz,
-dados = dados,
-betas = c(0.2, -0.5, 0.3),
-zetas = c(1, 1.2),
-link = "logit",
-link_phi = "log",
-ncuts = 100,
-type = "m")
+ formula_x = ~ x1 + x2,
+ formula_z = ~ z1 + z2,
+ dados = dados,
+ betas = c(0.2,-0.5, 0.3),
+ zetas = c(0.2, -0.4, 0.2),
+ link = "logit",
+ link_phi = "logit",
+ ncuts = 100,
+ repar = "2"
+ )
 }
