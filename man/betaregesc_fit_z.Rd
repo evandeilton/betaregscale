@@ -13,7 +13,8 @@ betaregesc_fit_z(
   acumulada = TRUE,
   ncuts = 100,
   type = "m",
-  lim = 0.5
+  lim = 0.5,
+  repar = "2"
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ pacote numDeriv. Se FALSE, calcula com o padrão da optim}
 \item{type}{Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.}
 
 \item{lim}{Região de incerteza da medida. Padrão 0.5.}
+
+\item{repar}{Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.}
 }
 \value{
 Retorna uma lista contendo o resultado da otimização e uma tabela com

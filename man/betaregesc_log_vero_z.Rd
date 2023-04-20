@@ -13,7 +13,8 @@ betaregesc_log_vero_z(
   ncuts = 100,
   type = "m",
   lim = 0.5,
-  acumulada = TRUE
+  acumulada = TRUE,
+  repar = "2"
 )
 }
 \arguments{
@@ -42,6 +43,8 @@ Pode ser uma das seguintes: "log", "sqrt e "identity". O padrão é "log".}
 
 \item{acumulada}{Um valor lógico indicando se a log-verossimilhança acumulada
 deve ser calculada. O padrão é TRUE.}
+
+\item{repar}{Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.}
 }
 \value{
 Retorna a soma da log-verossimilhança dos dados.
@@ -53,27 +56,30 @@ de mu como no zetas de phi.
 }
 \examples{
 # Criar um conjunto de dados de exemplo
-n <- 50
+n <- 100
 dados <- data.frame(x1 = rnorm(n), x2 = rnorm(n),
                     z1 = runif(n), z2 = runif(n))
 fx <- ~ x1 + x2
 fz <- ~ z1
 dados_simulados <- betaregesc_simula_dados_z(
-  formula_x = fx,
-  formula_z = fz,
-  dados = dados,
-  betas = c(0.2, -0.5, 0.3),
-  zetas = c(1, 1.2),
-  link = "logit",
-  link_phi = "log",
-  ncuts = 100)
+ formula_x = fx,
+ formula_z = fz,
+ dados = dados,
+ betas = c(0.2,-0.5, 0.3),
+ zetas = c(0.5, -0.5),
+ link = "logit",
+ link_phi = "logit",
+ repar = "2",
+ ncuts = 100)
+
 # Calcular a log-verossimilhança usando a função betaregesc_log_vero_z
 log_verossimilhanca <- betaregesc_log_vero_z(
-  param = c(c(0.2, -0.5, 0.3), c(1, 1.2)),
+  param = c(c(0.2,-0.5, 0.3), c(0.5, -0.5)),
   formula = y ~ x1 + x2 | z1,
   dados = dados_simulados,
   link = "logit",
-  link_phi = "log",
-  acumulada = TRUE)
-  print(log_verossimilhanca)
+  link_phi = "logit",
+  acumulada = TRUE,
+  repar = "2")
+  
 }

@@ -14,7 +14,8 @@ betaregesc_bbmle(
   optimizer = "optim",
   ncuts = 100,
   type = "m",
-  lim = 0.5
+  lim = 0.5,
+  repar = "2"
 )
 }
 \arguments{
@@ -48,6 +49,8 @@ pacote numDeriv. Se FALSE, calcula com o padrão da optim.}
 \item{type}{Tipo de intervalo. "m" = meio; "l" = esquerda e "r" = direita.}
 
 \item{lim}{Região de incerteza da medida. Padrão 0.5.}
+
+\item{repar}{Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.}
 }
 \value{
 Retorna uma lista contendo o resultado da otimização e uma tabela com
@@ -73,10 +76,10 @@ dados = dados,
 betas = c(0.2, -0.5, 0.3),
 zetas = c(1, 1.2),
 link = "logit",
-link_phi = "log",
+link_phi = "logit",
 ncuts = 100)
 fit <- betaregesc_bbmle(formula = y ~ x1 + x2|z1,
-dados = dados_simulados, link = "logit", link_phi = "log")
+dados = dados_simulados, link = "logit", link_phi = "logit")
 p <- profile(fit)
 plot(p)
 }

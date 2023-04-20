@@ -8,12 +8,13 @@ betaregesc_fit(
   formula,
   dados,
   link = "logit",
-  link_phi = "identity",
+  link_phi = "logit",
   ncuts = 100,
   type = "m",
   lim = 0.5,
   num_hessiana = TRUE,
-  acumulada = TRUE
+  acumulada = TRUE,
+  repar = "2"
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ seguintes: "logit", "probit", "cauchit", "cloglog" ou "identity". O padrão é "
 pacote numDeriv. Se FALSE, calcula com o padrão da optim}
 
 \item{acumulada}{Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.}
+
+\item{repar}{Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.}
 }
 \value{
 Retorna uma lista contendo o resultado da otimização e uma tabela com
