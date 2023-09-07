@@ -14,12 +14,12 @@
 #' @return The result of calling `rhs(lhs)`.
 NULL
 
-#' Classe betaregesc
+#' Classe betaregscale
 #' 
-#' @name cls betaregesc
+#' @name cls betaregscale
 #' @keywords internal
 #' @importFrom methods setOldClass
-methods::setOldClass(Classes = c("betaregesc","betaregescdv"))  
+methods::setOldClass(Classes = c("betaregscale","betaregscaledv"))  
 
 #' Variaveis globais
 #' @name Variaveis
