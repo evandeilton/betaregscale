@@ -6,7 +6,7 @@ text-align: justify}
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# betaregscale
+# betaregscale <a href="https://evandeilton.github.io/betaregscale/"><img src="man/figures/logo.png" align="right" height="139" alt="betaregscale website" /></a>
 
 <!-- badges: start -->
 
