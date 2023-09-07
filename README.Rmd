@@ -17,24 +17,25 @@ knitr::opts_chunk$set(
 # betaregscale
 
 <!-- badges: start -->
-[![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
+[![pkgdown](https://github.com/evandeilton/betaregscale/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaregscale/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-O pacote `betaregscale` oferece uma biblioteca de funções em R para ajuste de modelos de regressão beta para dados oriundos de escalas mapeáveis no suporte da distribuição beta, como por exemplo Escaldas de dor, Likert entre outras, do modo que a incertea do instrumento é avaliada de forma intervalar. O _framework_ aqui suporta modelos com dispersão fixa ou variável, tudo no paradigma de máxima verossimilhança. São oferecidas ainda, funções para simulações e avaliação do desempenho dos modelos no processo de estimação e outras para akjuste do modelo a dados reais. O código-fonte e contribuições podem ser acessados no repositório oficial do GitHub. Informações detalhadas sobre instalação e uso estão disponíveis na documentação do pacote.
+O pacote betaregscale fornece funções em R destinadas ao ajuste de modelos de regressão beta. É ideal para dados derivados de escalas que se encaixam na distribuição beta, como Escalas de Dor, Likert, entre outras. A característica distintiva deste pacote é a capacidade de avaliar a incerteza do instrumento de forma intervalar. O framework suporta modelos com dispersão fixa ou variável, operando sob o paradigma de máxima verossimilhança. Além disso, o pacote inclui funções para simulações, avaliação de desempenho dos modelos e ajustes a dados reais. O código-fonte e contribuições estão disponíveis no repositório oficial do GitHub. Detalhes sobre instalação e uso podem ser encontrados na documentação do pacote.
 
-O `betaregscale` é voltado para modelagem de dados com variável resposta mapeável em intervalo contínuo, e.g., $y = (y_s;y_i)$, abrangendo censura à esquerda, direita ou intervalar independente do tempo. Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de dor no estilo NRS-11, NRS-21 e NRS-101, avaliações de compostos químicos, entre outros. Utilizando a distribuição beta, acomoda características dos dados em estrutura de regressão, associando variáveis explicativas à variável resposta intervalar e permitindo preditores lineares para coeficientes relacionados à média e dispersão, fornecendo estimativas robustas e confiáveis dos parâmetros do modelo.
+betaregscale é direcionado à modelagem de dados cuja variável resposta se enquadra em um intervalo contínuo, como $y = (y_s;y_i)$. Ele é versátil, lidando com censura à esquerda, direita ou intervalar independentemente do tempo. Suas aplicações incluem pesquisas de opinião, avaliações de produtos, escalas de dor (NRS-11, NRS-21, NRS-101), análises de compostos químicos, entre outros. Utilizando a distribuição beta, ele modela os dados em uma estrutura de regressão, relacionando variáveis explicativas à variável resposta intervalar. Também permite preditores lineares para coeficientes associados à média e dispersão, resultando em estimativas robustas e precisas dos parâmetros do modelo.
 
 ## Principais funcionalidades
 
-Entre as principais funcionalidades ten-se:
+O pacote `betaregscale` apresenta:
 
-+ Ajuste de modelos de regressão beta com dispersão fixa e variável.
-+ Funções para simulação de dados, permitindo a avaliação do desempenho dos modelos em diferentes cenários.
-+ Estatística de bondade do ajuste como AIC e BIC, por exemplo em `gof()`.
-+ Funções genéricas como `coef`, `vcov`, `fitted`, `residuals`, `summary` e `print` foram implementadas para a classe `betaregscale` para facilitar o acesso às medidas do ajuste.
-+ Funções para ajuste e comparação de modelos com diferentes combinações de variáveis explicativas tanto para $\mu$ como $\phi$.
++ Modelagem de regressão beta com dispersões fixa e variável.
++ Simulação de dados para avaliar desempenho dos modelos em diversos cenários.
++ Métricas de adequação do ajuste, como AIC e BIC, acessíveis via `gof()`.
++ Funções padrão como `coef`, `vcov`, `fitted`, `residuals`, `summary`, e `print` implementadas para a classe `betaregscale`, facilitando análises.
++ Recursos para ajustar e comparar modelos com diversas combinações de variáveis explicativas para $\mu$ e $\phi$.
 
-> Acesse a documentação detalhada de cada função e exemplos de uso neste site para obter informações sobre como utilizar o pacote `betaregscale` em suas análises.
+> Para uma exploração aprofundada de cada função e exemplos práticos, consulte a documentação disponível neste site.
+
 
 ## Instalação
 
@@ -52,20 +53,21 @@ require(betaregscale, quietly = TRUE)
 ```
 
 
-## Exemplos
+## Exemplos de Uso
 
-Esses são alguns exemplos de uso das funções do pacote.
+A seguir, apresentamos exemplos práticos para demonstrar a aplicabilidade das funções do pacote.
 
-### Simula dados do modelo beta intervalar com dispersão fixa
+### Simulação de Dados para Modelo Beta Intervalar com Dispersão Fixa
 
-Esta função gera amostras de variável beta com dispersão fixa usando várias funções de ligação.
+A função `betaregscale_simula_dados` permite gerar amostras de variáveis beta com dispersão fixa, considerando diferentes funções de ligação.
 
-No exemplo a seguir em código R, demonstramos como usar a função `betaregscale_simula_dados` para simular dados de variável beta com dispersão fixa:
+No código R abaixo, exemplificamos sua aplicação:
 
-+ Criamos um conjunto de dados com 100 observações e duas variáveis explicativas independentes (x1 e x2) a partir de uma distribuição normal.
-+ Utilizamos a função beta_ordinal_simula_dados para simular dados com parâmetros personalizados fornecidos.
++ Primeiro, geramos um conjunto de 100 observações com duas variáveis independentes (x1 e x2) a partir de uma distribuição normal.
++ Em seguida, usamos `betaregscale_simula_dados` para simular dados, definindo parâmetros específicos.
 
-> OBS.: `type` é o tipo de tratamento do intervalo `m` centraliza `y` ao meio. Ex. Se foi coletado o valor $y = 6$, transforma-se $y_t = 6/10 = 0.6$. Assim, para tratar a incerteza do instrumento, sugere-se que a medida anotada pode estar limitada a  $y_{left} = 5.5$ e $y_{right} = 6.6$.
+> Nota: O parâmetro `type` determina o tratamento do intervalo. Quando `type` é 'm', centraliza-se `y` ao meio. Por exemplo, se registramos o valor $y = 6$, este se transforma em $y_t = 6/10 = 0.6$. Assim, para considerar a incerteza da medida, pode-se sugerir que o valor observado esteja no intervalo $y_{left} = 5.5$ e $y_{right} = 6.6$.
+
 
 ```{r}
 # Criar um conjunto de dados de exemplo
@@ -160,16 +162,16 @@ purrr::walk(names(fit_fixo_profiles), function(p){
 })
 ```
 
+### Simulação de Dados para Modelo Beta Intervalar com Dispersão Variável
 
-### Simula dados do modelo beta intervalar com dispersão variável
+Neste exemplo em R, geramos dados simulados para um modelo beta com dispersão variável utilizando a função `betaregscale_simula_dados_z`. O fluxo é descrito a seguir:
 
-Neste bloco de código R, é criado um conjunto de dados simulados de um modelo beta com dispersão variável utilizando a função `betaregscale_simula_dados_z.` O processo é resumido abaixo:
++ Estabelecer uma semente e determinar o tamanho da amostra, bem como as fórmulas para as variáveis explicativas x e z.
+  
++ Construir um conjunto de dados com 50 observações contendo quatro variáveis independentes (x1, x2, z1 e z2). Estas são oriundas de distribuições normal e uniforme.
 
-+ Definir semente e tamanho da amostra, além das fórmulas para as variáveis explicativas x e z.
++ Empregar `betaregscale_simula_dados_z` para simular os dados, definindo os parâmetros desejados, incluindo fórmulas, coeficientes de regressão, funções de ligação e número de pontos de corte.
 
-+ Criar um conjunto de dados de exemplo com 50 observações e quatro variáveis independentes (x1, x2, z1 e z2), geradas a partir de distribuições normal e uniforme.
-
-+ Utilizar a função `betaregscale_simula_dados_z` para gerar dados simulados com base nos parâmetros fornecidos, como fórmulas, coeficientes de regressão, funções de ligação e número de pontos de corte.
 
 ```{r}
 # Criar um conjunto de dados de exemplo
