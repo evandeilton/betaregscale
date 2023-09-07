@@ -6,11 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="Pacote para o programa de mestrado do PPGMNE. O Objetivo é fazer ajuste do modelo regressão beta para dados com resposta oriunda escalas intervalares, objeto da dissertação de mestrado.">
-<title>Regressão beta para dados de escala • betaregesc</title>
+<title>Regressão beta para dados de escala • betaregscale</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><link href="deps/Ubuntu-0.4.5/font.css" rel="stylesheet">
-<link href="deps/Fira_Code-0.4.5/font.css" rel="stylesheet">
+<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><link href="deps/Ubuntu-0.4.7/font.css" rel="stylesheet">
+<link href="deps/Fira_Code-0.4.7/font.css" rel="stylesheet">
 <!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Regressão beta para dados de escala">
@@ -26,9 +26,9 @@
 
     <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
-    <a class="navbar-brand me-2" href="index.html">betaregesc</a>
+    <a class="navbar-brand me-2" href="index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,12 +53,12 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="betaregesc">betaregesc<a class="anchor" aria-label="anchor" href="#betaregesc"></a>
+<div class="page-header"><h1 id="betaregscale">betaregscale<a class="anchor" aria-label="anchor" href="#betaregscale"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p>O pacote <code>betaregesc</code> oferece uma biblioteca de funções em R para ajuste de modelos de regressão beta para dados oriundos de escalas mapeáveis no suporte da distribuição beta, como por exemplo Escaldas de dor, Likert entre outras, do modo que a incertea do instrumento é avaliada de forma intervalar. O <em>framework</em> aqui suporta modelos com dispersão fixa ou variável, tudo no paradigma de máxima verossimilhança. São oferecidas ainda, funções para simulações e avaliação do desempenho dos modelos no processo de estimação e outras para akjuste do modelo a dados reais. O código-fonte e contribuições podem ser acessados no repositório oficial do GitHub. Informações detalhadas sobre instalação e uso estão disponíveis na documentação do pacote.</p>
-<p>O <code>betaregesc</code> é voltado para modelagem de dados com variável resposta mapeável em intervalo contínuo, e.g., <span class="math inline"><em>y</em> = (<em>y</em><sub><em>s</em></sub>;<em>y</em><sub><em>i</em></sub>)</span>, abrangendo censura à esquerda, direita ou intervalar independente do tempo. Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de dor no estilo NRS-11, NRS-21 e NRS-101, avaliações de compostos químicos, entre outros. Utilizando a distribuição beta, acomoda características dos dados em estrutura de regressão, associando variáveis explicativas à variável resposta intervalar e permitindo preditores lineares para coeficientes relacionados à média e dispersão, fornecendo estimativas robustas e confiáveis dos parâmetros do modelo.</p>
+<p>O pacote <code>betaregscale</code> oferece uma biblioteca de funções em R para ajuste de modelos de regressão beta para dados oriundos de escalas mapeáveis no suporte da distribuição beta, como por exemplo Escaldas de dor, Likert entre outras, do modo que a incertea do instrumento é avaliada de forma intervalar. O <em>framework</em> aqui suporta modelos com dispersão fixa ou variável, tudo no paradigma de máxima verossimilhança. São oferecidas ainda, funções para simulações e avaliação do desempenho dos modelos no processo de estimação e outras para akjuste do modelo a dados reais. O código-fonte e contribuições podem ser acessados no repositório oficial do GitHub. Informações detalhadas sobre instalação e uso estão disponíveis na documentação do pacote.</p>
+<p>O <code>betaregscale</code> é voltado para modelagem de dados com variável resposta mapeável em intervalo contínuo, e.g., <span class="math inline"><em>y</em> = (<em>y</em><sub><em>s</em></sub>;<em>y</em><sub><em>i</em></sub>)</span>, abrangendo censura à esquerda, direita ou intervalar independente do tempo. Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de dor no estilo NRS-11, NRS-21 e NRS-101, avaliações de compostos químicos, entre outros. Utilizando a distribuição beta, acomoda características dos dados em estrutura de regressão, associando variáveis explicativas à variável resposta intervalar e permitindo preditores lineares para coeficientes relacionados à média e dispersão, fornecendo estimativas robustas e confiáveis dos parâmetros do modelo.</p>
 <div class="section level2">
 <h2 id="principais-funcionalidades">Principais funcionalidades<a class="anchor" aria-label="anchor" href="#principais-funcionalidades"></a>
 </h2>
@@ -67,11 +67,11 @@
 <li>Ajuste de modelos de regressão beta com dispersão fixa e variável.</li>
 <li>Funções para simulação de dados, permitindo a avaliação do desempenho dos modelos em diferentes cenários.</li>
 <li>Estatística de bondade do ajuste como AIC e BIC, por exemplo em <code><a href="reference/gof.html">gof()</a></code>.</li>
-<li>Funções genéricas como <code>coef</code>, <code>vcov</code>, <code>fitted</code>, <code>residuals</code>, <code>summary</code> e <code>print</code> foram implementadas para a classe <code>betaregesc</code> para facilitar o acesso às medidas do ajuste.</li>
+<li>Funções genéricas como <code>coef</code>, <code>vcov</code>, <code>fitted</code>, <code>residuals</code>, <code>summary</code> e <code>print</code> foram implementadas para a classe <code>betaregscale</code> para facilitar o acesso às medidas do ajuste.</li>
 <li>Funções para ajuste e comparação de modelos com diferentes combinações de variáveis explicativas tanto para <span class="math inline"><em>μ</em></span> como <span class="math inline"><em>ϕ</em></span>.</li>
 </ul>
 <blockquote>
-<p>Acesse a documentação detalhada de cada função e exemplos de uso neste site para obter informações sobre como utilizar o pacote <code>betaregesc</code> em suas análises.</p>
+<p>Acesse a documentação detalhada de cada função e exemplos de uso neste site para obter informações sobre como utilizar o pacote <code>betaregscale</code> em suas análises.</p>
 </blockquote>
 </div>
 <div class="section level2">
@@ -79,10 +79,10 @@
 </h2>
 <p>Você pode instalar o pacote com esse comando abaixo.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregesc/">betaregesc</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evandeilton/betaregesc"</span><span class="op">)</span>  </span>
+<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregesc/" class="external-link">betaregscale</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evandeilton/betaregscale"</span><span class="op">)</span>  </span>
 <span><span class="op">}</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregesc/">betaregesc</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregesc/" class="external-link">betaregscale</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="exemplos">Exemplos<a class="anchor" aria-label="anchor" href="#exemplos"></a>
@@ -92,7 +92,7 @@
 <h3 id="simula-dados-do-modelo-beta-intervalar-com-dispersão-fixa">Simula dados do modelo beta intervalar com dispersão fixa<a class="anchor" aria-label="anchor" href="#simula-dados-do-modelo-beta-intervalar-com-dispers%C3%A3o-fixa"></a>
 </h3>
 <p>Esta função gera amostras de variável beta com dispersão fixa usando várias funções de ligação.</p>
-<p>No exemplo a seguir em código R, demonstramos como usar a função <code>betaregesc_simula_dados</code> para simular dados de variável beta com dispersão fixa:</p>
+<p>No exemplo a seguir em código R, demonstramos como usar a função <code>betaregscale_simula_dados</code> para simular dados de variável beta com dispersão fixa:</p>
 <ul>
 <li>Criamos um conjunto de dados com 100 observações e duas variáveis explicativas independentes (x1 e x2) a partir de uma distribuição normal.</li>
 <li>Utilizamos a função beta_ordinal_simula_dados para simular dados com parâmetros personalizados fornecidos.</li>
@@ -107,7 +107,7 @@
 <span><span class="va">dados</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
 <span>                    x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregesc_simula_dados.html">betaregesc_simula_dados</a></span><span class="op">(</span></span>
+<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregscale_simula_dados.html">betaregscale_simula_dados</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  dados <span class="op">=</span> <span class="va">dados</span>,</span>
 <span>  betas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
@@ -193,7 +193,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_fixo</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="reference/betaregesc.html">betaregesc</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/betaregscale.html">betaregscale</a></span><span class="op">(</span></span>
 <span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
@@ -446,7 +446,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_fixo_bbmle</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="reference/betaregesc_bbmle.html">betaregesc_bbmle</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/betaregscale_bbmle.html">betaregscale_bbmle</a></span><span class="op">(</span></span>
 <span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
@@ -477,11 +477,11 @@
 <div class="section level3">
 <h3 id="simula-dados-do-modelo-beta-intervalar-com-dispersão-variável">Simula dados do modelo beta intervalar com dispersão variável<a class="anchor" aria-label="anchor" href="#simula-dados-do-modelo-beta-intervalar-com-dispers%C3%A3o-vari%C3%A1vel"></a>
 </h3>
-<p>Neste bloco de código R, é criado um conjunto de dados simulados de um modelo beta com dispersão variável utilizando a função <code>betaregesc_simula_dados_z.</code> O processo é resumido abaixo:</p>
+<p>Neste bloco de código R, é criado um conjunto de dados simulados de um modelo beta com dispersão variável utilizando a função <code>betaregscale_simula_dados_z.</code> O processo é resumido abaixo:</p>
 <ul>
 <li><p>Definir semente e tamanho da amostra, além das fórmulas para as variáveis explicativas x e z.</p></li>
 <li><p>Criar um conjunto de dados de exemplo com 50 observações e quatro variáveis independentes (x1, x2, z1 e z2), geradas a partir de distribuições normal e uniforme.</p></li>
-<li><p>Utilizar a função <code>betaregesc_simula_dados_z</code> para gerar dados simulados com base nos parâmetros fornecidos, como fórmulas, coeficientes de regressão, funções de ligação e número de pontos de corte.</p></li>
+<li><p>Utilizar a função <code>betaregscale_simula_dados_z</code> para gerar dados simulados com base nos parâmetros fornecidos, como fórmulas, coeficientes de regressão, funções de ligação e número de pontos de corte.</p></li>
 </ul>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Criar um conjunto de dados de exemplo</span></span>
@@ -498,7 +498,7 @@
 <span>  z2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregesc_simula_dados_z.html">betaregesc_simula_dados_z</a></span><span class="op">(</span></span>
+<span><span class="va">dados_simulados</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregscale_simula_dados_z.html">betaregscale_simula_dados_z</a></span><span class="op">(</span></span>
 <span>  formula_x <span class="op">=</span> <span class="va">fx</span>,</span>
 <span>  formula_z <span class="op">=</span> <span class="va">fz</span>,</span>
 <span>  dados <span class="op">=</span> <span class="va">dados</span>,</span>
@@ -618,7 +618,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_variavel</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="reference/betaregesc.html">betaregesc</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/betaregscale.html">betaregscale</a></span><span class="op">(</span></span>
 <span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span><span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
@@ -911,7 +911,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">links</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">links</span></span>
 <span></span>
 <span><span class="va">fit_variavel_bbmle</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">links</span>, .f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">link</span><span class="op">)</span><span class="op">{</span></span>
-<span>  <span class="fu"><a href="reference/betaregesc_bbmle.html">betaregesc_bbmle</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/betaregscale_bbmle.html">betaregscale_bbmle</a></span><span class="op">(</span></span>
 <span>    formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>    dados <span class="op">=</span> <span class="va">dados_simulados</span>,</span>
 <span>    link <span class="op">=</span> <span class="va">link</span>,</span>
@@ -986,7 +986,7 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing betaregesc</a></li>
+<li><a href="authors.html#citation">Citing betaregscale</a></li>
 </ul>
 </div>
 
