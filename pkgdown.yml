@@ -2,8 +2,8 @@ pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles: {}
-last_built: 2023-04-20T16:59Z
+last_built: 2023-09-07T17:28Z
 urls:
-  reference: https://evandeilton.github.io/betaregesc/reference
-  article: https://evandeilton.github.io/betaregesc/articles
+  reference: https://evandeilton.github.io/betaregscale/reference
+  article: https://evandeilton.github.io/betaregscale/articles
 
