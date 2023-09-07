@@ -1,7 +1,7 @@
-Package: betaregesc
+Package: betaregscale
 Type: Package
 Title: Regressão beta para dados de escala
-Version: 1.1.0
+Version: 1.1.1
 Author: Lopes, J. E.
 Maintainer: Lopes, J. E. <evandeilton@gmail.com>
 Description: Pacote para o programa de mestrado do PPGMNE. O Objetivo é fazer ajuste do modelo regressão beta para dados com resposta oriunda escalas intervalares, objeto da dissertação de mestrado.
