@@ -1,6 +1,5 @@
 ## -------------------------------------------------------------------------- ##
-## titulo:  REGRESSÃO BETA PARA DADOS DE ESCALA
-##          INTERVALAR
+## titulo:  REGRESSÃO BETA PARA DADOS DE ESCALA INTERVALAR
 ## Autor:   José Lopes / Wagner Bonatl
 ## Code:    Simulação da beta
 ## -------------------------------------------------------------------------- ##
@@ -55,44 +54,41 @@ fn_switch_link <- function(eta, link){
 #'   x2 = rnorm(n)
 #'  )
 #' formula <- ~ x1 + x2
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'  formula = formula,
 #'  dados = dados,
 #'  betas = c(0.2,-0.5, 0.3),
 #'  link = "logit",
 #'  link_phi = "logit",
 #'  ncuts = 100,
+#'  phi = 1/2,
 #'  repar = "2"
 #'  )
 #' @export
-betaregesc_simula_dados <- function(formula, dados, betas, phi = 1/5,
+betaregscale_simula_dados <- function(formula, dados, betas, phi = 1/5,
                                     link = "logit", link_phi = "logit",
                                     ncuts = 100, type = "m", lim = 0.5, repar = '2'){
-
+  
   link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
-  link_phi <- if(repar == "2"){
-    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
-  } else {
-    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
-  }
+  link_phi <- match.arg(link_phi, c("logit","probit","cauchit","cloglog","identity", "log", "sqrt", "1/mu^2", "inverse"))
   
   mfx <- model.frame(formula, data = dados)
   X   <- model.matrix(mfx, data = dados)
   n   <- nrow(dados)
-
+  
   # Aplicação do preditor linear nos betas
   eta  <- X%*%betas
   mu_  <- fn_switch_link(eta = eta, link = link)
   phi_ <- fn_switch_link(eta = phi, link = link_phi)
-
+  
   # Prepara a log-verossimilhança com dados intervalares
   pars <- betarepar(mu = mu_, phi = phi_, repar = repar)
   
   y <- rbeta(n = n, shape1 = pars$shape1, shape2 = pars$shape2)
   y_meio <- round(y*ncuts, 0)
-
+  
   out_y <- fn_check_response(y = y_meio, type = type, ncuts = ncuts, lim = lim)
-
+  
   out <- data.frame(out_y, X[,-1, drop = FALSE])
   return(out)
 }
@@ -136,7 +132,7 @@ betaregesc_simula_dados <- function(formula, dados, betas, phi = 1/5,
 #'   z1 = runif(n),
 #'   z2 = runif(n)
 #'  )
-#' dados_simulados <- betaregesc_simula_dados_z(
+#' dados_simulados <- betaregscale_simula_dados_z(
 #'  formula_x = ~ x1 + x2,
 #'  formula_z = ~ z1 + z2,
 #'  dados = dados,
@@ -148,35 +144,31 @@ betaregesc_simula_dados <- function(formula, dados, betas, phi = 1/5,
 #'  repar = "2"
 #'  )
 #' @export
-betaregesc_simula_dados_z <- function(formula_x = ~x1 + x2,
+betaregscale_simula_dados_z <- function(formula_x = ~x1 + x2,
                                       formula_z = ~z1 + z2,
                                       dados,
                                       betas = c(0, 0.5, -0.2),
                                       zetas = c(1, 0.5, 0.2),
                                       link = "logit",
-                                      link_phi = "log",
+                                      link_phi = "logit",
                                       ncuts = 100,
                                       type = "m", 
                                       lim = 0.5,
                                       repar = '2'
-                                      ){
+){
   mfx <- model.frame(formula_x, data = dados)
   mfz <- model.frame(formula_z, data = dados)
   X   <- model.matrix(mfx, data = dados)
   Z   <- model.matrix(mfz, data = dados)
   n   <- nrow(X)
-
+  
   link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
-  link_phi <- if(repar == "2"){
-    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
-  } else {
-    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
-  }
-
+  link_phi <- match.arg(link_phi, c("logit","probit","cauchit","cloglog","identity", "log", "sqrt", "1/mu^2", "inverse"))
+  
   # Aplicação do preditor linear nos betas
   mu_x <- fn_switch_link(eta = X%*%betas, link = link)
   mu_z <- fn_switch_link(eta = Z%*%zetas, link = link_phi)
-
+  
   # Prepara a log-verossimilhança com dados intervalares
   pars <- betarepar(mu = mu_x, phi = mu_z, repar = repar)
   
@@ -185,7 +177,7 @@ betaregesc_simula_dados_z <- function(formula_x = ~x1 + x2,
   y_meio <- round(y*ncuts, 0)
   
   out_y <- fn_check_response(y = y_meio, type = type, ncuts = ncuts, lim = lim)
-
+  
   out <- data.frame(out_y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE])
   return(out)
 }
@@ -219,7 +211,7 @@ betaregesc_simula_dados_z <- function(formula_x = ~x1 + x2,
 #' param <- c(0, 0.5,-0.2, 1 / 5)
 #' phi <- 1 / 5
 #' formula <- y ~ x1 + x2
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'  formula = ~ x1 + x2,
 #'  dados = dados,
 #'  betas = c(0, 0.5,-0.2),
@@ -229,39 +221,34 @@ betaregesc_simula_dados_z <- function(formula_x = ~x1 + x2,
 #'  ncuts = 100,
 #'  type = "m"
 #'  )
-#' log_verossimilhanca <- betaregesc_log_vero(param, formula, dados_simulados)
+#' log_verossimilhanca <- betaregscale_log_vero(param, formula, dados_simulados)
 #' print(log_verossimilhanca)
 #' @importFrom stats as.formula delete.response model.response
 #' @export
-betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi = "logit",
+betaregscale_log_vero <- function(param, formula, dados, link = "logit", link_phi = "logit",
                                 acumulada = TRUE, ncuts = 100, type = "m", lim = 0.5, repar = '2'
-                                ){
+){
   
   link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
-  link_phi <- if(repar == "2"){
-    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
-  } else {
-    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
-  }
-  
+  link_phi <- match.arg(link_phi, c("logit","probit","cauchit","cloglog","identity", "log", "sqrt", "1/mu^2", "inverse"))
   
   mfx <- model.frame(formula, data = dados)
   Y <- fn_check_response(model.response(mfx), ncuts = ncuts, type = type, lim = lim)
   X <- model.matrix(mfx, data = dados)
   
   betas  <- param[1:ncol(X)]
-
+  
   # Aplicação do preditor linear nos betas
   mu <- fn_switch_link(eta = X%*%betas, link = link)
   phi <- fn_switch_link(eta = param[(length(betas)+1)], link = link_phi)
-
+  
   # Prepara a log-verossimilhança com dados intervalares
   # alpha <- as.numeric(mu * phi)
   # beta <- as.numeric((1 - mu)*phi)
   
   # Prepara a log-verossimilhança com dados intervalares
   pars <- betarepar(mu = mu, phi = phi, repar = repar)
-
+  
   ll <- if(acumulada){
     p1 <- pbeta(q = as.numeric(Y[,"left"]),  shape1 = pars$shape1, shape2 = pars$shape2)
     p2 <- pbeta(q = as.numeric(Y[,"right"]), shape1 = pars$shape1, shape2 = pars$shape2)
@@ -269,9 +256,9 @@ betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi 
     area <- area + 0.00001
     log(area)
   } else {
-    suppressWarnings(dbeta(dados[,"y"], shape1 = pars$shape1, shape2 = pars$shape2, log = TRUE))
+    suppressWarnings(dbeta(Y[,"yt"], shape1 = pars$shape1, shape2 = pars$shape2, log = TRUE))
   }
-
+  
   ll[is.infinite(ll)] <- NaN
   return(sum(ll, na.rm = TRUE))
 }
@@ -309,7 +296,7 @@ betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi 
 #'                     z1 = runif(n), z2 = runif(n))
 #' fx <- ~ x1 + x2
 #' fz <- ~ z1
-#' dados_simulados <- betaregesc_simula_dados_z(
+#' dados_simulados <- betaregscale_simula_dados_z(
 #'  formula_x = fx,
 #'  formula_z = fz,
 #'  dados = dados,
@@ -320,8 +307,8 @@ betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi 
 #'  repar = "2",
 #'  ncuts = 100)
 #' 
-#' # Calcular a log-verossimilhança usando a função betaregesc_log_vero_z
-#' log_verossimilhanca <- betaregesc_log_vero_z(
+#' # Calcular a log-verossimilhança usando a função betaregscale_log_vero_z
+#' log_verossimilhanca <- betaregscale_log_vero_z(
 #'   param = c(c(0.2,-0.5, 0.3), c(0.5, -0.5)),
 #'   formula = y ~ x1 + x2 | z1,
 #'   dados = dados_simulados,
@@ -331,19 +318,14 @@ betaregesc_log_vero <- function(param, formula, dados, link = "logit", link_phi 
 #'   repar = "2")
 #'   
 #' @export
-betaregesc_log_vero_z <- function(param,
+betaregscale_log_vero_z <- function(param,
                                   formula = y ~ x1 + x2 | z1, dados, 
-                                  link = "logit", link_phi = "log",
+                                  link = "logit", link_phi = "logit",
                                   ncuts = 100, type = "m", lim = 0.5,
                                   acumulada = TRUE, repar = "2"){
   
   link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
-  link_phi <- if(repar == "2"){
-    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
-  } else {
-    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
-  }
-  
+  link_phi <- match.arg(link_phi, c("logit","probit","cauchit","cloglog","identity", "log", "sqrt", "1/mu^2", "inverse"))
   
   formula <- Formula::as.Formula(formula)
   if(length(formula)[2L] < 2L) {
@@ -359,19 +341,19 @@ betaregesc_log_vero_z <- function(param,
   X <- model.matrix(mtX, mf)
   Z <- model.matrix(mtZ, mf)
   n   <- nrow(X)
-
+  
   betas  <- param[1:ncol(X)]
   zetas  <- param[(ncol(X)+1):length(param)]
   names(zetas) <- paste0("phi", names(zetas))
-
+  
   # Aplicação do preditor linear nos betas
   mu_x <- fn_switch_link(eta = X%*%betas, link = link)
   mu_z <- fn_switch_link(eta = Z%*%zetas, link = link_phi)
-
+  
   # Prepara a log-verossimilhança com dados intervalares
   #alpha <- as.numeric(mu_x * mu_p)
   #beta <- as.numeric((1 - mu_x)*mu_p)
-
+  
   # Prepara a log-verossimilhança com dados intervalares
   pars <- betarepar(mu = mu_x, phi = mu_z, repar = repar)
   
@@ -384,7 +366,7 @@ betaregesc_log_vero_z <- function(param,
   } else {
     suppressWarnings(dbeta(Y[,"yt"], shape1 = pars$shape1, shape2 = pars$shape2, log = TRUE))
   }
-
+  
   ll[is.infinite(ll)] <- NaN
   return(sum(ll, na.rm = TRUE))
 }
@@ -410,76 +392,101 @@ betaregesc_log_vero_z <- function(param,
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
 #' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
+#' @param method Método a ser usado. Veja detalhes em \code{\link{optim}}
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @examples
 #' # Criar um conjunto de dados de exemplo
 #' set.seed(42)
-#' n <- 100
+#' n <- 200
 #' dados <- data.frame(
 #'  x1 = rnorm(n, mean = 1, sd = 0.5),
 #'  x2 = rbinom(n, size = 1, prob = 0.5),
 #'  x3 = rnorm(n, mean = 2, sd = 1))
-#'  betas <- c(0.2, 0.3, -0.4, 0.1)
-#' formula <- y ~ x1 + x2 + x3
-#' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
-#'  formula = ~ x1 + x2 + x3,
-#'  dados = dados,
-#'  betas = betas,
-#'  phi = phi,
-#'  link = "logit",
-#'  ncuts = 100)
-#' fit <- betaregesc_fit(
+#' betas <- c(0.4, -0.6, 0.2)
+#' formula <- y ~ x1 + x2
+#' phi <- 1/5
+#' dados_simulados <- betaregscale_simula_dados(
+#' formula = ~ x1 + x2,
+#' dados = dados,
+#' betas = betas,
+#' phi = phi,
+#' link = "logit",
+#' link_phi = "identity",
+#' ncuts = 100,
+#' type = "m")
+#' fit <- betaregscale_fit(
 #'  formula = formula,
 #'  dados = dados_simulados,
-#'  link = "probit",
+#'  link = "logit",
+#'  link_phi = "identity",
+#'  method = "L-BFGS-B",
 #'  num_hessiana = TRUE)
 #'  fit$par
 #' @importFrom betareg betareg
 #' @importFrom numDeriv hessian
 #' @importFrom stats AIC cor fitted hatvalues logLik qlogis runif terms
 #' @export
-betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "logit",
+betaregscale_fit <- function(formula, dados, link = "logit", link_phi = "logit",
                            ncuts = 100, type = "m", lim = 0.5, num_hessiana = TRUE,
-                           acumulada = TRUE, repar = "2") {
-  
+                           acumulada = TRUE, repar = "2", method = "BFGS") {
+  method <- match.arg(method, c("BFGS","L-BFGS-B"))
   link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
+  link_phi <- match.arg(link_phi, c("logit","probit","cauchit","cloglog","identity", "log", "sqrt", "1/mu^2", "inverse"))
   
-  link_phi <- if(repar == "2"){
-    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
+  mf <- model.frame(formula, data = dados)
+  mtX <- terms(formula, data = dados, rhs = 1L)
+  Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
+  
+  y <- Y[,c("left","right")]
+  X <- model.matrix(mtX, mf)
+  
+  # ini <- suppressWarnings(
+  #   coef(betareg::betareg(
+  #     formula = as.formula(paste0("yt ~", as.character(formula)[3])),
+  #     data = data.frame(Y, X[, -1, drop = FALSE]),
+  #     link = link, link.phi = make.link(link_phi))
+  #   )
+  # )
+  ini <- aux_start(formula = formula, dados = dados, 
+                   link = link, link_phi = link_phi,
+                   ncuts = ncuts, type = type, lim = lim)
+  
+  #ini <- aux_start(y, X)
+  
+  if(method == "L-BFGS-B"){
+    ini_upper <- c(ini[1:ncol(X)] + 5, rep(0.99999, length(ini[(ncol(X)+1):length(ini)])))
+    ini_lower <- c(ini[1:ncol(X)] - 5, rep(0.00001, length(ini[(ncol(X)+1):length(ini)])))
+    
+    names(ini_lower) <- names(ini_upper) <- names(ini)
+    # Ajustando o modelo com a função optim
+    opt_result <- optim(par = ini, lower = ini_lower, upper = ini_upper,
+                        fn = betaregscale_log_vero, formula = formula, 
+                        dados = dados, link = link, link_phi = link_phi,
+                        hessian = !num_hessiana, ncuts = ncuts, type = type, lim = lim,
+                        method = method, acumulada = acumulada, repar = repar,
+                        control=list(fnscale = -1))
   } else {
-    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
+    # Ajustando o modelo com a função optim
+    opt_result <- optim(par = ini, 
+                        fn = betaregscale_log_vero, formula = formula, 
+                        dados = dados, link = link, link_phi = link_phi,
+                        hessian = !num_hessiana, ncuts = ncuts, type = type, lim = lim,
+                        method = method, acumulada = acumulada, repar = repar,
+                        control=list(fnscale = -1))
   }
   
-  ini <- suppressWarnings(
-    coef(betareg::betareg(formula = as.formula(paste0("yt ~", as.character(formula)[3])), data = dados))
-    )
-
-  # Ajustando o modelo com a função optim
-  opt_result <- optim(par = ini, 
-                      fn = betaregesc_log_vero, formula = formula, 
-                      dados = dados, link = link, link_phi = link_phi,
-                      hessian = !num_hessiana, ncuts = ncuts, type = type, lim = lim,
-                      method = "BFGS", acumulada = acumulada, repar = repar,
-                      control=list(fnscale = -1))
-
   if(num_hessiana){
-    hessiana <- numDeriv::hessian(betaregesc_log_vero, opt_result$par, 
+    hessiana <- numDeriv::hessian(betaregscale_log_vero, opt_result$par, 
                                   formula = formula, dados = dados, acumulada = acumulada,
                                   ncuts = ncuts, type = type, lim = lim,
                                   link = link, link_phi = link_phi, repar = repar)
     opt_result$hessian <- hessiana
   }
-
+  
   # Mu chapéu
   est <- opt_result$par
   
-  mf <- model.frame(formula, data = dados)
-  mtX <- terms(formula, data = dados, rhs = 1L)
-  Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
-  y <- Y[,c("left","right")]
-  X <- model.matrix(mtX, mf)
   hatmu <- fn_switch_link(eta = X%*%est[1:ncol(X)], link = link)
   hatphi <- est[ncol(X)+1]
   pseudor2 <- cor(X%*%est[1:ncol(X)], make.link(link)$linkfun(apply(y, 1, mean)))^2
@@ -495,14 +502,14 @@ betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "logit",
   opt_result$hatphi <- hatphi
   opt_result$pseudo.r.squared = pseudor2
   
-  class(opt_result) <- c("betaregesc","betaregescdv")
+  class(opt_result) <- c("betaregscale","betaregscaledv")
   
   return(invisible(opt_result))
 }
 
 #' Função para ajustar um modelo beta ordinal
 #'
-#' A função betaregesc ajusta um modelo beta para escala usando a função optim
+#' A função betaregscale ajusta um modelo beta para escala usando a função optim
 #' do pacote stats, retornando uma tabela com estatísticas sumarizadas do ajuste,
 #' incluindo intervalos de confiança e cálculo do BIAS.
 #'
@@ -523,6 +530,7 @@ betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "logit",
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
 #' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
+#' @param method Método a ser usado. Veja detalhes em \code{\link{optim}}
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @importFrom betareg betareg
@@ -534,44 +542,41 @@ betaregesc_fit <- function(formula, dados, link = "logit", link_phi = "logit",
 #'   z1 = runif(n), z2 = runif(n))
 #' 
 #' formula <- y ~ x1 + x2 | z1
-#' dados_simulados <- betaregesc_simula_dados_z(
+#' dados_simulados <- betaregscale_simula_dados_z(
 #'  formula_x = ~x1 + x2,
 #'  formula_z = ~z1,
 #'  dados = dados,
 #'  betas = c(0.2, -0.5, 0.3),
 #'  zetas = c(1, 1.2),
 #'  link = "logit",
-#'  link_phi = "log",
+#'  link_phi = "logit",
 #'  ncuts = 100)
 #'  
-#' fit_z <- betaregesc_fit_z(
+#' fit_z <- betaregscale_fit_z(
 #'  formula = formula,
 #'  dados = dados_simulados,
 #'  link = "logit",
-#'  link_phi = "log",
+#'  link_phi = "logit",
 #'  num_hessiana = TRUE)
-#' coe <- betaregesc_coef(fit_z)
+#' coe <- betaregscale_coef(fit_z)
 #' coe$est
 #' coe$gof
 #' @export
-betaregesc_fit_z <- function(formula,
+betaregscale_fit_z <- function(formula,
                              dados,
                              link = "logit",
-                             link_phi = "log",
+                             link_phi = "logit",
                              num_hessiana = TRUE, 
                              acumulada = TRUE,
                              ncuts = 100,
                              type = "m",
                              lim = 0.5,
-                             repar = "2"
-                             ) {
+                             repar = "2",
+                             method = "BFGS") {
   
   link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
-  link_phi <- if(repar == "2"){
-    match.arg(link_phi, c("logit","probit","cauchit","cloglog")) 
-  } else {
-    match.arg(link_phi, c("identity", "log", "sqrt", "1/mu^2", "inverse")) 
-  }
+  link_phi <- match.arg(link_phi, c("logit","probit","cauchit","cloglog","identity", "log", "sqrt", "1/mu^2", "inverse"))
+  method <- match.arg(method, c("BFGS","L-BFGS-B"))
   
   formula <- Formula::as.Formula(formula)
   if(length(formula)[2L] < 2L) {
@@ -580,26 +585,59 @@ betaregesc_fit_z <- function(formula,
     formula <- Formula::Formula(formula(formula, rhs = 1:2))
   }
   
-  ini <- c(suppressWarnings(
-    coef(betareg::betareg(formula = as.formula(paste0("yt ~", as.character(formula)[3])), data = dados))
-  ))
-
-  # Ajustando o modelo com a função optim
-  opt_result <- optim(par = ini,
-                      fn = betaregesc_log_vero_z,
-                      formula = formula, 
-                      link = link,
-                      link_phi = link_phi,
-                      dados = dados,
-                      hessian = !num_hessiana,
-                      method = "BFGS",
-                      acumulada = acumulada,
-                      ncuts = ncuts, type = type, 
-                      lim = lim, repar = repar,
-                      control=list(fnscale = -1))
-
+  mf <- model.frame(formula, data = dados)
+  mtX <- terms(formula, data = dados, rhs = 1L)
+  mtZ <- delete.response(terms(formula, data = dados, rhs = 2L))
+  Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
+  y <- Y[,c("left","right")]
+  X <- model.matrix(mtX, mf)
+  Z <- model.matrix(mtZ, mf)
+  
+  # ini <- suppressWarnings(
+  #   coef(betareg::betareg(
+  #     formula = as.formula(paste0("yt ~", as.character(formula)[3])),
+  #     data = data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE]),
+  #     link = link, link.phi = make.link(link_phi))
+  #   )
+  # )
+  
+  ini <- aux_start(formula = formula, dados = dados, 
+                   link = link, link_phi = link_phi,
+                   ncuts = ncuts, type = type, lim = lim)
+  
+  if(method == "L-BFGS-B"){
+    ini_upper <- c(ini[1:ncol(X)] + 5, rep(0.99999, length(ini[(ncol(X)+1):length(ini)])))
+    ini_lower <- c(ini[1:ncol(X)] - 5, rep(0.00001, length(ini[(ncol(X)+1):length(ini)])))
+    names(ini_lower) <- names(ini_upper) <- names(ini)
+    # Ajustando o modelo com a função optim
+    opt_result <- optim(par = ini, lower = ini_lower, upper = ini_upper,
+                        fn = betaregscale_log_vero_z,
+                        formula = formula, 
+                        link = link,
+                        link_phi = link_phi,
+                        dados = dados,
+                        hessian = !num_hessiana,
+                        method = method,
+                        acumulada = acumulada,
+                        ncuts = ncuts, type = type, 
+                        lim = lim, repar = repar,
+                        control=list(fnscale = -1))
+  } else {
+    opt_result <- optim(par = ini,
+                        fn = betaregscale_log_vero_z,
+                        formula = formula, 
+                        link = link,
+                        link_phi = link_phi,
+                        dados = dados,
+                        hessian = !num_hessiana,
+                        method = method,
+                        acumulada = acumulada,
+                        ncuts = ncuts, type = type, 
+                        lim = lim, repar = repar,
+                        control=list(fnscale = -1))
+  }
   if(num_hessiana){
-    hessiana <- numDeriv::hessian(betaregesc_log_vero_z,
+    hessiana <- numDeriv::hessian(betaregscale_log_vero_z,
                                   opt_result$par,
                                   ncuts = ncuts, type = type, lim = lim,
                                   formula = formula, link = link, 
@@ -609,20 +647,12 @@ betaregesc_fit_z <- function(formula,
   }
   # Mu chapéu
   est <- opt_result$par
-  
-  mf <- model.frame(formula, data = dados)
-  mtX <- terms(formula, data = dados, rhs = 1L)
-  mtZ <- delete.response(terms(formula, data = dados, rhs = 2L))
-  Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
-  y <- Y[,c("left","right")]
-  X <- model.matrix(mtX, mf)
-  Z <- model.matrix(mtZ, mf)
   p <- 1:ncol(X)
   q <- (ncol(X)+1):length(est)
   hatmu  <- fn_switch_link(eta = X%*%est[p], link = link)
   hatphi <- fn_switch_link(eta = Z%*%est[q], link = link_phi)
   pseudor2 <- cor(X%*%est[p], make.link(link)$linkfun(apply(y, 1, mean)))^2
-
+  
   opt_result$dados <- data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE])
   opt_result$link <- link
   opt_result$link_phi <- link_phi
@@ -632,7 +662,7 @@ betaregesc_fit_z <- function(formula,
   opt_result$hatphi <- hatphi
   opt_result$pseudo.r.squared = pseudor2
   
-  class(opt_result) <- c("betaregesc","betaregescdv")
+  class(opt_result) <- c("betaregscale","betaregscaledv")
   
   return(invisible(opt_result))
 }
@@ -644,8 +674,8 @@ betaregesc_fit_z <- function(formula,
 #' do modelo beta ordinal com censura intervalar. Coleta também as estatísticas
 #' de bondade do ajuste como a log-verossimilhança, o AIC e o BIC do modelo
 #'
-#' @param fit Objeto do sjuste retornado das funções \link{betaregesc_fit} e
-#' \link{betaregesc_fit_z}
+#' @param fit Objeto do sjuste retornado das funções \link{betaregscale_fit} e
+#' \link{betaregscale_fit_z}
 #' @param alpha Nível de significância do alpha para os intervalos de confiança.
 #' Padrão 0.05 bilateral.
 #'
@@ -660,34 +690,34 @@ betaregesc_fit_z <- function(formula,
 #'   z1 = runif(n),
 #'   z2 = runif(n)
 #'  )
-#'  dados_simulados <- betaregesc_simula_dados_z(
+#'  dados_simulados <- betaregscale_simula_dados_z(
 #'    formula_x = fx,
 #'    formula_z = fz,
 #'    dados = dados,
 #'    betas = c(0.2,-0.5, 0.3),
 #'    zetas = c(1, 1.2),
 #'    link = "logit",
-#'    link_phi = "log",
+#'    link_phi = "logit",
 #'    ncuts = 100
 #'    )
 #'
-#'  fit_z <- betaregesc_fit_z(
+#'  fit_z <- betaregscale_fit_z(
 #'   formula = y ~ x1 + x2,
 #'   dados = dados_simulados,
 #'   link = "logit",
-#'   link_phi = "log",
+#'   link_phi = "logit",
 #'   num_hessiana = TRUE
 #'   )
 #'
-#' coe <- betaregesc_coef(fit_z)
+#' coe <- betaregscale_coef(fit_z)
 #' coe$est
 #' coe$gof
 #' @return Lista contendo as estimativas coeficientes, suas estatísticas e a bondade do ajuste.
 #' @export
-betaregesc_coef <- function(fit, alpha = 0.05){
+betaregscale_coef <- function(fit, alpha = 0.05){
   
-  if(!inherits(fit, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(fit, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(fit), collapse = ","), "' nao suportada.\n"))
   }
   
   dados <- fit$dados
@@ -695,12 +725,12 @@ betaregesc_coef <- function(fit, alpha = 0.05){
   beta_hat <- fit$par
   # Criando uma tabela com as estatísticas sumarizadas do ajuste
   summary_table <- data.frame(
-    #beta = beta_hat,
-    logLik = -fit$value,
-    AIC = 2 * (length(beta_hat) + 1) - 2 * (-fit$value),
-    BIC = log(nrow(dados)) * (length(beta_hat) + 1) - 2 * (-fit$value)
+    #beta = beta_hat
+    logLik = fit$value,
+    AIC = 2 * (length(beta_hat) + 1) - 2 * (fit$value),
+    BIC = log(nrow(dados)) * (length(beta_hat) + 1) - 2 * (fit$value)
   )
-
+  
   # Obtendo os intervalos de confiança para as estimativas dos coeficientes
   cov_mat <- -solve(fit$hessian)
   se_beta <- sqrt(diag(cov_mat))
@@ -727,15 +757,15 @@ betaregesc_coef <- function(fit, alpha = 0.05){
 #' @title Log-verossimilhança
 #'
 #' @description
-#' Esta função calcula a log-verossimilhança negativa para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função calcula a log-verossimilhança negativa para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param ... Argumentos extras
 #' 
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função logLik
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -745,7 +775,7 @@ betaregesc_coef <- function(fit, alpha = 0.05){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -757,32 +787,31 @@ betaregesc_coef <- function(fit, alpha = 0.05){
 #'  dados = dados_simulados,
 #'  link = "probit",
 #'  num_hessiana = TRUE)
-#' # Em seguida, use a função logLik.betaregesc
+#' # Em seguida, use a função logLik.betaregscale
 #' log_likelihood <- logLik(fit)
 #'}
-#' @method logLik betaregesc
+#' @method logLik betaregscale
 #' @export
-logLik.betaregesc <- function(object, ...){
-  
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+logLik.betaregscale <- function(object, ...){
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  -object$value
+  object$value
 }
 
 
 #' @title Critério de Informação de Akaike (AIC)
 #'
 #' @description
-#' Esta função calcula o Critério de Informação de Akaike (AIC) para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função calcula o Critério de Informação de Akaike (AIC) para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param ... Argumentos extras
 #' @param k Penalidade por parâmetro a ser utilizado; o padrão k = 2 é o AIC clássico.
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função AIC
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -792,7 +821,7 @@ logLik.betaregesc <- function(object, ...){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -802,32 +831,35 @@ logLik.betaregesc <- function(object, ...){
 #' fit <- beta_ordinal_fit(
 #'  formula = formula,
 #'  dados = dados_simulados,
-#'  link = "probit",
+#'  link = "logit",
 #'  num_hessiana = TRUE)
 #' # Em seguida, use a função AIC
 #' aic_result <- AIC(fit)
 #'}
-#' @method AIC betaregesc
+#' @method AIC betaregscale
 #' @export
-AIC.betaregesc <- function(object, ..., k = 2){
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+AIC.betaregscale <- function(object, ..., k = 2){
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  k * (length(object$par) + 1) - 2 * (-object$value)
+  kl <- length(object$par)
+  ll <- object$value
+  return(k*kl-2*ll)
+  
 }
 
 
 #' @title Critério de Informação Bayesiano (BIC)
 #'
 #' @description
-#' Esta função calcula o Critério de Informação Bayesiano (BIC) para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função calcula o Critério de Informação Bayesiano (BIC) para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #'
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função BIC
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -837,7 +869,7 @@ AIC.betaregesc <- function(object, ..., k = 2){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -854,23 +886,26 @@ AIC.betaregesc <- function(object, ..., k = 2){
 #' }
 #' @export
 BIC <- function(object){
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  log(nrow(object$dados)) * (length(object$par) + 1) - 2 * (-object$value)
+  n <- nrow(object$dados)
+  k <- length(object$par)
+  ll <- object$value
+  return(k*log(n)-2*ll)
 }
 
 #' @title Matriz hessiana
 #'
 #' @description
-#' Esta função retorna a matriz hessiana para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna a matriz hessiana para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #'
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -880,7 +915,7 @@ BIC <- function(object){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -897,22 +932,22 @@ BIC <- function(object){
 #' }
 #' @export
 hessian <- function(object){
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   object$hessian
 }
 
 #' Coeficientes
 #' @description
-#' Esta função retorna os coeficientes para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna os coeficientes para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param ... outros argumentos.
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -922,7 +957,7 @@ hessian <- function(object){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -936,11 +971,11 @@ hessian <- function(object){
 #'  num_hessiana = TRUE)
 #' coef(fit)
 #' }
-#' @method coef betaregesc
+#' @method coef betaregscale
 #' @export
-coef.betaregesc <- function(object, ...){
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+coef.betaregscale <- function(object, ...){
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   object$par
 }
@@ -948,13 +983,13 @@ coef.betaregesc <- function(object, ...){
 #' @title Medidas de ajuste
 #'
 #' @description
-#' Esta função retorna um conjunto de medidas de ajuste, incluindo log-verossimilhança, AIC e BIC, para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna um conjunto de medidas de ajuste, incluindo log-verossimilhança, AIC e BIC, para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -964,7 +999,7 @@ coef.betaregesc <- function(object, ...){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -985,21 +1020,21 @@ gof <- function(object){
   data.frame(
     logLik = logLik(object),
     AIC = AIC(object),
-    BIC = betaregesc::BIC(object)
+    BIC = betaregscale::BIC(object)
   )
 }
 
 #' @title Estimativas e intervalos de confiança
 #'
 #' @description
-#' Esta função retorna estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param alpha Nível de significância para os intervalos de confiança (padrão é 0,05).
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -1009,7 +1044,7 @@ gof <- function(object){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -1027,8 +1062,8 @@ gof <- function(object){
 #' Retorna um data.frame contendo estimativas, erros padrão, intervalos de confiança, estatísticas t e valores-p do objeto fornecido.
 #' @export
 est <- function(object, alpha = 0.05){
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   beta_hat <- object$par
   dfs <- nrow(object$dados) - length(beta_hat)
@@ -1054,9 +1089,9 @@ est <- function(object, alpha = 0.05){
 #' @title Summary
 #'
 #' @description
-#' Esta função retorna um resumo das estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna um resumo das estimativas, erros padrão, intervalos de confiança e valores-p para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param alpha Nível de significância para os intervalos de confiança (padrão é 0,05).
 #' @param ... Outros argumentos
 #'
@@ -1066,7 +1101,7 @@ est <- function(object, alpha = 0.05){
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -1076,7 +1111,7 @@ est <- function(object, alpha = 0.05){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -1088,30 +1123,30 @@ est <- function(object, alpha = 0.05){
 #'  dados = dados_simulados,
 #'  link = "probit",
 #'  num_hessiana = TRUE)
-#' # Em seguida, use a função summary.betaregesc
-#' summary_result <- summary.betaregesc(fit, alpha = 0.05)
+#' # Em seguida, use a função summary.betaregscale
+#' summary_result <- summary.betaregscale(fit, alpha = 0.05)
 #'}
-#' @method summary betaregesc
+#' @method summary betaregscale
 #' @export
-summary.betaregesc <- function(object, ..., alpha = 0.05){
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+summary.betaregscale <- function(object, ..., alpha = 0.05){
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
-  betaregesc_coef(object, alpha = alpha)
+  betaregscale_coef(object, alpha = alpha)
 }
 
 #' @title Resíduos do modelo
 #'
 #' @description
-#' Esta função retorna os resíduos para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna os resíduos para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param type Tipo de resíduo. Um entre "rqa","deviance", "pearson", "response", "weighted", "sweighted". O padrão é Resíduo Quantílico Aleatorizado (rqa)
 #' @param ... Outros argumentos
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -1121,7 +1156,7 @@ summary.betaregesc <- function(object, ..., alpha = 0.05){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -1135,13 +1170,13 @@ summary.betaregesc <- function(object, ..., alpha = 0.05){
 #'  num_hessiana = TRUE)
 #' residuals(fit)
 #' }
-#' @method residuals betaregesc
+#' @method residuals betaregscale
 #' @export
-residuals.betaregesc <- function(object, type = c("rqa","deviance", "pearson", "response", "weighted", "sweighted"), ...){
+residuals.betaregscale <- function(object, type = c("rqa","deviance", "pearson", "response", "weighted", "sweighted"), ...){
   type <- match.arg(type)
   
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   
   y  <- apply(as.matrix(object$dados[,c("left","right")]), 1, mean)
@@ -1151,64 +1186,64 @@ residuals.betaregesc <- function(object, type = c("rqa","deviance", "pearson", "
   wts <- 1
   
   if(type == "response"){
-	return(res)
+    return(res)
   }
-
+  
   res <- switch(type,
-
-    "pearson" = {
-      sqrt(wts) * res / sqrt(mu * (1 - mu) / (1 + phi))
-    },
-
-    "deviance" = {
-      ll <- function(mu, phi){
-        (lgamma(phi) - lgamma(mu * phi) - lgamma((1 - mu) * phi) +
-        (mu * phi - 1) * log(y) + ((1 - mu) * phi - 1) * log(1 - y))	  
-	  }		
-      sqrt(wts) * sign(res) * sqrt(2 * abs(ll(y, phi) - ll(mu, phi)))
-    },
-	
-	"rqa" = {
-      ll <- function(mu, phi){
-	    p <- mu * phi
-		q <- (1 - mu) * phi
-		rqa <- qbeta(runif(length(y)), p, q)
-		qnorm(rqa)
-	  }
-		ll(mu, phi)
-    },
-
-    "weighted" = {
-      ystar <- qlogis(y)
-      mustar <- digamma(mu * phi) - digamma((1 - mu) * phi)
-      v <- trigamma(mu * phi) + trigamma((1 - mu) * phi)
-      sqrt(wts) * (ystar - mustar) / sqrt(phi * v)
-    },
-
-    "sweighted" = {
-      ystar <- qlogis(y)
-      mustar <- digamma(mu * phi) - digamma((1 - mu) * phi)
-      v <- trigamma(mu * phi) + trigamma((1 - mu) * phi)
-      sqrt(wts) * (ystar - mustar) / sqrt(v)
-    }
-	)
-
-	return(res)
+                
+                "pearson" = {
+                  sqrt(wts) * res / sqrt(mu * (1 - mu) / (1 + phi))
+                },
+                
+                "deviance" = {
+                  ll <- function(mu, phi){
+                    (lgamma(phi) - lgamma(mu * phi) - lgamma((1 - mu) * phi) +
+                       (mu * phi - 1) * log(y) + ((1 - mu) * phi - 1) * log(1 - y))	  
+                  }		
+                  sqrt(wts) * sign(res) * sqrt(2 * abs(ll(y, phi) - ll(mu, phi)))
+                },
+                
+                "rqa" = {
+                  ll <- function(mu, phi){
+                    p <- mu * phi
+                    q <- (1 - mu) * phi
+                    rqa <- qbeta(runif(length(y)), p, q)
+                    qnorm(rqa)
+                  }
+                  ll(mu, phi)
+                },
+                
+                "weighted" = {
+                  ystar <- qlogis(y)
+                  mustar <- digamma(mu * phi) - digamma((1 - mu) * phi)
+                  v <- trigamma(mu * phi) + trigamma((1 - mu) * phi)
+                  sqrt(wts) * (ystar - mustar) / sqrt(phi * v)
+                },
+                
+                "sweighted" = {
+                  ystar <- qlogis(y)
+                  mustar <- digamma(mu * phi) - digamma((1 - mu) * phi)
+                  v <- trigamma(mu * phi) + trigamma((1 - mu) * phi)
+                  sqrt(wts) * (ystar - mustar) / sqrt(v)
+                }
+  )
+  
+  return(res)
 }
 
 
 #' @title Valores ajustados
 #'
 #' @description
-#' Esta função retorna os valores ajustados (mu ou phi) para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna os valores ajustados (mu ou phi) para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param type Tipo de valor ajustado a ser retornado: "mu" ou "phi" (padrão é "mu").
 #' @param ... Outros argumentos
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -1218,7 +1253,7 @@ residuals.betaregesc <- function(object, type = c("rqa","deviance", "pearson", "
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -1232,12 +1267,12 @@ residuals.betaregesc <- function(object, type = c("rqa","deviance", "pearson", "
 #'  num_hessiana = TRUE)
 #' fitted(fit)
 #' }
-#' @method fitted betaregesc
+#' @method fitted betaregscale
 #' @export
-fitted.betaregesc <- function(object, type = "mu", ...){
+fitted.betaregscale <- function(object, type = "mu", ...){
   type <- match.arg(type, c("mu","phi"))
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   if(type == "mu"){
     return(object$hatmu)
@@ -1249,16 +1284,18 @@ fitted.betaregesc <- function(object, type = "mu", ...){
 #' @title Quantis preditos
 #'
 #' @description
-#' Esta função retorna as previsões de quantis para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna as previsões de quantis para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param type Tipo de previsão a ser retornado: "quantile" (padrão é "quantile").
 #' @param at Valor numérico entre 0 e 1 para o qual o quantil é desejado (padrão é 0,5).
+#' @param newdata Novo dataset com variáveis para o predict
+#' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2.
 #' @param ... Outros argumentos
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -1268,7 +1305,7 @@ fitted.betaregesc <- function(object, type = "mu", ...){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -1282,17 +1319,24 @@ fitted.betaregesc <- function(object, type = "mu", ...){
 #'  num_hessiana = TRUE)
 #' predict(fit)
 #' }
-#' @importFrom stats qbeta
-#' @method predict betaregesc
+#' @importFrom stats qbeta model.matrix make.link
+#' @method predict betaregscale
 #' @export
-predict.betaregesc <- function(object, type = "quantile", at = 0.5, ...){
-  type <- match.arg(type, c("quantile"))
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+predict.betaregscale <- function(object, newdata = NULL, type = "quantile", at = 0.5, repar = "2", ...){
+  type <- match.arg(type, c("quantile","response"))
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   
-  qfun <- function(at, mu, phi) {
-    rval <- sapply(at, function(p) stats::qbeta(p, mu * phi, (1 - mu) * phi))
+  if(is.null(newdata) & type == "response"){
+    return(as.numeric(object$hatmu))
+  } else if(!is.null(newdata) & type == "response"){
+    X <- model.matrix(object$formula_x, data = newdata)
+    return(make.link(object$link)$linkinv(drop(X %*% object$par[1:ncol(X)])))
+  }
+  
+  qfun <- function(at, shape1, shape2) {
+    rval <- sapply(at, function(p) stats::qbeta(p, shape1, shape2))
     if(length(at) > 1L) {
       if(NCOL(rval) == 1L) rval <- matrix(rval, ncol = length(at),
                                           dimnames = list(unique(names(rval)), NULL))
@@ -1303,24 +1347,24 @@ predict.betaregesc <- function(object, type = "quantile", at = 0.5, ...){
     rval   
   }
   if(type == "quantile") {
-    mu  <- fitted(object, type = "mu")
-    phi <- fitted(object, type = "phi")
-    return(qfun(at, mu, phi))
+    mu  <- as.numeric(fitted(object, type = "mu"))
+    phi <- as.numeric(fitted(object, type = "phi"))
+    rp  <- betarepar(mu, phi, repar = repar)
+    return(qfun(at, shape1 = rp$shape1, shape2 = rp$shape2))
   }
 }
-
 
 #' @title Matriz de covariância
 #'
 #' @description
-#' Esta função retorna a matriz de covariância para objetos das classes 'betaregesc' e 'betaregescdv'.
+#' Esta função retorna a matriz de covariância para objetos das classes 'betaregscale' e 'betaregscaledv'.
 #'
-#' @param object Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param object Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param ... Outros parametros
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -1330,7 +1374,7 @@ predict.betaregesc <- function(object, type = "quantile", at = 0.5, ...){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -1344,12 +1388,12 @@ predict.betaregesc <- function(object, type = "quantile", at = 0.5, ...){
 #'  num_hessiana = TRUE)
 #' vcov(fit)
 #' }
-#' @method vcov betaregesc
+#' @method vcov betaregscale
 #' @export
-vcov.betaregesc <- function(object, ...){
+vcov.betaregscale <- function(object, ...){
   
-  if(!inherits(object, c("betaregesc","betaregescdv"))){
-    stop(paste0("log: Preciso de um objeto da classe 'betaregesc' ou 'betaregescdv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
+  if(!inherits(object, c("betaregscale","betaregscaledv"))){
+    stop(paste0("log: Preciso de um objeto da classe 'betaregscale' ou 'betaregscaledv'. Classe '", paste0(class(object), collapse = ","), "' nao suportada.\n"))
   }
   return(solve(-as.matrix(object$hessian)))
 }
@@ -1357,15 +1401,15 @@ vcov.betaregesc <- function(object, ...){
 #' @title Print
 #'
 #' @description
-#' Esta função imprime um resumo do objeto das classes 'betaregesc' e 'betaregescdv' fornecido, incluindo estimativas, erros padrão, valores t e valores-p.
+#' Esta função imprime um resumo do objeto das classes 'betaregscale' e 'betaregscaledv' fornecido, incluindo estimativas, erros padrão, valores t e valores-p.
 #'
-#' @param x Um objeto das classes 'betaregesc' ou 'betaregescdv'.
+#' @param x Um objeto das classes 'betaregscale' ou 'betaregscaledv'.
 #' @param digits Número de dígitos significativos para a impressão dos valores (padrão é max(3, getOption("digits") - 2)).
 #' @param ... outros parametros
 #' @examples
 #' \dontrun{
 #' # Exemplo de uso da função hessian
-#' # Primeiro, gere um objeto de classe 'betaregesc' ou 'betaregescdv'
+#' # Primeiro, gere um objeto de classe 'betaregscale' ou 'betaregscaledv'
 #' set.seed(42)
 #' n <- 100
 #' dados <- data.frame(
@@ -1375,7 +1419,7 @@ vcov.betaregesc <- function(object, ...){
 #' betas <- c(0.2, 0.3, -0.4, 0.1)
 #' formula <- ~x1 + x2 + x3
 #' phi <- 50
-#' dados_simulados <- betaregesc_simula_dados(
+#' dados_simulados <- betaregscale_simula_dados(
 #'   formula = formula,
 #'   dados = dados,
 #'   betas = betas,
@@ -1390,17 +1434,17 @@ vcov.betaregesc <- function(object, ...){
 #' print(fit)
 #' }
 #' @importFrom stats printCoefmat qbeta
-#' @method print betaregesc
+#' @method print betaregscale
 #' @export
-print.betaregesc <- function(x, digits = max(3, getOption("digits") - 2), ...){
-  cf <- betaregesc_coef(x)
+print.betaregscale <- function(x, digits = max(3, getOption("digits") - 2), ...){
+  cf <- betaregscale_coef(x)
   be <- cf$est[,c("estimate","se","t_value","p_value")]
   colnames(be) <- c("Estimate", "Std. Error", "t value", "Pr(>|t|)")
   rownames(be) <- cf$est$variable
   stats::printCoefmat(be, digits = digits, P.values = TRUE)
   cat("\nLog-Likelihood:", formatC(logLik(x), digits = digits),
       "AIC:", formatC(AIC(x), digits = digits),
-      "BIC:", formatC(betaregesc::BIC(x), digits = digits)
+      "BIC:", formatC(betaregscale::BIC(x), digits = digits)
   )
 }
 
@@ -1432,10 +1476,11 @@ print.betaregesc <- function(x, digits = max(3, getOption("digits") - 2), ...){
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
 #' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2. 
-#' 
+#' @param method Método a ser usado. Veja detalhes em \code{\link{optim}}
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @importFrom Formula as.Formula
+#' @importFrom stats lm.fit
 #' @examples
 #' \dontrun{
 #' n <- 100
@@ -1443,50 +1488,50 @@ print.betaregesc <- function(x, digits = max(3, getOption("digits") - 2), ...){
 #'                     z1 = runif(n), z2 = runif(n))
 #' fx <- ~ x1 + x2
 #' fz <- ~ z1
-#' dados_simulados <- betaregesc_simula_dados_z(
+#' dados_simulados <- betaregscale_simula_dados_z(
 #' formula_x = fx,
 #' formula_z = fz,
 #' dados = dados,
 #' betas = c(0.2, -0.5, 0.3),
 #' zetas = c(1, 1.2),
 #' link = "logit",
-#' link_phi = "log",
+#' link_phi = "logit",
 #' ncuts = 100)
-#' fit1 <- betaregesc(y ~ x1 + x2,
+#' fit1 <- betaregscale(y ~ x1 + x2,
 #' dados = dados_simulados,
 #' link = "logit",
-#' link_phi = "log",
+#' link_phi = "logit",
 #' num_hessiana = TRUE)
 #' print(fit1)
 #' 
-#' fit2 <- betaregesc(y ~ x1 + x2 | z1,
+#' fit2 <- betaregscale(y ~ x1 + x2 | z1,
 #' dados = dados_simulados,
 #' link = "logit",
-#' link_phi = "log",
+#' link_phi = "logit",
 #' num_hessiana = TRUE)
 #' print(fit2)
 #' }
 #' @export
-betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", acumulada = TRUE,
-                       ncuts = 100, type = "m", lim = 0.5, repar = "2", num_hessiana = TRUE){
+betaregscale <- function(formula, dados, link = "logit", link_phi = "logit", acumulada = TRUE,
+                       ncuts = 100, type = "m", lim = 0.5, repar = "2", method = "BFGS", num_hessiana = TRUE){
   formula <- Formula::as.Formula(formula)
   if(length(formula)[2L] < 2L) {
     formula <- Formula::as.Formula(formula(formula), ~ 1)
     #fx <- formula(terms(formula, rhs = 1L))
-    out <- betaregesc_fit(formula = formula, dados = dados, link = link, link_phi = link_phi,
+    out <- betaregscale_fit(formula = formula, dados = dados, link = link, link_phi = link_phi,
                           ncuts = ncuts, type = type, lim = lim, acumulada = acumulada,
-                          num_hessiana = num_hessiana, repar = repar)
+                          num_hessiana = num_hessiana, repar = repar, method = method)
   } else {
     if(length(formula)[2L] > 2L) {
       formula <- Formula::Formula(formula(formula, rhs = 1:2))
     }
     #fx <- formula(terms(formula, rhs = 1L))
     #fz <- formula(terms(formula, rhs = 2L))
-    out <- betaregesc_fit_z(formula = formula, dados = dados, link = link, link_phi = link_phi,
+    out <- betaregscale_fit_z(formula = formula, dados = dados, link = link, link_phi = link_phi,
                             ncuts = ncuts, type = type, lim = lim, num_hessiana = num_hessiana, 
-                            acumulada = acumulada, repar = repar)
+                            acumulada = acumulada, repar = repar, method = method)
   }
-  class(out) <- c("betaregesc","betaregescdv")
+  class(out) <- c("betaregscale","betaregscaledv")
   return(out)
 }
 
@@ -1521,7 +1566,6 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
 #' @param lim Região de incerteza da medida. Padrão 0.5.
 #' @param acumulada Se TRUE, retorna a verossimilhança pela pbeta, dbeta caso contrário.
 #' @param repar Tipo de reparametrização sendo 0, 1 ou 2. Padrão 2. 
-#' 
 #' @return Retorna uma lista contendo o resultado da otimização e uma tabela com
 #' estatísticas sumarizadas do ajuste.
 #' @importFrom Formula as.Formula
@@ -1533,7 +1577,7 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
 #'                     z1 = runif(n), z2 = runif(n))
 #' fx <- ~ x1 + x2
 #' fz <- ~ z1
-#' dados_simulados <- betaregesc_simula_dados_z(
+#' dados_simulados <- betaregscale_simula_dados_z(
 #' formula_x = fx,
 #' formula_z = fz,
 #' dados = dados,
@@ -1542,7 +1586,7 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
 #' link = "logit",
 #' link_phi = "logit",
 #' ncuts = 100)
-#' fit <- betaregesc_bbmle(formula = y ~ x1 + x2|z1,
+#' fit <- betaregscale_bbmle(formula = y ~ x1 + x2|z1,
 #' dados = dados_simulados, link = "logit", link_phi = "logit")
 #' p <- profile(fit)
 #' plot(p)
@@ -1551,27 +1595,34 @@ betaregesc <- function(formula, dados, link = "logit", link_phi = "identity", ac
 #' @importFrom bbmle parnames
 #' @importFrom stats as.formula delete.response model.response
 #' @export
-betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identity", 
-                           num_hessiana = TRUE, acumulada = TRUE, optimizer = "optim",
-                           ncuts = 100, type = "m", lim = 0.5, repar = "2"
-                           ){
+betaregscale_bbmle <- function(formula, dados, link = "logit", link_phi = "logit", 
+                             num_hessiana = TRUE, acumulada = TRUE, optimizer = "optim",
+                             ncuts = 100, type = "m", lim = 0.5, repar = "2"
+){
   
   optimizer <- match.arg(optimizer, c("optim","nlminb"))
   formula <- Formula::as.Formula(formula)
   
   if(length(formula)[2L] < 2L) {
+    
     mf <- model.frame(formula, data = dados)
     mtX <- terms(formula, data = dados, rhs = 1L)
     Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
     X <- model.matrix(mtX, mf)
+    y <- Y[,c("left","right")]
     
-    ini <- suppressWarnings(
-      coef(betareg::betareg(formula = formula(paste0("yt ~ ", paste0(formula)[3])), 
-                            data = data.frame(Y, X[,-1, drop = FALSE])))
-    )
+    # ini <- suppressWarnings(
+    #   coef(betareg::betareg(formula = formula(paste0("yt ~ ", paste0(formula)[3])),
+    #                         data = data.frame(Y, X[,-1, drop = FALSE]),
+    #                         link = link, link.phi = link_phi))
+    # )
+    
+    ini <- aux_start(formula = formula, dados = dados, 
+                     link = link, link_phi = link_phi,
+                     ncuts = ncuts, type = type, lim = lim)
     
     ll <- function(param, formula, dados, link, link_phi, acumulada, ncuts, type, lim, repar){
-      -betaregesc::betaregesc_log_vero(
+      -betaregscale::betaregscale_log_vero(
         param = param, formula = formula, dados = dados, link = link, link_phi = link_phi,
         ncuts = ncuts, type = type, lim = lim, acumulada = acumulada, repar = repar
       )
@@ -1581,7 +1632,7 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
                        vecpar = TRUE,
                        optimizer = optimizer,
                        data = list(hessian=TRUE,
-                                   dados = dados,
+                                   dados = data.frame(Y, X[,-1, drop = FALSE]),
                                    formula = formula,
                                    link = link, 
                                    link_phi = link_phi, 
@@ -1597,15 +1648,19 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
     y <- Y[,c("left","right")]
     X <- model.matrix(mtX, mf)
     Z <- model.matrix(mtZ, mf)
-
-    ini <- suppressWarnings(
-      coef(betareg::betareg(formula = as.formula(paste0("yt ~ ", paste0(formula)[3])),
-                            data = data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE]),
-                            link = link))
-    )
+    
+    # ini <- suppressWarnings(
+    #   coef(betareg::betareg(formula = as.formula(paste0("yt ~ ", paste0(formula)[3])),
+    #                         data = data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE]),
+    #                         link = link, link.phi = link_phi))
+    # )
+    
+    ini <- aux_start(formula = formula, dados = dados, 
+                     link = link, link_phi = link_phi,
+                     ncuts = ncuts, type = type, lim = lim)
     
     ll2 <- function(param, dados, formula, link, link_phi, acumulada, ncuts, type, lim, repar){
-      -betaregesc::betaregesc_log_vero_z(
+      -betaregscale::betaregscale_log_vero_z(
         param = param, formula = formula, 
         dados = dados, link = link, link_phi = link_phi, 
         ncuts = ncuts, type = type, lim = lim, 
@@ -1617,13 +1672,14 @@ betaregesc_bbmle <- function(formula, dados, link = "logit", link_phi = "identit
                        vecpar = TRUE,
                        optimizer = optimizer,
                        data = list(hessian=TRUE,
-                                   dados = dados,
+                                   dados = data.frame(Y, X[,-1, drop = FALSE], Z[,-1, drop = FALSE]),
                                    formula = formula,
                                    link = link,
                                    link_phi = link_phi,
                                    ncuts = ncuts, type = type, 
                                    lim = lim, repar = repar,
-                                   acumulada = acumulada),
+                                   acumulada = acumulada
+                       ),
                        start = as.list(ini))
   }
   return(out)
@@ -1702,4 +1758,45 @@ betarepar <- function(mu, phi, repar = '2'){
          '2' = data.frame(shape1 = as.numeric(mu*((1-phi)/phi)),
                           shape2 = as.numeric((1-mu)*((1-phi)/phi)))
   )
+}
+
+#' @importFrom stats glm quasibinomial
+aux_start <- function(formula, dados, link = "logit", link_phi = "logit", ncuts = 100, type = "m", lim = 0.5){
+  
+  link <- match.arg(link, c("logit","probit","cauchit","cloglog"))
+  
+  formula <- Formula::as.Formula(formula)
+  if(length(formula)[2L] < 2L) {
+    formula <- Formula::as.Formula(formula(formula), ~ 1)
+  } else if(length(formula)[2L] > 2L) {
+    formula <- Formula::Formula(formula(formula, rhs = 1:2))
+  }
+  
+  mf <- model.frame(formula, data = dados)
+  mtX <- terms(formula, data = dados, rhs = 1L)
+  mtZ <- delete.response(terms(formula, data = dados, rhs = 2L))
+  Y <- fn_check_response(model.response(mf, "numeric"), ncuts = ncuts, type = type, lim = lim)
+  x <- model.matrix(mtX, mf)
+  z <- model.matrix(mtZ, mf)
+  y <- apply(Y[,c("left","right")], 1, mean, na.rm = TRUE)
+  n <- nrow(x)
+  q <- ncol(x)
+  
+  inibeta <- coef(stats::glm(formula = y ~ ., 
+                      data = if(q == 1) data.frame(y, x) else data.frame(y, x[,-1, drop = FALSE]),
+                      family = stats::quasibinomial(link = link)))
+  
+  iniphi  <- if(is.null(z) || ncol(z) < 2){
+    mean(make.link(link_phi)$linkinv(y))
+  } else {
+    coef(glm(formula = y ~ ., 
+             data = if(q == 1) data.frame(y, z) else data.frame(y, z[,-1, drop = FALSE]),
+             family = quasibinomial(link = link)))
+  }
+  if(is.null(z) || ncol(z) < 2){
+    names(iniphi)[1] <- "phi"  
+  } else {
+    names(iniphi) <- paste0("phi_", colnames(z))
+  }
+  return(c(inibeta, iniphi))
 }
