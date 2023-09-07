@@ -1,14 +1,14 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# betaregesc
+# betaregscale
 
 <!-- badges: start -->
 
 [![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-O pacote `betaregesc` oferece uma biblioteca de funções em R para ajuste
+O pacote `betaregscale` oferece uma biblioteca de funções em R para ajuste
 de modelos de regressão beta para dados oriundos de escalas mapeáveis no
 suporte da distribuição beta, como por exemplo Escaldas de dor, Likert
 entre outras, do modo que a incertea do instrumento é avaliada de forma
@@ -20,7 +20,7 @@ código-fonte e contribuições podem ser acessados no repositório oficial
 do GitHub. Informações detalhadas sobre instalação e uso estão
 disponíveis na documentação do pacote.
 
-O `betaregesc` é voltado para modelagem de dados com variável resposta
+O `betaregscale` é voltado para modelagem de dados com variável resposta
 mapeável em intervalo contínuo, e.g., $y = (y_s;y_i)$, abrangendo
 censura à esquerda, direita ou intervalar independente do tempo.
 Aplica-se em pesquisas de opinião, avaliações de produtos, escalas de
@@ -41,13 +41,13 @@ Entre as principais funcionalidades ten-se:
 - Estatística de bondade do ajuste como AIC e BIC, por exemplo em
   `gof()`.
 - Funções genéricas como `coef`, `vcov`, `fitted`, `residuals`,
-  `summary` e `print` foram implementadas para a classe `betaregesc`
+  `summary` e `print` foram implementadas para a classe `betaregscale`
   para facilitar o acesso às medidas do ajuste.
 - Funções para ajuste e comparação de modelos com diferentes combinações
   de variáveis explicativas tanto para $\mu$ como $\phi$.
 
 > Acesse a documentação detalhada de cada função e exemplos de uso neste
-> site para obter informações sobre como utilizar o pacote `betaregesc`
+> site para obter informações sobre como utilizar o pacote `betaregscale`
 > em suas análises.
 
 ## Instalação
@@ -55,10 +55,10 @@ Entre as principais funcionalidades ten-se:
 Você pode instalar o pacote com esse comando abaixo.
 
 ``` r
-if(!require(betaregesc)){
-  devtools::install_github("evandeilton/betaregesc")  
+if(!require(betaregscale)){
+  devtools::install_github("evandeilton/betaregscale")  
 }
-require(betaregesc, quietly = TRUE)
+require(betaregscale, quietly = TRUE)
 ```
 
 ## Exemplos
@@ -71,7 +71,7 @@ Esta função gera amostras de variável beta com dispersão fixa usando
 várias funções de ligação.
 
 No exemplo a seguir em código R, demonstramos como usar a função
-`betaregesc_simula_dados` para simular dados de variável beta com
+`betaregscale_simula_dados` para simular dados de variável beta com
 dispersão fixa:
 
 - Criamos um conjunto de dados com 100 observações e duas variáveis
@@ -93,7 +93,7 @@ n <- 200
 dados <- data.frame(x1 = rnorm(n),
                     x2 = rnorm(n))
 
-dados_simulados <- betaregesc_simula_dados(
+dados_simulados <- betaregscale_simula_dados(
   formula = ~ x1 + x2,
   dados = dados,
   betas = c(0.3, -0.6, 0.4),
@@ -127,7 +127,7 @@ links <- c("logit","probit","cauchit","cloglog")
 names(links) <- links
 
 fit_fixo <- purrr::map(links, .f = function(link){
-  betaregesc(
+  betaregscale(
     formula = y ~ x1 + x2,
     dados = dados_simulados,
     link = link,
@@ -195,7 +195,7 @@ links <- c("logit","probit","cauchit","cloglog")
 names(links) <- links
 
 fit_fixo_bbmle <- purrr::map(links, .f = function(link){
-  betaregesc_bbmle(
+  betaregscale_bbmle(
     formula = y ~ x1 + x2,
     dados = dados_simulados,
     link = link,
@@ -228,7 +228,7 @@ purrr::walk(names(fit_fixo_profiles), function(p){
 
 Neste bloco de código R, é criado um conjunto de dados simulados de um
 modelo beta com dispersão variável utilizando a função
-`betaregesc_simula_dados_z.` O processo é resumido abaixo:
+`betaregscale_simula_dados_z.` O processo é resumido abaixo:
 
 - Definir semente e tamanho da amostra, além das fórmulas para as
   variáveis explicativas x e z.
@@ -237,7 +237,7 @@ modelo beta com dispersão variável utilizando a função
   variáveis independentes (x1, x2, z1 e z2), geradas a partir de
   distribuições normal e uniforme.
 
-- Utilizar a função `betaregesc_simula_dados_z` para gerar dados
+- Utilizar a função `betaregscale_simula_dados_z` para gerar dados
   simulados com base nos parâmetros fornecidos, como fórmulas,
   coeficientes de regressão, funções de ligação e número de pontos de
   corte.
@@ -257,7 +257,7 @@ dados <- data.frame(
   z2 = rnorm(n)
 )
 
-dados_simulados <- betaregesc_simula_dados_z(
+dados_simulados <- betaregscale_simula_dados_z(
   formula_x = fx,
   formula_z = fz,
   dados = dados,
@@ -293,7 +293,7 @@ links <- c("logit","probit","cauchit","cloglog")
 names(links) <- links
 
 fit_variavel <- purrr::map(links, .f = function(link){
-  betaregesc(
+  betaregscale(
     formula = y ~x1 + x2 | z1,
     dados = dados_simulados,
     link = link,
@@ -365,7 +365,7 @@ links <- c("logit","probit","cloglog")
 names(links) <- links
 
 fit_variavel_bbmle <- purrr::map(links, .f = function(link){
-  betaregesc_bbmle(
+  betaregscale_bbmle(
     formula = y ~ x1 + x2 | z1,
     dados = dados_simulados,
     link = link,
