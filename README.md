@@ -106,7 +106,7 @@ dados_simulados <- betaregscale_simula_dados(
 )
 dados_simulados %>%
   head() %>%
-  knitr::kable(digits = 4, caption = "")
+  knitr::kable(digits = 6, caption = "")
 ```
 
 |  left | right |   yt |   y |      x1 |      x2 |
@@ -151,7 +151,7 @@ resumo <- purrr::map(fit_fixo, function(fit){
 purrr::map_df(resumo, function(res){
   res$est
   }, .id = "link") %>% 
-  knitr::kable(digits = 4, caption = "")  
+  knitr::kable(digits = 6, caption = "")  
 ```
 
 | link    | variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
@@ -177,7 +177,7 @@ purrr::map_df(resumo, function(res){
 purrr::map_df(resumo, function(res){
   res$gof
   }, .id = "link") %>% 
-  knitr::kable(digits = 4, caption = "")
+  knitr::kable(digits = 6, caption = "")
 ```
 
 | link    |   logLik |       AIC |       BIC |
@@ -272,7 +272,7 @@ dados_simulados <- betaregscale_simula_dados_z(
 
 dados_simulados %>% 
   head() %>%
-  knitr::kable(digits = 4, caption = "")
+  knitr::kable(digits = 6, caption = "")
 ```
 
 |  left | right |   yt |   y |      x1 |      x2 |  x3 |      z1 |      z2 |
@@ -317,7 +317,7 @@ resumo <- purrr::map(fit_variavel, function(fit){
 purrr::map_df(resumo, function(res){
   res$est
   }, .id = "link") %>% 
-  knitr::kable(digits = 4, caption = "")  
+  knitr::kable(digits = 6, caption = "")  
 ```
 
 | link    | variable           | estimate | ci_lower | ci_upper |     se | t_value | p_value |
@@ -347,7 +347,7 @@ purrr::map_df(resumo, function(res){
 purrr::map_df(resumo, function(res){
   res$gof
   }, .id = "link") %>% 
-  knitr::kable(digits = 4, caption = "")
+  knitr::kable(digits = 6, caption = "")
 ```
 
 | link    |   logLik |       AIC |       BIC |
