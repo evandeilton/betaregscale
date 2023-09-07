@@ -5,7 +5,7 @@
 
 <!-- badges: start -->
 
-[![pkgdown](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaroti/actions/workflows/pkgdown.yaml)
+[![pkgdown](https://github.com/evandeilton/betaregscale/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/evandeilton/betaregscale/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
 O pacote `betaregscale` oferece uma biblioteca de funções em R para ajuste
