@@ -258,7 +258,7 @@ bs_prepare <- function(data, y = "y", delta = "delta",
       d_final <- as.integer(di)
     } else {
       # Infer delta from NA pattern
-      d_final <- .infer_delta(yi, li, ri, K)
+      d_final <- .infer_delta(yi, li, ri, K, has_lr_cols = has_left || has_right)
     }
 
     # ---- Compute endpoints ----
@@ -330,8 +330,12 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 #' @param li Numeric scalar: the left endpoint (or NA).
 #' @param ri Numeric scalar: the right endpoint (or NA).
 #' @param K Integer: number of scale categories (ncuts).
+#' @param has_lr_cols Logical: whether left/right columns exist in the
+#'   original data.frame. When TRUE and both li/ri are NA but yi has a
+#'   value, the observation is treated as exact (delta = 0) because the
+#'   analyst explicitly chose not to provide censoring intervals.
 #' @noRd
-.infer_delta <- function(yi, li, ri, K) {
+.infer_delta <- function(yi, li, ri, K, has_lr_cols = FALSE) {
   has_y <- !is.na(yi)
   has_l <- !is.na(li)
   has_r <- !is.na(ri)
@@ -353,8 +357,13 @@ bs_prepare <- function(data, y = "y", delta = "delta",
     # Analyst gave y AND left AND right -> interval (use analyst endpoints)
     return(3L)
   }
+  if (has_y && has_lr_cols && !has_l && !has_r) {
+    # Analyst provided left/right columns but left both NA for this row,
+    # while y has a value -> exact observation (no censoring)
+    return(0L)
+  }
   if (has_y) {
-    # y only <U+2014> classify like check_response:
+    # y only (no left/right columns in data) -> classify like check_response:
     #   y == 0 -> left-censored
     #   y == K -> right-censored
     #   0 < y < K -> interval-censored

@@ -82,7 +82,7 @@ likelihood.
 y <- c(0, 3, 5, 7, 9, 10)
 check_response(y, type = "m", ncuts = 10)
 
-# Continuous data in (0, 1) — treated as uncensored
+# Continuous data in (0, 1) <U+2014> treated as uncensored
 y_cont <- c(0.1, 0.3, 0.5, 0.7, 0.9)
 check_response(y_cont, type = "m", ncuts = 100)
 
