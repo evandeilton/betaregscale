@@ -10,3 +10,6 @@
 ^doc$
 ^Meta$
 ^\.claude$
+^CODE_OF_CONDUCT\.md$
+^cran-comments\.md$
+^CONTRIBUTING\.md$

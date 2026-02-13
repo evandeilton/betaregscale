@@ -91,7 +91,7 @@
 #' y <- c(0, 3, 5, 7, 9, 10)
 #' check_response(y, type = "m", ncuts = 10)
 #'
-#' # Continuous data in (0, 1) — treated as uncensored
+#' # Continuous data in (0, 1) <U+2014> treated as uncensored
 #' y_cont <- c(0.1, 0.3, 0.5, 0.7, 0.9)
 #' check_response(y_cont, type = "m", ncuts = 100)
 #'
@@ -185,4 +185,38 @@ check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5) {
   yt <- pmin(pmax(yt, eps), 1 - eps)
 
   cbind(left = y_left, right = y_right, yt = yt, y = y, delta = delta)
+}
+
+
+#' Extract response from bs_prepare() or fall back to check_response()
+#'
+#' If the data carries the \code{"bs_prepared"} attribute (set by
+#' \code{\link{bs_prepare}}), the pre-computed columns are used directly.
+#' Otherwise, falls back to the standard \code{\link{check_response}}.
+#'
+#' @param mf Model frame (from \code{model.frame}).
+#' @param data Original data frame passed by the user.
+#' @param ncuts Integer: number of scale categories.
+#' @param type Character: interval type.
+#' @param lim Numeric: uncertainty half-width.
+#' @return A matrix with columns \code{left}, \code{right}, \code{yt},
+#'   \code{y}, \code{delta}.
+#' @keywords internal
+#' @noRd
+.extract_response <- function(mf, data, ncuts, type, lim) {
+  if (isTRUE(attr(data, "bs_prepared")) &&
+    all(c("left", "right", "yt", "delta") %in% names(data))) {
+    rows <- as.integer(rownames(mf))
+    cbind(
+      left  = data[["left"]][rows],
+      right = data[["right"]][rows],
+      yt    = data[["yt"]][rows],
+      y     = stats::model.response(mf, "numeric"),
+      delta = data[["delta"]][rows]
+    )
+  } else {
+    check_response(stats::model.response(mf, "numeric"),
+      ncuts = ncuts, type = type, lim = lim
+    )
+  }
 }

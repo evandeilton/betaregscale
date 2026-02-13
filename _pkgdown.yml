@@ -2,52 +2,78 @@ url: https://evandeilton.github.io/betaregscale/
 
 template:
   bootstrap: 5
+  bootswatch: cosmo
+
+navbar:
+  structure:
+    left:  [intro, reference, articles]
+    right: [search, github]
+  components:
+    intro:
+      text: Get started
+      href: articles/betaregscale.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/evandeilton/betaregscale
+      aria-label: GitHub
+
+articles:
+  - title: "Getting Started"
+    navbar: ~
+    contents:
+      - betaregscale
 
 reference:
   - title: "Model Fitting"
-    desc: "Core functions for fitting beta interval regression models"
+    desc: "Core functions for fitting beta interval regression models."
     contents:
       - betaregscale
       - betaregscale_fit
       - betaregscale_fit_z
-      - betaregscale_bbmle
 
   - title: "Log-Likelihood"
-    desc: "Log-likelihood evaluation"
+    desc: "Log-likelihood evaluation for fixed and variable dispersion."
     contents:
       - betaregscale_loglik
       - betaregscale_loglik_z
 
   - title: "Simulation"
-    desc: "Data simulation for Monte Carlo studies"
+    desc: "Data simulation for Monte Carlo studies."
     contents:
       - betaregscale_simulate
       - betaregscale_simulate_z
 
   - title: "S3 Methods"
-    desc: "Standard methods for fitted model objects"
+    desc: "Standard methods for fitted model objects of class betaregscale."
     contents:
       - coef.betaregscale
+      - vcov.betaregscale
       - summary.betaregscale
       - print.betaregscale
-      - fitted.betaregscale
-      - residuals.betaregscale
-      - predict.betaregscale
-      - vcov.betaregscale
+      - print.summary.betaregscale
       - logLik.betaregscale
       - AIC.betaregscale
       - BIC.betaregscale
+      - nobs.betaregscale
+      - formula.betaregscale
+      - model.matrix.betaregscale
+      - fitted.betaregscale
+      - residuals.betaregscale
+      - predict.betaregscale
+      - confint.betaregscale
+      - plot.betaregscale
 
-  - title: "Convenience Functions"
-    desc: "Helpers for inference and diagnostics"
+  - title: "Diagnostics and Summaries"
+    desc: "Functions for model diagnostics and censoring summaries."
     contents:
-      - betaregscale_coef
+      - censoring_summary
       - est
       - gof
       - hessian_matrix
 
-  - title: "Utilities"
-    desc: "Internal utilities and helpers"
+  - title: "Data Preparation"
+    desc: "Functions for preparing response variables and reparameterization."
     contents:
+      - bs_prepare
       - check_response
       - beta_reparam

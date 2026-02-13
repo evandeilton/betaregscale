@@ -74,10 +74,7 @@ betaregscale_loglik <- function(param,
 
   # Build model matrices
   mf <- stats::model.frame(formula, data = data)
-  Y <- check_response(stats::model.response(mf),
-    ncuts = ncuts,
-    type = type, lim = lim
-  )
+  Y <- .extract_response(mf, data, ncuts = ncuts, type = type, lim = lim)
   X <- stats::model.matrix(mf, data = data)
 
   # Dispatch to C++
@@ -158,9 +155,7 @@ betaregscale_loglik_z <- function(param,
   mf <- stats::model.frame(formula, data = data)
   mtX <- stats::terms(formula, data = data, rhs = 1L)
   mtZ <- stats::delete.response(stats::terms(formula, data = data, rhs = 2L))
-  Y <- check_response(stats::model.response(mf, "numeric"),
-    ncuts = ncuts, type = type, lim = lim
-  )
+  Y <- .extract_response(mf, data, ncuts = ncuts, type = type, lim = lim)
   X <- stats::model.matrix(mtX, mf)
   Z <- stats::model.matrix(mtZ, mf)
 

@@ -1,0 +1,437 @@
+---
+title: "Introduction to betaregscale"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to betaregscale}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  fig.align = "center"
+)
+```
+
+## Overview
+
+The **betaregscale** package provides maximum-likelihood estimation of beta
+regression models for responses derived from bounded rating scales.
+Common examples include pain intensity scales (NRS-11, NRS-21, NRS-101),
+Likert-type scales, product quality ratings, and any instrument whose
+response can be mapped to the open interval $(0, 1)$.
+
+The key idea is that a discrete score recorded on a bounded scale carries
+measurement uncertainty inherent to the instrument. For instance, a pain
+score of $y = 6$ on a 0--10 NRS is not an exact value but rather
+represents a range: after rescaling to $(0, 1)$, the observation is
+treated as interval-censored in $[0.55, 0.65]$. The package uses the
+beta distribution to model such data, building a complete likelihood that
+supports mixed censoring types within the same dataset.
+
+## Installation
+
+```{r install, eval = FALSE}
+# Development version from GitHub:
+# install.packages("remotes")
+remotes::install_github("evandeilton/betaregscale")
+```
+
+```{r library}
+library(betaregscale)
+```
+
+## Censoring types
+
+The complete likelihood (Lopes, 2024, Eq. 2.24) supports four censoring
+types, automatically classified by `check_response()`:
+
+| $\delta$ | Type | Likelihood contribution |
+|:--------:|:-----|:-----------------------|
+| 0 | Exact (uncensored) | $f(y_i;\, a_i, b_i)$ |
+| 1 | Left-censored ($y = 0$) | $F(u_i;\, a_i, b_i)$ |
+| 2 | Right-censored ($y = K$) | $1 - F(l_i;\, a_i, b_i)$ |
+| 3 | Interval-censored | $F(u_i;\, a_i, b_i) - F(l_i;\, a_i, b_i)$ |
+
+where $f(\cdot)$ and $F(\cdot)$ are the beta density and CDF,
+$[l_i, u_i]$ are the interval endpoints, and $(a_i, b_i)$ are the beta
+shape parameters derived from $\mu_i$ and $\phi_i$ via the chosen
+reparameterization.
+
+## Interval construction
+
+Scale observations are mapped to $(0, 1)$ with uncertainty intervals
+controlled by the `type` argument:
+
+- `"m"` (midpoint): $y_t = y/K$, interval $[y_t - 0.5/K,\; y_t + 0.5/K]$
+- `"l"` (left-aligned): $y_t = y/K$, interval $[y_t,\; y_t + 1/K]$
+- `"r"` (right-aligned): $y_t = y/K$, interval $[y_t - 1/K,\; y_t]$
+
+where $K$ is the number of scale categories (`ncuts`).
+
+```{r check-response}
+# Illustrate check_response with a 0-10 NRS scale
+y_example <- c(0, 3, 5, 7, 10)
+cr <- check_response(y_example, type = "m", ncuts = 10)
+cr
+```
+
+The `delta` column shows that $y = 0$ is left-censored ($\delta = 1$),
+$y = 10$ is right-censored ($\delta = 2$), and all interior values are
+interval-censored ($\delta = 3$).
+
+## Data preparation with `bs_prepare()`
+
+In practice, analysts may want to supply their own censoring indicators
+or interval endpoints rather than relying on the automatic classification
+of `check_response()`. The `bs_prepare()` function provides a flexible,
+validated bridge between raw analyst data and `betaregscale()`.
+
+It supports four input modes:
+
+### Mode 1: Score only (automatic)
+
+```{r bs-prepare-mode1}
+# Equivalent to check_response <U+2014> delta inferred from y
+d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
+bs_prepare(d1, ncuts = 10)
+```
+
+### Mode 2: Score + explicit censoring indicator
+
+```{r bs-prepare-mode2}
+# Analyst specifies delta directly
+d2 <- data.frame(
+  y     = c(50, 0, 99, 50),
+  delta = c(0, 1, 2, 3),
+  x1    = rnorm(4)
+)
+bs_prepare(d2, ncuts = 100)
+```
+
+### Mode 3: Interval endpoints with NA patterns
+
+When the analyst provides `left` and/or `right` columns, censoring is
+inferred from the NA pattern:
+
+```{r bs-prepare-mode3}
+d3 <- data.frame(
+  left  = c(NA, 20, 30, NA),
+  right = c(5, NA, 45, NA),
+  y     = c(NA, NA, NA, 50),
+  x1    = rnorm(4)
+)
+bs_prepare(d3, ncuts = 100)
+```
+
+### Mode 4: Analyst-supplied intervals
+
+When the analyst provides `y`, `left`, and `right` simultaneously, their
+endpoints are used directly (rescaled by $K$):
+
+```{r bs-prepare-mode4}
+d4 <- data.frame(
+  y     = c(50, 75),
+  left  = c(48, 73),
+  right = c(52, 77),
+  x1    = rnorm(2)
+)
+bs_prepare(d4, ncuts = 100)
+```
+
+### Using prepared data with `betaregscale()`
+
+Data processed by `bs_prepare()` is automatically detected by
+`betaregscale()` — the internal `check_response()` step is skipped:
+
+```{r bs-prepare-workflow}
+set.seed(42)
+n <- 200
+dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+sim <- betaregscale_simulate(
+  formula = ~ x1 + x2, data = dat,
+  beta = c(0.2, -0.5, 0.3), phi = 1 / 5
+)
+prep <- bs_prepare(sim, ncuts = 100)
+fit_prep <- betaregscale(y ~ x1 + x2, data = prep)
+summary(fit_prep)
+```
+
+## Example 1: Fixed dispersion model
+
+### Simulating data
+
+We simulate 200 observations from a beta regression model with fixed
+dispersion, two covariates, and logit link for the mean.
+
+```{r sim-fixed}
+set.seed(4255)
+n <- 200
+dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+
+sim_fixed <- betaregscale_simulate(
+  formula  = ~ x1 + x2,
+  data     = dat,
+  beta     = c(0.3, -0.6, 0.4),
+  phi      = 1 / 10,
+  link     = "logit",
+  link_phi = "logit",
+  ncuts    = 100,
+  type     = "m",
+  repar    = 2
+)
+
+head(sim_fixed)
+```
+
+The `type = "m"` argument means that each observation is centered in its
+interval. For example, a score of 67 on a 0--100 scale yields
+$y_t = 0.67$ with interval $[0.665, 0.675]$.
+
+### Fitting the model
+
+```{r fit-fixed}
+fit_fixed <- betaregscale(
+  y ~ x1 + x2,
+  data     = sim_fixed,
+  link     = "logit",
+  link_phi = "logit",
+  repar    = 2
+)
+summary(fit_fixed)
+```
+
+The summary output follows the `betareg` package style, showing separate
+coefficient tables for the mean and precision submodels, with Wald
+z-tests and $p$-values based on the standard normal distribution.
+
+### Goodness of fit
+
+```{r gof-fixed}
+gof(fit_fixed)
+```
+
+### Comparing link functions
+
+The package supports several link functions for the mean submodel. We
+can compare them using information criteria:
+
+```{r compare-links}
+links <- c("logit", "probit", "cauchit", "cloglog")
+fits <- lapply(setNames(links, links), function(lnk) {
+  betaregscale(y ~ x1 + x2, data = sim_fixed, link = lnk, repar = 2)
+})
+
+# Estimates
+est_table <- do.call(rbind, lapply(names(fits), function(lnk) {
+  e <- est(fits[[lnk]])
+  e$link <- lnk
+  e
+}))
+est_table
+
+# Goodness of fit
+gof_table <- do.call(rbind, lapply(fits, gof))
+gof_table
+```
+
+### Residual diagnostics
+
+The `plot()` method provides six diagnostic panels. By default, the
+first four are shown:
+
+```{r plot-fixed, fig.height = 6}
+plot(fit_fixed)
+```
+
+For ggplot2 output (requires the **ggplot2** package):
+
+```{r plot-fixed-gg, eval = requireNamespace("ggplot2", quietly = TRUE), fig.height = 6}
+plot(fit_fixed, gg = TRUE)
+```
+
+### Predictions
+
+```{r predict-fixed}
+# Fitted means
+head(predict(fit_fixed, type = "response"))
+
+# Conditional variance
+head(predict(fit_fixed, type = "variance"))
+
+# Quantile predictions
+head(predict(fit_fixed, type = "quantile", at = c(0.25, 0.5, 0.75)))
+```
+
+### Confidence intervals
+
+Wald confidence intervals based on the asymptotic normal approximation:
+
+```{r confint-fixed}
+confint(fit_fixed)
+confint(fit_fixed, model = "mean")
+```
+
+### Censoring structure
+
+The `censoring_summary()` function provides a visual and tabular
+overview of the censoring types in the fitted model:
+
+```{r censoring-summary, fig.height = 5}
+censoring_summary(fit_fixed)
+```
+
+## Example 2: Variable dispersion model
+
+In many applications, the dispersion parameter $\phi$ may depend on
+covariates. The package supports variable-dispersion models using the
+`Formula` package notation: `y ~ x1 + x2 | z1 + z2`, where the terms
+after `|` define the linear predictor for $\phi$.
+
+### Simulating data
+
+```{r sim-variable}
+set.seed(2222)
+n <- 200
+dat_z <- data.frame(
+  x1 = rnorm(n),
+  x2 = rnorm(n),
+  x3 = rbinom(n, size = 1, prob = 0.5),
+  z1 = rnorm(n),
+  z2 = rnorm(n)
+)
+
+sim_var <- betaregscale_simulate_z(
+  formula_x = ~ x1 + x2 + x3,
+  formula_z = ~ z1 + z2,
+  data = dat_z,
+  beta = c(0.2, -0.6, 0.2, 0.2),
+  zeta = c(0.2, -0.8, 0.6),
+  link = "logit",
+  link_phi = "logit",
+  ncuts = 100,
+  type = "m",
+  repar = 2
+)
+
+head(sim_var)
+```
+
+### Fitting the model
+
+```{r fit-variable}
+fit_var <- betaregscale(
+  y ~ x1 + x2 | z1,
+  data     = sim_var,
+  link     = "logit",
+  link_phi = "logit",
+  repar    = 2
+)
+summary(fit_var)
+```
+
+Notice the `(phi)_` prefix in the precision coefficient names, following
+the `betareg` convention.
+
+### Accessing coefficients by submodel
+
+```{r coef-variable}
+# Full parameter vector
+coef(fit_var)
+
+# Mean submodel only
+coef(fit_var, model = "mean")
+
+# Precision submodel only
+coef(fit_var, model = "precision")
+
+# Variance-covariance matrix for the mean submodel
+vcov(fit_var, model = "mean")
+```
+
+### Comparing link functions (variable dispersion)
+
+```{r compare-links-var}
+links <- c("logit", "probit", "cauchit", "cloglog")
+fits_var <- lapply(setNames(links, links), function(lnk) {
+  betaregscale(y ~ x1 + x2 | z1, data = sim_var, link = lnk, repar = 2)
+})
+
+# Estimates
+est_var <- do.call(rbind, lapply(names(fits_var), function(lnk) {
+  e <- est(fits_var[[lnk]])
+  e$link <- lnk
+  e
+}))
+est_var
+
+# Goodness of fit
+gof_var <- do.call(rbind, lapply(fits_var, gof))
+gof_var
+```
+
+### Diagnostics for variable dispersion
+
+```{r plot-variable, fig.height = 6}
+plot(fit_var)
+```
+
+## S3 methods reference
+
+The following standard S3 methods are available for objects of class
+`"betaregscale"`:
+
+| Method | Description |
+|:-------|:-----------|
+| `print()` | Compact display of call and coefficients |
+| `summary()` | Detailed output with Wald tests and goodness-of-fit |
+| `coef(model=)` | Extract coefficients (full, mean, or precision) |
+| `vcov(model=)` | Variance-covariance matrix (full, mean, or precision) |
+| `confint(model=)` | Wald confidence intervals |
+| `logLik()` | Log-likelihood value |
+| `AIC()`, `BIC()` | Information criteria |
+| `nobs()` | Number of observations |
+| `formula()` | Model formula |
+| `model.matrix(model=)` | Design matrix (mean or precision) |
+| `fitted()` | Fitted mean values |
+| `residuals(type=)` | Residuals: response, pearson, rqr, weighted, sweighted |
+| `predict(type=)` | Predictions: response, link, precision, variance, quantile |
+| `plot(gg=)` | Diagnostic plots (base R or ggplot2) |
+
+## Reparameterizations
+
+The package supports three reparameterizations of the beta distribution,
+controlled by the `repar` argument:
+
+**Direct (`repar = 0`):** Shape parameters $a = \mu$ and $b = \phi$
+are used directly. This is rarely used in practice.
+
+**Precision (`repar = 1`, Ferrari & Cribari-Neto, 2004):** The mean
+$\mu \in (0,1)$ and precision $\phi > 0$ yield $a = \mu\phi$ and
+$b = (1-\mu)\phi$. Higher $\phi$ means less variability.
+
+**Mean--variance (`repar = 2`):** The mean $\mu \in (0,1)$ and
+dispersion $\phi \in (0,1)$ yield $a = \mu(1-\phi)/\phi$ and
+$b = (1-\mu)(1-\phi)/\phi$. Here $\phi$ acts as a coefficient of
+variation: smaller $\phi$ means less variability.
+
+```{r reparam}
+# Precision parameterization: mu = 0.5, phi = 10 (high precision)
+beta_reparam(mu = 0.5, phi = 10, repar = 1)
+
+# Mean-variance parameterization: mu = 0.5, phi = 0.1 (low dispersion)
+beta_reparam(mu = 0.5, phi = 0.1, repar = 2)
+```
+
+## References
+
+- Lopes, J. E. (2024). *Beta Regression for Interval-Censored
+  Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
+
+- Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for
+  modelling rates and proportions. *Journal of Applied Statistics*,
+  **31**(7), 799--815.

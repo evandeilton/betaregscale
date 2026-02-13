@@ -7,8 +7,9 @@
 censoring_summary(object, n_sample = 100L, gg = FALSE, ...)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object, or a matrix
-returned by \code{\link{check_response}} (must contain columns
+\item{object}{A fitted \code{"betaregscale"} object, a matrix
+returned by \code{\link{check_response}}, or a data frame
+returned by \code{\link{bs_prepare}} (must contain columns
 \code{left}, \code{right}, \code{yt}, and \code{delta}).}
 
 \item{n_sample}{Integer: maximum number of observations to show

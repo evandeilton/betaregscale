@@ -268,7 +268,7 @@ test_that("variable model parameters have (phi)_ prefix", {
 
 
 # ============================================================================ #
-# Test: S3 methods — coef with model= argument
+# Test: S3 methods <U+2014> coef with model= argument
 # ============================================================================ #
 
 test_that("coef method works with model argument", {
@@ -648,4 +648,243 @@ test_that("censoring_summary works with raw matrix", {
   cs <- censoring_summary(Y)
   expect_true(is.data.frame(cs))
   expect_equal(sum(cs$count), 5L)
+})
+
+
+# ============================================================================ #
+# bs_prepare() tests
+# ============================================================================ #
+
+# -- Structure and attributes ------------------------------------------------ #
+
+test_that("bs_prepare output has correct structure", {
+  d <- data.frame(y = c(0, 5, 10), x1 = rnorm(3))
+  res <- bs_prepare(d, ncuts = 10)
+  expect_true(is.data.frame(res))
+  expect_true(all(c("left", "right", "yt", "y", "delta") %in% names(res)))
+  expect_true("x1" %in% names(res))
+  expect_true(isTRUE(attr(res, "bs_prepared")))
+  expect_equal(attr(res, "ncuts"), 10L)
+  expect_equal(attr(res, "type"), "m")
+  expect_equal(attr(res, "lim"), 0.5)
+})
+
+test_that("bs_prepare preserves original y values", {
+  d <- data.frame(y = c(0, 50, 100))
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$y, c(0, 50, 100))
+})
+
+# -- Mode 1: y only (automatic classification) ------------------------------ #
+
+test_that("bs_prepare Mode 1: y only <U+2014> delta inferred correctly", {
+  d <- data.frame(y = c(0, 3, 5, 7, 10))
+  res <- bs_prepare(d, ncuts = 10)
+  expect_equal(res$delta, c(1L, 3L, 3L, 3L, 2L))
+})
+
+test_that("bs_prepare Mode 1: y only <U+2014> endpoints match check_response", {
+  y_vec <- c(0, 3, 5, 7, 10)
+  cr <- check_response(y_vec, type = "m", ncuts = 10, lim = 0.5)
+  d <- data.frame(y = y_vec)
+  res <- bs_prepare(d, ncuts = 10, type = "m", lim = 0.5)
+  expect_equal(res$left, as.numeric(cr[, "left"]), tolerance = 1e-8)
+  expect_equal(res$right, as.numeric(cr[, "right"]), tolerance = 1e-8)
+  expect_equal(res$yt, as.numeric(cr[, "yt"]), tolerance = 1e-8)
+  expect_equal(res$delta, as.integer(cr[, "delta"]))
+})
+
+# -- Mode 2: y + explicit delta --------------------------------------------- #
+
+test_that("bs_prepare Mode 2: y + delta explicit <U+2014> exact", {
+  d <- data.frame(y = 50, delta = 0L)
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, 0L)
+  expect_equal(res$left, 0.50, tolerance = 1e-4)
+  expect_equal(res$right, 0.50, tolerance = 1e-4)
+})
+
+test_that("bs_prepare Mode 2: y + delta explicit <U+2014> left-censored", {
+  d <- data.frame(y = 0, delta = 1L)
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, 1L)
+  expect_true(res$left < 0.01)
+  expect_equal(res$right, 0.005, tolerance = 1e-4)
+})
+
+test_that("bs_prepare Mode 2: y + delta explicit <U+2014> right-censored", {
+  d <- data.frame(y = 100, delta = 2L)
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, 2L)
+  expect_equal(res$left, 0.995, tolerance = 1e-4)
+  expect_true(res$right > 0.99)
+})
+
+test_that("bs_prepare Mode 2: y + delta explicit <U+2014> interval-censored", {
+  d <- data.frame(y = 50, delta = 3L)
+  res <- bs_prepare(d, ncuts = 100, type = "m")
+  expect_equal(res$delta, 3L)
+  expect_equal(res$left, 0.495, tolerance = 1e-4)
+  expect_equal(res$right, 0.505, tolerance = 1e-4)
+  expect_equal(res$yt, 0.50, tolerance = 1e-4)
+})
+
+# -- Mode 3: left/right with NA patterns ------------------------------------ #
+
+test_that("bs_prepare Mode 3: only right given <U+2014> left-censored", {
+  d <- data.frame(left = NA_real_, right = 5, y = NA_real_)
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, 1L)
+  expect_true(res$left < 0.001)
+  expect_equal(res$right, 0.05, tolerance = 1e-4)
+})
+
+test_that("bs_prepare Mode 3: only left given <U+2014> right-censored", {
+  d <- data.frame(left = 20, right = NA_real_, y = NA_real_)
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, 2L)
+  expect_equal(res$left, 0.20, tolerance = 1e-4)
+  expect_true(res$right > 0.99)
+})
+
+test_that("bs_prepare Mode 3: left + right given <U+2014> interval-censored", {
+  d <- data.frame(left = 30, right = 45, y = NA_real_)
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, 3L)
+  expect_equal(res$left, 0.30, tolerance = 1e-4)
+  expect_equal(res$right, 0.45, tolerance = 1e-4)
+  expect_equal(res$yt, 0.375, tolerance = 1e-4)
+})
+
+test_that("bs_prepare Mode 3: y only (no left/right) <U+2014> scale value <U+2192> interval", {
+  # y=50 on 0-100 scale <U+2192> interval-censored (delta=3), not exact
+  d <- data.frame(left = NA_real_, right = NA_real_, y = 50)
+  res <- bs_prepare(d, ncuts = 100, type = "m")
+  expect_equal(res$delta, 3L)
+  expect_equal(res$yt, 0.50, tolerance = 1e-4)
+})
+
+test_that("bs_prepare: continuous y in (0,1) <U+2192> exact", {
+  d <- data.frame(y = c(0.2, 0.5, 0.8))
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, c(0L, 0L, 0L))
+  expect_equal(res$yt, c(0.2, 0.5, 0.8), tolerance = 1e-4)
+})
+
+# -- Mode 4: y + left + right (analyst-supplied intervals) ------------------- #
+
+test_that("bs_prepare Mode 4: y + left + right <U+2014> uses analyst endpoints", {
+  d <- data.frame(y = 50, left = 48, right = 52)
+  res <- bs_prepare(d, ncuts = 100)
+  expect_equal(res$delta, 3L)
+  expect_equal(res$left, 0.48, tolerance = 1e-4)
+  expect_equal(res$right, 0.52, tolerance = 1e-4)
+  expect_equal(res$yt, 0.50, tolerance = 1e-4)
+})
+
+# -- Mixed censoring in one dataset ----------------------------------------- #
+
+test_that("bs_prepare handles mixed censoring types", {
+  d <- data.frame(
+    left  = c(NA, 20, 30, NA),
+    right = c(5, NA, 45, NA),
+    y     = c(NA, NA, NA, 50)
+  )
+  res <- bs_prepare(d, ncuts = 100)
+  # y=50 is a scale value (not in (0,1)), so it's interval-censored
+
+  expect_equal(res$delta, c(1L, 2L, 3L, 3L))
+})
+
+# -- Input validation errors ------------------------------------------------- #
+
+test_that("bs_prepare errors on non-data.frame", {
+  expect_error(bs_prepare(list(y = 1:5)), "data.frame")
+})
+
+test_that("bs_prepare errors when no relevant columns", {
+  expect_error(bs_prepare(data.frame(x1 = 1:5)), "must be present")
+})
+
+test_that("bs_prepare errors on invalid delta values", {
+  d <- data.frame(y = 50, delta = 5L)
+  expect_error(bs_prepare(d, ncuts = 100), "\\{0, 1, 2, 3\\}")
+})
+
+test_that("bs_prepare errors when left > right", {
+  d <- data.frame(left = 50, right = 30, y = NA_real_)
+  expect_error(bs_prepare(d, ncuts = 100), "left > right")
+})
+
+test_that("bs_prepare errors when all columns are NA", {
+  d <- data.frame(y = NA_real_, left = NA_real_, right = NA_real_)
+  expect_error(bs_prepare(d, ncuts = 100), "all relevant columns are NA")
+})
+
+test_that("bs_prepare errors when ncuts < max value", {
+  d <- data.frame(y = c(50, 150))
+  expect_error(bs_prepare(d, ncuts = 100), "ncuts")
+})
+
+test_that("bs_prepare errors on non-numeric y", {
+  d <- data.frame(y = c("a", "b"))
+  expect_error(bs_prepare(d, ncuts = 100), "numeric")
+})
+
+test_that("bs_prepare errors on negative y", {
+  d <- data.frame(y = c(-1, 5))
+  expect_error(bs_prepare(d, ncuts = 100), "non-negative")
+})
+
+# -- Consistency warnings ---------------------------------------------------- #
+
+test_that("bs_prepare warns: delta=1 but y != 0", {
+  d <- data.frame(y = 5, delta = 1L)
+  expect_warning(bs_prepare(d, ncuts = 100), "delta = 1.*but y != 0")
+})
+
+test_that("bs_prepare warns: delta=2 but y != ncuts", {
+  d <- data.frame(y = 50, delta = 2L)
+  expect_warning(bs_prepare(d, ncuts = 100), "delta = 2.*but y != 100")
+})
+
+test_that("bs_prepare warns: delta=3 but y at boundary", {
+  d <- data.frame(y = 0, delta = 3L)
+  expect_warning(bs_prepare(d, ncuts = 100), "delta = 3.*boundary")
+})
+
+# -- censoring_summary with bs_prepare output -------------------------------- #
+
+test_that("censoring_summary works with bs_prepare output", {
+  d <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
+  res <- bs_prepare(d, ncuts = 10)
+  cs <- censoring_summary(res)
+  expect_true(is.data.frame(cs))
+  expect_equal(sum(cs$count), 5L)
+})
+
+# -- End-to-end: bs_prepare -> betaregscale ---------------------------------- #
+
+test_that("bs_prepare -> betaregscale produces identical fit to raw data", {
+  sim <- sim_fixed(n = 200, seed = 42)
+
+  # Fit 1: standard workflow
+  fit1 <- betaregscale(y ~ x1 + x2, data = sim, link = "logit", repar = 2L)
+
+  # Fit 2: bs_prepare workflow <U+2014> extract only y + covariates
+  sim_raw <- sim[, c("y", "x1", "x2")]
+  prep <- bs_prepare(sim_raw, ncuts = 100, type = "m")
+  fit2 <- betaregscale(y ~ x1 + x2, data = prep, link = "logit", repar = 2L)
+
+  expect_equal(coef(fit1), coef(fit2), tolerance = 1e-6)
+  expect_equal(logLik(fit1), logLik(fit2), tolerance = 1e-6)
+})
+
+test_that("bs_prepare -> betaregscale_fit_z converges", {
+  sim <- sim_variable(n = 200, seed = 42)
+  sim_raw <- sim[, c("y", "x1", "x2", "z1")]
+  prep <- bs_prepare(sim_raw, ncuts = 100, type = "m")
+  fit <- betaregscale(y ~ x1 + x2 | z1, data = prep, link = "logit", repar = 2L)
+  expect_s3_class(fit, "betaregscale")
+  expect_equal(fit$convergence, 0L)
 })

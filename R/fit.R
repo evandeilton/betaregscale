@@ -65,9 +65,7 @@ betaregscale_fit <- function(formula, data,
   # Build matrices
   mf <- stats::model.frame(formula, data = data)
   mtX <- stats::terms(formula, data = data, rhs = 1L)
-  Y <- check_response(stats::model.response(mf, "numeric"),
-    ncuts = ncuts, type = type, lim = lim
-  )
+  Y <- .extract_response(mf, data, ncuts = ncuts, type = type, lim = lim)
   X <- stats::model.matrix(mtX, mf)
   n <- nrow(X)
   p <- ncol(X)
@@ -274,9 +272,7 @@ betaregscale_fit_z <- function(formula, data,
   mtZ <- stats::delete.response(
     stats::terms(formula, data = data, rhs = 2L)
   )
-  Y <- check_response(stats::model.response(mf, "numeric"),
-    ncuts = ncuts, type = type, lim = lim
-  )
+  Y <- .extract_response(mf, data, ncuts = ncuts, type = type, lim = lim)
   X <- stats::model.matrix(mtX, mf)
   Z <- stats::model.matrix(mtZ, mf)
   n <- nrow(X)
