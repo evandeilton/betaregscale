@@ -2,5 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
-docs
-.Rd2pdf46000
+src/*.o
+src/*.so
+src/*.dll
+src/RcppExports.cpp
+R/RcppExports.R
+inst/doc
