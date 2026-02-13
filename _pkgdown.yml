@@ -1,41 +1,53 @@
 url: https://evandeilton.github.io/betaregscale/
 
-home:
-  title: Regressão beta para dados de escala
-  sidebar:
-    structure: [links, license, community, citation, authors, dev]
-  
-authors:
-  Lopes, J. E.:
-    href: http://github.com/evandeilton
-    
 template:
   bootstrap: 5
-  #bslib:
-  #  base_font: {google: "Roboto"}
-  #  heading_font: {google: "Roboto Slab"}
-  #  code_font: {google: "JetBrains Mono"}
-  bslib:
-    base_font: {google: "Ubuntu"}
-    heading_font: {google: "Ubuntu"}
-    code_font: {google: "Fira Code"}
-    
-  bootswatch: minty
-  #theme: breeze-light
-  navbar:
-    structure:
-      left: [intro, reference, articles, tutorials, news]
-      right: [search, github]
-    components:
-      twitter:
-        icon: fa-github
-        href: http://github.com/evandeilton
-        aria-label: Github
-      linkedin:
-        icon: fa-linkedin
-        href: https://www.linkedin.com/in/evandeilton/
-        aria-label: linkedin
 
-footer:
-  components:
-    legal: Conteúdo sem nenhum tipo de garantia. Use por sua conta em risco.
+reference:
+  - title: "Model Fitting"
+    desc: "Core functions for fitting beta interval regression models"
+    contents:
+      - betaregscale
+      - betaregscale_fit
+      - betaregscale_fit_z
+      - betaregscale_bbmle
+
+  - title: "Log-Likelihood"
+    desc: "Log-likelihood evaluation"
+    contents:
+      - betaregscale_loglik
+      - betaregscale_loglik_z
+
+  - title: "Simulation"
+    desc: "Data simulation for Monte Carlo studies"
+    contents:
+      - betaregscale_simulate
+      - betaregscale_simulate_z
+
+  - title: "S3 Methods"
+    desc: "Standard methods for fitted model objects"
+    contents:
+      - coef.betaregscale
+      - summary.betaregscale
+      - print.betaregscale
+      - fitted.betaregscale
+      - residuals.betaregscale
+      - predict.betaregscale
+      - vcov.betaregscale
+      - logLik.betaregscale
+      - AIC.betaregscale
+      - BIC.betaregscale
+
+  - title: "Convenience Functions"
+    desc: "Helpers for inference and diagnostics"
+    contents:
+      - betaregscale_coef
+      - est
+      - gof
+      - hessian_matrix
+
+  - title: "Utilities"
+    desc: "Internal utilities and helpers"
+    contents:
+      - check_response
+      - beta_reparam
