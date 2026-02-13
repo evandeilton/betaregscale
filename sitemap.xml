@@ -1,102 +1,56 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/404.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/index.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/AIC.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/BIC.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/Variaveis.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_bbmle.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_coef.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_fit.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_fit_z.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_log_vero.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_log_vero_z.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_simula_dados.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_simula_dados_z.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/cls-betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/coef.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/est.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/fitted.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/fn_check_response.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/fn_switch_link.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/gof.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/hessian.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/logLik.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/predict.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/print.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/residuals.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/summary.betaregscale.html</loc>
-  </url>
-  <url>
-    <loc>https://evandeilton.github.io/betaregscale/reference/vcov.betaregscale.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://evandeilton.github.io/betaregscale/404.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/CONTRIBUTING.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/LICENSE-text.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/LICENSE.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/articles/betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/articles/index.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/authors.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/index.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/news/index.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/AIC.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/BIC.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/apply_inv_link.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/beta_reparam.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale-package.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_coef.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_fit.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_fit_z.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik_z.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/bs_prepare.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/censoring_summary.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/check_response.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/coef.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/compute_start.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/confint.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-betaregscale_grad_fixed_cpp.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-betaregscale_grad_variable_cpp.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-betaregscale_loglik_fixed_cpp.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-betaregscale_loglik_variable_cpp.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-check_class.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-mu_links.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-phi_links.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/est.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/fitted.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/formula.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/gof.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/hessian_matrix.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/index.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/link_to_code.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/logLik.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/model.matrix.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/nobs.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/plot.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/predict.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/print.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/print.summary.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/residuals.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/summary.betaregscale.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/vcov.betaregscale.html</loc></url>
 </urlset>
+
