@@ -15,3 +15,14 @@ Numeric Hessian matrix.
 \description{
 Extract the Hessian matrix
 }
+\examples{
+\donttest{
+sim <- betaregscale_simulate(
+  formula = ~x1, data = data.frame(x1 = rnorm(50)),
+  beta = c(0, 0.5), phi = 0.1, ncuts = 10, type = "m", repar = 2
+)
+fit <- betaregscale(y ~ x1, data = sim, repar = 2)
+hessian_matrix(fit)
+}
+
+}
