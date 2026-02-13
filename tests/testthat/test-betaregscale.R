@@ -623,6 +623,8 @@ test_that("mixed censoring: all four types present", {
 test_that("plot.betaregscale runs without error", {
   sim <- sim_fixed()
   fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  pdf(nullfile())
+  on.exit(dev.off(), add = TRUE)
   expect_silent(plot(fit, which = 1:4))
 })
 
