@@ -200,7 +200,7 @@ is set to 3 (interval-censored) unless the analyst supplied
 <span class="r-in"><span><span class="co"># --- Mode 2: y + explicit delta ---</span></span></span>
 <span class="r-in"><span><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  y     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">0</span>, <span class="fl">99</span>, <span class="fl">50</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span>, <span class="fl">1</span>,  <span class="fl">2</span>,  <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">bs_prepare</span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
@@ -215,17 +215,17 @@ is set to 3 (interval-censored) unless the analyst supplied
 <span class="r-in"><span><span class="co"># --- Mode 3: left/right with NA patterns ---</span></span></span>
 <span class="r-in"><span><span class="va">d3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  left  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  right <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">5</span>, <span class="cn">NA</span>, <span class="fl">45</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  right <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="cn">NA</span>, <span class="fl">45</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  y     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">50</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">bs_prepare</span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> bs_prepare: n = 4 | exact = 0, left = 1, right = 1, interval = 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      left   right    yt  y delta         x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.05000 0.025 NA     1  0.5556991</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.20000 0.99999 0.600 NA     2 -2.1831493</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.30000 0.45000 0.375 NA     3 -0.2470245</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.49500 0.50500 0.500 50     3  1.1128569</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> bs_prepare: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    left   right    yt  y delta         x1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1e-05 0.05000 0.025 NA     1  0.5556991</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2e-01 0.99999 0.600 NA     2 -2.1831493</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 3e-01 0.45000 0.375 NA     3 -0.2470245</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 5e-01 0.50000 0.500 50     0  1.1128569</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 4: y + left + right (analyst-supplied intervals) ---</span></span></span>
 <span class="r-in"><span><span class="va">d4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>

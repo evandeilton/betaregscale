@@ -105,7 +105,7 @@ check_response(y, type = "m", ncuts = 10)
 #> [5,] 0.85000 0.95000 0.90000  9     3
 #> [6,] 0.95000 0.99999 0.99999 10     2
 
-# Continuous data in (0, 1) — treated as uncensored
+# Continuous data in (0, 1) <U+2014> treated as uncensored
 y_cont <- c(0.1, 0.3, 0.5, 0.7, 0.9)
 check_response(y_cont, type = "m", ncuts = 100)
 #> Response is already on the unit interval (0, 1); treating as uncensored (exact) observations.
