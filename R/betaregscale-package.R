@@ -28,6 +28,8 @@
 #'     variable-dispersion beta model.}
 #'   \item{\code{\link{censoring_summary}}}{Visual and tabular summary of
 #'     censoring structure.}
+#'   \item{\code{\link{bs_prepare}}}{Pre-process analyst data (validate,
+#'     classify censoring, and rescale) before model fitting.}
 #' }
 #'
 #' @section S3 methods:

@@ -38,10 +38,7 @@ compute_start <- function(formula, data, link = "logit",
   mtZ <- stats::delete.response(
     stats::terms(formula, data = data, rhs = 2L)
   )
-  Y <- check_response(
-    stats::model.response(mf, "numeric"),
-    ncuts = ncuts, type = type, lim = lim
-  )
+  Y <- .extract_response(mf, data, ncuts = ncuts, type = type, lim = lim)
   x <- stats::model.matrix(mtX, mf)
   z <- stats::model.matrix(mtZ, mf)
 

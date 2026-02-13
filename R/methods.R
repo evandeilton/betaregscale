@@ -722,6 +722,16 @@ gof <- function(object) {
 #' @return Data frame of estimates, standard errors, z-values, and
 #'   p-values.
 #'
+#' @examples
+#' \donttest{
+#' sim <- betaregscale_simulate(
+#'   formula = ~x1, data = data.frame(x1 = rnorm(50)),
+#'   beta = c(0, 0.5), phi = 0.1, ncuts = 10, type = "m", repar = 2
+#' )
+#' fit <- betaregscale(y ~ x1, data = sim, repar = 2)
+#' est(fit)
+#' }
+#'
 #' @importFrom stats pnorm
 #' @export
 est <- function(object, alpha = 0.05) {
@@ -761,6 +771,16 @@ betaregscale_coef <- function(fit, alpha = 0.05) {
 #' @param object A fitted \code{"betaregscale"} object.
 #'
 #' @return Numeric Hessian matrix.
+#'
+#' @examples
+#' \donttest{
+#' sim <- betaregscale_simulate(
+#'   formula = ~x1, data = data.frame(x1 = rnorm(50)),
+#'   beta = c(0, 0.5), phi = 0.1, ncuts = 10, type = "m", repar = 2
+#' )
+#' fit <- betaregscale(y ~ x1, data = sim, repar = 2)
+#' hessian_matrix(fit)
+#' }
 #'
 #' @export
 hessian_matrix <- function(object) {

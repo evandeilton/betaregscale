@@ -1,5 +1,5 @@
 # ============================================================================ #
-# Censoring summary — visual and tabular description of censoring types
+# Censoring summary <U+2014> visual and tabular description of censoring types
 # ============================================================================ #
 
 #' Graphical and tabular censoring summary
@@ -15,8 +15,9 @@
 #'   \item Proportion table of censoring types
 #' }
 #'
-#' @param object A fitted \code{"betaregscale"} object, or a matrix
-#'   returned by \code{\link{check_response}} (must contain columns
+#' @param object A fitted \code{"betaregscale"} object, a matrix
+#'   returned by \code{\link{check_response}}, or a data frame
+#'   returned by \code{\link{bs_prepare}} (must contain columns
 #'   \code{left}, \code{right}, \code{yt}, and \code{delta}).
 #' @param n_sample Integer: maximum number of observations to show
 #'   in the interval plot (default 100).  If the data has more
@@ -43,12 +44,17 @@ censoring_summary <- function(object, n_sample = 100L, gg = FALSE, ...) {
   if (inherits(object, "betaregscale")) {
     Y <- object$Y
     delta <- object$delta
+  } else if (is.data.frame(object) && isTRUE(attr(object, "bs_prepared")) &&
+    all(c("left", "right", "yt", "delta") %in% names(object))) {
+    Y <- as.matrix(object[, c("left", "right", "yt", "delta")])
+    delta <- as.integer(object[["delta"]])
   } else if (is.matrix(object) && all(c("left", "right", "yt", "delta") %in% colnames(object))) {
     Y <- object
     delta <- as.integer(object[, "delta"])
   } else {
     stop(
-      "object must be a 'betaregscale' object or a matrix from check_response().",
+      "object must be a 'betaregscale' object, a matrix from check_response(), ",
+      "or a data.frame from bs_prepare().",
       call. = FALSE
     )
   }
