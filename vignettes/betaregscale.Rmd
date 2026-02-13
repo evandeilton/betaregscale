@@ -11,9 +11,10 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 7,
+  fig.width = 10,
   fig.height = 5,
-  fig.align = "center"
+  fig.align = "center",
+  digits = 4
 )
 ```
 
@@ -150,14 +151,18 @@ Data processed by `bs_prepare()` is automatically detected by
 
 ```{r bs-prepare-workflow}
 set.seed(42)
-n <- 200
+n <- 1000
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
 sim <- betaregscale_simulate(
   formula = ~ x1 + x2, data = dat,
-  beta = c(0.2, -0.5, 0.3), phi = 1 / 5
+  beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+  link = "logit", link_phi = "logit",
+  repar = 2, type = "m"
 )
 prep <- bs_prepare(sim, ncuts = 100)
-fit_prep <- betaregscale(y ~ x1 + x2, data = prep)
+fit_prep <- betaregscale(y ~ x1 + x2, data = prep, repar = 2,
+                         link = "logit", link_phi = "logit",
+                         type = "m")
 summary(fit_prep)
 ```
 
@@ -170,7 +175,7 @@ dispersion, two covariates, and logit link for the mean.
 
 ```{r sim-fixed}
 set.seed(4255)
-n <- 200
+n <- 1000
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
 
 sim_fixed <- betaregscale_simulate(
@@ -296,7 +301,7 @@ after `|` define the linear predictor for $\phi$.
 
 ```{r sim-variable}
 set.seed(2222)
-n <- 200
+n <- 1000
 dat_z <- data.frame(
   x1 = rnorm(n),
   x2 = rnorm(n),
