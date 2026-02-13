@@ -153,7 +153,7 @@ bs_prepare(d1, ncuts = 10)
 # --- Mode 2: y + explicit delta ---
 d2 <- data.frame(
   y     = c(50, 0, 99, 50),
-  delta = c( 0, 1,  2,  3),
+  delta = c(0, 1, 2, 3),
   x1    = rnorm(4)
 )
 bs_prepare(d2, ncuts = 100)
@@ -168,17 +168,17 @@ bs_prepare(d2, ncuts = 100)
 # --- Mode 3: left/right with NA patterns ---
 d3 <- data.frame(
   left  = c(NA, 20, 30, NA),
-  right = c( 5, NA, 45, NA),
+  right = c(5, NA, 45, NA),
   y     = c(NA, NA, NA, 50),
   x1    = rnorm(4)
 )
 bs_prepare(d3, ncuts = 100)
-#> bs_prepare: n = 4 | exact = 0, left = 1, right = 1, interval = 2
-#>      left   right    yt  y delta         x1
-#> 1 0.00001 0.05000 0.025 NA     1  0.5556991
-#> 2 0.20000 0.99999 0.600 NA     2 -2.1831493
-#> 3 0.30000 0.45000 0.375 NA     3 -0.2470245
-#> 4 0.49500 0.50500 0.500 50     3  1.1128569
+#> bs_prepare: n = 4 | exact = 1, left = 1, right = 1, interval = 1
+#>    left   right    yt  y delta         x1
+#> 1 1e-05 0.05000 0.025 NA     1  0.5556991
+#> 2 2e-01 0.99999 0.600 NA     2 -2.1831493
+#> 3 3e-01 0.45000 0.375 NA     3 -0.2470245
+#> 4 5e-01 0.50000 0.500 50     0  1.1128569
 
 # --- Mode 4: y + left + right (analyst-supplied intervals) ---
 d4 <- data.frame(
