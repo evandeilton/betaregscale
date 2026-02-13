@@ -119,7 +119,7 @@ bs_prepare(d1, ncuts = 10)
 # --- Mode 2: y + explicit delta ---
 d2 <- data.frame(
   y     = c(50, 0, 99, 50),
-  delta = c( 0, 1,  2,  3),
+  delta = c(0, 1, 2, 3),
   x1    = rnorm(4)
 )
 bs_prepare(d2, ncuts = 100)
@@ -127,7 +127,7 @@ bs_prepare(d2, ncuts = 100)
 # --- Mode 3: left/right with NA patterns ---
 d3 <- data.frame(
   left  = c(NA, 20, 30, NA),
-  right = c( 5, NA, 45, NA),
+  right = c(5, NA, 45, NA),
   y     = c(NA, NA, NA, 50),
   x1    = rnorm(4)
 )
