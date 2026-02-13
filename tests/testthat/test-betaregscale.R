@@ -756,11 +756,13 @@ test_that("bs_prepare Mode 3: left + right given <U+2014> interval-censored", {
   expect_equal(res$yt, 0.375, tolerance = 1e-4)
 })
 
-test_that("bs_prepare Mode 3: y only (no left/right) <U+2014> scale value <U+2192> interval", {
-  # y=50 on 0-100 scale <U+2192> interval-censored (delta=3), not exact
+test_that("bs_prepare Mode 3: left=NA, right=NA, y=value -> exact (delta=0)", {
+  # When analyst provides left/right columns but both are NA for a row,
+
+  # while y has a value, the observation is exact (no censoring)
   d <- data.frame(left = NA_real_, right = NA_real_, y = 50)
   res <- bs_prepare(d, ncuts = 100, type = "m")
-  expect_equal(res$delta, 3L)
+  expect_equal(res$delta, 0L)
   expect_equal(res$yt, 0.50, tolerance = 1e-4)
 })
 
@@ -791,9 +793,8 @@ test_that("bs_prepare handles mixed censoring types", {
     y     = c(NA, NA, NA, 50)
   )
   res <- bs_prepare(d, ncuts = 100)
-  # y=50 is a scale value (not in (0,1)), so it's interval-censored
-
-  expect_equal(res$delta, c(1L, 2L, 3L, 3L))
+  # row 4: left=NA, right=NA, y=50 -> exact (delta=0)
+  expect_equal(res$delta, c(1L, 2L, 3L, 0L))
 })
 
 # -- Input validation errors ------------------------------------------------- #
