@@ -1,19 +1,52 @@
 Package: betaregscale
 Type: Package
-Title: Regressão beta para dados de escala
-Version: 1.1.1
-Author: Lopes, J. E.
-Maintainer: Lopes, J. E. <evandeilton@gmail.com>
-Description: Pacote para o programa de mestrado do PPGMNE. O Objetivo é fazer ajuste do modelo regressão beta para dados com resposta oriunda escalas intervalares, objeto da dissertação de mestrado.
+Title: Beta Regression for Interval-Censored Scale-Derived Outcomes
+Version: 2.0.0
+Authors@R: c(person(given = "José Evandeilton",
+                    family = "Lopes",
+                    role = c("aut", "cre"),
+                    email = "evandeilton@gmail.com",
+                    comment = c(ORCID = "0009-0007-5887-4084")),
+             person(given = "Wagner Hugo",
+                    family = "Bonat",
+                    role = "aut",
+                    comment = c(ORCID = "0000-0002-0349-7054")))
+Description: Maximum-likelihood estimation of beta regression models for
+    responses derived from bounded rating scales. Observations are treated
+    as interval-censored on (0, 1) after a scale-to-unit transformation,
+    and the likelihood is built from the difference of the beta CDF at the
+    interval endpoints. The complete likelihood supports mixed censoring
+    types: uncensored, left-censored, right-censored, and
+    interval-censored observations (Lopes, 2024). Both fixed- and
+    variable-dispersion submodels are supported, with flexible link
+    functions for the mean and precision components. A compiled C++ backend
+    (via 'Rcpp' and 'RcppArmadillo') provides numerically stable,
+    high-performance log-likelihood evaluation. Standard S3 methods
+    (print, summary, coef, fitted, residuals, predict, plot, confint,
+    vcov, logLik, AIC, BIC) are available for fitted objects.
 License: MIT + file LICENSE
+URL: https://evandeilton.github.io/betaregscale/
+BugReports: https://github.com/evandeilton/betaregscale/issues
+Depends:
+    R (>= 4.1.0)
+Imports:
+    Formula,
+    numDeriv,
+    Rcpp (>= 1.0.12),
+    stats
+Suggests:
+    betareg,
+    ggplot2,
+    gridExtra,
+    knitr,
+    MASS,
+    rmarkdown,
+    testthat (>= 3.0.0)
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
 Encoding: UTF-8
 LazyData: true
-Imports: 
-    bbmle,
-    betareg,
-    Formula,
-    magrittr,
-    numDeriv,
-    methods
-RoxygenNote: 7.2.3
-URL: https://evandeilton.github.io/betaregscale/
+NeedsCompilation: yes
+RoxygenNote: 7.3.3
+Config/testthat/edition: 3
