@@ -288,42 +288,47 @@ by <code><a href="../reference/betaregscale.html">betaregscale()</a></code> — 
 <code><a href="../reference/check_response.html">check_response()</a></code> step is skipped:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale_simulate.html">betaregscale_simulate</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">dat</span>,</span>
-<span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">5</span></span>
+<span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">5</span>,</span>
+<span>  link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  repar <span class="op">=</span> <span class="fl">2</span>, type <span class="op">=</span> <span class="st">"m"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bs_prepare.html">bs_prepare</a></span><span class="op">(</span><span class="va">sim</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bs_prepare: n = 200 | exact = 0, left = 18, right = 21, interval = 161</span></span>
-<span><span class="va">fit_prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span>
+<span><span class="co">#&gt; bs_prepare: n = 1000 | exact = 0, left = 71, right = 106, interval = 823</span></span>
+<span><span class="va">fit_prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">prep</span>, repar <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                         link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>                         type <span class="op">=</span> <span class="st">"m"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_prep</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; betaregscale(formula = y ~ x1 + x2, data = prep)</span></span>
+<span><span class="co">#&gt; betaregscale(formula = y ~ x1 + x2, data = prep, link = "logit", </span></span>
+<span><span class="co">#&gt;     link_phi = "logit", type = "m", repar = 2)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.0625 -0.5896  0.2555  0.6723  1.5528 </span></span>
+<span><span class="co">#&gt; -3.9434 -0.5715  0.2788  0.6560  1.3786 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
-<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept) -5.15677    0.08757 -58.886  &lt; 2e-16 ***</span></span>
-<span><span class="co">#&gt; x1          -0.38266    0.06216  -6.156 7.45e-10 ***</span></span>
-<span><span class="co">#&gt; x2           0.12275    0.06556   1.872   0.0612 .  </span></span>
+<span><span class="co">#&gt;             Estimate Std. Error  z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; (Intercept) -5.11254    0.03821 -133.798  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; x1          -0.29458    0.02680  -10.990  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; x2           0.18828    0.02695    6.986 2.83e-12 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
 <span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (phi)  -4.8810     0.1352  -36.11   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; (phi) -4.88273    0.05962   -81.9   &lt;2e-16 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -896.1340 on 4 Df</span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.1097 </span></span>
-<span><span class="co">#&gt; Number of iterations: 29 (BFGS) </span></span>
-<span><span class="co">#&gt; Censoring: 161 interval | 18 left | 21 right</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -4517.3759 on 4 Df</span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1010 </span></span>
+<span><span class="co">#&gt; Number of iterations: 35 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 823 interval | 71 left | 106 right</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -336,7 +341,7 @@ by <code><a href="../reference/betaregscale.html">betaregscale()</a></code> — 
 dispersion, two covariates, and logit link for the mean.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4255</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale_simulate.html">betaregscale_simulate</a></span><span class="op">(</span></span>
@@ -352,13 +357,13 @@ dispersion, two covariates, and logit link for the mean.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_fixed</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    left   right      yt   y delta          x1          x2</span></span>
-<span><span class="co">#&gt; 1 0.005 0.01500 0.01000   1     3  1.95102377 -0.55883986</span></span>
-<span><span class="co">#&gt; 2 0.665 0.67500 0.67000  67     3  0.77253858 -0.07106106</span></span>
-<span><span class="co">#&gt; 3 0.285 0.29500 0.29000  29     3  0.72640816  0.46916754</span></span>
-<span><span class="co">#&gt; 4 0.895 0.90500 0.90000  90     3  0.04873961  0.11129810</span></span>
-<span><span class="co">#&gt; 5 0.315 0.32500 0.32000  32     3 -0.54450108 -0.56115817</span></span>
-<span><span class="co">#&gt; 6 0.995 0.99999 0.99999 100     2  0.36002855  0.01866439</span></span></code></pre></div>
+<span><span class="co">#&gt;      left right      yt  y delta          x1         x2</span></span>
+<span><span class="co">#&gt; 1 0.16500 0.175 0.17000 17     3  1.95102377  0.2888356</span></span>
+<span><span class="co">#&gt; 2 0.98500 0.995 0.99000 99     3  0.77253858  1.6102584</span></span>
+<span><span class="co">#&gt; 3 0.00001 0.005 0.00001  0     1  0.72640816  1.0542434</span></span>
+<span><span class="co">#&gt; 4 0.57500 0.585 0.58000 58     3  0.04873961 -0.4923176</span></span>
+<span><span class="co">#&gt; 5 0.09500 0.105 0.10000 10     3 -0.54450108 -1.4098059</span></span>
+<span><span class="co">#&gt; 6 0.06500 0.075 0.07000  7     3  0.36002855 -1.0115571</span></span></code></pre></div>
 <p>The <code>type = "m"</code> argument means that each observation is
 centered in its interval. For example, a score of 67 on a 0–100 scale
 yields
@@ -385,26 +390,26 @@ with interval
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.5250 -0.6758  0.0912  0.6465  2.7440 </span></span>
+<span><span class="co">#&gt; -3.4331 -0.6619  0.0070  0.7339  3.0637 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  0.33923    0.09872   3.436 0.000590 ***</span></span>
-<span><span class="co">#&gt; x1          -0.64453    0.10940  -5.892 3.82e-09 ***</span></span>
-<span><span class="co">#&gt; x2           0.37387    0.10820   3.455 0.000549 ***</span></span>
+<span><span class="co">#&gt; (Intercept)  0.30604    0.04312   7.097 1.28e-12 ***</span></span>
+<span><span class="co">#&gt; x1          -0.60332    0.04530 -13.317  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; x2           0.44135    0.04385  10.066  &lt; 2e-16 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
-<span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)  </span></span>
-<span><span class="co">#&gt; (phi)  0.20493    0.09322   2.198   0.0279 *</span></span>
+<span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; (phi)  0.10991    0.04057   2.709  0.00674 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -786.6074 on 4 Df</span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.2154 </span></span>
-<span><span class="co">#&gt; Number of iterations: 40 (BFGS) </span></span>
-<span><span class="co">#&gt; Censoring: 154 interval | 13 left | 33 right</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -4035.2262 on 4 Df</span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.2393 </span></span>
+<span><span class="co">#&gt; Number of iterations: 39 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 809 interval | 65 left | 126 right</span></span></code></pre></div>
 <p>The summary output follows the <code>betareg</code> package style,
 showing separate coefficient tables for the mean and precision
 submodels, with Wald z-tests and
@@ -417,7 +422,7 @@ based on the standard normal distribution.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/gof.html">gof</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      logLik      AIC      BIC pseudo_r2</span></span>
-<span><span class="co">#&gt; 1 -786.6074 1581.215 1594.408 0.2153843</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 -4035.226 8078.452 8098.083  0.239315</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparing-link-functions">Comparing link functions<a class="anchor" aria-label="anchor" href="#comparing-link-functions"></a>
@@ -437,49 +442,49 @@ can compare them using information criteria:</p>
 <span>  <span class="va">e</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">est_table</span></span>
-<span><span class="co">#&gt;       variable   estimate         se   z_value      p_value     ci_lower</span></span>
-<span><span class="co">#&gt; 1  (Intercept)  0.3392311 0.09872241  3.436212 5.899089e-04  0.145738775</span></span>
-<span><span class="co">#&gt; 2           x1 -0.6445300 0.10939654 -5.891686 3.822756e-09 -0.858943312</span></span>
-<span><span class="co">#&gt; 3           x2  0.3738654 0.10819762  3.455394 5.494894e-04  0.161801954</span></span>
-<span><span class="co">#&gt; 4        (phi)  0.2049261 0.09322014  2.198303 2.792749e-02  0.022218033</span></span>
-<span><span class="co">#&gt; 5  (Intercept)  0.2041063 0.06006633  3.398015 6.787662e-04  0.086378463</span></span>
-<span><span class="co">#&gt; 6           x1 -0.3821542 0.06311114 -6.055258 1.401925e-09 -0.505849793</span></span>
-<span><span class="co">#&gt; 7           x2  0.2235686 0.06498831  3.440136 5.814209e-04  0.096193905</span></span>
-<span><span class="co">#&gt; 8        (phi)  0.2115155 0.09287685  2.277376 2.276375e-02  0.029480271</span></span>
-<span><span class="co">#&gt; 9  (Intercept)  0.3339365 0.09607027  3.475961 5.090262e-04  0.145642243</span></span>
-<span><span class="co">#&gt; 10          x1 -0.6714835 0.13361627 -5.025462 5.022215e-07 -0.933366566</span></span>
-<span><span class="co">#&gt; 11          x2  0.3654699 0.10750561  3.399543 6.749860e-04  0.154762806</span></span>
-<span><span class="co">#&gt; 12       (phi)  0.1830339 0.09397476  1.947693 5.145175e-02 -0.001153193</span></span>
-<span><span class="co">#&gt; 13 (Intercept) -0.1693231 0.06616497 -2.559105 1.049421e-02 -0.299004071</span></span>
-<span><span class="co">#&gt; 14          x1 -0.3757247 0.06296732 -5.966979 2.416865e-09 -0.499138330</span></span>
-<span><span class="co">#&gt; 15          x2  0.2136847 0.06629000  3.223482 1.266421e-03  0.083758640</span></span>
-<span><span class="co">#&gt; 16       (phi)  0.2323318 0.09199950  2.525359 1.155802e-02  0.052016049</span></span>
-<span><span class="co">#&gt;       ci_upper    link</span></span>
-<span><span class="co">#&gt; 1   0.53272352   logit</span></span>
-<span><span class="co">#&gt; 2  -0.43011676   logit</span></span>
-<span><span class="co">#&gt; 3   0.58592882   logit</span></span>
-<span><span class="co">#&gt; 4   0.38763425   logit</span></span>
-<span><span class="co">#&gt; 5   0.32183414  probit</span></span>
-<span><span class="co">#&gt; 6  -0.25845868  probit</span></span>
-<span><span class="co">#&gt; 7   0.35094339  probit</span></span>
-<span><span class="co">#&gt; 8   0.39355082  probit</span></span>
-<span><span class="co">#&gt; 9   0.52223077 cauchit</span></span>
-<span><span class="co">#&gt; 10 -0.40960043 cauchit</span></span>
-<span><span class="co">#&gt; 11  0.57617705 cauchit</span></span>
-<span><span class="co">#&gt; 12  0.36722108 cauchit</span></span>
-<span><span class="co">#&gt; 13 -0.03964214 cloglog</span></span>
-<span><span class="co">#&gt; 14 -0.25231098 cloglog</span></span>
-<span><span class="co">#&gt; 15  0.34361067 cloglog</span></span>
-<span><span class="co">#&gt; 16  0.41264747 cloglog</span></span>
+<span><span class="co">#&gt;       variable   estimate         se    z_value      p_value    ci_lower</span></span>
+<span><span class="co">#&gt; 1  (Intercept)  0.3060440 0.04312435   7.096780 1.276975e-12  0.22152185</span></span>
+<span><span class="co">#&gt; 2           x1 -0.6033155 0.04530453 -13.316890 1.846396e-40 -0.69211077</span></span>
+<span><span class="co">#&gt; 3           x2  0.4413494 0.04384507  10.066111 7.800150e-24  0.35541462</span></span>
+<span><span class="co">#&gt; 4        (phi)  0.1099131 0.04056639   2.709462 6.739243e-03  0.03040443</span></span>
+<span><span class="co">#&gt; 5  (Intercept)  0.1865515 0.02619220   7.122409 1.060568e-12  0.13521578</span></span>
+<span><span class="co">#&gt; 6           x1 -0.3652474 0.02663952 -13.710732 8.757029e-43 -0.41745989</span></span>
+<span><span class="co">#&gt; 7           x2  0.2668812 0.02611963  10.217650 1.652993e-24  0.21568767</span></span>
+<span><span class="co">#&gt; 8        (phi)  0.1118451 0.04051860   2.760338 5.774155e-03  0.03243005</span></span>
+<span><span class="co">#&gt; 9  (Intercept)  0.2765516 0.04086691   6.767127 1.313647e-11  0.19645391</span></span>
+<span><span class="co">#&gt; 10          x1 -0.5595132 0.04925738 -11.358973 6.692662e-30 -0.65605589</span></span>
+<span><span class="co">#&gt; 11          x2  0.4092917 0.04464584   9.167523 4.840110e-20  0.32178752</span></span>
+<span><span class="co">#&gt; 12       (phi)  0.1098255 0.04056937   2.707105 6.787281e-03  0.03031104</span></span>
+<span><span class="co">#&gt; 13 (Intercept) -0.1949445 0.02881644  -6.765044 1.332688e-11 -0.25142369</span></span>
+<span><span class="co">#&gt; 14          x1 -0.3814461 0.02769930 -13.770966 3.810830e-43 -0.43573575</span></span>
+<span><span class="co">#&gt; 15          x2  0.2779569 0.02703699  10.280617 8.617404e-25  0.22496541</span></span>
+<span><span class="co">#&gt; 16       (phi)  0.1203423 0.04032397   2.984387 2.841474e-03  0.04130879</span></span>
+<span><span class="co">#&gt;      ci_upper    link</span></span>
+<span><span class="co">#&gt; 1   0.3905662   logit</span></span>
+<span><span class="co">#&gt; 2  -0.5145203   logit</span></span>
+<span><span class="co">#&gt; 3   0.5272841   logit</span></span>
+<span><span class="co">#&gt; 4   0.1894218   logit</span></span>
+<span><span class="co">#&gt; 5   0.2378873  probit</span></span>
+<span><span class="co">#&gt; 6  -0.3130349  probit</span></span>
+<span><span class="co">#&gt; 7   0.3180747  probit</span></span>
+<span><span class="co">#&gt; 8   0.1912601  probit</span></span>
+<span><span class="co">#&gt; 9   0.3566493 cauchit</span></span>
+<span><span class="co">#&gt; 10 -0.4629705 cauchit</span></span>
+<span><span class="co">#&gt; 11  0.4967960 cauchit</span></span>
+<span><span class="co">#&gt; 12  0.1893401 cauchit</span></span>
+<span><span class="co">#&gt; 13 -0.1384653 cloglog</span></span>
+<span><span class="co">#&gt; 14 -0.3271565 cloglog</span></span>
+<span><span class="co">#&gt; 15  0.3309485 cloglog</span></span>
+<span><span class="co">#&gt; 16  0.1993758 cloglog</span></span>
 <span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">gof</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gof_table</span></span>
 <span><span class="co">#&gt;            logLik      AIC      BIC pseudo_r2</span></span>
-<span><span class="co">#&gt; logit   -786.6074 1581.215 1594.408 0.2153843</span></span>
-<span><span class="co">#&gt; probit  -786.9783 1581.957 1595.150 0.2137397</span></span>
-<span><span class="co">#&gt; cauchit -785.1898 1578.380 1591.573 0.1729558</span></span>
-<span><span class="co">#&gt; cloglog -788.2910 1584.582 1597.775 0.1589974</span></span></code></pre></div>
+<span><span class="co">#&gt; logit   -4035.226 8078.452 8098.083 0.2393150</span></span>
+<span><span class="co">#&gt; probit  -4035.685 8079.370 8099.001 0.2382638</span></span>
+<span><span class="co">#&gt; cauchit -4035.500 8079.000 8098.631 0.1918217</span></span>
+<span><span class="co">#&gt; cloglog -4037.563 8083.126 8102.757 0.1823572</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="residual-diagnostics">Residual diagnostics<a class="anchor" aria-label="anchor" href="#residual-diagnostics"></a>
@@ -488,12 +493,12 @@ can compare them using information criteria:</p>
 default, the first four are shown:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/plot-fixed-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="betaregscale_files/figure-html/plot-fixed-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <p>For ggplot2 output (requires the <strong>ggplot2</strong>
 package):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/plot-fixed-gg-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="betaregscale_files/figure-html/plot-fixed-gg-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
@@ -501,21 +506,21 @@ package):</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fitted means</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.2446795 0.4538169 0.5116091 0.5864787 0.6178378 0.5285090</span></span>
+<span><span class="co">#&gt; [1] 0.3222258 0.6342855 0.5825087 0.5148343 0.5030832 0.4115366</span></span>
 <span></span>
 <span><span class="co"># Conditional variance</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.1018409 0.1365879 0.1376890 0.1336422 0.1301115 0.1373154</span></span>
+<span><span class="co">#&gt; [1] 0.1151933 0.1223514 0.1282719 0.1317466 0.1318576 0.1277349</span></span>
 <span></span>
 <span><span class="co"># Quantile predictions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           q_0.25      q_0.5    q_0.75</span></span>
-<span><span class="co">#&gt; [1,] 0.002041529 0.06473391 0.4288653</span></span>
-<span><span class="co">#&gt; [2,] 0.073601085 0.40611615 0.8351903</span></span>
-<span><span class="co">#&gt; [3,] 0.125179599 0.52371492 0.8976529</span></span>
-<span><span class="co">#&gt; [4,] 0.220087703 0.67348688 0.9525970</span></span>
-<span><span class="co">#&gt; [5,] 0.270331988 0.73257944 0.9680784</span></span>
-<span><span class="co">#&gt; [6,] 0.143685161 0.55814195 0.9124645</span></span></code></pre></div>
+<span><span class="co">#&gt;          q_0.25     q_0.5    q_0.75</span></span>
+<span><span class="co">#&gt; [1,] 0.01699962 0.1779476 0.6024063</span></span>
+<span><span class="co">#&gt; [2,] 0.31481409 0.7508330 0.9674995</span></span>
+<span><span class="co">#&gt; [3,] 0.23110586 0.6578331 0.9397720</span></span>
+<span><span class="co">#&gt; [4,] 0.14442537 0.5287586 0.8860292</span></span>
+<span><span class="co">#&gt; [5,] 0.13183539 0.5059798 0.8744926</span></span>
+<span><span class="co">#&gt; [6,] 0.05648038 0.3311318 0.7600605</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="confidence-intervals">Confidence intervals<a class="anchor" aria-label="anchor" href="#confidence-intervals"></a>
@@ -525,15 +530,15 @@ approximation:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                   2.5 %     97.5 %</span></span>
-<span><span class="co">#&gt; (Intercept)  0.14573878  0.5327235</span></span>
-<span><span class="co">#&gt; x1          -0.85894331 -0.4301168</span></span>
-<span><span class="co">#&gt; x2           0.16180195  0.5859288</span></span>
-<span><span class="co">#&gt; (phi)        0.02221803  0.3876343</span></span>
+<span><span class="co">#&gt; (Intercept)  0.22152185  0.3905662</span></span>
+<span><span class="co">#&gt; x1          -0.69211077 -0.5145203</span></span>
+<span><span class="co">#&gt; x2           0.35541462  0.5272841</span></span>
+<span><span class="co">#&gt; (phi)        0.03040443  0.1894218</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                  2.5 %     97.5 %</span></span>
-<span><span class="co">#&gt; (Intercept)  0.1457388  0.5327235</span></span>
-<span><span class="co">#&gt; x1          -0.8589433 -0.4301168</span></span>
-<span><span class="co">#&gt; x2           0.1618020  0.5859288</span></span></code></pre></div>
+<span><span class="co">#&gt; (Intercept)  0.2215218  0.3905662</span></span>
+<span><span class="co">#&gt; x1          -0.6921108 -0.5145203</span></span>
+<span><span class="co">#&gt; x2           0.3554146  0.5272841</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="censoring-structure">Censoring structure<a class="anchor" aria-label="anchor" href="#censoring-structure"></a>
@@ -542,7 +547,7 @@ approximation:</p>
 tabular overview of the censoring types in the fitted model:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/censoring_summary.html">censoring_summary</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="betaregscale_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
@@ -560,7 +565,7 @@ define the linear predictor for
 </h3>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2222</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">dat_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
 <span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
@@ -583,20 +588,20 @@ define the linear predictor for
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_var</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    left   right      yt   y delta         x1         x2 x3          z1</span></span>
-<span><span class="co">#&gt; 1 0.195 0.20500 0.20000  20     3 -0.3380621 -0.4210442  1  0.44649157</span></span>
-<span><span class="co">#&gt; 2 0.015 0.02500 0.02000   2     3  0.9391643  0.6791775  0 -0.25705190</span></span>
-<span><span class="co">#&gt; 3 0.325 0.33500 0.33000  33     3  1.7377190 -0.9225684  0  2.42959414</span></span>
-<span><span class="co">#&gt; 4 0.725 0.73500 0.73000  73     3  0.6963261 -0.1521523  0 -0.03793774</span></span>
-<span><span class="co">#&gt; 5 0.425 0.43500 0.43000  43     3  0.4622959 -0.6422296  0  0.31676341</span></span>
-<span><span class="co">#&gt; 6 0.995 0.99999 0.99999 100     2 -0.3150868  0.7921496  0 -1.13668590</span></span>
+<span><span class="co">#&gt;      left right      yt  y delta         x1         x2 x3          z1</span></span>
+<span><span class="co">#&gt; 1 0.26500 0.275 0.27000 27     3 -0.3380621 -0.8235432  0  0.03062031</span></span>
+<span><span class="co">#&gt; 2 0.17500 0.185 0.18000 18     3  0.9391643 -1.7562699  0  0.19384974</span></span>
+<span><span class="co">#&gt; 3 0.00001 0.005 0.00001  0     1  1.7377190 -1.3148242  1 -0.42828641</span></span>
+<span><span class="co">#&gt; 4 0.52500 0.535 0.53000 53     3  0.6963261 -0.8195514  0  0.36942900</span></span>
+<span><span class="co">#&gt; 5 0.08500 0.095 0.09000  9     3  0.4622959 -0.1182560  1  0.05528553</span></span>
+<span><span class="co">#&gt; 6 0.95500 0.965 0.96000 96     3 -0.3150868 -0.0648210  1  0.71694347</span></span>
 <span><span class="co">#&gt;           z2</span></span>
-<span><span class="co">#&gt; 1  0.6886654</span></span>
-<span><span class="co">#&gt; 2  0.7827447</span></span>
-<span><span class="co">#&gt; 3  1.1176679</span></span>
-<span><span class="co">#&gt; 4  0.3732239</span></span>
-<span><span class="co">#&gt; 5 -1.1603812</span></span>
-<span><span class="co">#&gt; 6 -0.8365901</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 -1.1221809</span></span>
+<span><span class="co">#&gt; 2 -0.2890842</span></span>
+<span><span class="co">#&gt; 3  0.3479434</span></span>
+<span><span class="co">#&gt; 4  0.2811058</span></span>
+<span><span class="co">#&gt; 5 -1.2184445</span></span>
+<span><span class="co">#&gt; 6 -0.5612588</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="fitting-the-model-1">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model-1"></a>
@@ -617,27 +622,27 @@ define the linear predictor for
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.3476 -0.6251 -0.0383  0.6391  2.4092 </span></span>
+<span><span class="co">#&gt; -4.4614 -0.6362  0.0056  0.6578  3.4202 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  0.27958    0.08675   3.223  0.00127 ** </span></span>
-<span><span class="co">#&gt; x1          -0.44820    0.09340  -4.799  1.6e-06 ***</span></span>
-<span><span class="co">#&gt; x2           0.19874    0.08391   2.368  0.01787 *  </span></span>
+<span><span class="co">#&gt; (Intercept)  0.27141    0.04245   6.394 1.62e-10 ***</span></span>
+<span><span class="co">#&gt; x1          -0.54553    0.04375 -12.468  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; x2           0.17226    0.04141   4.160 3.18e-05 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
 <span><span class="co">#&gt;                   Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (phi)_(Intercept)  0.08143    0.09412   0.865    0.387    </span></span>
-<span><span class="co">#&gt; (phi)_z1          -0.91702    0.10308  -8.896   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; (phi)_(Intercept)  0.24653    0.04233   5.823 5.77e-09 ***</span></span>
+<span><span class="co">#&gt; (phi)_z1          -0.72230    0.04507 -16.028  &lt; 2e-16 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -810.2369 on 5 Df</span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.0690 </span></span>
-<span><span class="co">#&gt; Number of iterations: 38 (BFGS) </span></span>
-<span><span class="co">#&gt; Censoring: 161 interval | 15 left | 24 right</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -3922.2430 on 5 Df</span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1159 </span></span>
+<span><span class="co">#&gt; Number of iterations: 42 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 744 interval | 105 left | 151 right</span></span></code></pre></div>
 <p>Notice the <code>(phi)_</code> prefix in the precision coefficient
 names, following the <code>betareg</code> convention.</p>
 </div>
@@ -648,26 +653,26 @@ names, following the <code>betareg</code> convention.</p>
 <code class="sourceCode R"><span><span class="co"># Full parameter vector</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       (Intercept)                x1                x2 (phi)_(Intercept) </span></span>
-<span><span class="co">#&gt;        0.27958256       -0.44820458        0.19873548        0.08142918 </span></span>
+<span><span class="co">#&gt;         0.2714053        -0.5455337         0.1722582         0.2465266 </span></span>
 <span><span class="co">#&gt;          (phi)_z1 </span></span>
-<span><span class="co">#&gt;       -0.91701510</span></span>
+<span><span class="co">#&gt;        -0.7223034</span></span>
 <span></span>
 <span><span class="co"># Mean submodel only</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; (Intercept)          x1          x2 </span></span>
-<span><span class="co">#&gt;   0.2795826  -0.4482046   0.1987355</span></span>
+<span><span class="co">#&gt;   0.2714053  -0.5455337   0.1722582</span></span>
 <span></span>
 <span><span class="co"># Precision submodel only</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; (phi)_(Intercept)          (phi)_z1 </span></span>
-<span><span class="co">#&gt;        0.08142918       -0.91701510</span></span>
+<span><span class="co">#&gt;         0.2465266        -0.7223034</span></span>
 <span></span>
 <span><span class="co"># Variance-covariance matrix for the mean submodel</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;               (Intercept)            x1           x2</span></span>
-<span><span class="co">#&gt; (Intercept)  7.526312e-03 -0.0010535138 9.147362e-06</span></span>
-<span><span class="co">#&gt; x1          -1.053514e-03  0.0087243197 1.616653e-04</span></span>
-<span><span class="co">#&gt; x2           9.147362e-06  0.0001616653 7.041609e-03</span></span></code></pre></div>
+<span><span class="co">#&gt; (Intercept)  1.801851e-03 -7.620050e-05 4.312471e-05</span></span>
+<span><span class="co">#&gt; x1          -7.620050e-05  1.914399e-03 2.137302e-05</span></span>
+<span><span class="co">#&gt; x2           4.312471e-05  2.137302e-05 1.714705e-03</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparing-link-functions-variable-dispersion">Comparing link functions (variable dispersion)<a class="anchor" aria-label="anchor" href="#comparing-link-functions-variable-dispersion"></a>
@@ -685,64 +690,64 @@ names, following the <code>betareg</code> convention.</p>
 <span>  <span class="va">e</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">est_var</span></span>
-<span><span class="co">#&gt;             variable    estimate         se    z_value      p_value    ci_lower</span></span>
-<span><span class="co">#&gt; 1        (Intercept)  0.27958256 0.08675432  3.2226932 1.269915e-03  0.10954722</span></span>
-<span><span class="co">#&gt; 2                 x1 -0.44820458 0.09340407 -4.7985553 1.598142e-06 -0.63127318</span></span>
-<span><span class="co">#&gt; 3                 x2  0.19873548 0.08391430  2.3683150 1.786932e-02  0.03426649</span></span>
-<span><span class="co">#&gt; 4  (phi)_(Intercept)  0.08142918 0.09412224  0.8651427 3.869604e-01 -0.10304703</span></span>
-<span><span class="co">#&gt; 5           (phi)_z1 -0.91701510 0.10308437 -8.8957729 5.801413e-19 -1.11905675</span></span>
-<span><span class="co">#&gt; 6        (Intercept)  0.17155835 0.05343984  3.2103083 1.325927e-03  0.06681819</span></span>
-<span><span class="co">#&gt; 7                 x1 -0.27344889 0.05634629 -4.8530059 1.216041e-06 -0.38388559</span></span>
-<span><span class="co">#&gt; 8                 x2  0.12201196 0.05157291  2.3658148 1.799044e-02  0.02093091</span></span>
-<span><span class="co">#&gt; 9  (phi)_(Intercept)  0.08344785 0.09404841  0.8872862 3.749248e-01 -0.10088364</span></span>
-<span><span class="co">#&gt; 10          (phi)_z1 -0.91678540 0.10310939 -8.8913864 6.035111e-19 -1.11887609</span></span>
-<span><span class="co">#&gt; 11       (Intercept)  0.24724531 0.07689481  3.2153707 1.302762e-03  0.09653426</span></span>
-<span><span class="co">#&gt; 12                x1 -0.40391079 0.08959490 -4.5081894 6.538319e-06 -0.57951357</span></span>
-<span><span class="co">#&gt; 13                x2  0.17683321 0.07462238  2.3697075 1.780216e-02  0.03057604</span></span>
-<span><span class="co">#&gt; 14 (phi)_(Intercept)  0.07330179 0.09429400  0.7773749 4.369376e-01 -0.11151105</span></span>
-<span><span class="co">#&gt; 15          (phi)_z1 -0.91651393 0.10304420 -8.8943768 5.874807e-19 -1.11847685</span></span>
-<span><span class="co">#&gt; 16       (Intercept) -0.19102845 0.05819476 -3.2825715 1.028649e-03 -0.30508808</span></span>
-<span><span class="co">#&gt; 17                x1 -0.28317419 0.05923492 -4.7805283 1.748351e-06 -0.39927249</span></span>
-<span><span class="co">#&gt; 18                x2  0.12614368 0.05504238  2.2917555 2.191975e-02  0.01826260</span></span>
-<span><span class="co">#&gt; 19 (phi)_(Intercept)  0.09029228 0.09385817  0.9620076 3.360458e-01 -0.09366636</span></span>
-<span><span class="co">#&gt; 20          (phi)_z1 -0.91498567 0.10292470 -8.8898551 6.118865e-19 -1.11671437</span></span>
-<span><span class="co">#&gt;       ci_upper    link</span></span>
-<span><span class="co">#&gt; 1   0.44961791   logit</span></span>
-<span><span class="co">#&gt; 2  -0.26513597   logit</span></span>
-<span><span class="co">#&gt; 3   0.36320448   logit</span></span>
-<span><span class="co">#&gt; 4   0.26590539   logit</span></span>
-<span><span class="co">#&gt; 5  -0.71497346   logit</span></span>
-<span><span class="co">#&gt; 6   0.27629850  probit</span></span>
-<span><span class="co">#&gt; 7  -0.16301219  probit</span></span>
-<span><span class="co">#&gt; 8   0.22309301  probit</span></span>
-<span><span class="co">#&gt; 9   0.26777934  probit</span></span>
-<span><span class="co">#&gt; 10 -0.71469472  probit</span></span>
-<span><span class="co">#&gt; 11  0.39795636 cauchit</span></span>
-<span><span class="co">#&gt; 12 -0.22830801 cauchit</span></span>
-<span><span class="co">#&gt; 13  0.32309038 cauchit</span></span>
-<span><span class="co">#&gt; 14  0.25811462 cauchit</span></span>
-<span><span class="co">#&gt; 15 -0.71455101 cauchit</span></span>
-<span><span class="co">#&gt; 16 -0.07696882 cloglog</span></span>
-<span><span class="co">#&gt; 17 -0.16707589 cloglog</span></span>
-<span><span class="co">#&gt; 18  0.23402477 cloglog</span></span>
-<span><span class="co">#&gt; 19  0.27425092 cloglog</span></span>
-<span><span class="co">#&gt; 20 -0.71325696 cloglog</span></span>
+<span><span class="co">#&gt;             variable   estimate         se    z_value      p_value    ci_lower</span></span>
+<span><span class="co">#&gt; 1        (Intercept)  0.2714053 0.04244822   6.393797 1.618165e-10  0.18820830</span></span>
+<span><span class="co">#&gt; 2                 x1 -0.5455337 0.04375384 -12.468246 1.112475e-35 -0.63128964</span></span>
+<span><span class="co">#&gt; 3                 x2  0.1722582 0.04140899   4.159922 3.183568e-05  0.09109804</span></span>
+<span><span class="co">#&gt; 4  (phi)_(Intercept)  0.2465266 0.04233361   5.823424 5.765393e-09  0.16355422</span></span>
+<span><span class="co">#&gt; 5           (phi)_z1 -0.7223034 0.04506591 -16.027712 8.184127e-58 -0.81063101</span></span>
+<span><span class="co">#&gt; 6        (Intercept)  0.1675402 0.02604987   6.431519 1.263347e-10  0.11648343</span></span>
+<span><span class="co">#&gt; 7                 x1 -0.3351860 0.02618407 -12.801144 1.615539e-37 -0.38650587</span></span>
+<span><span class="co">#&gt; 8                 x2  0.1056477 0.02529232   4.177066 2.952932e-05  0.05607566</span></span>
+<span><span class="co">#&gt; 9  (phi)_(Intercept)  0.2467114 0.04232425   5.829080 5.573393e-09  0.16375741</span></span>
+<span><span class="co">#&gt; 10          (phi)_z1 -0.7228855 0.04508355 -16.034353 7.354594e-58 -0.81124759</span></span>
+<span><span class="co">#&gt; 11       (Intercept)  0.2313768 0.03790774   6.103682 1.036526e-09  0.15707898</span></span>
+<span><span class="co">#&gt; 12                x1 -0.4748684 0.04383936 -10.832010 2.427663e-27 -0.56079197</span></span>
+<span><span class="co">#&gt; 13                x2  0.1487280 0.03733542   3.983564 6.788945e-05  0.07555194</span></span>
+<span><span class="co">#&gt; 14 (phi)_(Intercept)  0.2487158 0.04230585   5.878993 4.127710e-09  0.16579785</span></span>
+<span><span class="co">#&gt; 15          (phi)_z1 -0.7182945 0.04497995 -15.969215 2.094062e-57 -0.80645363</span></span>
+<span><span class="co">#&gt; 16       (Intercept) -0.2030447 0.02869977  -7.074785 1.496803e-12 -0.25929522</span></span>
+<span><span class="co">#&gt; 17                x1 -0.3596966 0.02798194 -12.854597 8.104674e-38 -0.41454021</span></span>
+<span><span class="co">#&gt; 18                x2  0.1150788 0.02705914   4.252863 2.110551e-05  0.06204385</span></span>
+<span><span class="co">#&gt; 19 (phi)_(Intercept)  0.2490380 0.04225119   5.894224 3.764457e-09  0.16622719</span></span>
+<span><span class="co">#&gt; 20          (phi)_z1 -0.7243353 0.04514341 -16.045206 6.175324e-58 -0.81281476</span></span>
+<span><span class="co">#&gt;      ci_upper    link</span></span>
+<span><span class="co">#&gt; 1   0.3546022   logit</span></span>
+<span><span class="co">#&gt; 2  -0.4597777   logit</span></span>
+<span><span class="co">#&gt; 3   0.2534183   logit</span></span>
+<span><span class="co">#&gt; 4   0.3294989   logit</span></span>
+<span><span class="co">#&gt; 5  -0.6339759   logit</span></span>
+<span><span class="co">#&gt; 6   0.2185970  probit</span></span>
+<span><span class="co">#&gt; 7  -0.2838662  probit</span></span>
+<span><span class="co">#&gt; 8   0.1552197  probit</span></span>
+<span><span class="co">#&gt; 9   0.3296654  probit</span></span>
+<span><span class="co">#&gt; 10 -0.6345233  probit</span></span>
+<span><span class="co">#&gt; 11  0.3056746 cauchit</span></span>
+<span><span class="co">#&gt; 12 -0.3889448 cauchit</span></span>
+<span><span class="co">#&gt; 13  0.2219041 cauchit</span></span>
+<span><span class="co">#&gt; 14  0.3316338 cauchit</span></span>
+<span><span class="co">#&gt; 15 -0.6301354 cauchit</span></span>
+<span><span class="co">#&gt; 16 -0.1467942 cloglog</span></span>
+<span><span class="co">#&gt; 17 -0.3048530 cloglog</span></span>
+<span><span class="co">#&gt; 18  0.1681137 cloglog</span></span>
+<span><span class="co">#&gt; 19  0.3318488 cloglog</span></span>
+<span><span class="co">#&gt; 20 -0.6358559 cloglog</span></span>
 <span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits_var</span>, <span class="va">gof</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gof_var</span></span>
 <span><span class="co">#&gt;            logLik      AIC      BIC  pseudo_r2</span></span>
-<span><span class="co">#&gt; logit   -810.2369 1630.474 1646.965 0.06902340</span></span>
-<span><span class="co">#&gt; probit  -810.3704 1630.741 1647.232 0.08028804</span></span>
-<span><span class="co">#&gt; cauchit -809.6065 1629.213 1645.705 0.03799137</span></span>
-<span><span class="co">#&gt; cloglog -810.9149 1631.830 1648.321 0.03641597</span></span></code></pre></div>
+<span><span class="co">#&gt; logit   -3922.243 7854.486 7879.025 0.11589802</span></span>
+<span><span class="co">#&gt; probit  -3922.227 7854.455 7878.994 0.12161749</span></span>
+<span><span class="co">#&gt; cauchit -3923.161 7856.323 7880.862 0.09022080</span></span>
+<span><span class="co">#&gt; cloglog -3922.296 7854.593 7879.132 0.08976588</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="diagnostics-for-variable-dispersion">Diagnostics for variable dispersion<a class="anchor" aria-label="anchor" href="#diagnostics-for-variable-dispersion"></a>
 </h3>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/plot-variable-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="betaregscale_files/figure-html/plot-variable-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
