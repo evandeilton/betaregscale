@@ -31,7 +31,7 @@ likelihood of Lopes (2024, Eq. 2.24):
 ## Usage
 
 ``` r
-check_response(y, type = "m", ncuts = 100L, lim = 0.5)
+check_response(y, type = "m", ncuts = 100L, lim = 0.5, delta = NULL)
 ```
 
 ## Arguments
@@ -42,8 +42,10 @@ check_response(y, type = "m", ncuts = 100L, lim = 0.5)
 
 - type:
 
-  Character: interval type. `"m"` = midpoint (default), `"l"` =
-  left-aligned, `"r"` = right-aligned.
+  **Deprecated.** Character: interval type. `"m"` = midpoint (default),
+  `"l"` = left-aligned, `"r"` = right-aligned. Use
+  [`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+  to control interval geometry instead.
 
 - ncuts:
 
@@ -52,6 +54,13 @@ check_response(y, type = "m", ncuts = 100L, lim = 0.5)
 - lim:
 
   Numeric: half-width of the uncertainty region (default 0.5).
+
+- delta:
+
+  Integer vector or `NULL`. If `NULL` (default), censoring types are
+  inferred automatically from boundary rules. If provided, must have the
+  same length as `y` with values in `{0, 1, 2, 3}`. When provided,
+  overrides the automatic classification.
 
 ## Value
 
@@ -62,9 +71,13 @@ left, 2 = right, 3 = interval).
 ## Details
 
 If the input is already in \\(0, 1)\\ (i.e., all values satisfy \\0 \< y
-\< 1\\), observations are treated as uncensored (\\\delta = 0\\).
+\< 1\\), observations are treated as uncensored (\\\delta = 0\\), unless
+`delta` is provided.
 
-For scale (integer) data:
+If `delta` is supplied, the user-provided censoring indicators are used
+directly, overriding the automatic boundary-based classification rules.
+
+For scale (integer) data (when `delta = NULL`):
 
 - \\y = 0\\: left-censored. Upper bound is \\u = \mathrm{lim} / K\\.
 
@@ -96,7 +109,7 @@ All endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\ with
 ``` r
 # Scale data with boundary observations
 y <- c(0, 3, 5, 7, 9, 10)
-check_response(y, type = "m", ncuts = 10)
+check_response(y, ncuts = 10)
 #>         left   right      yt  y delta
 #> [1,] 0.00001 0.05000 0.00001  0     1
 #> [2,] 0.25000 0.35000 0.30000  3     3
@@ -105,14 +118,13 @@ check_response(y, type = "m", ncuts = 10)
 #> [5,] 0.85000 0.95000 0.90000  9     3
 #> [6,] 0.95000 0.99999 0.99999 10     2
 
-# Continuous data in (0, 1) <U+2014> treated as uncensored
-y_cont <- c(0.1, 0.3, 0.5, 0.7, 0.9)
-check_response(y_cont, type = "m", ncuts = 100)
-#> Response is already on the unit interval (0, 1); treating as uncensored (exact) observations.
-#>      left right  yt   y delta
-#> [1,]  0.1   0.1 0.1 0.1     0
-#> [2,]  0.3   0.3 0.3 0.3     0
-#> [3,]  0.5   0.5 0.5 0.5     0
-#> [4,]  0.7   0.7 0.7 0.7     0
-#> [5,]  0.9   0.9 0.9 0.9     0
+# Force all observations to be exact (delta = 0)
+check_response(y, ncuts = 10, delta = rep(0L, length(y)))
+#>         left   right      yt  y delta
+#> [1,] 0.00001 0.00001 0.00001  0     0
+#> [2,] 0.30000 0.30000 0.30000  3     0
+#> [3,] 0.50000 0.50000 0.50000  5     0
+#> [4,] 0.70000 0.70000 0.70000  7     0
+#> [5,] 0.90000 0.90000 0.90000  9     0
+#> [6,] 0.99999 0.99999 0.99999 10     0
 ```

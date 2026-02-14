@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,9 +64,10 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="betaregscale_simulate.html">betaregscale_simulate</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  formula <span class="op">=</span> <span class="op">~</span><span class="va">x1</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">0.1</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, type <span class="op">=</span> <span class="st">"m"</span>, repar <span class="op">=</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">0.1</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The 'type' argument of betaregscale_fit() is deprecated and will be removed in a future version. Use bs_prepare() to control interval geometry.</span>
 <span class="r-in"><span><span class="fu">est</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      variable  estimate        se    z_value       p_value    ci_lower</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -2.923978 0.1321935 -22.118922 2.078346e-108 -3.18307302</span>

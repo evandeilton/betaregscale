@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,29 +61,29 @@
 
 <p><strong>Beta Regression for Interval-Censored Scale-Derived Outcomes</strong></p>
 <p>The <code>betaregscale</code> package provides maximum-likelihood estimation of beta regression models for responses derived from bounded rating scales (e.g., NRS-11, NRS-21, NRS-101, Likert scales). Observations are treated as interval-censored on (0, 1) after a scale-to-unit transformation, and the likelihood is built from the beta CDF evaluated at the interval endpoints.</p>
-<p>The package is designed for situations where the recorded score carries measurement uncertainty inherent to the instrument. For example, a pain score of 6 on a 0–10 NRS scale is interpreted as lying in the interval [5.5, 6.5] after rescaling to (0, 1). The complete likelihood (Lopes, 2024, Eq. 2.24) supports mixed censoring types—uncensored, left-censored, right-censored, and interval-censored—within the same dataset.</p>
+<p>The package is designed for situations where the recorded score carries measurement uncertainty inherent to the instrument. For example, a pain score of 6 on a (0-10) NRS scale is interpreted as lying in the interval [5.5, 6.5] after rescaling to (0, 1). The complete likelihood (Lopes, 2024, Eq. 2.24) supports mixed censoring types: <strong>uncensored, left-censored, right-censored, and interval-censored</strong> within the same dataset.</p>
 <div class="section level2">
 <h2 id="key-features">Key features<a class="anchor" aria-label="anchor" href="#key-features"></a>
 </h2>
 <ul>
 <li>
-<strong>Mixed censoring support</strong> — the complete likelihood handles four censoring types simultaneously: exact observations (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta=0</annotation></semantics></math>), left-censored (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta=1</annotation></semantics></math>), right-censored (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta=2</annotation></semantics></math>), and interval-censored (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\delta=3</annotation></semantics></math>).</li>
+<strong>Mixed censoring support</strong>: the complete likelihood handles four censoring types simultaneously: exact observations (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta=0</annotation></semantics></math>), left-censored (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta=1</annotation></semantics></math>), right-censored (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta=2</annotation></semantics></math>), and interval-censored (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\delta=3</annotation></semantics></math>).</li>
 <li>
-<strong>Fixed and variable dispersion</strong> — model a scalar <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> or let it depend on covariates via a second linear predictor (<code>y ~ x1 + x2 | z1</code>).</li>
+<strong>Fixed and variable dispersion</strong>: model a scalar <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> or let it depend on covariates via a second linear predictor (<code>y ~ x1 + x2 | z1</code>).</li>
 <li>
-<strong>High-performance C++ backend</strong> — the log-likelihood and analytical gradient are compiled via Rcpp/RcppArmadillo for fast, numerically stable estimation.</li>
+<strong>High-performance C++ backend</strong>: the log-likelihood and analytical gradient are compiled via Rcpp/RcppArmadillo for fast, numerically stable estimation.</li>
 <li>
-<strong>Flexible link functions</strong> — logit, probit, cauchit, cloglog for the mean; logit, log, identity, sqrt, inverse, and others for the dispersion.</li>
+<strong>Flexible link functions</strong>: logit, probit, cauchit, cloglog for the mean; logit, log, identity, sqrt, inverse, and others for the dispersion.</li>
 <li>
-<strong>Three reparameterizations</strong> — direct (0), Ferrari–Cribari-Neto precision (1), and mean–variance (2).</li>
+<strong>Three reparameterizations</strong>: direct (0), Ferrari–Cribari-Neto precision (1), and mean–variance (2).</li>
 <li>
-<strong>betareg-style S3 interface</strong> — <code>print</code>, <code>summary</code>, <code>coef</code>, <code>vcov</code>, <code>logLik</code>, <code>AIC</code>, <code>BIC</code>, <code>nobs</code>, <code>formula</code>, <code>model.matrix</code>, <code>fitted</code>, <code>residuals</code>, <code>predict</code>, <code>confint</code>, and <code>plot</code> methods. The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> methods accept <code>model = c("full", "mean", "precision")</code>.</li>
+<strong>betareg-style S3 interface</strong>: <code>print</code>, <code>summary</code>, <code>coef</code>, <code>vcov</code>, <code>logLik</code>, <code>AIC</code>, <code>BIC</code>, <code>nobs</code>, <code>formula</code>, <code>model.matrix</code>, <code>fitted</code>, <code>residuals</code>, <code>predict</code>, <code>confint</code>, and <code>plot</code> methods. The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> methods accept <code>model = c("full", "mean", "precision")</code>.</li>
 <li>
-<strong>Diagnostic plots</strong> — six residual diagnostic panels with both base R and ggplot2 backends, including a half-normal envelope plot.</li>
+<strong>Diagnostic plots</strong>: six residual diagnostic panels with both base R and ggplot2 backends, including a half-normal envelope plot.</li>
 <li>
-<strong>Censoring summary</strong> — <code><a href="reference/censoring_summary.html">censoring_summary()</a></code> provides visual and tabular summaries of the censoring structure.</li>
+<strong>Censoring summary</strong>: <code><a href="reference/censoring_summary.html">censoring_summary()</a></code> provides visual and tabular summaries of the censoring structure.</li>
 <li>
-<strong>Simulation toolkit</strong> — <code><a href="reference/betaregscale_simulate.html">betaregscale_simulate()</a></code> and <code><a href="reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code> for Monte Carlo studies.</li>
+<strong>Simulation toolkit</strong>: <code><a href="reference/betaregscale_simulate.html">betaregscale_simulate()</a></code> and <code><a href="reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code> for Monte Carlo studies.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -264,7 +264,7 @@
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>MIT © Jose Eduardo Lopes</p>
+<p>MIT © José Evandeilton Lopes</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

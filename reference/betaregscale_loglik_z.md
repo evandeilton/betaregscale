@@ -50,7 +50,9 @@ betaregscale_loglik_z(
 
 - type:
 
-  Character: interval type (`"m"`, `"l"`, or `"r"`).
+  **Deprecated.** Character: interval type (`"m"`, `"l"`, or `"r"`). Use
+  [`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+  to control interval geometry instead.
 
 - lim:
 
