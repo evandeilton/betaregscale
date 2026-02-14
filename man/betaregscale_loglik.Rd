@@ -33,8 +33,9 @@ and the last element is the (link-scale) dispersion parameter.}
 
 \item{ncuts}{Integer: number of scale categories (default 100).}
 
-\item{type}{Character: interval type (\code{"m"}, \code{"l"},
-or \code{"r"}).}
+\item{type}{\strong{Deprecated.}
+Character: interval type (\code{"m"}, \code{"l"}, or \code{"r"}).
+Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
 \item{lim}{Numeric: half-width of uncertainty region (default
 0.5).}

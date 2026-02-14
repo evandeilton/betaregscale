@@ -34,8 +34,9 @@
 #' @param link_phi Character: link function for the dispersion
 #'   (default \code{"logit"}).
 #' @param ncuts  Integer: number of scale categories (default 100).
-#' @param type   Character: interval type (\code{"m"}, \code{"l"},
-#'   or \code{"r"}).
+#' @param type   \strong{Deprecated.}
+#'   Character: interval type (\code{"m"}, \code{"l"}, or \code{"r"}).
+#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param lim    Numeric: half-width of uncertainty region (default
 #'   0.5).
 #' @param repar  Integer: reparameterization scheme (0, 1, or 2;
@@ -67,6 +68,13 @@ betaregscale_loglik <- function(param,
                                 type = "m",
                                 lim = 0.5,
                                 repar = 2L) {
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of betaregscale_loglik() is deprecated ",
+      "and will be removed in a future version. ",
+      "Use bs_prepare() to control interval geometry."
+    ))
+  }
   # Validate links
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)
@@ -139,6 +147,13 @@ betaregscale_loglik_z <- function(param,
                                   type = "m",
                                   lim = 0.5,
                                   repar = 2L) {
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of betaregscale_loglik_z() is deprecated ",
+      "and will be removed in a future version. ",
+      "Use bs_prepare() to control interval geometry."
+    ))
+  }
   # Validate
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)

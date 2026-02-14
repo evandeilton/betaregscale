@@ -16,7 +16,9 @@
 #' @param link   Mean link function (default \code{"logit"}).
 #' @param link_phi Dispersion link function (default \code{"logit"}).
 #' @param ncuts  Number of scale categories (default 100).
-#' @param type   Interval type (default \code{"m"}).
+#' @param type   \strong{Deprecated.}
+#'   Interval type (default \code{"m"}).
+#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param lim    Uncertainty half-width (default 0.5).
 #' @param hessian_method Character: \code{"numDeriv"} (default) or
 #'   \code{"optim"}.  With \code{"numDeriv"} the Hessian is computed
@@ -56,6 +58,13 @@ betaregscale_fit <- function(formula, data,
                              repar = 2L,
                              method = c("BFGS", "L-BFGS-B")) {
   cl <- match.call()
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of betaregscale_fit() is deprecated ",
+      "and will be removed in a future version. ",
+      "Use bs_prepare() to control interval geometry."
+    ))
+  }
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
   link <- match.arg(link, .mu_links)
@@ -212,7 +221,9 @@ betaregscale_fit <- function(formula, data,
 #' @param hessian_method Character: \code{"numDeriv"} or
 #'   \code{"optim"}.
 #' @param ncuts  Number of scale categories (default 100).
-#' @param type   Interval type (default \code{"m"}).
+#' @param type   \strong{Deprecated.}
+#'   Interval type (default \code{"m"}).
+#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param lim    Uncertainty half-width (default 0.5).
 #' @param repar  Reparameterization scheme (default 2).
 #' @param method Optimization method (default \code{"BFGS"}).
@@ -252,6 +263,13 @@ betaregscale_fit_z <- function(formula, data,
                                repar = 2L,
                                method = c("BFGS", "L-BFGS-B")) {
   cl <- match.call()
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of betaregscale_fit_z() is deprecated ",
+      "and will be removed in a future version. ",
+      "Use bs_prepare() to control interval geometry."
+    ))
+  }
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
   link <- match.arg(link, .mu_links)
@@ -461,6 +479,13 @@ betaregscale <- function(formula, data,
                          method = c("BFGS", "L-BFGS-B"),
                          hessian_method = c("numDeriv", "optim")) {
   cl <- match.call()
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of betaregscale() is deprecated ",
+      "and will be removed in a future version. ",
+      "Use bs_prepare() to control interval geometry."
+    ))
+  }
   formula_parsed <- Formula::as.Formula(formula)
 
   if (length(formula_parsed)[2L] < 2L) {

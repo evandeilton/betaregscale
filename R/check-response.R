@@ -46,9 +46,14 @@
 #'
 #' @details
 #' If the input is already in \eqn{(0, 1)} (i.e., all values satisfy
-#' \eqn{0 < y < 1}), observations are treated as uncensored (\eqn{\delta = 0}).
+#' \eqn{0 < y < 1}), observations are treated as uncensored
+#' (\eqn{\delta = 0}), unless \code{delta} is provided.
 #'
-#' For scale (integer) data:
+#' If \code{delta} is supplied, the user-provided censoring indicators
+#' are used directly, overriding the automatic boundary-based
+#' classification rules.
+#'
+#' For scale (integer) data (when \code{delta = NULL}):
 #' \itemize{
 #'   \item \eqn{y = 0}: left-censored. Upper bound is
 #'     \eqn{u = \mathrm{lim} / K}.
@@ -73,13 +78,20 @@
 #' likelihood.
 #'
 #' @param y      Numeric vector --- the raw response.
-#' @param type   Character: interval type.
+#' @param type   \strong{Deprecated.}
+#'   Character: interval type.
 #'   \code{"m"} = midpoint (default),
 #'   \code{"l"} = left-aligned,
 #'   \code{"r"} = right-aligned.
+#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param ncuts  Integer: number of scale categories (default 100).
 #' @param lim    Numeric: half-width of the uncertainty region
 #'   (default 0.5).
+#' @param delta  Integer vector or \code{NULL}.  If \code{NULL}
+#'   (default), censoring types are inferred automatically from
+#'   boundary rules.  If provided, must have the same length as
+#'   \code{y} with values in \code{{0, 1, 2, 3}}.  When provided,
+#'   overrides the automatic classification.
 #'
 #' @return A matrix with columns \code{left}, \code{right},
 #'   \code{yt} (midpoint approximation), \code{y} (original
@@ -89,24 +101,39 @@
 #' @examples
 #' # Scale data with boundary observations
 #' y <- c(0, 3, 5, 7, 9, 10)
-#' check_response(y, type = "m", ncuts = 10)
+#' check_response(y, ncuts = 10)
 #'
-#' # Continuous data in (0, 1) <U+2014> treated as uncensored
-#' y_cont <- c(0.1, 0.3, 0.5, 0.7, 0.9)
-#' check_response(y_cont, type = "m", ncuts = 100)
+#' # Force all observations to be exact (delta = 0)
+#' check_response(y, ncuts = 10, delta = rep(0L, length(y)))
 #'
 #' @export
-check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5) {
+check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5,
+                           delta = NULL) {
   type <- match.arg(type, c("m", "l", "r"))
   ncuts <- as.integer(ncuts)
   n <- length(y)
 
   eps <- 1e-5
 
+  # Validate user-supplied delta
+  if (!is.null(delta)) {
+    delta <- as.integer(delta)
+    if (length(delta) != n) {
+      stop("'delta' must have the same length as 'y' (", n, ").",
+        call. = FALSE
+      )
+    }
+    if (!all(delta %in% 0:3)) {
+      stop("'delta' must contain only values in {0, 1, 2, 3}.",
+        call. = FALSE
+      )
+    }
+  }
+
   # Detect if data is already on (0, 1)
   is_unit <- all(y > 0 & y < 1)
 
-  if (is_unit) {
+  if (is_unit && is.null(delta)) {
     # Continuous data in (0, 1): treat as uncensored (delta = 0)
     message(
       "Response is already on the unit interval (0, 1); ",
@@ -135,45 +162,65 @@ check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5) {
   # Initialize output vectors
   y_left <- numeric(n)
   y_right <- numeric(n)
-  delta <- integer(n)
+  out_delta <- integer(n)
 
   # Classify each observation
   for (i in seq_len(n)) {
     yi <- y[i]
 
-    if (yi == 0) {
-      # Left-censored: the latent value is below the first scale point.
-      # We know Y < u_i where u_i = lim / ncuts.
-      # Likelihood contribution: F(u_i | theta)
-      delta[i] <- 1L
-      y_left[i] <- eps
-      y_right[i] <- lim / ncuts
+    # Determine censoring type: user-supplied or automatic
+    if (!is.null(delta)) {
+      di <- delta[i]
+    } else if (yi == 0) {
+      di <- 1L
     } else if (yi == ncuts) {
-      # Right-censored: the latent value exceeds the last scale point.
-      # We know Y > l_i where l_i = (ncuts - lim) / ncuts.
-      # Likelihood contribution: 1 - F(l_i | theta)
-      delta[i] <- 2L
-      y_left[i] <- (ncuts - lim) / ncuts
-      y_right[i] <- 1 - eps
+      di <- 2L
     } else {
-      # Interval-censored: standard scale observation.
-      # Likelihood contribution: F(u_i | theta) - F(l_i | theta)
-      delta[i] <- 3L
-      switch(type,
-        m = {
-          y_left[i] <- (yi - lim) / ncuts
-          y_right[i] <- (yi + lim) / ncuts
-        },
-        l = {
-          y_left[i] <- (yi - 2 * lim) / ncuts
-          y_right[i] <- yi / ncuts
-        },
-        r = {
-          y_left[i] <- yi / ncuts
-          y_right[i] <- (yi + 2 * lim) / ncuts
-        }
-      )
+      di <- 3L
     }
+
+    out_delta[i] <- di
+
+    # Compute endpoints based on censoring type
+    switch(as.character(di),
+      "0" = {
+        # Exact: use y directly (possibly on unit interval)
+        if (yi > 0 && yi < 1) {
+          y_left[i] <- yi
+          y_right[i] <- yi
+        } else {
+          y_left[i] <- yi / ncuts
+          y_right[i] <- yi / ncuts
+        }
+      },
+      "1" = {
+        # Left-censored
+        y_left[i] <- eps
+        y_right[i] <- lim / ncuts
+      },
+      "2" = {
+        # Right-censored
+        y_left[i] <- (ncuts - lim) / ncuts
+        y_right[i] <- 1 - eps
+      },
+      "3" = {
+        # Interval-censored
+        switch(type,
+          m = {
+            y_left[i] <- (yi - lim) / ncuts
+            y_right[i] <- (yi + lim) / ncuts
+          },
+          l = {
+            y_left[i] <- (yi - 2 * lim) / ncuts
+            y_right[i] <- yi / ncuts
+          },
+          r = {
+            y_left[i] <- yi / ncuts
+            y_right[i] <- (yi + 2 * lim) / ncuts
+          }
+        )
+      }
+    )
   }
 
   # Clamp all endpoints to (eps, 1 - eps) for numerical safety
@@ -181,10 +228,10 @@ check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5) {
   y_right <- pmin(pmax(y_right, eps), 1 - eps)
 
   # Midpoint approximation for starting values
-  yt <- y / ncuts
+  yt <- ifelse(y > 0 & y < 1, y, y / ncuts)
   yt <- pmin(pmax(yt, eps), 1 - eps)
 
-  cbind(left = y_left, right = y_right, yt = yt, y = y, delta = delta)
+  cbind(left = y_left, right = y_right, yt = yt, y = y, delta = out_delta)
 }
 
 
