@@ -1,3 +1,26 @@
+# betaregscale 2.1.0
+
+## New features
+
+* `betaregscale_simulate()` and `betaregscale_simulate_z()` gain a
+  `delta` argument (default `NULL`) that forces all simulated
+  observations to a specific censoring type: 0 (exact), 1 (left),
+  2 (right), or 3 (interval). This enables targeted Monte Carlo
+  studies with controlled censoring structures.
+* `check_response()` gains a `delta` argument that accepts a vector
+  of pre-specified censoring indicators, overriding the automatic
+  boundary-based classification.
+
+## Deprecations
+
+* The `type` parameter (`"m"`, `"l"`, `"r"`) is deprecated across all
+ functions: `betaregscale()`, `betaregscale_fit()`, `betaregscale_fit_z()`,
+  `betaregscale_loglik()`, `betaregscale_loglik_z()`,
+  `betaregscale_simulate()`, `betaregscale_simulate_z()`,
+  `check_response()`, and `bs_prepare()`. Use `bs_prepare()` to
+  control interval geometry instead. The parameter still works but
+  emits a deprecation warning when passed explicitly.
+
 # betaregscale 2.0.1
 
 ## New features

@@ -28,7 +28,9 @@ betaregscale_fit(
 
 \item{ncuts}{Number of scale categories (default 100).}
 
-\item{type}{Interval type (default \code{"m"}).}
+\item{type}{\strong{Deprecated.}
+Interval type (default \code{"m"}).
+Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
 \item{lim}{Uncertainty half-width (default 0.5).}
 

@@ -32,10 +32,12 @@ bs_prepare(
 
 \item{ncuts}{Integer: number of scale categories (default 100).}
 
-\item{type}{Character: interval type for interior scores when only
+\item{type}{\strong{Deprecated.}
+Character: interval type for interior scores when only
 \code{y} and \code{delta} are available.
 \code{"m"} = midpoint (default), \code{"l"} = left-aligned,
-\code{"r"} = right-aligned. See \code{\link{check_response}}.}
+\code{"r"} = right-aligned.
+This argument will be removed in a future version.}
 
 \item{lim}{Numeric: half-width of the uncertainty region
 (default 0.5). Used only when constructing intervals from \code{y}

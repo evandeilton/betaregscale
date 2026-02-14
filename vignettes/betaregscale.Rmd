@@ -77,7 +77,7 @@ where $K$ is the number of scale categories (`ncuts`).
 ```{r check-response}
 # Illustrate check_response with a 0-10 NRS scale
 y_example <- c(0, 3, 5, 7, 10)
-cr <- check_response(y_example, type = "m", ncuts = 10)
+cr <- check_response(y_example, ncuts = 10)
 cr
 ```
 
@@ -157,12 +157,13 @@ sim <- betaregscale_simulate(
   formula = ~ x1 + x2, data = dat,
   beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
   link = "logit", link_phi = "logit",
-  repar = 2, type = "m"
+  repar = 2
 )
 prep <- bs_prepare(sim, ncuts = 100)
-fit_prep <- betaregscale(y ~ x1 + x2, data = prep, repar = 2,
-                         link = "logit", link_phi = "logit",
-                         type = "m")
+fit_prep <- betaregscale(y ~ x1 + x2,
+  data = prep, repar = 2,
+  link = "logit", link_phi = "logit"
+)
 summary(fit_prep)
 ```
 
@@ -193,8 +194,8 @@ sim_fixed <- betaregscale_simulate(
 head(sim_fixed)
 ```
 
-The `type = "m"` argument means that each observation is centered in its
-interval. For example, a score of 67 on a 0--100 scale yields
+The default midpoint interval type means that each observation is centered
+in its interval. For example, a score of 67 on a 0--100 scale yields
 $y_t = 0.67$ with interval $[0.665, 0.675]$.
 
 ### Fitting the model
@@ -319,7 +320,6 @@ sim_var <- betaregscale_simulate_z(
   link = "logit",
   link_phi = "logit",
   ncuts = 100,
-  type = "m",
   repar = 2
 )
 

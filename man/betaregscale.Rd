@@ -29,7 +29,9 @@ two parts: \code{y ~ x1 + x2 | z1 + z2}.}
 
 \item{ncuts}{Number of scale categories (default 100).}
 
-\item{type}{Interval type (default \code{"m"}).}
+\item{type}{\strong{Deprecated.}
+Interval type (default \code{"m"}).
+Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
 \item{lim}{Uncertainty half-width (default 0.5).}
 

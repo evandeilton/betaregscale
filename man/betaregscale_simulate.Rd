@@ -14,7 +14,8 @@ betaregscale_simulate(
   ncuts = 100L,
   type = "m",
   lim = 0.5,
-  repar = 2L
+  repar = 2L,
+  delta = NULL
 )
 }
 \arguments{
@@ -35,21 +36,32 @@ the intercept).}
 
 \item{ncuts}{Number of scale categories (default 100).}
 
-\item{type}{Interval type: \code{"m"}, \code{"l"}, or \code{"r"}
-(default \code{"m"}).}
+\item{type}{\strong{Deprecated.}
+Interval type: \code{"m"}, \code{"l"}, or \code{"r"}.
+Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
 \item{lim}{Half-width of the uncertainty region (default 0.5).}
 
 \item{repar}{Reparameterization scheme (default 2).}
+
+\item{delta}{Integer or \code{NULL}.  If \code{NULL} (default), the
+censoring type is determined automatically by
+\code{\link{check_response}}.
+If an integer in \code{{0, 1, 2, 3}}, \strong{all} simulated
+observations are forced to that censoring type:
+0 = exact (uncensored), 1 = left-censored, 2 = right-censored,
+3 = interval-censored.}
 }
 \value{
 A \code{data.frame} containing columns \code{left},
-  \code{right}, \code{yt}, \code{y}, and the predictor variables.
+  \code{right}, \code{yt}, \code{y}, \code{delta}, and the
+  predictor variables.
 }
 \description{
-Generates interval-censored observations from a beta regression
-model with a single (scalar) dispersion parameter.  This is useful
-for Monte Carlo studies and testing.
+Generates observations from a beta regression model with a single
+(scalar) dispersion parameter.  This is useful for Monte Carlo
+studies and testing.  The \code{delta} argument controls the
+censoring type of the simulated data.
 }
 \examples{
 set.seed(42)
@@ -61,5 +73,13 @@ sim <- betaregscale_simulate(
   link = "logit", link_phi = "logit"
 )
 head(sim)
+
+# Force all observations to be interval-censored
+sim3 <- betaregscale_simulate(
+  formula = ~ x1 + x2, data = dat,
+  beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+  delta = 3
+)
+table(sim3$delta)
 
 }

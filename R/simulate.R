@@ -92,9 +92,10 @@ compute_start <- function(formula, data, link = "logit",
 #' Simulate data from a fixed-dispersion beta interval model
 #'
 #' @description
-#' Generates interval-censored observations from a beta regression
-#' model with a single (scalar) dispersion parameter.  This is useful
-#' for Monte Carlo studies and testing.
+#' Generates observations from a beta regression model with a single
+#' (scalar) dispersion parameter.  This is useful for Monte Carlo
+#' studies and testing.  The \code{delta} argument controls the
+#' censoring type of the simulated data.
 #'
 #' @param formula One-sided formula specifying the mean model
 #'   predictors (e.g., \code{~ x1 + x2}).
@@ -106,13 +107,22 @@ compute_start <- function(formula, data, link = "logit",
 #' @param link   Mean link function (default \code{"logit"}).
 #' @param link_phi Dispersion link function (default \code{"logit"}).
 #' @param ncuts  Number of scale categories (default 100).
-#' @param type   Interval type: \code{"m"}, \code{"l"}, or \code{"r"}
-#'   (default \code{"m"}).
+#' @param type   \strong{Deprecated.}
+#'   Interval type: \code{"m"}, \code{"l"}, or \code{"r"}.
+#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param lim    Half-width of the uncertainty region (default 0.5).
 #' @param repar  Reparameterization scheme (default 2).
+#' @param delta  Integer or \code{NULL}.  If \code{NULL} (default), the
+#'   censoring type is determined automatically by
+#'   \code{\link{check_response}}.
+#'   If an integer in \code{{0, 1, 2, 3}}, \strong{all} simulated
+#'   observations are forced to that censoring type:
+#'   0 = exact (uncensored), 1 = left-censored, 2 = right-censored,
+#'   3 = interval-censored.
 #'
 #' @return A \code{data.frame} containing columns \code{left},
-#'   \code{right}, \code{yt}, \code{y}, and the predictor variables.
+#'   \code{right}, \code{yt}, \code{y}, \code{delta}, and the
+#'   predictor variables.
 #'
 #' @examples
 #' set.seed(42)
@@ -125,13 +135,41 @@ compute_start <- function(formula, data, link = "logit",
 #' )
 #' head(sim)
 #'
+#' # Force all observations to be interval-censored
+#' sim3 <- betaregscale_simulate(
+#'   formula = ~ x1 + x2, data = dat,
+#'   beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+#'   delta = 3
+#' )
+#' table(sim3$delta)
+#'
 #' @importFrom stats rbeta
 #' @export
 betaregscale_simulate <- function(formula, data, beta, phi = 1 / 5,
                                   link = "logit",
                                   link_phi = "logit",
                                   ncuts = 100L, type = "m",
-                                  lim = 0.5, repar = 2L) {
+                                  lim = 0.5, repar = 2L,
+                                  delta = NULL) {
+  # Deprecation warning for type
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of betaregscale_simulate() is deprecated ",
+      "and will be removed in a future version. ",
+      "Use bs_prepare() to control interval geometry."
+    ))
+  }
+
+  # Validate delta
+  if (!is.null(delta)) {
+    if (length(delta) != 1L || !(delta %in% 0:3)) {
+      stop("'delta' must be NULL or a single integer in {0, 1, 2, 3}.",
+        call. = FALSE
+      )
+    }
+    delta <- as.integer(delta)
+  }
+
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)
   repar <- as.integer(repar)
@@ -146,12 +184,15 @@ betaregscale_simulate <- function(formula, data, beta, phi = 1 / 5,
   phi_val <- apply_inv_link(phi, link_phi)
 
   # Reparameterize and simulate
-
   pars <- beta_reparam(mu = mu, phi = phi_val, repar = repar)
   y_raw <- stats::rbeta(n, shape1 = pars$shape1, shape2 = pars$shape2)
-  y_grid <- round(y_raw * ncuts, 0)
 
-  out_y <- check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+  # Build response matrix based on delta
+  out_y <- .build_simulated_response(
+    y_raw = y_raw, delta = delta, ncuts = ncuts,
+    type = type, lim = lim
+  )
+
   data.frame(out_y, X[, -1L, drop = FALSE])
 }
 
@@ -159,9 +200,9 @@ betaregscale_simulate <- function(formula, data, beta, phi = 1 / 5,
 #' Simulate data from a variable-dispersion beta interval model
 #'
 #' @description
-#' Generates interval-censored observations from a beta regression
-#' model with observation-specific dispersion governed by a second
-#' linear predictor.
+#' Generates observations from a beta regression model with
+#' observation-specific dispersion governed by a second linear
+#' predictor.  The \code{delta} argument controls the censoring type.
 #'
 #' @param formula_x One-sided formula for the mean model predictors.
 #' @param formula_z One-sided formula for the dispersion model
@@ -172,9 +213,16 @@ betaregscale_simulate <- function(formula, data, beta, phi = 1 / 5,
 #' @param link   Mean link function (default \code{"logit"}).
 #' @param link_phi Dispersion link function (default \code{"logit"}).
 #' @param ncuts  Number of scale categories (default 100).
-#' @param type   Interval type (default \code{"m"}).
+#' @param type   \strong{Deprecated.}
+#'   Interval type (default \code{"m"}).
+#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param lim    Uncertainty half-width (default 0.5).
 #' @param repar  Reparameterization scheme (default 2).
+#' @param delta  Integer or \code{NULL}.  If \code{NULL} (default),
+#'   censoring is determined automatically.
+#'   If an integer in \code{{0, 1, 2, 3}}, all simulated observations
+#'   are forced to that censoring type.
+#'   See \code{\link{betaregscale_simulate}} for details.
 #'
 #' @return A \code{data.frame} with interval endpoints and predictors.
 #'
@@ -205,7 +253,27 @@ betaregscale_simulate_z <- function(formula_x = ~ x1 + x2,
                                     ncuts = 100L,
                                     type = "m",
                                     lim = 0.5,
-                                    repar = 2L) {
+                                    repar = 2L,
+                                    delta = NULL) {
+  # Deprecation warning for type
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of betaregscale_simulate_z() is deprecated ",
+      "and will be removed in a future version. ",
+      "Use bs_prepare() to control interval geometry."
+    ))
+  }
+
+  # Validate delta
+  if (!is.null(delta)) {
+    if (length(delta) != 1L || !(delta %in% 0:3)) {
+      stop("'delta' must be NULL or a single integer in {0, 1, 2, 3}.",
+        call. = FALSE
+      )
+    }
+    delta <- as.integer(delta)
+  }
+
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)
   repar <- as.integer(repar)
@@ -220,15 +288,74 @@ betaregscale_simulate_z <- function(formula_x = ~ x1 + x2,
   mu_x <- apply_inv_link(X %*% beta, link)
   mu_z <- apply_inv_link(Z %*% zeta, link_phi)
 
-  # Reparameterize and simulate (no hardcoded seed!)
+  # Reparameterize and simulate
   pars <- beta_reparam(mu = mu_x, phi = mu_z, repar = repar)
   y_raw <- stats::rbeta(n, shape1 = pars$shape1, shape2 = pars$shape2)
-  y_grid <- round(y_raw * ncuts, 0)
 
-  out_y <- check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+  # Build response matrix based on delta
+  out_y <- .build_simulated_response(
+    y_raw = y_raw, delta = delta, ncuts = ncuts,
+    type = type, lim = lim
+  )
+
   data.frame(
     out_y,
     X[, -1L, drop = FALSE],
     Z[, -1L, drop = FALSE]
+  )
+}
+
+
+# ============================================================================ #
+# Internal helper for building simulated response matrices
+# ============================================================================ #
+
+#' Build the response matrix for simulated data
+#'
+#' @param y_raw Numeric vector of simulated beta values on (0, 1).
+#' @param delta Integer or NULL: forced censoring type.
+#' @param ncuts Integer: number of scale categories.
+#' @param type  Character: interval type (for check_response).
+#' @param lim   Numeric: uncertainty half-width.
+#' @return A matrix with columns left, right, yt, y, delta.
+#' @noRd
+.build_simulated_response <- function(y_raw, delta, ncuts, type, lim) {
+  n <- length(y_raw)
+  eps <- 1e-5
+
+  if (is.null(delta)) {
+    # Default: round to grid and classify automatically
+    y_grid <- round(y_raw * ncuts, 0)
+    return(check_response(y_grid, type = type, ncuts = ncuts, lim = lim))
+  }
+
+  switch(as.character(delta),
+    "0" = {
+      # Exact (uncensored): use continuous values directly
+      yt <- pmin(pmax(y_raw, eps), 1 - eps)
+      cbind(
+        left  = yt,
+        right = yt,
+        yt    = yt,
+        y     = y_raw,
+        delta = rep(0L, n)
+      )
+    },
+    "1" = {
+      # Left-censored: force all to lower boundary
+      y_grid <- rep(0, n)
+      check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+    },
+    "2" = {
+      # Right-censored: force all to upper boundary
+      y_grid <- rep(ncuts, n)
+      check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+    },
+    "3" = {
+      # Interval-censored: round to grid but avoid boundaries
+      y_grid <- round(y_raw * ncuts, 0)
+      y_grid <- pmin(pmax(y_grid, 1L), ncuts - 1L)
+      check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+    }
   )
 }

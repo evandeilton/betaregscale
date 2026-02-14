@@ -15,7 +15,8 @@ betaregscale_simulate_z(
   ncuts = 100L,
   type = "m",
   lim = 0.5,
-  repar = 2L
+  repar = 2L,
+  delta = NULL
 )
 }
 \arguments{
@@ -36,19 +37,27 @@ predictors.}
 
 \item{ncuts}{Number of scale categories (default 100).}
 
-\item{type}{Interval type (default \code{"m"}).}
+\item{type}{\strong{Deprecated.}
+Interval type (default \code{"m"}).
+Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
 \item{lim}{Uncertainty half-width (default 0.5).}
 
 \item{repar}{Reparameterization scheme (default 2).}
+
+\item{delta}{Integer or \code{NULL}.  If \code{NULL} (default),
+censoring is determined automatically.
+If an integer in \code{{0, 1, 2, 3}}, all simulated observations
+are forced to that censoring type.
+See \code{\link{betaregscale_simulate}} for details.}
 }
 \value{
 A \code{data.frame} with interval endpoints and predictors.
 }
 \description{
-Generates interval-censored observations from a beta regression
-model with observation-specific dispersion governed by a second
-linear predictor.
+Generates observations from a beta regression model with
+observation-specific dispersion governed by a second linear
+predictor.  The \code{delta} argument controls the censoring type.
 }
 \examples{
 set.seed(42)

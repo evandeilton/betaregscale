@@ -4,20 +4,28 @@
 \alias{check_response}
 \title{Transform and validate a scale-derived response variable}
 \usage{
-check_response(y, type = "m", ncuts = 100L, lim = 0.5)
+check_response(y, type = "m", ncuts = 100L, lim = 0.5, delta = NULL)
 }
 \arguments{
 \item{y}{Numeric vector --- the raw response.}
 
-\item{type}{Character: interval type.
+\item{type}{\strong{Deprecated.}
+Character: interval type.
 \code{"m"} = midpoint (default),
 \code{"l"} = left-aligned,
-\code{"r"} = right-aligned.}
+\code{"r"} = right-aligned.
+Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
 \item{ncuts}{Integer: number of scale categories (default 100).}
 
 \item{lim}{Numeric: half-width of the uncertainty region
 (default 0.5).}
+
+\item{delta}{Integer vector or \code{NULL}.  If \code{NULL}
+(default), censoring types are inferred automatically from
+boundary rules.  If provided, must have the same length as
+\code{y} with values in \code{{0, 1, 2, 3}}.  When provided,
+overrides the automatic classification.}
 }
 \value{
 A matrix with columns \code{left}, \code{right},
@@ -51,9 +59,14 @@ Eq. 2.24):
 }
 \details{
 If the input is already in \eqn{(0, 1)} (i.e., all values satisfy
-\eqn{0 < y < 1}), observations are treated as uncensored (\eqn{\delta = 0}).
+\eqn{0 < y < 1}), observations are treated as uncensored
+(\eqn{\delta = 0}), unless \code{delta} is provided.
 
-For scale (integer) data:
+If \code{delta} is supplied, the user-provided censoring indicators
+are used directly, overriding the automatic boundary-based
+classification rules.
+
+For scale (integer) data (when \code{delta = NULL}):
 \itemize{
   \item \eqn{y = 0}: left-censored. Upper bound is
     \eqn{u = \mathrm{lim} / K}.
@@ -80,10 +93,9 @@ likelihood.
 \examples{
 # Scale data with boundary observations
 y <- c(0, 3, 5, 7, 9, 10)
-check_response(y, type = "m", ncuts = 10)
+check_response(y, ncuts = 10)
 
-# Continuous data in (0, 1) <U+2014> treated as uncensored
-y_cont <- c(0.1, 0.3, 0.5, 0.7, 0.9)
-check_response(y_cont, type = "m", ncuts = 100)
+# Force all observations to be exact (delta = 0)
+check_response(y, ncuts = 10, delta = rep(0L, length(y)))
 
 }

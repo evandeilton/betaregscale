@@ -40,7 +40,7 @@ sim_variable <- function(n = 200, seed = 42) {
 
 test_that("check_response returns correct structure with delta column", {
   y <- c(0, 3, 5, 7, 9, 10)
-  out <- check_response(y, type = "m", ncuts = 10)
+  out <- check_response(y, ncuts = 10)
   expect_true(is.matrix(out))
   expect_equal(ncol(out), 5L)
   expect_equal(colnames(out), c("left", "right", "yt", "y", "delta"))
@@ -51,7 +51,7 @@ test_that("check_response returns correct structure with delta column", {
 
 test_that("check_response classifies boundary observations correctly", {
   y <- c(0, 5, 10)
-  out <- check_response(y, type = "m", ncuts = 10)
+  out <- check_response(y, ncuts = 10)
   # y=0 should be left-censored (delta=1)
   expect_equal(unname(out[1, "delta"]), 1)
   # y=5 should be interval-censored (delta=3)
@@ -63,7 +63,7 @@ test_that("check_response classifies boundary observations correctly", {
 test_that("check_response handles unit-interval input as uncensored", {
   y <- c(0.1, 0.3, 0.5, 0.7, 0.9)
   expect_message(
-    out <- check_response(y, type = "m", ncuts = 100),
+    out <- check_response(y, ncuts = 100),
     "unit interval"
   )
   # All should be uncensored (delta=0)
@@ -79,7 +79,7 @@ test_that("check_response warns when max(y) > ncuts", {
 
 test_that("check_response types 'l' and 'r' differ from 'm'", {
   y <- c(3, 5, 7)
-  m <- check_response(y, type = "m", ncuts = 10)
+  m <- check_response(y, ncuts = 10)
   l <- check_response(y, type = "l", ncuts = 10)
   r <- check_response(y, type = "r", ncuts = 10)
   # All interval-censored, but different endpoints
@@ -608,7 +608,7 @@ test_that("betaregscale_coef produces valid confidence intervals", {
 test_that("mixed censoring: all four types present", {
   # Create data with all censoring types
   y_mixed <- c(0, 0, 3, 5, 7, 10, 10)
-  out <- check_response(y_mixed, type = "m", ncuts = 10)
+  out <- check_response(y_mixed, ncuts = 10)
   deltas <- out[, "delta"]
   expect_true(1L %in% deltas) # left-censored
   expect_true(2L %in% deltas) # right-censored
@@ -646,7 +646,7 @@ test_that("censoring_summary returns correct structure", {
 
 test_that("censoring_summary works with raw matrix", {
   y <- c(0, 3, 5, 7, 10)
-  Y <- check_response(y, type = "m", ncuts = 10)
+  Y <- check_response(y, ncuts = 10)
   cs <- censoring_summary(Y)
   expect_true(is.data.frame(cs))
   expect_equal(sum(cs$count), 5L)
@@ -687,9 +687,9 @@ test_that("bs_prepare Mode 1: y only <U+2014> delta inferred correctly", {
 
 test_that("bs_prepare Mode 1: y only <U+2014> endpoints match check_response", {
   y_vec <- c(0, 3, 5, 7, 10)
-  cr <- check_response(y_vec, type = "m", ncuts = 10, lim = 0.5)
+  cr <- check_response(y_vec, ncuts = 10, lim = 0.5)
   d <- data.frame(y = y_vec)
-  res <- bs_prepare(d, ncuts = 10, type = "m", lim = 0.5)
+  res <- bs_prepare(d, ncuts = 10, lim = 0.5)
   expect_equal(res$left, as.numeric(cr[, "left"]), tolerance = 1e-8)
   expect_equal(res$right, as.numeric(cr[, "right"]), tolerance = 1e-8)
   expect_equal(res$yt, as.numeric(cr[, "yt"]), tolerance = 1e-8)
@@ -724,7 +724,7 @@ test_that("bs_prepare Mode 2: y + delta explicit <U+2014> right-censored", {
 
 test_that("bs_prepare Mode 2: y + delta explicit <U+2014> interval-censored", {
   d <- data.frame(y = 50, delta = 3L)
-  res <- bs_prepare(d, ncuts = 100, type = "m")
+  res <- bs_prepare(d, ncuts = 100)
   expect_equal(res$delta, 3L)
   expect_equal(res$left, 0.495, tolerance = 1e-4)
   expect_equal(res$right, 0.505, tolerance = 1e-4)
@@ -763,7 +763,7 @@ test_that("bs_prepare Mode 3: left=NA, right=NA, y=value -> exact (delta=0)", {
 
   # while y has a value, the observation is exact (no censoring)
   d <- data.frame(left = NA_real_, right = NA_real_, y = 50)
-  res <- bs_prepare(d, ncuts = 100, type = "m")
+  res <- bs_prepare(d, ncuts = 100)
   expect_equal(res$delta, 0L)
   expect_equal(res$yt, 0.50, tolerance = 1e-4)
 })
@@ -876,7 +876,7 @@ test_that("bs_prepare -> betaregscale produces identical fit to raw data", {
 
   # Fit 2: bs_prepare workflow <U+2014> extract only y + covariates
   sim_raw <- sim[, c("y", "x1", "x2")]
-  prep <- bs_prepare(sim_raw, ncuts = 100, type = "m")
+  prep <- bs_prepare(sim_raw, ncuts = 100)
   fit2 <- betaregscale(y ~ x1 + x2, data = prep, link = "logit", repar = 2L)
 
   expect_equal(coef(fit1), coef(fit2), tolerance = 1e-6)
@@ -886,8 +886,212 @@ test_that("bs_prepare -> betaregscale produces identical fit to raw data", {
 test_that("bs_prepare -> betaregscale_fit_z converges", {
   sim <- sim_variable(n = 200, seed = 42)
   sim_raw <- sim[, c("y", "x1", "x2", "z1")]
-  prep <- bs_prepare(sim_raw, ncuts = 100, type = "m")
+  prep <- bs_prepare(sim_raw, ncuts = 100)
   fit <- betaregscale(y ~ x1 + x2 | z1, data = prep, link = "logit", repar = 2L)
   expect_s3_class(fit, "betaregscale")
   expect_equal(fit$convergence, 0L)
+})
+
+
+# ============================================================================ #
+# Test: delta parameter in simulation functions
+# ============================================================================ #
+
+test_that("simulate delta=0 produces all exact observations", {
+  set.seed(42)
+  n <- 100
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 0
+  )
+  expect_true(all(sim$delta == 0))
+  # Exact: left == right == yt
+  expect_equal(sim$left, sim$right)
+  expect_equal(sim$left, sim$yt)
+  # y should be in (0, 1) for exact
+  expect_true(all(sim$y > 0 & sim$y < 1))
+})
+
+test_that("simulate delta=1 produces all left-censored observations", {
+  set.seed(42)
+  n <- 100
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 1
+  )
+  expect_true(all(sim$delta == 1))
+  expect_true(all(sim$y == 0))
+})
+
+test_that("simulate delta=2 produces all right-censored observations", {
+  set.seed(42)
+  n <- 100
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 2, ncuts = 100L
+  )
+  expect_true(all(sim$delta == 2))
+  expect_true(all(sim$y == 100))
+})
+
+test_that("simulate delta=3 produces all interval-censored observations", {
+  set.seed(42)
+  n <- 100
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 3, ncuts = 100L
+  )
+  expect_true(all(sim$delta == 3))
+  # No boundary values
+  expect_true(all(sim$y > 0 & sim$y < 100))
+})
+
+test_that("simulate delta=NULL preserves default mixed behavior", {
+  set.seed(42)
+  n <- 200
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5
+  )
+  # Should have a mix of censoring types (at least interval)
+  expect_true(3L %in% sim$delta)
+})
+
+test_that("simulate errors on invalid delta", {
+  set.seed(42)
+  n <- 10
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  expect_error(
+    betaregscale_simulate(
+      formula = ~ x1 + x2, data = dat,
+      beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+      delta = 5
+    ),
+    "\\{0, 1, 2, 3\\}"
+  )
+  expect_error(
+    betaregscale_simulate(
+      formula = ~ x1 + x2, data = dat,
+      beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+      delta = c(0, 1)
+    ),
+    "single integer"
+  )
+})
+
+test_that("simulate_z delta=3 produces all interval-censored", {
+  set.seed(42)
+  n <- 100
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n), z1 = runif(n))
+  sim <- betaregscale_simulate_z(
+    formula_x = ~ x1 + x2, formula_z = ~z1, data = dat,
+    beta = c(0.2, -0.5, 0.3), zeta = c(0.5, -0.5),
+    delta = 3
+  )
+  expect_true(all(sim$delta == 3))
+  expect_true(all(sim$y > 0 & sim$y < 100))
+})
+
+test_that("simulate_z delta=0 produces all exact observations", {
+  set.seed(42)
+  n <- 100
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n), z1 = runif(n))
+  sim <- betaregscale_simulate_z(
+    formula_x = ~ x1 + x2, formula_z = ~z1, data = dat,
+    beta = c(0.2, -0.5, 0.3), zeta = c(0.5, -0.5),
+    delta = 0
+  )
+  expect_true(all(sim$delta == 0))
+  expect_equal(sim$left, sim$right)
+})
+
+# -- End-to-end: simulate with forced delta -> fit ----------------------------- #
+
+test_that("simulate delta=3 -> betaregscale converges", {
+  set.seed(42)
+  n <- 200
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 3
+  )
+  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  expect_equal(fit$convergence, 0L)
+})
+
+test_that("simulate delta=0 -> betaregscale converges", {
+  set.seed(42)
+  n <- 200
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 0
+  )
+  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  expect_equal(fit$convergence, 0L)
+})
+
+# ============================================================================ #
+# Test: check_response with user-supplied delta
+# ============================================================================ #
+
+test_that("check_response with delta vector overrides boundary rules", {
+  y <- c(0, 50, 100)
+  d <- c(0L, 0L, 0L) # force all to exact
+  res <- check_response(y, ncuts = 100, delta = d)
+  expect_true(all(res[, "delta"] == 0))
+})
+
+test_that("check_response with delta vector respects user classification", {
+  y <- c(50, 50)
+  d <- c(1L, 2L)
+  res <- check_response(y, ncuts = 100, delta = d)
+  expect_equal(as.integer(res[, "delta"]), c(1L, 2L))
+})
+
+test_that("check_response delta must match y length", {
+  y <- c(1, 2, 3)
+  expect_error(check_response(y, ncuts = 100, delta = c(0L, 1L)), "same length")
+})
+
+test_that("check_response delta must be valid values", {
+  y <- c(1, 2, 3)
+  expect_error(check_response(y, ncuts = 100, delta = c(0L, 1L, 5L)), "\\{0, 1, 2, 3\\}")
+})
+
+# ============================================================================ #
+# Test: deprecation warnings for type parameter
+# ============================================================================ #
+
+test_that("betaregscale_simulate warns on explicit type", {
+  set.seed(42)
+  n <- 10
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  expect_warning(
+    betaregscale_simulate(
+      formula = ~ x1 + x2, data = dat,
+      beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+      type = "l"
+    ),
+    "deprecated"
+  )
+})
+
+test_that("betaregscale warns on explicit type", {
+  sim <- sim_fixed(n = 100, seed = 42)
+  expect_warning(
+    betaregscale(y ~ x1 + x2, data = sim, type = "l"),
+    "deprecated"
+  )
 })

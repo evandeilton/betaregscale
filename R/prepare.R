@@ -72,10 +72,12 @@
 #' @param right  Character: name of the right-endpoint column
 #'   (default \code{"right"}).
 #' @param ncuts  Integer: number of scale categories (default 100).
-#' @param type   Character: interval type for interior scores when only
+#' @param type   \strong{Deprecated.}
+#'   Character: interval type for interior scores when only
 #'   \code{y} and \code{delta} are available.
 #'   \code{"m"} = midpoint (default), \code{"l"} = left-aligned,
-#'   \code{"r"} = right-aligned. See \code{\link{check_response}}.
+#'   \code{"r"} = right-aligned.
+#'   This argument will be removed in a future version.
 #' @param lim    Numeric: half-width of the uncertainty region
 #'   (default 0.5). Used only when constructing intervals from \code{y}
 #'   alone.
@@ -154,6 +156,12 @@ bs_prepare <- function(data, y = "y", delta = "delta",
     stop("'data' must be a data.frame.", call. = FALSE)
   }
 
+  if (!missing(type)) {
+    .Deprecated(msg = paste0(
+      "The 'type' argument of bs_prepare() is deprecated ",
+      "and will be removed in a future version."
+    ))
+  }
   type <- match.arg(type, c("m", "l", "r"))
   ncuts <- as.integer(ncuts)
   eps <- 1e-5
