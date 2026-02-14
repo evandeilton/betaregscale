@@ -11,41 +11,41 @@ endpoints.
 
 The package is designed for situations where the recorded score carries
 measurement uncertainty inherent to the instrument. For example, a pain
-score of 6 on a 0–10 NRS scale is interpreted as lying in the interval
+score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 \[5.5, 6.5\] after rescaling to (0, 1). The complete likelihood (Lopes,
-2024, Eq. 2.24) supports mixed censoring types—uncensored,
-left-censored, right-censored, and interval-censored—within the same
+2024, Eq. 2.24) supports mixed censoring types: **uncensored,
+left-censored, right-censored, and interval-censored** within the same
 dataset.
 
 ## Key features
 
-- **Mixed censoring support** — the complete likelihood handles four
+- **Mixed censoring support**: the complete likelihood handles four
   censoring types simultaneously: exact observations ($\delta = 0$),
   left-censored ($\delta = 1$), right-censored ($\delta = 2$), and
   interval-censored ($\delta = 3$).
-- **Fixed and variable dispersion** — model a scalar $\phi$ or let it
+- **Fixed and variable dispersion**: model a scalar $\phi$ or let it
   depend on covariates via a second linear predictor
   (`y ~ x1 + x2 | z1`).
-- **High-performance C++ backend** — the log-likelihood and analytical
+- **High-performance C++ backend**: the log-likelihood and analytical
   gradient are compiled via Rcpp/RcppArmadillo for fast, numerically
   stable estimation.
-- **Flexible link functions** — logit, probit, cauchit, cloglog for the
+- **Flexible link functions**: logit, probit, cauchit, cloglog for the
   mean; logit, log, identity, sqrt, inverse, and others for the
   dispersion.
-- **Three reparameterizations** — direct (0), Ferrari–Cribari-Neto
+- **Three reparameterizations**: direct (0), Ferrari–Cribari-Neto
   precision (1), and mean–variance (2).
-- **betareg-style S3 interface** — `print`, `summary`, `coef`, `vcov`,
+- **betareg-style S3 interface**: `print`, `summary`, `coef`, `vcov`,
   `logLik`, `AIC`, `BIC`, `nobs`, `formula`, `model.matrix`, `fitted`,
   `residuals`, `predict`, `confint`, and `plot` methods. The
   [`coef()`](https://rdrr.io/r/stats/coef.html) and
   [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods accept
   `model = c("full", "mean", "precision")`.
-- **Diagnostic plots** — six residual diagnostic panels with both base R
+- **Diagnostic plots**: six residual diagnostic panels with both base R
   and ggplot2 backends, including a half-normal envelope plot.
-- **Censoring summary** —
+- **Censoring summary**:
   [`censoring_summary()`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md)
   provides visual and tabular summaries of the censoring structure.
-- **Simulation toolkit** —
+- **Simulation toolkit**:
   [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
   and
   [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
@@ -198,7 +198,7 @@ where $K$ is the number of scale categories (`ncuts`).
 
 ## License
 
-MIT © Jose Eduardo Lopes
+MIT © José Evandeilton Lopes
 
 # Package index
 

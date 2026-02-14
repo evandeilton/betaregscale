@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,6 +31,20 @@
       <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.1.0" id="betaregscale-210">betaregscale 2.1.0<a class="anchor" aria-label="anchor" href="#betaregscale-210"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-2-1-0"></a></h3>
+<ul><li>
+<code><a href="../reference/betaregscale_simulate.html">betaregscale_simulate()</a></code> and <code><a href="../reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code> gain a <code>delta</code> argument (default <code>NULL</code>) that forces all simulated observations to a specific censoring type: 0 (exact), 1 (left), 2 (right), or 3 (interval). This enables targeted Monte Carlo studies with controlled censoring structures.</li>
+<li>
+<code><a href="../reference/check_response.html">check_response()</a></code> gains a <code>delta</code> argument that accepts a vector of pre-specified censoring indicators, overriding the automatic boundary-based classification.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="deprecations-2-1-0">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-2-1-0"></a></h3>
+<ul><li>The <code>type</code> parameter (<code>"m"</code>, <code>"l"</code>, <code>"r"</code>) is deprecated across all functions: <code><a href="../reference/betaregscale.html">betaregscale()</a></code>, <code><a href="../reference/betaregscale_fit.html">betaregscale_fit()</a></code>, <code><a href="../reference/betaregscale_fit_z.html">betaregscale_fit_z()</a></code>, <code><a href="../reference/betaregscale_loglik.html">betaregscale_loglik()</a></code>, <code><a href="../reference/betaregscale_loglik_z.html">betaregscale_loglik_z()</a></code>, <code><a href="../reference/betaregscale_simulate.html">betaregscale_simulate()</a></code>, <code><a href="../reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code>, <code><a href="../reference/check_response.html">check_response()</a></code>, and <code><a href="../reference/bs_prepare.html">bs_prepare()</a></code>. Use <code><a href="../reference/bs_prepare.html">bs_prepare()</a></code> to control interval geometry instead. The parameter still works but emits a deprecation warning when passed explicitly.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.0.1" id="betaregscale-201">betaregscale 2.0.1<a class="anchor" aria-label="anchor" href="#betaregscale-201"></a></h2>
 <div class="section level3">

@@ -63,10 +63,10 @@ bs_prepare(
 
 - type:
 
-  Character: interval type for interior scores when only `y` and `delta`
-  are available. `"m"` = midpoint (default), `"l"` = left-aligned, `"r"`
-  = right-aligned. See
-  [`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md).
+  **Deprecated.** Character: interval type for interior scores when only
+  `y` and `delta` are available. `"m"` = midpoint (default), `"l"` =
+  left-aligned, `"r"` = right-aligned. This argument will be removed in
+  a future version.
 
 - lim:
 
@@ -205,6 +205,7 @@ sim <- betaregscale_simulate(
 prep <- bs_prepare(sim, ncuts = 100)
 #> bs_prepare: n = 200 | exact = 0, left = 18, right = 21, interval = 161
 fit <- betaregscale(y ~ x1 + x2, data = prep)
+#> Warning: The 'type' argument of betaregscale_fit() is deprecated and will be removed in a future version. Use bs_prepare() to control interval geometry.
 summary(fit)
 #> 
 #> Call:

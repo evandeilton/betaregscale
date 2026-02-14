@@ -48,7 +48,9 @@ betaregscale(
 
 - type:
 
-  Interval type (default `"m"`).
+  **Deprecated.** Interval type (default `"m"`). Use
+  [`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+  to control interval geometry instead.
 
 - lim:
 
@@ -94,6 +96,7 @@ sim <- betaregscale_simulate_z(
 
 # Fixed dispersion
 fit1 <- betaregscale(y ~ x1 + x2, data = sim)
+#> Warning: The 'type' argument of betaregscale_fit() is deprecated and will be removed in a future version. Use bs_prepare() to control interval geometry.
 print(fit1)
 #> 
 #> Call:
@@ -110,6 +113,7 @@ print(fit1)
 
 # Variable dispersion
 fit2 <- betaregscale(y ~ x1 + x2 | z1, data = sim)
+#> Warning: The 'type' argument of betaregscale_fit_z() is deprecated and will be removed in a future version. Use bs_prepare() to control interval geometry.
 print(fit2)
 #> 
 #> Call:

@@ -64,7 +64,7 @@ where $K$ is the number of scale categories (`ncuts`).
 ``` r
 # Illustrate check_response with a 0-10 NRS scale
 y_example <- c(0, 3, 5, 7, 10)
-cr <- check_response(y_example, type = "m", ncuts = 10)
+cr <- check_response(y_example, ncuts = 10)
 cr
 #>         left   right      yt  y delta
 #> [1,] 0.00001 0.05000 0.00001  0     1
@@ -184,18 +184,22 @@ sim <- betaregscale_simulate(
   formula = ~ x1 + x2, data = dat,
   beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
   link = "logit", link_phi = "logit",
-  repar = 2, type = "m"
+  repar = 2
 )
 prep <- bs_prepare(sim, ncuts = 100)
 #> bs_prepare: n = 1000 | exact = 0, left = 71, right = 106, interval = 823
-fit_prep <- betaregscale(y ~ x1 + x2, data = prep, repar = 2,
-                         link = "logit", link_phi = "logit",
-                         type = "m")
+fit_prep <- betaregscale(y ~ x1 + x2,
+  data = prep, repar = 2,
+  link = "logit", link_phi = "logit"
+)
+#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
+#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
+#> future version. Use bs_prepare() to control interval geometry.
 summary(fit_prep)
 #> 
 #> Call:
 #> betaregscale(formula = y ~ x1 + x2, data = prep, link = "logit", 
-#>     link_phi = "logit", type = "m", repar = 2)
+#>     link_phi = "logit", repar = 2)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
@@ -244,6 +248,9 @@ sim_fixed <- betaregscale_simulate(
   type     = "m",
   repar    = 2
 )
+#> Warning in betaregscale_simulate(formula = ~x1 + x2, data = dat, beta = c(0.3,
+#> : The 'type' argument of betaregscale_simulate() is deprecated and will be
+#> removed in a future version. Use bs_prepare() to control interval geometry.
 
 head(sim_fixed)
 #>      left right      yt  y delta          x1         x2
@@ -255,9 +262,9 @@ head(sim_fixed)
 #> 6 0.06500 0.075 0.07000  7     3  0.36002855 -1.0115571
 ```
 
-The `type = "m"` argument means that each observation is centered in its
-interval. For example, a score of 67 on a 0–100 scale yields
-$y_{t} = 0.67$ with interval $\lbrack 0.665,0.675\rbrack$.
+The default midpoint interval type means that each observation is
+centered in its interval. For example, a score of 67 on a 0–100 scale
+yields $y_{t} = 0.67$ with interval $\lbrack 0.665,0.675\rbrack$.
 
 ### Fitting the model
 
@@ -269,6 +276,9 @@ fit_fixed <- betaregscale(
   link_phi = "logit",
   repar    = 2
 )
+#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
+#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
+#> future version. Use bs_prepare() to control interval geometry.
 summary(fit_fixed)
 #> 
 #> Call:
@@ -321,6 +331,18 @@ links <- c("logit", "probit", "cauchit", "cloglog")
 fits <- lapply(setNames(links, links), function(lnk) {
   betaregscale(y ~ x1 + x2, data = sim_fixed, link = lnk, repar = 2)
 })
+#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
+#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
+#> future version. Use bs_prepare() to control interval geometry.
+#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
+#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
+#> future version. Use bs_prepare() to control interval geometry.
+#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
+#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
+#> future version. Use bs_prepare() to control interval geometry.
+#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
+#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
+#> future version. Use bs_prepare() to control interval geometry.
 
 # Estimates
 est_table <- do.call(rbind, lapply(names(fits), function(lnk) {
@@ -475,7 +497,6 @@ sim_var <- betaregscale_simulate_z(
   link = "logit",
   link_phi = "logit",
   ncuts = 100,
-  type = "m",
   repar = 2
 )
 
@@ -506,6 +527,9 @@ fit_var <- betaregscale(
   link_phi = "logit",
   repar    = 2
 )
+#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
+#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
+#> in a future version. Use bs_prepare() to control interval geometry.
 summary(fit_var)
 #> 
 #> Call:
@@ -575,6 +599,18 @@ links <- c("logit", "probit", "cauchit", "cloglog")
 fits_var <- lapply(setNames(links, links), function(lnk) {
   betaregscale(y ~ x1 + x2 | z1, data = sim_var, link = lnk, repar = 2)
 })
+#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
+#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
+#> in a future version. Use bs_prepare() to control interval geometry.
+#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
+#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
+#> in a future version. Use bs_prepare() to control interval geometry.
+#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
+#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
+#> in a future version. Use bs_prepare() to control interval geometry.
+#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
+#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
+#> in a future version. Use bs_prepare() to control interval geometry.
 
 # Estimates
 est_var <- do.call(rbind, lapply(names(fits_var), function(lnk) {

@@ -1,5 +1,40 @@
 # Changelog
 
+## betaregscale 2.1.0
+
+### New features
+
+- [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
+  and
+  [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
+  gain a `delta` argument (default `NULL`) that forces all simulated
+  observations to a specific censoring type: 0 (exact), 1 (left), 2
+  (right), or 3 (interval). This enables targeted Monte Carlo studies
+  with controlled censoring structures.
+- [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+  gains a `delta` argument that accepts a vector of pre-specified
+  censoring indicators, overriding the automatic boundary-based
+  classification.
+
+### Deprecations
+
+- The `type` parameter (`"m"`, `"l"`, `"r"`) is deprecated across all
+  functions:
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md),
+  [`betaregscale_fit()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit.md),
+  [`betaregscale_fit_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit_z.md),
+  [`betaregscale_loglik()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.md),
+  [`betaregscale_loglik_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik_z.md),
+  [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md),
+  [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md),
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md),
+  and
+  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md).
+  Use
+  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+  to control interval geometry instead. The parameter still works but
+  emits a deprecation warning when passed explicitly.
+
 ## betaregscale 2.0.1
 
 ### New features

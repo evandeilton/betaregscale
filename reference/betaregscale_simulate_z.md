@@ -1,8 +1,8 @@
 # Simulate data from a variable-dispersion beta interval model
 
-Generates interval-censored observations from a beta regression model
-with observation-specific dispersion governed by a second linear
-predictor.
+Generates observations from a beta regression model with
+observation-specific dispersion governed by a second linear predictor.
+The `delta` argument controls the censoring type.
 
 ## Usage
 
@@ -18,7 +18,8 @@ betaregscale_simulate_z(
   ncuts = 100L,
   type = "m",
   lim = 0.5,
-  repar = 2L
+  repar = 2L,
+  delta = NULL
 )
 ```
 
@@ -58,7 +59,9 @@ betaregscale_simulate_z(
 
 - type:
 
-  Interval type (default `"m"`).
+  **Deprecated.** Interval type (default `"m"`). Use
+  [`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+  to control interval geometry instead.
 
 - lim:
 
@@ -67,6 +70,14 @@ betaregscale_simulate_z(
 - repar:
 
   Reparameterization scheme (default 2).
+
+- delta:
+
+  Integer or `NULL`. If `NULL` (default), censoring is determined
+  automatically. If an integer in `{0, 1, 2, 3}`, all simulated
+  observations are forced to that censoring type. See
+  [`betaregscale_simulate`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
+  for details.
 
 ## Value
 

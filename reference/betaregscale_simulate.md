@@ -1,8 +1,9 @@
 # Simulate data from a fixed-dispersion beta interval model
 
-Generates interval-censored observations from a beta regression model
-with a single (scalar) dispersion parameter. This is useful for Monte
-Carlo studies and testing.
+Generates observations from a beta regression model with a single
+(scalar) dispersion parameter. This is useful for Monte Carlo studies
+and testing. The `delta` argument controls the censoring type of the
+simulated data.
 
 ## Usage
 
@@ -17,7 +18,8 @@ betaregscale_simulate(
   ncuts = 100L,
   type = "m",
   lim = 0.5,
-  repar = 2L
+  repar = 2L,
+  delta = NULL
 )
 ```
 
@@ -55,7 +57,9 @@ betaregscale_simulate(
 
 - type:
 
-  Interval type: `"m"`, `"l"`, or `"r"` (default `"m"`).
+  **Deprecated.** Interval type: `"m"`, `"l"`, or `"r"`. Use
+  [`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+  to control interval geometry instead.
 
 - lim:
 
@@ -65,10 +69,19 @@ betaregscale_simulate(
 
   Reparameterization scheme (default 2).
 
+- delta:
+
+  Integer or `NULL`. If `NULL` (default), the censoring type is
+  determined automatically by
+  [`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md).
+  If an integer in `{0, 1, 2, 3}`, **all** simulated observations are
+  forced to that censoring type: 0 = exact (uncensored), 1 =
+  left-censored, 2 = right-censored, 3 = interval-censored.
+
 ## Value
 
-A `data.frame` containing columns `left`, `right`, `yt`, `y`, and the
-predictor variables.
+A `data.frame` containing columns `left`, `right`, `yt`, `y`, `delta`,
+and the predictor variables.
 
 ## Examples
 
@@ -89,4 +102,15 @@ head(sim)
 #> 4 0.61500 0.625 0.62000 62     3  0.6328626  2.0595392
 #> 5 0.01500 0.025 0.02000  2     3  0.4042683 -1.3768616
 #> 6 0.00001 0.005 0.00001  0     1 -0.1061245 -1.1508556
+
+# Force all observations to be interval-censored
+sim3 <- betaregscale_simulate(
+  formula = ~ x1 + x2, data = dat,
+  beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+  delta = 3
+)
+table(sim3$delta)
+#> 
+#>   3 
+#> 200 
 ```

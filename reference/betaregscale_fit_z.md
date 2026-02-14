@@ -51,7 +51,9 @@ betaregscale_fit_z(
 
 - type:
 
-  Interval type (default `"m"`).
+  **Deprecated.** Interval type (default `"m"`). Use
+  [`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+  to control interval geometry instead.
 
 - lim:
 

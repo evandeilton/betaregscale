@@ -24,9 +24,10 @@ Numeric Hessian matrix.
 # \donttest{
 sim <- betaregscale_simulate(
   formula = ~x1, data = data.frame(x1 = rnorm(50)),
-  beta = c(0, 0.5), phi = 0.1, ncuts = 10, type = "m", repar = 2
+  beta = c(0, 0.5), phi = 0.1, ncuts = 10, repar = 2
 )
 fit <- betaregscale(y ~ x1, data = sim, repar = 2)
+#> Warning: The 'type' argument of betaregscale_fit() is deprecated and will be removed in a future version. Use bs_prepare() to control interval geometry.
 hessian_matrix(fit)
 #>             (Intercept)         x1      (phi)
 #> (Intercept)   -63.05945 -35.787161  20.709762

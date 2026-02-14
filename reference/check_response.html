@@ -67,7 +67,7 @@ Interval-censored: the standard case for
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +125,7 @@ Eq. 2.24):</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_response</span><span class="op">(</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">"m"</span>, ncuts <span class="op">=</span> <span class="fl">100L</span>, lim <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_response</span><span class="op">(</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">"m"</span>, ncuts <span class="op">=</span> <span class="fl">100L</span>, lim <span class="op">=</span> <span class="fl">0.5</span>, delta <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -137,10 +137,12 @@ Eq. 2.24):</p>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Character: interval type.
+<dd><p><strong>Deprecated.</strong>
+Character: interval type.
 <code>"m"</code> = midpoint (default),
 <code>"l"</code> = left-aligned,
-<code>"r"</code> = right-aligned.</p></dd>
+<code>"r"</code> = right-aligned.
+Use <code><a href="bs_prepare.html">bs_prepare</a></code> to control interval geometry instead.</p></dd>
 
 
 <dt id="arg-ncuts">ncuts<a class="anchor" aria-label="anchor" href="#arg-ncuts"></a></dt>
@@ -150,6 +152,14 @@ Eq. 2.24):</p>
 <dt id="arg-lim">lim<a class="anchor" aria-label="anchor" href="#arg-lim"></a></dt>
 <dd><p>Numeric: half-width of the uncertainty region
 (default 0.5).</p></dd>
+
+
+<dt id="arg-delta">delta<a class="anchor" aria-label="anchor" href="#arg-delta"></a></dt>
+<dd><p>Integer vector or <code>NULL</code>.  If <code>NULL</code>
+(default), censoring types are inferred automatically from
+boundary rules.  If provided, must have the same length as
+<code>y</code> with values in <code>{0, 1, 2, 3}</code>.  When provided,
+overrides the automatic classification.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -162,8 +172,12 @@ Eq. 2.24):</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If the input is already in \((0, 1)\) (i.e., all values satisfy
-\(0 &lt; y &lt; 1\)), observations are treated as uncensored (\(\delta = 0\)).</p>
-<p>For scale (integer) data:</p><ul><li><p>\(y = 0\): left-censored. Upper bound is
+\(0 &lt; y &lt; 1\)), observations are treated as uncensored
+(\(\delta = 0\)), unless <code>delta</code> is provided.</p>
+<p>If <code>delta</code> is supplied, the user-provided censoring indicators
+are used directly, overriding the automatic boundary-based
+classification rules.</p>
+<p>For scale (integer) data (when <code>delta = NULL</code>):</p><ul><li><p>\(y = 0\): left-censored. Upper bound is
     \(u = \mathrm{lim} / K\).</p></li>
 <li><p>\(y = K\): right-censored. Lower bound is
     \(l = (K - \mathrm{lim}) / K\).</p></li>
@@ -191,7 +205,7 @@ likelihood.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Scale data with boundary observations</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">9</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">check_response</span><span class="op">(</span><span class="va">y</span>, type <span class="op">=</span> <span class="st">"m"</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">check_response</span><span class="op">(</span><span class="va">y</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         left   right      yt  y delta</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.00001 0.05000 0.00001  0     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.25000 0.35000 0.30000  3     3</span>
@@ -200,16 +214,15 @@ likelihood.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.85000 0.95000 0.90000  9     3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.95000 0.99999 0.99999 10     2</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Continuous data in (0, 1) &lt;U+2014&gt; treated as uncensored</span></span></span>
-<span class="r-in"><span><span class="va">y_cont</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span>, <span class="fl">0.9</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">check_response</span><span class="op">(</span><span class="va">y_cont</span>, type <span class="op">=</span> <span class="st">"m"</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Response is already on the unit interval (0, 1); treating as uncensored (exact) observations.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      left right  yt   y delta</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.1   0.1 0.1 0.1     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.3   0.3 0.3 0.3     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.5   0.5 0.5 0.5     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.7   0.7 0.7 0.7     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.9   0.9 0.9 0.9     0</span>
+<span class="r-in"><span><span class="co"># Force all observations to be exact (delta = 0)</span></span></span>
+<span class="r-in"><span><span class="fu">check_response</span><span class="op">(</span><span class="va">y</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         left   right      yt  y delta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.00001 0.00001 0.00001  0     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.30000 0.30000 0.30000  3     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.50000 0.50000 0.50000  5     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.70000 0.70000 0.70000  7     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.90000 0.90000 0.90000  9     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.99999 0.99999 0.99999 10     0</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

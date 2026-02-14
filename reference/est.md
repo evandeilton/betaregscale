@@ -28,9 +28,10 @@ Data frame of estimates, standard errors, z-values, and p-values.
 # \donttest{
 sim <- betaregscale_simulate(
   formula = ~x1, data = data.frame(x1 = rnorm(50)),
-  beta = c(0, 0.5), phi = 0.1, ncuts = 10, type = "m", repar = 2
+  beta = c(0, 0.5), phi = 0.1, ncuts = 10, repar = 2
 )
 fit <- betaregscale(y ~ x1, data = sim, repar = 2)
+#> Warning: The 'type' argument of betaregscale_fit() is deprecated and will be removed in a future version. Use bs_prepare() to control interval geometry.
 est(fit)
 #>      variable  estimate        se    z_value       p_value    ci_lower
 #> 1 (Intercept) -2.923978 0.1321935 -22.118922 2.078346e-108 -3.18307302
