@@ -140,7 +140,7 @@ brs_marginaleffects <- function(object,
     base <- .brs_me_predict(object, eval_data, par = par, model = model, type = type)
     x <- eval_data[[var_name]]
 
-    if (all(na.omit(x) %in% c(0, 1))) {
+    if (all(stats::na.omit(x) %in% c(0, 1))) {
       d0 <- eval_data
       d1 <- eval_data
       d0[[var_name]] <- 0

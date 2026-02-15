@@ -60,8 +60,8 @@
 #'   )
 #'   fit <- brs(y ~ x1 + x2, data = sim, repar = 2)
 #'
-#'   autoplot(fit, type = "calibration")
-#'   autoplot(fit, type = "score_dist")
+#'   autoplot.brs(fit, type = "calibration")
+#'   autoplot.brs(fit, type = "score_dist")
 #' }
 #' }
 #'
