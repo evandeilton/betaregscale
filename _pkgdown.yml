@@ -27,24 +27,18 @@ reference:
   - title: "Model Fitting"
     desc: "Core functions for fitting beta interval regression models."
     contents:
-      - betaregscale
+      - brs
       - brs_fit_fixed
-      - brs_fit_fixed_z
-
-  - title: "Log-Likelihood"
-    desc: "Log-likelihood evaluation for fixed and variable dispersion."
-    contents:
-      - betaregscale_loglik
-      - betaregscale_loglik_z
+      - brs_fit_var
+      - brs_coef
 
   - title: "Simulation"
     desc: "Data simulation for Monte Carlo studies."
     contents:
       - brs_sim
-      - brs_sim_z
 
   - title: "S3 Methods"
-    desc: "Standard methods for fitted model objects of class betaregscale."
+    desc: "Standard methods for fitted model objects of class brs."
     contents:
       - coef.brs
       - vcov.brs
@@ -67,13 +61,13 @@ reference:
     desc: "Functions for model diagnostics and censoring summaries."
     contents:
       - brs_cens
-      - est
-      - gof
-      - hessian_matrix
+      - brs_est
+      - brs_gof
+      - brs_hessian
 
-  - title: "Data brs_prepion"
-    desc: "Functions for preparing brs_check variables and reparameterization."
+  - title: "Data Preparation"
+    desc: "Functions for preparing response data and beta reparameterization."
     contents:
-      - bs_prepare
+      - brs_prep
       - brs_check
       - brs_repar
