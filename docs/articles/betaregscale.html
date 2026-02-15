@@ -202,7 +202,6 @@ and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <code class="sourceCode R"><span><span class="co"># Equivalent to brs_check - delta inferred from y</span></span>
 <span><span class="va">d1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3</span></span>
 <span><span class="co">#&gt;      left   right      yt  y delta           x1</span></span>
 <span><span class="co">#&gt; 1 0.00001 0.05000 0.00001  0     1 -1.400043517</span></span>
 <span><span class="co">#&gt; 2 0.25000 0.35000 0.30000  3     3  0.255317055</span></span>
@@ -221,8 +220,6 @@ and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Observation(s) 3: delta = 2 (right-censored) but y != 100.</span></span>
-<span><span class="co">#&gt; brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span></span>
 <span><span class="co">#&gt;      left   right      yt  y delta         x1</span></span>
 <span><span class="co">#&gt; 1 0.50000 0.50000 0.50000 50     0  1.1484116</span></span>
 <span><span class="co">#&gt; 2 0.00001 0.00500 0.00001  0     1 -1.8218177</span></span>
@@ -242,7 +239,6 @@ columns, censoring is inferred from the NA pattern:</p>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span></span>
 <span><span class="co">#&gt;    left   right    yt  y delta         x1</span></span>
 <span><span class="co">#&gt; 1 1e-05 0.05000 0.025 NA     1 -0.2827054</span></span>
 <span><span class="co">#&gt; 2 2e-01 0.99999 0.600 NA     2 -0.5536994</span></span>
@@ -264,7 +260,6 @@ columns, censoring is inferred from the NA pattern:</p>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d4</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2</span></span>
 <span><span class="co">#&gt;   left right   yt  y delta         x1</span></span>
 <span><span class="co">#&gt; 1 0.48  0.52 0.50 50     3 -1.6309894</span></span>
 <span><span class="co">#&gt; 2 0.73  0.77 0.75 75     3  0.5124269</span></span></code></pre></div>
@@ -286,7 +281,6 @@ skipped:</p>
 <span>  repar <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">sim</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; brs_prep: n = 1000 | exact = 0, left = 71, right = 106, interval = 823</span></span>
 <span><span class="va">fit_prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">prep</span>, repar <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span></span>
