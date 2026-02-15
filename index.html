@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,9 +81,9 @@
 <li>
 <strong>Diagnostic plots</strong>: six residual diagnostic panels with both base R and ggplot2 backends, including a half-normal envelope plot.</li>
 <li>
-<strong>Censoring summary</strong>: <code><a href="reference/censoring_summary.html">censoring_summary()</a></code> provides visual and tabular summaries of the censoring structure.</li>
+<strong>Censoring summary</strong>: <code><a href="reference/brs_cens.html">brs_cens()</a></code> provides visual and tabular summaries of the censoring structure.</li>
 <li>
-<strong>Simulation toolkit</strong>: <code><a href="reference/betaregscale_simulate.html">betaregscale_simulate()</a></code> and <code><a href="reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code> for Monte Carlo studies.</li>
+<strong>Simulation toolkit</strong>: <code><a href="reference/brs_sim.html">brs_sim()</a></code> supports both fixed- and variable-dispersion Monte Carlo studies via one- or two-part formulas.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -107,16 +107,16 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregscale_simulate.html">betaregscale_simulate</a></span><span class="op">(</span></span>
+<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">dat</span>,</span>
 <span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.4</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">10</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  ncuts <span class="op">=</span> <span class="fl">100</span>, type <span class="op">=</span> <span class="st">"m"</span>, repar <span class="op">=</span> <span class="fl">2</span></span>
+<span>  ncuts <span class="op">=</span> <span class="fl">100</span>, repar <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fit the model</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -130,17 +130,17 @@
 <span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
 <span>  z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, z2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">sim_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregscale_simulate_z.html">betaregscale_simulate_z</a></span><span class="op">(</span></span>
-<span>  formula_x <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, formula_z <span class="op">=</span> <span class="op">~</span> <span class="va">z1</span>,</span>
+<span><span class="va">sim_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">dat</span>,</span>
 <span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.2</span><span class="op">)</span>,</span>
 <span>  zeta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.8</span><span class="op">)</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  ncuts <span class="op">=</span> <span class="fl">100</span>, type <span class="op">=</span> <span class="st">"m"</span>, repar <span class="op">=</span> <span class="fl">2</span></span>
+<span>  ncuts <span class="op">=</span> <span class="fl">100</span>, repar <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fit variable-dispersion model (pipe notation)</span></span>
-<span><span class="va">fit_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim_z</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">fit_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim_z</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_z</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -149,11 +149,11 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"probit"</span>, <span class="st">"cauchit"</span>, <span class="st">"cloglog"</span><span class="op">)</span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">links</span>, <span class="va">links</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Goodness-of-fit comparison</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">gof</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="s3-methods">S3 methods<a class="anchor" aria-label="anchor" href="#s3-methods"></a>
@@ -187,7 +187,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Censoring structure summary</span></span>
-<span><span class="fu"><a href="reference/censoring_summary.html">censoring_summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/brs_cens.html">brs_cens</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -238,19 +238,11 @@
 <div class="section level3">
 <h3 id="interval-construction">Interval construction<a class="anchor" aria-label="anchor" href="#interval-construction"></a>
 </h3>
-<p>Scale observations are mapped to (0, 1) with uncertainty intervals whose width depends on the <code>type</code> parameter:</p>
-<ul>
-<li>
-<code>"m"</code> (midpoint): <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">y_t = y/K</annotation></semantics></math>, interval <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mn>0.5</mn><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mn>0.5</mn><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y_t - 0.5/K,\; y_t + 0.5/K]</annotation></semantics></math>
-</li>
-<li>
-<code>"l"</code> (left): <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">y_t = y/K</annotation></semantics></math>, interval <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mn>1</mn><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y_t,\; y_t + 1/K]</annotation></semantics></math>
-</li>
-<li>
-<code>"r"</code> (right): <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">y_t = y/K</annotation></semantics></math>, interval <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mn>1</mn><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y_t - 1/K,\; y_t]</annotation></semantics></math>
-</li>
-</ul>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math> is the number of scale categories (<code>ncuts</code>).</p>
+<p>Scale observations are mapped to (0, 1) with midpoint uncertainty intervals:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
+</annotation></semantics></math></p>
+<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math> is the number of scale categories (<code>ncuts</code>) and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math> is the half-width (<code>lim</code>, default <code>0.5</code>).</p>
 </div>
 </div>
 <div class="section level2">

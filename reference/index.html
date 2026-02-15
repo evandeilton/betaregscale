@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,47 +42,31 @@
 
       <dl><dt>
 
-          <code><a href="betaregscale.html">betaregscale()</a></code>
+          <code><a href="brs.html">brs()</a></code>
 
         </dt>
         <dd>Fit a beta interval regression model</dd>
 
         <dt>
 
-          <code><a href="betaregscale_fit.html">betaregscale_fit()</a></code>
+          <code><a href="brs_fit_fixed.html">brs_fit_fixed()</a></code>
 
         </dt>
         <dd>Fit a fixed-dispersion beta interval regression model</dd>
 
         <dt>
 
-          <code><a href="betaregscale_fit_z.html">betaregscale_fit_z()</a></code>
+          <code><a href="brs_fit_var.html">brs_fit_var()</a></code>
 
         </dt>
         <dd>Fit a variable-dispersion beta interval regression model</dd>
-      </dl></div><div class="section level2">
-      <h2 id="log-likelihood">Log-Likelihood<a class="anchor" aria-label="anchor" href="#log-likelihood"></a></h2>
-
-      <div class="section-desc"><p>Log-likelihood evaluation for fixed and variable dispersion.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="betaregscale_loglik.html">betaregscale_loglik()</a></code>
-
-        </dt>
-        <dd>Log-likelihood for fixed-dispersion beta interval regression</dd>
 
         <dt>
 
-          <code><a href="betaregscale_loglik_z.html">betaregscale_loglik_z()</a></code>
+          <code><a href="brs_coef.html">brs_coef()</a></code>
 
         </dt>
-        <dd>Log-likelihood for variable-dispersion beta interval regression</dd>
+        <dd>Internal coefficient table (deprecated, use brs_est() or summary())</dd>
       </dl></div><div class="section level2">
       <h2 id="simulation">Simulation<a class="anchor" aria-label="anchor" href="#simulation"></a></h2>
 
@@ -95,21 +79,14 @@
 
       <dl><dt>
 
-          <code><a href="betaregscale_simulate.html">betaregscale_simulate()</a></code>
+          <code><a href="brs_sim.html">brs_sim()</a></code>
 
         </dt>
-        <dd>Simulate data from a fixed-dispersion beta interval model</dd>
-
-        <dt>
-
-          <code><a href="betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code>
-
-        </dt>
-        <dd>Simulate data from a variable-dispersion beta interval model</dd>
+        <dd>Simulate data from beta interval models</dd>
       </dl></div><div class="section level2">
       <h2 id="s-methods">S3 Methods<a class="anchor" aria-label="anchor" href="#s-methods"></a></h2>
 
-      <div class="section-desc"><p>Standard methods for fitted model objects of class betaregscale.</p></div>
+      <div class="section-desc"><p>Standard methods for fitted model objects of class brs.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -118,112 +95,112 @@
 
       <dl><dt>
 
-          <code><a href="coef.betaregscale.html">coef(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="coef.brs.html">coef(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract model coefficients</dd>
 
         <dt>
 
-          <code><a href="vcov.betaregscale.html">vcov(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="vcov.brs.html">vcov(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Variance-covariance matrix of estimated coefficients</dd>
 
         <dt>
 
-          <code><a href="summary.betaregscale.html">summary(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="summary.brs.html">summary(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Summarize a fitted model (betareg style)</dd>
 
         <dt>
 
-          <code><a href="print.betaregscale.html">print(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="print.brs.html">print(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Print a fitted model (brief betareg style)</dd>
 
         <dt>
 
-          <code><a href="print.summary.betaregscale.html">print(<i>&lt;summary.betaregscale&gt;</i>)</a></code>
+          <code><a href="print.summary.brs.html">print(<i>&lt;summary.brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Print a model summary (betareg style)</dd>
 
         <dt>
 
-          <code><a href="logLik.betaregscale.html">logLik(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="logLik.brs.html">logLik(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract log-likelihood</dd>
 
         <dt>
 
-          <code><a href="AIC.betaregscale.html">AIC(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="AIC.brs.html">AIC(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Akaike information criterion</dd>
 
         <dt>
 
-          <code><a href="BIC.betaregscale.html">BIC(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="BIC.brs.html">BIC(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Bayesian information criterion</dd>
 
         <dt>
 
-          <code><a href="nobs.betaregscale.html">nobs(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="nobs.brs.html">nobs(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Number of observations</dd>
 
         <dt>
 
-          <code><a href="formula.betaregscale.html">formula(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="formula.brs.html">formula(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract model formula</dd>
 
         <dt>
 
-          <code><a href="model.matrix.betaregscale.html">model.matrix(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="model.matrix.brs.html">model.matrix(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract design matrix</dd>
 
         <dt>
 
-          <code><a href="fitted.betaregscale.html">fitted(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="fitted.brs.html">fitted(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract fitted values</dd>
 
         <dt>
 
-          <code><a href="residuals.betaregscale.html">residuals(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="residuals.brs.html">residuals(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Extract residuals</dd>
 
         <dt>
 
-          <code><a href="predict.betaregscale.html">predict(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="predict.brs.html">predict(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Predict from a fitted model</dd>
 
         <dt>
 
-          <code><a href="confint.betaregscale.html">confint(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="confint.brs.html">confint(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Wald confidence intervals</dd>
 
         <dt>
 
-          <code><a href="plot.betaregscale.html">plot(<i>&lt;betaregscale&gt;</i>)</a></code>
+          <code><a href="plot.brs.html">plot(<i>&lt;brs&gt;</i>)</a></code>
 
         </dt>
         <dd>Diagnostic plots for beta interval regression</dd>
@@ -239,35 +216,35 @@
 
       <dl><dt>
 
-          <code><a href="censoring_summary.html">censoring_summary()</a></code>
+          <code><a href="brs_cens.html">brs_cens()</a></code>
 
         </dt>
         <dd>Graphical and tabular censoring summary</dd>
 
         <dt>
 
-          <code><a href="est.html">est()</a></code>
+          <code><a href="brs_est.html">brs_est()</a></code>
 
         </dt>
         <dd>Coefficient estimates with inference</dd>
 
         <dt>
 
-          <code><a href="gof.html">gof()</a></code>
+          <code><a href="brs_gof.html">brs_gof()</a></code>
 
         </dt>
         <dd>Goodness-of-fit measures</dd>
 
         <dt>
 
-          <code><a href="hessian_matrix.html">hessian_matrix()</a></code>
+          <code><a href="brs_hessian.html">brs_hessian()</a></code>
 
         </dt>
         <dd>Extract the Hessian matrix</dd>
       </dl></div><div class="section level2">
       <h2 id="data-preparation">Data Preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a></h2>
 
-      <div class="section-desc"><p>Functions for preparing response variables and reparameterization.</p></div>
+      <div class="section-desc"><p>Functions for preparing response data and beta reparameterization.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -276,21 +253,21 @@
 
       <dl><dt>
 
-          <code><a href="bs_prepare.html">bs_prepare()</a></code>
+          <code><a href="brs_prep.html">brs_prep()</a></code>
 
         </dt>
         <dd>Pre-process analyst data for beta interval regression</dd>
 
         <dt>
 
-          <code><a href="check_response.html">check_response()</a></code>
+          <code><a href="brs_check.html">brs_check()</a></code>
 
         </dt>
         <dd>Transform and validate a scale-derived response variable</dd>
 
         <dt>
 
-          <code><a href="beta_reparam.html">beta_reparam()</a></code>
+          <code><a href="brs_repar.html">brs_repar()</a></code>
 
         </dt>
         <dd>Reparameterize (mu, phi) into beta shape parameters</dd>

@@ -33,7 +33,7 @@ library(betaregscale)
 
 The complete likelihood (Lopes, 2024, Eq. 2.24) supports four censoring
 types, automatically classified by
-[`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md):
+[`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
 | $\delta$ | Type                     | Likelihood contribution                                                       |
 |:--------:|:-------------------------|:------------------------------------------------------------------------------|
@@ -49,22 +49,18 @@ $\mu_{i}$ and $\phi_{i}$ via the chosen reparameterization.
 
 ## Interval construction
 
-Scale observations are mapped to $(0,1)$ with uncertainty intervals
-controlled by the `type` argument:
+Scale observations are mapped to $(0,1)$ with midpoint uncertainty
+intervals:
 
-- `"m"` (midpoint): $y_{t} = y/K$, interval
-  $\left\lbrack y_{t} - 0.5/K,\; y_{t} + 0.5/K \right\rbrack$
-- `"l"` (left-aligned): $y_{t} = y/K$, interval
-  $\left\lbrack y_{t},\; y_{t} + 1/K \right\rbrack$
-- `"r"` (right-aligned): $y_{t} = y/K$, interval
-  $\left\lbrack y_{t} - 1/K,\; y_{t} \right\rbrack$
+$$y_{t} = y/K,\quad{\text{interval}\mspace{6mu}}\left\lbrack y_{t} - h/K,\; y_{t} + h/K \right\rbrack$$
 
-where $K$ is the number of scale categories (`ncuts`).
+where $K$ is the number of scale categories (`ncuts`) and $h$ is the
+half-width (`lim`, default 0.5).
 
 ``` r
-# Illustrate check_response with a 0-10 NRS scale
+# Illustrate brs_check with a 0-10 NRS scale
 y_example <- c(0, 3, 5, 7, 10)
-cr <- check_response(y_example, ncuts = 10)
+cr <- brs_check(y_example, ncuts = 10)
 cr
 #>         left   right      yt  y delta
 #> [1,] 0.00001 0.05000 0.00001  0     1
@@ -78,27 +74,27 @@ The `delta` column shows that $y = 0$ is left-censored ($\delta = 1$),
 $y = 10$ is right-censored ($\delta = 2$), and all interior values are
 interval-censored ($\delta = 3$).
 
-## Data preparation with `bs_prepare()`
+## Data preparation with `brs_prep()`
 
 In practice, analysts may want to supply their own censoring indicators
 or interval endpoints rather than relying on the automatic
 classification of
-[`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md).
+[`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
 The
-[`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+[`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
 function provides a flexible, validated bridge between raw analyst data
 and
-[`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md).
+[`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md).
 
 It supports four input modes:
 
 ### Mode 1: Score only (automatic)
 
 ``` r
-# Equivalent to check_response <U+2014> delta inferred from y
+# Equivalent to brs_check - delta inferred from y
 d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
-bs_prepare(d1, ncuts = 10)
-#> bs_prepare: n = 5 | exact = 0, left = 1, right = 1, interval = 3
+brs_prep(d1, ncuts = 10)
+#> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3
 #>      left   right      yt  y delta           x1
 #> 1 0.00001 0.05000 0.00001  0     1 -1.400043517
 #> 2 0.25000 0.35000 0.30000  3     3  0.255317055
@@ -116,9 +112,9 @@ d2 <- data.frame(
   delta = c(0, 1, 2, 3),
   x1    = rnorm(4)
 )
-bs_prepare(d2, ncuts = 100)
+brs_prep(d2, ncuts = 100)
 #> Warning: Observation(s) 3: delta = 2 (right-censored) but y != 100.
-#> bs_prepare: n = 4 | exact = 1, left = 1, right = 1, interval = 1
+#> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
 #>      left   right      yt  y delta         x1
 #> 1 0.50000 0.50000 0.50000 50     0  1.1484116
 #> 2 0.00001 0.00500 0.00001  0     1 -1.8218177
@@ -138,8 +134,8 @@ d3 <- data.frame(
   y     = c(NA, NA, NA, 50),
   x1    = rnorm(4)
 )
-bs_prepare(d3, ncuts = 100)
-#> bs_prepare: n = 4 | exact = 1, left = 1, right = 1, interval = 1
+brs_prep(d3, ncuts = 100)
+#> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
 #>    left   right    yt  y delta         x1
 #> 1 1e-05 0.05000 0.025 NA     1 -0.2827054
 #> 2 2e-01 0.99999 0.600 NA     2 -0.5536994
@@ -159,47 +155,44 @@ d4 <- data.frame(
   right = c(52, 77),
   x1    = rnorm(2)
 )
-bs_prepare(d4, ncuts = 100)
-#> bs_prepare: n = 2 | exact = 0, left = 0, right = 0, interval = 2
+brs_prep(d4, ncuts = 100)
+#> brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2
 #>   left right   yt  y delta         x1
 #> 1 0.48  0.52 0.50 50     3 -1.6309894
 #> 2 0.73  0.77 0.75 75     3  0.5124269
 ```
 
-### Using prepared data with `betaregscale()`
+### Using brs_prep with `brs()`
 
 Data processed by
-[`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+[`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
 is automatically detected by
-[`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md)
-— the internal
-[`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+[`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md) -
+the internal
+[`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
 step is skipped:
 
 ``` r
 set.seed(42)
 n <- 1000
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- betaregscale_simulate(
+sim <- brs_sim(
   formula = ~ x1 + x2, data = dat,
   beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
   link = "logit", link_phi = "logit",
   repar = 2
 )
-prep <- bs_prepare(sim, ncuts = 100)
-#> bs_prepare: n = 1000 | exact = 0, left = 71, right = 106, interval = 823
-fit_prep <- betaregscale(y ~ x1 + x2,
+prep <- brs_prep(sim, ncuts = 100)
+#> brs_prep: n = 1000 | exact = 0, left = 71, right = 106, interval = 823
+fit_prep <- brs(y ~ x1 + x2,
   data = prep, repar = 2,
   link = "logit", link_phi = "logit"
 )
-#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
-#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
-#> future version. Use bs_prepare() to control interval geometry.
 summary(fit_prep)
 #> 
 #> Call:
-#> betaregscale(formula = y ~ x1 + x2, data = prep, link = "logit", 
-#>     link_phi = "logit", repar = 2)
+#> brs(formula = y ~ x1 + x2, data = prep, link = "logit", link_phi = "logit", 
+#>     repar = 2)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
@@ -237,7 +230,7 @@ set.seed(4255)
 n <- 1000
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
 
-sim_fixed <- betaregscale_simulate(
+sim_fixed <- brs_sim(
   formula  = ~ x1 + x2,
   data     = dat,
   beta     = c(0.3, -0.6, 0.4),
@@ -245,12 +238,8 @@ sim_fixed <- betaregscale_simulate(
   link     = "logit",
   link_phi = "logit",
   ncuts    = 100,
-  type     = "m",
   repar    = 2
 )
-#> Warning in betaregscale_simulate(formula = ~x1 + x2, data = dat, beta = c(0.3,
-#> : The 'type' argument of betaregscale_simulate() is deprecated and will be
-#> removed in a future version. Use bs_prepare() to control interval geometry.
 
 head(sim_fixed)
 #>      left right      yt  y delta          x1         x2
@@ -262,27 +251,24 @@ head(sim_fixed)
 #> 6 0.06500 0.075 0.07000  7     3  0.36002855 -1.0115571
 ```
 
-The default midpoint interval type means that each observation is
-centered in its interval. For example, a score of 67 on a 0–100 scale
-yields $y_{t} = 0.67$ with interval $\lbrack 0.665,0.675\rbrack$.
+Each observation is centered in its interval. For example, a score of 67
+on a 0–100 scale yields $y_{t} = 0.67$ with interval
+$\lbrack 0.665,0.675\rbrack$.
 
 ### Fitting the model
 
 ``` r
-fit_fixed <- betaregscale(
+fit_fixed <- brs(
   y ~ x1 + x2,
   data     = sim_fixed,
   link     = "logit",
   link_phi = "logit",
   repar    = 2
 )
-#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
-#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
-#> future version. Use bs_prepare() to control interval geometry.
 summary(fit_fixed)
 #> 
 #> Call:
-#> betaregscale(formula = y ~ x1 + x2, data = sim_fixed, link = "logit", 
+#> brs(formula = y ~ x1 + x2, data = sim_fixed, link = "logit", 
 #>     link_phi = "logit", repar = 2)
 #> 
 #> Quantile residuals:
@@ -316,7 +302,7 @@ z-tests and $p$-values based on the standard normal distribution.
 ### Goodness of fit
 
 ``` r
-gof(fit_fixed)
+brs_gof(fit_fixed)
 #>      logLik      AIC      BIC pseudo_r2
 #> 1 -4035.226 8078.452 8098.083  0.239315
 ```
@@ -329,24 +315,12 @@ can compare them using information criteria:
 ``` r
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits <- lapply(setNames(links, links), function(lnk) {
-  betaregscale(y ~ x1 + x2, data = sim_fixed, link = lnk, repar = 2)
+  brs(y ~ x1 + x2, data = sim_fixed, link = lnk, repar = 2)
 })
-#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
-#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
-#> future version. Use bs_prepare() to control interval geometry.
-#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
-#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
-#> future version. Use bs_prepare() to control interval geometry.
-#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
-#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
-#> future version. Use bs_prepare() to control interval geometry.
-#> Warning in betaregscale_fit(formula = formula, data = data, link = link, : The
-#> 'type' argument of betaregscale_fit() is deprecated and will be removed in a
-#> future version. Use bs_prepare() to control interval geometry.
 
 # Estimates
 est_table <- do.call(rbind, lapply(names(fits), function(lnk) {
-  e <- est(fits[[lnk]])
+  e <- brs_est(fits[[lnk]])
   e$link <- lnk
   e
 }))
@@ -387,7 +361,7 @@ est_table
 #> 16  0.1993758 cloglog
 
 # Goodness of fit
-gof_table <- do.call(rbind, lapply(fits, gof))
+gof_table <- do.call(rbind, lapply(fits, brs_gof))
 gof_table
 #>            logLik      AIC      BIC pseudo_r2
 #> logit   -4035.226 8078.452 8098.083 0.2393150
@@ -458,12 +432,12 @@ confint(fit_fixed, model = "mean")
 ### Censoring structure
 
 The
-[`censoring_summary()`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md)
+[`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
 function provides a visual and tabular overview of the censoring types
 in the fitted model:
 
 ``` r
-censoring_summary(fit_fixed)
+brs_cens(fit_fixed)
 ```
 
 ![](betaregscale_files/figure-html/censoring-summary-1.png)
@@ -473,7 +447,10 @@ censoring_summary(fit_fixed)
 In many applications, the dispersion parameter $\phi$ may depend on
 covariates. The package supports variable-dispersion models using the
 `Formula` package notation: `y ~ x1 + x2 | z1 + z2`, where the terms
-after `|` define the linear predictor for $\phi$.
+after `|` define the linear predictor for $\phi$. The same
+[`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+function is used for fixed and variable dispersion; the second formula
+part activates the precision submodel in simulation.
 
 ### Simulating data
 
@@ -488,9 +465,8 @@ dat_z <- data.frame(
   z2 = rnorm(n)
 )
 
-sim_var <- betaregscale_simulate_z(
-  formula_x = ~ x1 + x2 + x3,
-  formula_z = ~ z1 + z2,
+sim_var <- brs_sim(
+  formula = ~ x1 + x2 + x3 | z1 + z2,
   data = dat_z,
   beta = c(0.2, -0.6, 0.2, 0.2),
   zeta = c(0.2, -0.8, 0.6),
@@ -520,20 +496,17 @@ head(sim_var)
 ### Fitting the model
 
 ``` r
-fit_var <- betaregscale(
+fit_var <- brs(
   y ~ x1 + x2 | z1,
   data     = sim_var,
   link     = "logit",
   link_phi = "logit",
   repar    = 2
 )
-#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
-#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
-#> in a future version. Use bs_prepare() to control interval geometry.
 summary(fit_var)
 #> 
 #> Call:
-#> betaregscale(formula = y ~ x1 + x2 | z1, data = sim_var, link = "logit", 
+#> brs(formula = y ~ x1 + x2 | z1, data = sim_var, link = "logit", 
 #>     link_phi = "logit", repar = 2)
 #> 
 #> Quantile residuals:
@@ -597,24 +570,12 @@ vcov(fit_var, model = "mean")
 ``` r
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits_var <- lapply(setNames(links, links), function(lnk) {
-  betaregscale(y ~ x1 + x2 | z1, data = sim_var, link = lnk, repar = 2)
+  brs(y ~ x1 + x2 | z1, data = sim_var, link = lnk, repar = 2)
 })
-#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
-#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
-#> in a future version. Use bs_prepare() to control interval geometry.
-#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
-#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
-#> in a future version. Use bs_prepare() to control interval geometry.
-#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
-#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
-#> in a future version. Use bs_prepare() to control interval geometry.
-#> Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :
-#> The 'type' argument of betaregscale_fit_z() is deprecated and will be removed
-#> in a future version. Use bs_prepare() to control interval geometry.
 
 # Estimates
 est_var <- do.call(rbind, lapply(names(fits_var), function(lnk) {
-  e <- est(fits_var[[lnk]])
+  e <- brs_est(fits_var[[lnk]])
   e$link <- lnk
   e
 }))
@@ -663,7 +624,7 @@ est_var
 #> 20 -0.6358559 cloglog
 
 # Goodness of fit
-gof_var <- do.call(rbind, lapply(fits_var, gof))
+gof_var <- do.call(rbind, lapply(fits_var, brs_gof))
 gof_var
 #>            logLik      AIC      BIC  pseudo_r2
 #> logit   -3922.243 7854.486 7879.025 0.11589802
@@ -683,7 +644,7 @@ plot(fit_var)
 ## S3 methods reference
 
 The following standard S3 methods are available for objects of class
-`"betaregscale"`:
+`"brs"`:
 
 | Method                                                                                   | Description                                                |
 |:-----------------------------------------------------------------------------------------|:-----------------------------------------------------------|
@@ -721,12 +682,12 @@ variation: smaller $\phi$ means less variability.
 
 ``` r
 # Precision parameterization: mu = 0.5, phi = 10 (high precision)
-beta_reparam(mu = 0.5, phi = 10, repar = 1)
+brs_repar(mu = 0.5, phi = 10, repar = 1)
 #>   shape1 shape2
 #> 1      5      5
 
 # Mean-variance parameterization: mu = 0.5, phi = 0.1 (low dispersion)
-beta_reparam(mu = 0.5, phi = 0.1, repar = 2)
+brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 #>   shape1 shape2
 #> 1    4.5    4.5
 ```

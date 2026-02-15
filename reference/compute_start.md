@@ -13,7 +13,6 @@ compute_start(
   link = "logit",
   link_phi = "logit",
   ncuts = 100L,
-  type = "m",
   lim = 0.5
 )
 ```
@@ -40,10 +39,6 @@ compute_start(
 - ncuts:
 
   Number of scale categories.
-
-- type:
-
-  Interval type.
 
 - lim:
 

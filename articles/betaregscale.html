@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,7 +100,7 @@ dataset.</p>
 </h2>
 <p>The complete likelihood (Lopes, 2024, Eq. 2.24) supports four
 censoring types, automatically classified by
-<code><a href="../reference/check_response.html">check_response()</a></code>:</p>
+<code><a href="../reference/brs_check.html">brs_check()</a></code>:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="center"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math></th>
@@ -151,35 +151,17 @@ via the chosen reparameterization.</p>
 </h2>
 <p>Scale observations are mapped to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>
-with uncertainty intervals controlled by the <code>type</code>
-argument:</p>
-<ul>
-<li>
-<code>"m"</code> (midpoint):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">y_t = y/K</annotation></semantics></math>,
-interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mn>0.5</mn><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mn>0.5</mn><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y_t - 0.5/K,\; y_t + 0.5/K]</annotation></semantics></math>
-</li>
-<li>
-<code>"l"</code> (left-aligned):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">y_t = y/K</annotation></semantics></math>,
-interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mn>1</mn><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y_t,\; y_t + 1/K]</annotation></semantics></math>
-</li>
-<li>
-<code>"r"</code> (right-aligned):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">y_t = y/K</annotation></semantics></math>,
-interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mn>1</mn><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y_t - 1/K,\; y_t]</annotation></semantics></math>
-</li>
-</ul>
+with midpoint uncertainty intervals:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]</annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
-is the number of scale categories (<code>ncuts</code>).</p>
+is the number of scale categories (<code>ncuts</code>) and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+is the half-width (<code>lim</code>, default 0.5).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Illustrate check_response with a 0-10 NRS scale</span></span>
+<code class="sourceCode R"><span><span class="co"># Illustrate brs_check with a 0-10 NRS scale</span></span>
 <span><span class="va">y_example</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_response.html">check_response</a></span><span class="op">(</span><span class="va">y_example</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_check.html">brs_check</a></span><span class="op">(</span><span class="va">y_example</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">cr</span></span>
 <span><span class="co">#&gt;         left   right      yt  y delta</span></span>
 <span><span class="co">#&gt; [1,] 0.00001 0.05000 0.00001  0     1</span></span>
@@ -198,22 +180,22 @@ and all interior values are interval-censored
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\delta = 3</annotation></semantics></math>).</p>
 </div>
 <div class="section level2">
-<h2 id="data-preparation-with-bs_prepare">Data preparation with <code>bs_prepare()</code><a class="anchor" aria-label="anchor" href="#data-preparation-with-bs_prepare"></a>
+<h2 id="data-preparation-with-brs_prep">Data preparation with <code>brs_prep()</code><a class="anchor" aria-label="anchor" href="#data-preparation-with-brs_prep"></a>
 </h2>
 <p>In practice, analysts may want to supply their own censoring
 indicators or interval endpoints rather than relying on the automatic
-classification of <code><a href="../reference/check_response.html">check_response()</a></code>. The
-<code><a href="../reference/bs_prepare.html">bs_prepare()</a></code> function provides a flexible, validated bridge
-between raw analyst data and <code><a href="../reference/betaregscale.html">betaregscale()</a></code>.</p>
+classification of <code><a href="../reference/brs_check.html">brs_check()</a></code>. The <code><a href="../reference/brs_prep.html">brs_prep()</a></code>
+function provides a flexible, validated bridge between raw analyst data
+and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <p>It supports four input modes:</p>
 <div class="section level3">
 <h3 id="mode-1-score-only-automatic">Mode 1: Score only (automatic)<a class="anchor" aria-label="anchor" href="#mode-1-score-only-automatic"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Equivalent to check_response &lt;U+2014&gt; delta inferred from y</span></span>
+<code class="sourceCode R"><span><span class="co"># Equivalent to brs_check - delta inferred from y</span></span>
 <span><span class="va">d1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/bs_prepare.html">bs_prepare</a></span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bs_prepare: n = 5 | exact = 0, left = 1, right = 1, interval = 3</span></span>
+<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt; brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3</span></span>
 <span><span class="co">#&gt;      left   right      yt  y delta           x1</span></span>
 <span><span class="co">#&gt; 1 0.00001 0.05000 0.00001  0     1 -1.400043517</span></span>
 <span><span class="co">#&gt; 2 0.25000 0.35000 0.30000  3     3  0.255317055</span></span>
@@ -231,9 +213,9 @@ between raw analyst data and <code><a href="../reference/betaregscale.html">beta
 <span>  delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/bs_prepare.html">bs_prepare</a></span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Observation(s) 3: delta = 2 (right-censored) but y != 100.</span></span>
-<span><span class="co">#&gt; bs_prepare: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span></span>
+<span><span class="co">#&gt; brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span></span>
 <span><span class="co">#&gt;      left   right      yt  y delta         x1</span></span>
 <span><span class="co">#&gt; 1 0.50000 0.50000 0.50000 50     0  1.1484116</span></span>
 <span><span class="co">#&gt; 2 0.00001 0.00500 0.00001  0     1 -1.8218177</span></span>
@@ -252,8 +234,8 @@ columns, censoring is inferred from the NA pattern:</p>
 <span>  y     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">50</span><span class="op">)</span>,</span>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/bs_prepare.html">bs_prepare</a></span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bs_prepare: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span></span>
+<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="co">#&gt; brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span></span>
 <span><span class="co">#&gt;    left   right    yt  y delta         x1</span></span>
 <span><span class="co">#&gt; 1 1e-05 0.05000 0.025 NA     1 -0.2827054</span></span>
 <span><span class="co">#&gt; 2 2e-01 0.99999 0.600 NA     2 -0.5536994</span></span>
@@ -274,42 +256,39 @@ columns, censoring is inferred from the NA pattern:</p>
 <span>  right <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">52</span>, <span class="fl">77</span><span class="op">)</span>,</span>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/bs_prepare.html">bs_prepare</a></span><span class="op">(</span><span class="va">d4</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bs_prepare: n = 2 | exact = 0, left = 0, right = 0, interval = 2</span></span>
+<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d4</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="co">#&gt; brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2</span></span>
 <span><span class="co">#&gt;   left right   yt  y delta         x1</span></span>
 <span><span class="co">#&gt; 1 0.48  0.52 0.50 50     3 -1.6309894</span></span>
 <span><span class="co">#&gt; 2 0.73  0.77 0.75 75     3  0.5124269</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="using-prepared-data-with-betaregscale">Using prepared data with <code>betaregscale()</code><a class="anchor" aria-label="anchor" href="#using-prepared-data-with-betaregscale"></a>
+<h3 id="using-brs_prep-with-brs">Using brs_prep with <code>brs()</code><a class="anchor" aria-label="anchor" href="#using-brs_prep-with-brs"></a>
 </h3>
-<p>Data processed by <code><a href="../reference/bs_prepare.html">bs_prepare()</a></code> is automatically detected
-by <code><a href="../reference/betaregscale.html">betaregscale()</a></code> — the internal
-<code><a href="../reference/check_response.html">check_response()</a></code> step is skipped:</p>
+<p>Data processed by <code><a href="../reference/brs_prep.html">brs_prep()</a></code> is automatically detected
+by <code><a href="../reference/brs.html">brs()</a></code> - the internal <code><a href="../reference/brs_check.html">brs_check()</a></code> step is
+skipped:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale_simulate.html">betaregscale_simulate</a></span><span class="op">(</span></span>
+<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">dat</span>,</span>
 <span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">5</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bs_prepare.html">bs_prepare</a></span><span class="op">(</span><span class="va">sim</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bs_prepare: n = 1000 | exact = 0, left = 71, right = 106, interval = 823</span></span>
-<span><span class="va">fit_prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
+<span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">sim</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="co">#&gt; brs_prep: n = 1000 | exact = 0, left = 71, right = 106, interval = 823</span></span>
+<span><span class="va">fit_prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">prep</span>, repar <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit(formula = formula, data = data, link = link, : The</span></span>
-<span><span class="co">#&gt; 'type' argument of betaregscale_fit() is deprecated and will be removed in a</span></span>
-<span><span class="co">#&gt; future version. Use bs_prepare() to control interval geometry.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_prep</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; betaregscale(formula = y ~ x1 + x2, data = prep, link = "logit", </span></span>
-<span><span class="co">#&gt;     link_phi = "logit", repar = 2)</span></span>
+<span><span class="co">#&gt; brs(formula = y ~ x1 + x2, data = prep, link = "logit", link_phi = "logit", </span></span>
+<span><span class="co">#&gt;     repar = 2)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
@@ -348,7 +327,7 @@ dispersion, two covariates, and logit link for the mean.</p>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sim_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale_simulate.html">betaregscale_simulate</a></span><span class="op">(</span></span>
+<span><span class="va">sim_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
 <span>  formula  <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data     <span class="op">=</span> <span class="va">dat</span>,</span>
 <span>  beta     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
@@ -356,12 +335,8 @@ dispersion, two covariates, and logit link for the mean.</p>
 <span>  link     <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  ncuts    <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  type     <span class="op">=</span> <span class="st">"m"</span>,</span>
 <span>  repar    <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_simulate(formula = ~x1 + x2, data = dat, beta = c(0.3,</span></span>
-<span><span class="co">#&gt; : The 'type' argument of betaregscale_simulate() is deprecated and will be</span></span>
-<span><span class="co">#&gt; removed in a future version. Use bs_prepare() to control interval geometry.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_fixed</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      left right      yt  y delta          x1         x2</span></span>
@@ -371,9 +346,8 @@ dispersion, two covariates, and logit link for the mean.</p>
 <span><span class="co">#&gt; 4 0.57500 0.585 0.58000 58     3  0.04873961 -0.4923176</span></span>
 <span><span class="co">#&gt; 5 0.09500 0.105 0.10000 10     3 -0.54450108 -1.4098059</span></span>
 <span><span class="co">#&gt; 6 0.06500 0.075 0.07000  7     3  0.36002855 -1.0115571</span></span></code></pre></div>
-<p>The default midpoint interval type means that each observation is
-centered in its interval. For example, a score of 67 on a 0–100 scale
-yields
+<p>Each observation is centered in its interval. For example, a score of
+67 on a 0–100 scale yields
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mn>0.67</mn></mrow><annotation encoding="application/x-tex">y_t = 0.67</annotation></semantics></math>
 with interval
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.665</mn><mo>,</mo><mn>0.675</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.665, 0.675]</annotation></semantics></math>.</p>
@@ -382,20 +356,17 @@ with interval
 <h3 id="fitting-the-model">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model"></a>
 </h3>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale.html">betaregscale</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">fit_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data     <span class="op">=</span> <span class="va">sim_fixed</span>,</span>
 <span>  link     <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  repar    <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit(formula = formula, data = data, link = link, : The</span></span>
-<span><span class="co">#&gt; 'type' argument of betaregscale_fit() is deprecated and will be removed in a</span></span>
-<span><span class="co">#&gt; future version. Use bs_prepare() to control interval geometry.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; betaregscale(formula = y ~ x1 + x2, data = sim_fixed, link = "logit", </span></span>
+<span><span class="co">#&gt; brs(formula = y ~ x1 + x2, data = sim_fixed, link = "logit", </span></span>
 <span><span class="co">#&gt;     link_phi = "logit", repar = 2)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
@@ -430,7 +401,7 @@ based on the standard normal distribution.</p>
 <h3 id="goodness-of-fit">Goodness of fit<a class="anchor" aria-label="anchor" href="#goodness-of-fit"></a>
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/gof.html">gof</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_gof.html">brs_gof</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      logLik      AIC      BIC pseudo_r2</span></span>
 <span><span class="co">#&gt; 1 -4035.226 8078.452 8098.083  0.239315</span></span></code></pre></div>
 </div>
@@ -442,24 +413,12 @@ can compare them using information criteria:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"probit"</span>, <span class="st">"cauchit"</span>, <span class="st">"cloglog"</span><span class="op">)</span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">links</span>, <span class="va">links</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim_fixed</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim_fixed</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit(formula = formula, data = data, link = link, : The</span></span>
-<span><span class="co">#&gt; 'type' argument of betaregscale_fit() is deprecated and will be removed in a</span></span>
-<span><span class="co">#&gt; future version. Use bs_prepare() to control interval geometry.</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit(formula = formula, data = data, link = link, : The</span></span>
-<span><span class="co">#&gt; 'type' argument of betaregscale_fit() is deprecated and will be removed in a</span></span>
-<span><span class="co">#&gt; future version. Use bs_prepare() to control interval geometry.</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit(formula = formula, data = data, link = link, : The</span></span>
-<span><span class="co">#&gt; 'type' argument of betaregscale_fit() is deprecated and will be removed in a</span></span>
-<span><span class="co">#&gt; future version. Use bs_prepare() to control interval geometry.</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit(formula = formula, data = data, link = link, : The</span></span>
-<span><span class="co">#&gt; 'type' argument of betaregscale_fit() is deprecated and will be removed in a</span></span>
-<span><span class="co">#&gt; future version. Use bs_prepare() to control interval geometry.</span></span>
 <span></span>
 <span><span class="co"># Estimates</span></span>
 <span><span class="va">est_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est.html">est</a></span><span class="op">(</span><span class="va">fits</span><span class="op">[[</span><span class="va">lnk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_est.html">brs_est</a></span><span class="op">(</span><span class="va">fits</span><span class="op">[[</span><span class="va">lnk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="va">e</span><span class="op">$</span><span class="va">link</span> <span class="op">&lt;-</span> <span class="va">lnk</span></span>
 <span>  <span class="va">e</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
@@ -500,7 +459,7 @@ can compare them using information criteria:</p>
 <span><span class="co">#&gt; 16  0.1993758 cloglog</span></span>
 <span></span>
 <span><span class="co"># Goodness of fit</span></span>
-<span><span class="va">gof_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">gof</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">gof_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gof_table</span></span>
 <span><span class="co">#&gt;            logLik      AIC      BIC pseudo_r2</span></span>
 <span><span class="co">#&gt; logit   -4035.226 8078.452 8098.083 0.2393150</span></span>
@@ -565,10 +524,10 @@ approximation:</p>
 <div class="section level3">
 <h3 id="censoring-structure">Censoring structure<a class="anchor" aria-label="anchor" href="#censoring-structure"></a>
 </h3>
-<p>The <code><a href="../reference/censoring_summary.html">censoring_summary()</a></code> function provides a visual and
-tabular overview of the censoring types in the fitted model:</p>
+<p>The <code><a href="../reference/brs_cens.html">brs_cens()</a></code> function provides a visual and tabular
+overview of the censoring types in the fitted model:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/censoring_summary.html">censoring_summary</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_cens.html">brs_cens</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
 <p><img src="betaregscale_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 </div>
@@ -581,7 +540,10 @@ may depend on covariates. The package supports variable-dispersion
 models using the <code>Formula</code> package notation:
 <code>y ~ x1 + x2 | z1 + z2</code>, where the terms after <code>|</code>
 define the linear predictor for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>.
+The same <code><a href="../reference/brs_sim.html">brs_sim()</a></code> function is used for fixed and variable
+dispersion; the second formula part activates the precision submodel in
+simulation.</p>
 <div class="section level3">
 <h3 id="simulating-data-1">Simulating data<a class="anchor" aria-label="anchor" href="#simulating-data-1"></a>
 </h3>
@@ -596,9 +558,8 @@ define the linear predictor for
 <span>  z2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sim_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale_simulate_z.html">betaregscale_simulate_z</a></span><span class="op">(</span></span>
-<span>  formula_x <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span>,</span>
-<span>  formula_z <span class="op">=</span> <span class="op">~</span> <span class="va">z1</span> <span class="op">+</span> <span class="va">z2</span>,</span>
+<span><span class="va">sim_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span> <span class="op">|</span> <span class="va">z1</span> <span class="op">+</span> <span class="va">z2</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">dat_z</span>,</span>
 <span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.6</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span><span class="op">)</span>,</span>
 <span>  zeta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.8</span>, <span class="fl">0.6</span><span class="op">)</span>,</span>
@@ -628,20 +589,17 @@ define the linear predictor for
 <h3 id="fitting-the-model-1">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model-1"></a>
 </h3>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/betaregscale.html">betaregscale</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">fit_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>  data     <span class="op">=</span> <span class="va">sim_var</span>,</span>
 <span>  link     <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  repar    <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :</span></span>
-<span><span class="co">#&gt; The 'type' argument of betaregscale_fit_z() is deprecated and will be removed</span></span>
-<span><span class="co">#&gt; in a future version. Use bs_prepare() to control interval geometry.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt; betaregscale(formula = y ~ x1 + x2 | z1, data = sim_var, link = "logit", </span></span>
+<span><span class="co">#&gt; brs(formula = y ~ x1 + x2 | z1, data = sim_var, link = "logit", </span></span>
 <span><span class="co">#&gt;     link_phi = "logit", repar = 2)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
@@ -704,24 +662,12 @@ names, following the <code>betareg</code> convention.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"probit"</span>, <span class="st">"cauchit"</span>, <span class="st">"cloglog"</span><span class="op">)</span></span>
 <span><span class="va">fits_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">links</span>, <span class="va">links</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/betaregscale.html">betaregscale</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim_var</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim_var</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :</span></span>
-<span><span class="co">#&gt; The 'type' argument of betaregscale_fit_z() is deprecated and will be removed</span></span>
-<span><span class="co">#&gt; in a future version. Use bs_prepare() to control interval geometry.</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :</span></span>
-<span><span class="co">#&gt; The 'type' argument of betaregscale_fit_z() is deprecated and will be removed</span></span>
-<span><span class="co">#&gt; in a future version. Use bs_prepare() to control interval geometry.</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :</span></span>
-<span><span class="co">#&gt; The 'type' argument of betaregscale_fit_z() is deprecated and will be removed</span></span>
-<span><span class="co">#&gt; in a future version. Use bs_prepare() to control interval geometry.</span></span>
-<span><span class="co">#&gt; Warning in betaregscale_fit_z(formula = formula, data = data, link = link, :</span></span>
-<span><span class="co">#&gt; The 'type' argument of betaregscale_fit_z() is deprecated and will be removed</span></span>
-<span><span class="co">#&gt; in a future version. Use bs_prepare() to control interval geometry.</span></span>
 <span></span>
 <span><span class="co"># Estimates</span></span>
 <span><span class="va">est_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fits_var</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/est.html">est</a></span><span class="op">(</span><span class="va">fits_var</span><span class="op">[[</span><span class="va">lnk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_est.html">brs_est</a></span><span class="op">(</span><span class="va">fits_var</span><span class="op">[[</span><span class="va">lnk</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="va">e</span><span class="op">$</span><span class="va">link</span> <span class="op">&lt;-</span> <span class="va">lnk</span></span>
 <span>  <span class="va">e</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
@@ -770,7 +716,7 @@ names, following the <code>betareg</code> convention.</p>
 <span><span class="co">#&gt; 20 -0.6358559 cloglog</span></span>
 <span></span>
 <span><span class="co"># Goodness of fit</span></span>
-<span><span class="va">gof_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits_var</span>, <span class="va">gof</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">gof_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits_var</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">gof_var</span></span>
 <span><span class="co">#&gt;            logLik      AIC      BIC  pseudo_r2</span></span>
 <span><span class="co">#&gt; logit   -3922.243 7854.486 7879.025 0.11589802</span></span>
@@ -790,7 +736,7 @@ names, following the <code>betareg</code> convention.</p>
 <h2 id="s3-methods-reference">S3 methods reference<a class="anchor" aria-label="anchor" href="#s3-methods-reference"></a>
 </h2>
 <p>The following standard S3 methods are available for objects of class
-<code>"betaregscale"</code>:</p>
+<code>"brs"</code>:</p>
 <table class="table">
 <colgroup>
 <col width="40%">
@@ -903,12 +849,12 @@ acts as a coefficient of variation: smaller
 means less variability.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Precision parameterization: mu = 0.5, phi = 10 (high precision)</span></span>
-<span><span class="fu"><a href="../reference/beta_reparam.html">beta_reparam</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">0.5</span>, phi <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">0.5</span>, phi <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   shape1 shape2</span></span>
 <span><span class="co">#&gt; 1      5      5</span></span>
 <span></span>
 <span><span class="co"># Mean-variance parameterization: mu = 0.5, phi = 0.1 (low dispersion)</span></span>
-<span><span class="fu"><a href="../reference/beta_reparam.html">beta_reparam</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">0.5</span>, phi <span class="op">=</span> <span class="fl">0.1</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">0.5</span>, phi <span class="op">=</span> <span class="fl">0.1</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   shape1 shape2</span></span>
 <span><span class="co">#&gt; 1    4.5    4.5</span></span></code></pre></div>
 </div>

@@ -12,49 +12,38 @@ numerically stable, high-performance log-likelihood evaluation.
 
 ## Main functions
 
-- [`betaregscale`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md):
+- [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md):
 
   Unified fitting interface for both fixed- and variable-dispersion
   models.
 
-- [`betaregscale_fit`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit.md):
+- [`brs_fit_fixed`](https://evandeilton.github.io/betaregscale/reference/brs_fit_fixed.md):
 
   Fit a fixed-dispersion model.
 
-- [`betaregscale_fit_z`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit_z.md):
+- [`brs_fit_var`](https://evandeilton.github.io/betaregscale/reference/brs_fit_var.md):
 
   Fit a variable-dispersion model.
 
-- [`betaregscale_loglik`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.md):
+- [`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md):
 
-  Compute the log-likelihood (fixed dispersion).
+  Simulate interval-censored data from fixed or variable-dispersion beta
+  models.
 
-- [`betaregscale_loglik_z`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik_z.md):
-
-  Compute the log-likelihood (variable dispersion).
-
-- [`betaregscale_simulate`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md):
-
-  Simulate interval-censored data from a fixed-dispersion beta model.
-
-- [`betaregscale_simulate_z`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md):
-
-  Simulate data from a variable-dispersion beta model.
-
-- [`censoring_summary`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md):
+- [`brs_cens`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md):
 
   Visual and tabular summary of censoring structure.
 
-- [`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md):
+- [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md):
 
   Pre-process analyst data (validate, classify censoring, and rescale)
   before model fitting.
 
 ## S3 methods
 
-Objects of class `"betaregscale"` support: `print`, `summary`, `coef`,
-`vcov`, `logLik`, `AIC`, `BIC`, `nobs`, `formula`, `model.matrix`,
-`fitted`, `residuals`, `predict`, `confint`, and `plot`.
+Objects of class `"brs"` support: `print`, `summary`, `coef`, `vcov`,
+`logLik`, `AIC`, `BIC`, `nobs`, `formula`, `model.matrix`, `fitted`,
+`residuals`, `predict`, `confint`, and `plot`.
 
 The [`coef()`](https://rdrr.io/r/stats/coef.html) and
 [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods accept a
@@ -65,7 +54,7 @@ package convention.
 
 The complete likelihood (Lopes, 2024, Eq. 2.24) supports four censoring
 types, classified automatically by
-[`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md):
+[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
 - \\\delta = 0\\ (exact):
 

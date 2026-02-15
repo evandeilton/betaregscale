@@ -25,7 +25,7 @@ high-performance log-likelihood evaluation."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,37 +68,25 @@ high-performance log-likelihood evaluation.</p>
     <h2 id="main-functions">Main functions<a class="anchor" aria-label="anchor" href="#main-functions"></a></h2>
 
 
-<dl><dt><code><a href="betaregscale.html">betaregscale</a></code></dt>
+<dl><dt><code><a href="brs.html">brs</a></code></dt>
 <dd><p>Unified fitting interface for both
     fixed- and variable-dispersion models.</p></dd>
 
-  <dt><code><a href="betaregscale_fit.html">betaregscale_fit</a></code></dt>
+  <dt><code><a href="brs_fit_fixed.html">brs_fit_fixed</a></code></dt>
 <dd><p>Fit a fixed-dispersion model.</p></dd>
 
-  <dt><code><a href="betaregscale_fit_z.html">betaregscale_fit_z</a></code></dt>
+  <dt><code><a href="brs_fit_var.html">brs_fit_var</a></code></dt>
 <dd><p>Fit a variable-dispersion model.</p></dd>
 
-  <dt><code><a href="betaregscale_loglik.html">betaregscale_loglik</a></code></dt>
-<dd><p>Compute the log-likelihood
-    (fixed dispersion).</p></dd>
-
-  <dt><code><a href="betaregscale_loglik_z.html">betaregscale_loglik_z</a></code></dt>
-<dd><p>Compute the log-likelihood
-    (variable dispersion).</p></dd>
-
-  <dt><code><a href="betaregscale_simulate.html">betaregscale_simulate</a></code></dt>
+  <dt><code><a href="brs_sim.html">brs_sim</a></code></dt>
 <dd><p>Simulate interval-censored
-    data from a fixed-dispersion beta model.</p></dd>
+    data from fixed or variable-dispersion beta models.</p></dd>
 
-  <dt><code><a href="betaregscale_simulate_z.html">betaregscale_simulate_z</a></code></dt>
-<dd><p>Simulate data from a
-    variable-dispersion beta model.</p></dd>
-
-  <dt><code><a href="censoring_summary.html">censoring_summary</a></code></dt>
+  <dt><code><a href="brs_cens.html">brs_cens</a></code></dt>
 <dd><p>Visual and tabular summary of
     censoring structure.</p></dd>
 
-  <dt><code><a href="bs_prepare.html">bs_prepare</a></code></dt>
+  <dt><code><a href="brs_prep.html">brs_prep</a></code></dt>
 <dd><p>Pre-process analyst data (validate,
     classify censoring, and rescale) before model fitting.</p></dd>
 
@@ -108,7 +96,7 @@ high-performance log-likelihood evaluation.</p>
     <h2 id="s-methods">S3 methods<a class="anchor" aria-label="anchor" href="#s-methods"></a></h2>
 
 
-<p>Objects of class <code>"betaregscale"</code> support: <code>print</code>,
+<p>Objects of class <code>"brs"</code> support: <code>print</code>,
 <code>summary</code>, <code>coef</code>, <code>vcov</code>, <code>logLik</code>, <code>AIC</code>,
 <code>BIC</code>, <code>nobs</code>, <code>formula</code>, <code>model.matrix</code>,
 <code>fitted</code>, <code>residuals</code>, <code>predict</code>, <code>confint</code>,
@@ -123,7 +111,7 @@ the <span class="pkg">betareg</span> package convention.</p>
 
 <p>The complete likelihood (Lopes, 2024, Eq. 2.24) supports four
 censoring types, classified automatically by
-<code><a href="check_response.html">check_response</a></code>:</p><dl><dt>\(\delta = 0\) (exact)</dt>
+<code><a href="brs_check.html">brs_check</a></code>:</p><dl><dt>\(\delta = 0\) (exact)</dt>
 <dd><p>Continuous observations in (0, 1).</p></dd>
 
   <dt>\(\delta = 1\) (left-censored)</dt>

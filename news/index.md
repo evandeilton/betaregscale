@@ -1,40 +1,128 @@
 # Changelog
 
+## betaregscale 2.4.0
+
+### Breaking changes
+
+- `brs_sim_var()` is no longer exported. Variable-dispersion simulation
+  is now done through
+  [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  using a two-part formula (for example, `~ x1 + x2 | z1 + z2`).
+- `brs_loglik()` and `brs_loglik_var()` are now internal helpers and are
+  no longer part of the user-facing API.
+
+### New features
+
+- [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  is now the single simulation entry point for both fixed- and
+  variable-dispersion models, with formula semantics aligned to
+  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md).
+
+### Improvements
+
+- Release documentation was updated to reflect the consolidated
+  simulation API and current exported function set.
+- [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  consistency warnings are emitted once per call on final prepared
+  output, improving test stability and warning capture behavior.
+
+------------------------------------------------------------------------
+
+## betaregscale 2.3.0
+
+### Breaking changes
+
+- **API Overhaul**: All exported functions have been renamed to use the
+  compact `brs_` prefix for consistency and ease of typing.
+  - [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md)
+    -\>
+    [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+  - `betaregscale_fit()` -\>
+    [`brs_fit_fixed()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_fixed.md)
+  - `betaregscale_fit_z()` -\>
+    [`brs_fit_var()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_var.md)
+  - `betaregscale_loglik()` -\> `brs_loglik()`
+  - `betaregscale_loglik_z()` -\> `brs_loglik_var()`
+  - `betaregscale_simulate()` -\>
+    [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  - `betaregscale_simulate_z()` -\> `brs_sim_var()`
+  - `prepare_data()` -\>
+    [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  - `check_response()` -\>
+    [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
+  - `censoring_summary()` -\>
+    [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
+  - `beta_reparam()` -\>
+    [`brs_repar()`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md)
+  - `gof()` -\>
+    [`brs_gof()`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md)
+  - `est()` -\>
+    [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
+  - `hessian_matrix()` -\>
+    [`brs_hessian()`](https://evandeilton.github.io/betaregscale/reference/brs_hessian.md)
+  - `betaregscale_coef()` -\>
+    [`brs_coef()`](https://evandeilton.github.io/betaregscale/reference/brs_coef.md)
+- **Class Renaming**: The S3 class `betaregscale` has been renamed to
+  `brs`. All associated S3 methods have been updated accordingly (e.g.,
+  `summary.brs`, `plot.brs`).
+
+------------------------------------------------------------------------
+
+## betaregscale 2.2.0
+
+### Breaking changes
+
+- **`type` argument removed**: The deprecated `type` argument has been
+  completely removed from all functions: `check_response()`,
+  `prepare_data()`,
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
+  `betaregscale_fit()`, `betaregscale_fit_z()`, `betaregscale_loglik()`,
+  `betaregscale_loglik_z()`, `betaregscale_simulate()`,
+  `betaregscale_simulate_z()`, and internal helpers
+  [`compute_start()`](https://evandeilton.github.io/betaregscale/reference/compute_start.md),
+  `.extract_response()`, `.build_simulated_response()`, and
+  `.compute_endpoints()`. The midpoint interval geometry (`type = "m"`)
+  is now the only option and is hardcoded internally. Users who
+  previously relied on `type = "l"` or `type = "r"` should use
+  `prepare_data()` to supply custom left/right endpoints instead.
+
+- **Renamed `bs_prepare()` to `prepare_data()`**: The data preparation
+  function has been renamed to `prepare_data()` to be more descriptive
+  and consistent with the package’s verb-based API. The returned data
+  frame now carries the `is_prepared` attribute instead of
+  `bs_prepared`.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.1.1
 
 ### New features
 
 - **`delta` argument in simulation functions**:
-  [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
-  and
-  [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
-  gain a `delta` argument (default `NULL`) that forces all simulated
+  `betaregscale_simulate()` and `betaregscale_simulate_z()` gain a
+  `delta` argument (default `NULL`) that forces all simulated
   observations to a specific censoring type: 0 (exact), 1 (left), 2
   (right), or 3 (interval). This enables targeted Monte Carlo studies
   where the analyst controls the censoring structure.
 
   When `delta` is non-NULL, the actual simulated values
   (`y_raw = rbeta(n, a, b)`) are preserved on the scale grid, and the
-  forced censoring indicator is passed to
-  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
-  as a vector. This ensures that each observation retains its
+  forced censoring indicator is passed to `check_response()` as a
+  vector. This ensures that each observation retains its
   covariate-driven variation with observation-specific endpoints.
 
   The returned data frame carries `attr(, "bs_prepared") = TRUE` so that
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md),
-  [`betaregscale_loglik()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.md),
-  and all fitting functions use the pre-computed `left`, `right`, `yt`,
-  and `delta` columns directly, bypassing the automatic boundary
-  classification. Without this attribute, the fitting pipeline would
-  re-classify the response from the `y` column alone, which would ignore
-  the forced delta.
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
+  `betaregscale_loglik()`, and all fitting functions use the
+  pre-computed `left`, `right`, `yt`, and `delta` columns directly,
+  bypassing the automatic boundary classification. Without this
+  attribute, the fitting pipeline would re-classify the response from
+  the `y` column alone, which would ignore the forced delta.
 
-- **`delta` argument in
-  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)**:
-  accepts an integer vector of pre-specified censoring indicators,
-  overriding the automatic boundary-based classification on a
-  per-observation basis. The endpoint formulas adapt to non-boundary
-  observations:
+- **`delta` argument in `check_response()`**: accepts an integer vector
+  of pre-specified censoring indicators, overriding the automatic
+  boundary-based classification on a per-observation basis. The endpoint
+  formulas adapt to non-boundary observations:
 
   | delta | condition | left (l_i)    | right (u_i)   |
   |-------|-----------|---------------|---------------|
@@ -51,15 +139,12 @@
   formula (lim/K). This preserves the information content of each
   observation.
 
-- **Observation-specific endpoints in
-  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)**:
-  the internal `.compute_endpoints()` helper now uses the same adaptive
-  formulas as
-  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
-  for analyst-forced left/right censoring on non-boundary scores.
-  Previously, delta = 1 always produced `right = lim/K` and delta = 2
-  always produced `left = (K - lim)/K`, regardless of the actual y
-  value.
+- **Observation-specific endpoints in `bs_prepare()`**: the internal
+  `.compute_endpoints()` helper now uses the same adaptive formulas as
+  `check_response()` for analyst-forced left/right censoring on
+  non-boundary scores. Previously, delta = 1 always produced
+  `right = lim/K` and delta = 2 always produced `left = (K - lim)/K`,
+  regardless of the actual y value.
 
 ### Bug fixes
 
@@ -73,63 +158,52 @@
 
   The fix preserves the actual simulated grid values
   (`y_grid = round(y_raw * ncuts)`) and passes a forced delta vector to
-  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md),
-  which computes observation-specific endpoints using the actual y
-  values.
+  `check_response()`, which computes observation-specific endpoints
+  using the actual y values.
 
 - **Missing `"bs_prepared"` attribute on simulation output**: when
   `delta` was forced, the simulation functions did not mark the output
   with `attr(, "bs_prepared") = TRUE`. As a result,
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md)
-  would re-classify the response via
-  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md),
-  silently overwriting the forced delta with automatic boundary rules.
-  The attribute is now set correctly.
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md)
+  would re-classify the response via `check_response()`, silently
+  overwriting the forced delta with automatic boundary rules. The
+  attribute is now set correctly.
 
 ### Deprecations
 
 - The `type` parameter (`"m"`, `"l"`, `"r"`) is deprecated across all
   functions:
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md),
-  [`betaregscale_fit()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit.md),
-  [`betaregscale_fit_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit_z.md),
-  [`betaregscale_loglik()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.md),
-  [`betaregscale_loglik_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik_z.md),
-  [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md),
-  [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md),
-  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md),
-  and
-  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md).
-  Use
-  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
-  to control interval geometry instead. The parameter still works but
-  emits a deprecation warning when passed explicitly.
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
+  `betaregscale_fit()`, `betaregscale_fit_z()`, `betaregscale_loglik()`,
+  `betaregscale_loglik_z()`, `betaregscale_simulate()`,
+  `betaregscale_simulate_z()`, `check_response()`, and `prepare_data()`.
+  Use `prepare_data()` to control interval geometry instead. The
+  parameter still works but emits a deprecation warning when passed
+  explicitly.
 
 ## betaregscale 2.0.1
 
 ### New features
 
-- **[`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
-  data preprocessing**: new analyst-facing function that validates,
-  classifies censoring, and rescales raw data before model fitting.
-  Supports four flexible input modes: score-only, score + explicit
-  delta, interval endpoints with NA patterns, and analyst-supplied
-  left/right bounds. Prepared data is automatically detected by
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md).
+- **`bs_prepare()` data preprocessing**: new analyst-facing function
+  that validates, classifies censoring, and rescales raw data before
+  model fitting. Supports four flexible input modes: score-only, score +
+  explicit delta, interval endpoints with NA patterns, and
+  analyst-supplied left/right bounds. Prepared data is automatically
+  detected by
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md).
 - Internal helper `.extract_response()` enables transparent detection of
-  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)-processed
-  data across all fitting, log-likelihood, and starting-value functions.
-- [`censoring_summary()`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md)
-  now also accepts data frames from
-  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md).
+  `bs_prepare()`-processed data across all fitting, log-likelihood, and
+  starting-value functions.
+- `censoring_summary()` now also accepts data frames from
+  `bs_prepare()`.
 - New vignette section documenting all four data preparation modes.
 
 ### Bug fixes
 
-- Fixed potential row-indexing bug when
-  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
-  receives a subset data frame with non-sequential row names. Output now
-  always has sequential row names (`1:n`).
+- Fixed potential row-indexing bug when `bs_prepare()` receives a subset
+  data frame with non-sequential row names. Output now always has
+  sequential row names (`1:n`).
 
 ## betaregscale 2.0.0
 
@@ -143,9 +217,8 @@
   vector, which supports mixed censoring types within the same dataset.
 - Parameter `dados` renamed to `data` across all functions.
 - Simulation functions renamed: `betaregscale_simula_dados()` is now
-  [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md),
-  and `betaregscale_simula_dados_z()` is now
-  [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md).
+  `betaregscale_simulate()`, and `betaregscale_simula_dados_z()` is now
+  `betaregscale_simulate_z()`.
 
 ### New features
 
@@ -172,9 +245,8 @@
   six diagnostic panels (residuals vs indices, Cook’s distance,
   residuals vs linear predictor, residuals vs fitted, half-normal
   envelope, predicted vs observed) and both base R and ggplot2 backends.
-- [`censoring_summary()`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md)
-  function for visual and tabular summaries of the censoring structure,
-  with both base R and ggplot2 backends.
+- `censoring_summary()` function for visual and tabular summaries of the
+  censoring structure, with both base R and ggplot2 backends.
 - [`predict()`](https://rdrr.io/r/stats/predict.html) expanded with five
   types: `"response"`, `"link"`, `"precision"`, `"variance"`, and
   `"quantile"`. Supports `newdata` for both fixed and variable
