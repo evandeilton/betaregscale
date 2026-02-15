@@ -34,9 +34,6 @@
 #' @param link_phi Character: link function for the dispersion
 #'   (default \code{"logit"}).
 #' @param ncuts  Integer: number of scale categories (default 100).
-#' @param type   \strong{Deprecated.}
-#'   Character: interval type (\code{"m"}, \code{"l"}, or \code{"r"}).
-#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param lim    Numeric: half-width of uncertainty region (default
 #'   0.5).
 #' @param repar  Integer: reparameterization scheme (0, 1, or 2;
@@ -48,33 +45,26 @@
 #' set.seed(42)
 #' n <- 100
 #' dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-#' sim <- betaregscale_simulate(
+#' sim <- brs_sim(
 #'   formula = ~ x1 + x2, data = dat,
 #'   beta = c(0, 0.5, -0.2), phi = 1 / 5
 #' )
-#' betaregscale_loglik(
+#' brs_loglik(
 #'   param = c(0, 0.5, -0.2, 1 / 5),
 #'   formula = y ~ x1 + x2, data = sim
 #' )
 #'
 #' @importFrom stats model.frame model.matrix model.response terms
-#' @export
-betaregscale_loglik <- function(param,
-                                formula,
-                                data,
-                                link = "logit",
-                                link_phi = "logit",
-                                ncuts = 100L,
-                                type = "m",
-                                lim = 0.5,
-                                repar = 2L) {
-  if (!missing(type)) {
-    .Deprecated(msg = paste0(
-      "The 'type' argument of betaregscale_loglik() is deprecated ",
-      "and will be removed in a future version. ",
-      "Use bs_prepare() to control interval geometry."
-    ))
-  }
+#' @keywords internal
+#' @noRd
+brs_loglik <- function(param,
+                       formula,
+                       data,
+                       link = "logit",
+                       link_phi = "logit",
+                       ncuts = 100L,
+                       lim = 0.5,
+                       repar = 2L) {
   # Validate links
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)
@@ -82,11 +72,11 @@ betaregscale_loglik <- function(param,
 
   # Build model matrices
   mf <- stats::model.frame(formula, data = data)
-  Y <- .extract_response(mf, data, ncuts = ncuts, type = type, lim = lim)
+  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
   X <- stats::model.matrix(mf, data = data)
 
   # Dispatch to C++
-  .betaregscale_loglik_fixed_cpp(
+  .brs_loglik_fixed_cpp(
     param         = as.numeric(param),
     X             = X,
     y_left        = as.numeric(Y[, "left"]),
@@ -114,8 +104,6 @@ betaregscale_loglik <- function(param,
 #' of \code{|} defines the mean model and the right-hand side defines
 #' the dispersion model.
 #'
-#' @inheritParams betaregscale_loglik
-#'
 #' @return Scalar: total log-likelihood.
 #'
 #' @examples
@@ -125,35 +113,28 @@ betaregscale_loglik <- function(param,
 #'   x1 = rnorm(n), x2 = rnorm(n),
 #'   z1 = runif(n)
 #' )
-#' sim <- betaregscale_simulate_z(
-#'   formula_x = ~ x1 + x2, formula_z = ~z1,
+#' sim <- brs_sim(
+#'   formula = ~ x1 + x2 | z1,
 #'   data = dat,
 #'   beta = c(0.2, -0.5, 0.3), zeta = c(0.5, -0.5)
 #' )
-#' betaregscale_loglik_z(
+#' brs_loglik_var(
 #'   param = c(0.2, -0.5, 0.3, 0.5, -0.5),
 #'   formula = y ~ x1 + x2 | z1, data = sim
 #' )
 #'
 #' @importFrom Formula as.Formula Formula
 #' @importFrom stats delete.response
-#' @export
-betaregscale_loglik_z <- function(param,
-                                  formula = y ~ x1 + x2 | z1,
-                                  data,
-                                  link = "logit",
-                                  link_phi = "logit",
-                                  ncuts = 100L,
-                                  type = "m",
-                                  lim = 0.5,
-                                  repar = 2L) {
-  if (!missing(type)) {
-    .Deprecated(msg = paste0(
-      "The 'type' argument of betaregscale_loglik_z() is deprecated ",
-      "and will be removed in a future version. ",
-      "Use bs_prepare() to control interval geometry."
-    ))
-  }
+#' @keywords internal
+#' @noRd
+brs_loglik_var <- function(param,
+                           formula = y ~ x1 + x2 | z1,
+                           data,
+                           link = "logit",
+                           link_phi = "logit",
+                           ncuts = 100L,
+                           lim = 0.5,
+                           repar = 2L) {
   # Validate
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)
@@ -170,12 +151,12 @@ betaregscale_loglik_z <- function(param,
   mf <- stats::model.frame(formula, data = data)
   mtX <- stats::terms(formula, data = data, rhs = 1L)
   mtZ <- stats::delete.response(stats::terms(formula, data = data, rhs = 2L))
-  Y <- .extract_response(mf, data, ncuts = ncuts, type = type, lim = lim)
+  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
   X <- stats::model.matrix(mtX, mf)
   Z <- stats::model.matrix(mtZ, mf)
 
   # Dispatch to C++
-  .betaregscale_loglik_variable_cpp(
+  .brs_loglik_variable_cpp(
     param         = as.numeric(param),
     X             = X,
     Z             = Z,

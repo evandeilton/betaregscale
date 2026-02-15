@@ -8,7 +8,7 @@
 sim_fixed <- function(n = 200, seed = 42) {
   set.seed(seed)
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  betaregscale_simulate(
+  brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     link = "logit", link_phi = "logit",
@@ -23,8 +23,8 @@ sim_variable <- function(n = 200, seed = 42) {
     x1 = rnorm(n), x2 = rnorm(n),
     z1 = runif(n)
   )
-  betaregscale_simulate_z(
-    formula_x = ~ x1 + x2, formula_z = ~z1,
+  brs_sim(
+    formula = ~ x1 + x2 | z1,
     data = dat,
     beta = c(0.2, -0.5, 0.3),
     zeta = c(0.5, -0.5),
@@ -35,12 +35,12 @@ sim_variable <- function(n = 200, seed = 42) {
 
 
 # ============================================================================ #
-# Test: check_response
+# Test: brs_check
 # ============================================================================ #
 
-test_that("check_response returns correct structure with delta column", {
+test_that("brs_check returns correct structure with delta column", {
   y <- c(0, 3, 5, 7, 9, 10)
-  out <- check_response(y, ncuts = 10)
+  out <- brs_check(y, ncuts = 10)
   expect_true(is.matrix(out))
   expect_equal(ncol(out), 5L)
   expect_equal(colnames(out), c("left", "right", "yt", "y", "delta"))
@@ -49,9 +49,9 @@ test_that("check_response returns correct structure with delta column", {
   expect_true(all(out[, "left"] <= out[, "right"]))
 })
 
-test_that("check_response classifies boundary observations correctly", {
+test_that("brs_check classifies boundary observations correctly", {
   y <- c(0, 5, 10)
-  out <- check_response(y, ncuts = 10)
+  out <- brs_check(y, ncuts = 10)
   # y=0 should be left-censored (delta=1)
   expect_equal(unname(out[1, "delta"]), 1)
   # y=5 should be interval-censored (delta=3)
@@ -60,10 +60,10 @@ test_that("check_response classifies boundary observations correctly", {
   expect_equal(unname(out[3, "delta"]), 2)
 })
 
-test_that("check_response handles unit-interval input as uncensored", {
+test_that("brs_check handles unit-interval input as uncensored", {
   y <- c(0.1, 0.3, 0.5, 0.7, 0.9)
   expect_message(
-    out <- check_response(y, ncuts = 100),
+    out <- brs_check(y, ncuts = 100),
     "unit interval"
   )
   # All should be uncensored (delta=0)
@@ -72,41 +72,28 @@ test_that("check_response handles unit-interval input as uncensored", {
   expect_true(all(out[, "right"] < 1))
 })
 
-test_that("check_response warns when max(y) > ncuts", {
+test_that("brs_check warns when max(y) > ncuts", {
   y <- c(5, 10, 150)
-  expect_warning(check_response(y, ncuts = 100), "exceeds")
-})
-
-test_that("check_response types 'l' and 'r' differ from 'm'", {
-  y <- c(3, 5, 7)
-  m <- check_response(y, ncuts = 10)
-  l <- check_response(y, type = "l", ncuts = 10)
-  r <- check_response(y, type = "r", ncuts = 10)
-  # All interval-censored, but different endpoints
-  expect_true(all(m[, "delta"] == 3))
-  expect_true(all(l[, "delta"] == 3))
-  expect_true(all(r[, "delta"] == 3))
-  expect_false(all(m[, "left"] == l[, "left"]))
-  expect_false(all(m[, "right"] == r[, "right"]))
+  expect_warning(brs_check(y, ncuts = 100), "exceeds")
 })
 
 
 # ============================================================================ #
-# Test: beta_reparam
+# Test: brs_repar
 # ============================================================================ #
 
-test_that("beta_reparam returns valid shapes for repar=0,1,2", {
+test_that("brs_repar returns valid shapes for repar=0,1,2", {
   for (rp in 0:2) {
-    out <- beta_reparam(mu = 0.5, phi = 0.3, repar = rp)
+    out <- brs_repar(mu = 0.5, phi = 0.3, repar = rp)
     expect_true(all(out$shape1 > 0))
     expect_true(all(out$shape2 > 0))
   }
 })
 
-test_that("beta_reparam vectorizes correctly", {
+test_that("brs_repar vectorizes correctly", {
   mu <- c(0.2, 0.5, 0.8)
   phi <- c(0.1, 0.3, 0.5)
-  out <- beta_reparam(mu, phi, repar = 2L)
+  out <- brs_repar(mu, phi, repar = 2L)
   expect_equal(nrow(out), 3L)
 })
 
@@ -134,7 +121,7 @@ test_that("link_to_code errors on invalid link", {
 # Test: simulation functions
 # ============================================================================ #
 
-test_that("betaregscale_simulate produces valid output", {
+test_that("brs_sim produces valid output", {
   sim <- sim_fixed()
   expect_true(is.data.frame(sim))
   expect_true(all(c("left", "right", "yt", "y", "delta", "x1", "x2") %in% names(sim)))
@@ -143,7 +130,7 @@ test_that("betaregscale_simulate produces valid output", {
   expect_equal(nrow(sim), 200L)
 })
 
-test_that("betaregscale_simulate_z produces valid output", {
+test_that("brs_sim supports variable dispersion via two-part formula", {
   sim <- sim_variable()
   expect_true(is.data.frame(sim))
   expect_true("z1" %in% names(sim))
@@ -151,16 +138,16 @@ test_that("betaregscale_simulate_z produces valid output", {
   expect_equal(nrow(sim), 200L)
 })
 
-test_that("betaregscale_simulate_z does NOT set seed internally", {
+test_that("brs_sim does NOT set seed internally for variable dispersion", {
   set.seed(1)
-  s1 <- betaregscale_simulate_z(
-    formula_x = ~x1, formula_z = ~z1,
+  s1 <- brs_sim(
+    formula = ~ x1 | z1,
     data = data.frame(x1 = rnorm(50), z1 = runif(50)),
     beta = c(0, 0.5), zeta = c(0.5, 0.1)
   )
   set.seed(2)
-  s2 <- betaregscale_simulate_z(
-    formula_x = ~x1, formula_z = ~z1,
+  s2 <- brs_sim(
+    formula = ~ x1 | z1,
     data = data.frame(x1 = rnorm(50), z1 = runif(50)),
     beta = c(0, 0.5), zeta = c(0.5, 0.1)
   )
@@ -172,9 +159,9 @@ test_that("betaregscale_simulate_z does NOT set seed internally", {
 # Test: log-likelihood functions
 # ============================================================================ #
 
-test_that("betaregscale_loglik returns finite scalar", {
+test_that("brs_loglik returns finite scalar", {
   sim <- sim_fixed()
-  ll <- betaregscale_loglik(
+  ll <- betaregscale:::brs_loglik(
     param = c(0.2, -0.5, 0.3, 1 / 5),
     formula = y ~ x1 + x2, data = sim
   )
@@ -184,9 +171,9 @@ test_that("betaregscale_loglik returns finite scalar", {
   expect_true(ll < 0)
 })
 
-test_that("betaregscale_loglik_z returns finite scalar", {
+test_that("internal variable loglik wrapper returns finite scalar", {
   sim <- sim_variable()
-  ll <- betaregscale_loglik_z(
+  ll <- betaregscale:::brs_loglik_var(
     param = c(0.2, -0.5, 0.3, 0.5, -0.5),
     formula = y ~ x1 + x2 | z1, data = sim
   )
@@ -200,47 +187,47 @@ test_that("betaregscale_loglik_z returns finite scalar", {
 # Test: fitting functions
 # ============================================================================ #
 
-test_that("betaregscale_fit converges and returns correct class", {
+test_that("brs_fit_fixed converges and returns correct class", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(
+  fit <- brs_fit_fixed(
     formula = y ~ x1 + x2, data = sim,
     link = "logit", link_phi = "logit"
   )
-  expect_s3_class(fit, "betaregscale")
+  expect_s3_class(fit, "brs")
   expect_equal(fit$convergence, 0L)
   expect_true(is.finite(fit$value))
   expect_equal(length(fit$par), 4L)
   expect_equal(fit$nobs, nrow(sim))
 })
 
-test_that("betaregscale_fit_z converges for variable dispersion", {
+test_that("brs_fit_var converges for variable dispersion", {
   sim <- sim_variable()
-  fit <- betaregscale_fit_z(
+  fit <- brs_fit_var(
     formula = y ~ x1 + x2 | z1, data = sim,
     link = "logit", link_phi = "logit"
   )
-  expect_s3_class(fit, "betaregscale")
+  expect_s3_class(fit, "brs")
   expect_equal(fit$convergence, 0L)
   expect_equal(length(fit$par), 5L)
 })
 
-test_that("betaregscale() dispatches to fixed model", {
+test_that("brs() dispatches to fixed model", {
   sim <- sim_fixed()
-  fit <- betaregscale(y ~ x1 + x2, data = sim)
-  expect_s3_class(fit, "betaregscale")
+  fit <- brs(y ~ x1 + x2, data = sim)
+  expect_s3_class(fit, "brs")
   expect_equal(length(fit$par), 4L)
 })
 
-test_that("betaregscale() dispatches to variable model", {
+test_that("brs() dispatches to variable model", {
   sim <- sim_variable()
-  fit <- betaregscale(y ~ x1 + x2 | z1, data = sim)
-  expect_s3_class(fit, "betaregscale")
+  fit <- brs(y ~ x1 + x2 | z1, data = sim)
+  expect_s3_class(fit, "brs")
   expect_equal(length(fit$par), 5L)
 })
 
 test_that("fitted object stores call", {
   sim <- sim_fixed()
-  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  fit <- brs(y ~ x1 + x2, data = sim)
   expect_true(!is.null(fit$call))
 })
 
@@ -251,7 +238,7 @@ test_that("fitted object stores call", {
 
 test_that("fixed model parameters have correct names", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   nm <- names(fit$par)
   expect_equal(nm, c("(Intercept)", "x1", "x2", "(phi)"))
   expect_equal(names(fit$coefficients$mean), c("(Intercept)", "x1", "x2"))
@@ -260,7 +247,7 @@ test_that("fixed model parameters have correct names", {
 
 test_that("variable model parameters have (phi)_ prefix", {
   sim <- sim_variable()
-  fit <- betaregscale_fit_z(y ~ x1 + x2 | z1, data = sim)
+  fit <- brs_fit_var(y ~ x1 + x2 | z1, data = sim)
   nm <- names(fit$par)
   expect_true("(phi)_(Intercept)" %in% nm)
   expect_true("(phi)_z1" %in% nm)
@@ -273,7 +260,7 @@ test_that("variable model parameters have (phi)_ prefix", {
 
 test_that("coef method works with model argument", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
 
   cf_full <- coef(fit, model = "full")
   cf_mean <- coef(fit, model = "mean")
@@ -292,7 +279,7 @@ test_that("coef method works with model argument", {
 
 test_that("vcov method returns valid matrix with model subsetting", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
 
   V_full <- vcov(fit, model = "full")
   V_mean <- vcov(fit, model = "mean")
@@ -312,7 +299,7 @@ test_that("vcov method returns valid matrix with model subsetting", {
 
 test_that("logLik method returns correct class", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   ll <- logLik(fit)
   expect_s3_class(ll, "logLik")
   expect_true(is.finite(as.numeric(ll)))
@@ -321,7 +308,7 @@ test_that("logLik method returns correct class", {
 
 test_that("AIC and BIC return scalars", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   aic <- AIC(fit)
   bic <- BIC(fit)
   expect_true(is.finite(aic))
@@ -331,13 +318,13 @@ test_that("AIC and BIC return scalars", {
 
 test_that("stats::AIC(logLik(fit)) == AIC(fit)", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   expect_equal(stats::AIC(logLik(fit)), AIC(fit), tolerance = 1e-6)
 })
 
 test_that("stats::BIC(logLik(fit)) == BIC(fit)", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   expect_equal(stats::BIC(logLik(fit)), BIC(fit), tolerance = 1e-6)
 })
 
@@ -348,20 +335,20 @@ test_that("stats::BIC(logLik(fit)) == BIC(fit)", {
 
 test_that("nobs returns correct count", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   expect_equal(nobs(fit), 200L)
 })
 
 test_that("formula returns the model formula", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   f <- formula(fit)
   expect_true(inherits(f, "formula"))
 })
 
 test_that("model.matrix returns design matrices", {
   sim <- sim_variable()
-  fit <- betaregscale_fit_z(y ~ x1 + x2 | z1, data = sim)
+  fit <- brs_fit_var(y ~ x1 + x2 | z1, data = sim)
   X <- model.matrix(fit, model = "mean")
   Z <- model.matrix(fit, model = "precision")
   expect_equal(nrow(X), 200L)
@@ -377,9 +364,9 @@ test_that("model.matrix returns design matrices", {
 
 test_that("summary method returns structured output", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   s <- summary(fit)
-  expect_s3_class(s, "summary.betaregscale")
+  expect_s3_class(s, "summary.brs")
   expect_true("coefficients" %in% names(s))
   expect_true("mean" %in% names(s$coefficients))
   expect_true("precision" %in% names(s$coefficients))
@@ -390,7 +377,7 @@ test_that("summary method returns structured output", {
 
 test_that("summary uses pnorm not pt for p-values", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   s <- summary(fit)
   # p-values should match pnorm calculation
   z_val <- s$coefficients$mean[, "z value"]
@@ -406,13 +393,13 @@ test_that("summary uses pnorm not pt for p-values", {
 
 test_that("print method runs without error", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   expect_output(print(fit), "Coefficients")
 })
 
 test_that("print.summary method runs without error", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   expect_output(print(summary(fit)), "Coefficients")
 })
 
@@ -423,7 +410,7 @@ test_that("print.summary method runs without error", {
 
 test_that("fitted method returns vectors of correct length", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   mu <- fitted(fit, type = "mu")
   phi <- fitted(fit, type = "phi")
   expect_equal(length(mu), nrow(sim))
@@ -437,7 +424,7 @@ test_that("fitted method returns vectors of correct length", {
 
 test_that("residuals method returns correct types", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
 
   for (rtype in c("response", "pearson", "deviance", "rqr")) {
     r <- residuals(fit, type = rtype)
@@ -448,7 +435,7 @@ test_that("residuals method returns correct types", {
 
 test_that("RQR residuals are approximately normal for correct model", {
   sim <- sim_fixed(n = 500, seed = 123)
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   r <- residuals(fit, type = "rqr")
   # Shapiro-Wilk should not reject at 1% level for n <= 5000
   sw <- shapiro.test(r[1:min(500, length(r))])
@@ -462,7 +449,7 @@ test_that("RQR residuals are approximately normal for correct model", {
 
 test_that("confint returns valid confidence intervals", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   ci <- confint(fit)
   expect_true(is.matrix(ci))
   expect_equal(nrow(ci), 4L)
@@ -472,7 +459,7 @@ test_that("confint returns valid confidence intervals", {
 
 test_that("confint with model argument works", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   ci_mean <- confint(fit, model = "mean")
   ci_prec <- confint(fit, model = "precision")
   expect_equal(nrow(ci_mean), 3L)
@@ -481,7 +468,7 @@ test_that("confint with model argument works", {
 
 test_that("confint with parm argument works", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   ci <- confint(fit, parm = c("x1", "x2"))
   expect_equal(nrow(ci), 2L)
 })
@@ -493,7 +480,7 @@ test_that("confint with parm argument works", {
 
 test_that("predict with type='response' works", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   pred <- predict(fit, type = "response")
   expect_equal(length(pred), nrow(sim))
   expect_true(all(pred > 0 & pred < 1))
@@ -501,7 +488,7 @@ test_that("predict with type='response' works", {
 
 test_that("predict with newdata works", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   nd <- data.frame(x1 = c(-1, 0, 1), x2 = c(0, 0, 0))
   pred <- predict(fit, newdata = nd, type = "response")
   expect_equal(length(pred), 3L)
@@ -510,7 +497,7 @@ test_that("predict with newdata works", {
 
 test_that("predict type='link' returns linear predictor", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   pred <- predict(fit, type = "link")
   expect_equal(length(pred), nrow(sim))
   # link values are on unrestricted scale
@@ -518,7 +505,7 @@ test_that("predict type='link' returns linear predictor", {
 
 test_that("predict type='variance' works", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   pred <- predict(fit, type = "variance")
   expect_equal(length(pred), nrow(sim))
   expect_true(all(pred > 0))
@@ -526,7 +513,7 @@ test_that("predict type='variance' works", {
 
 test_that("predict type='quantile' works", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   pred <- predict(fit, type = "quantile", at = c(0.25, 0.5, 0.75))
   expect_true(is.matrix(pred))
   expect_equal(ncol(pred), 3L)
@@ -540,7 +527,7 @@ test_that("predict type='quantile' works", {
 
 test_that("predict with newdata works for variable-dispersion model", {
   sim <- sim_variable()
-  fit <- betaregscale_fit_z(y ~ x1 + x2 | z1, data = sim)
+  fit <- brs_fit_var(y ~ x1 + x2 | z1, data = sim)
   nd <- data.frame(x1 = c(-1, 0, 1), x2 = c(0, 0, 0), z1 = c(0.3, 0.5, 0.7))
   pred <- predict(fit, newdata = nd, type = "response")
   expect_equal(length(pred), 3L)
@@ -554,16 +541,16 @@ test_that("predict with newdata works for variable-dispersion model", {
 
 test_that("gof returns data frame with correct columns", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
-  g <- gof(fit)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
+  g <- brs_gof(fit)
   expect_true(is.data.frame(g))
   expect_true(all(c("logLik", "AIC", "BIC") %in% names(g)))
 })
 
 test_that("est returns estimates with p-values using pnorm", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
-  e <- est(fit)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
+  e <- brs_est(fit)
   expect_true(is.data.frame(e))
   expect_true("p_value" %in% names(e))
   expect_equal(nrow(e), 4L)
@@ -578,37 +565,37 @@ test_that("fitting with probit link works", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~x1, data = dat,
     beta = c(0.2, 0.3), phi = 1 / 5,
     link = "logit", link_phi = "logit"
   )
-  fit <- betaregscale_fit(
+  fit <- brs_fit_fixed(
     y ~ x1,
     data = sim,
     link = "probit", link_phi = "logit"
   )
-  expect_s3_class(fit, "betaregscale")
+  expect_s3_class(fit, "brs")
   expect_equal(fit$convergence, 0L)
 })
 
-test_that("betaregscale_coef produces valid confidence intervals", {
+test_that("brs_coef produces valid confidence intervals", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
-  tab <- betaregscale_coef(fit)$est
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
+  tab <- brs_coef(fit)$est
   expect_true(all(tab$ci_lower < tab$estimate))
   expect_true(all(tab$ci_upper > tab$estimate))
 })
 
 
 # ============================================================================ #
-# Test: mixed censoring in check_response
+# Test: mixed censoring in brs_check
 # ============================================================================ #
 
 test_that("mixed censoring: all four types present", {
-  # Create data with all censoring types
+  # brs_prep with all censoring types
   y_mixed <- c(0, 0, 3, 5, 7, 10, 10)
-  out <- check_response(y_mixed, ncuts = 10)
+  out <- brs_prep(data.frame(y = y_mixed), ncuts = 10)
   deltas <- out[, "delta"]
   expect_true(1L %in% deltas) # left-censored
   expect_true(2L %in% deltas) # right-censored
@@ -620,9 +607,9 @@ test_that("mixed censoring: all four types present", {
 # Test: plot runs without error
 # ============================================================================ #
 
-test_that("plot.betaregscale runs without error", {
+test_that("plot.brs runs without error", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   pdf(nullfile())
   on.exit(dev.off(), add = TRUE)
   expect_silent(plot(fit, which = 1:4))
@@ -635,8 +622,8 @@ test_that("plot.betaregscale runs without error", {
 
 test_that("censoring_summary returns correct structure", {
   sim <- sim_fixed()
-  fit <- betaregscale_fit(y ~ x1 + x2, data = sim)
-  cs <- censoring_summary(fit)
+  fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
+  cs <- brs_cens(fit)
   expect_true(is.data.frame(cs))
   expect_true("type" %in% names(cs))
   expect_true("count" %in% names(cs))
@@ -646,50 +633,51 @@ test_that("censoring_summary returns correct structure", {
 
 test_that("censoring_summary works with raw matrix", {
   y <- c(0, 3, 5, 7, 10)
-  Y <- check_response(y, ncuts = 10)
-  cs <- censoring_summary(Y)
+  Y <- brs_check(y, ncuts = 10)
+  cs <- brs_cens(Y)
   expect_true(is.data.frame(cs))
   expect_equal(sum(cs$count), 5L)
 })
 
 
 # ============================================================================ #
-# bs_prepare() tests
+# brs_prep() tests
 # ============================================================================ #
 
 # -- Structure and attributes ------------------------------------------------ #
 
-test_that("bs_prepare output has correct structure", {
+test_that("brs_prep output has correct structure", {
   d <- data.frame(y = c(0, 5, 10), x1 = rnorm(3))
-  res <- bs_prepare(d, ncuts = 10)
-  expect_true(is.data.frame(res))
+  res <- brs_prep(d, ncuts = 10)
+  expect_s3_class(res, "data.frame")
   expect_true(all(c("left", "right", "yt", "y", "delta") %in% names(res)))
   expect_true("x1" %in% names(res))
-  expect_true(isTRUE(attr(res, "bs_prepared")))
+  expect_true(isTRUE(attr(res, "is_prepared")))
   expect_equal(attr(res, "ncuts"), 10L)
-  expect_equal(attr(res, "type"), "m")
+  expect_null(attr(res, "type"))
   expect_equal(attr(res, "lim"), 0.5)
 })
 
-test_that("bs_prepare preserves original y values", {
-  d <- data.frame(y = c(0, 50, 100))
-  res <- bs_prepare(d, ncuts = 100)
-  expect_equal(res$y, c(0, 50, 100))
+test_that("brs_prep preserves original y values", {
+  d <- data.frame(y = c(10, 20, 30), x = 1:3)
+  res <- brs_prep(d, ncuts = 100)
+  expect_equal(res$y, c(10, 20, 30))
 })
 
 # -- Mode 1: y only (automatic classification) ------------------------------ #
 
-test_that("bs_prepare Mode 1: y only <U+2014> delta inferred correctly", {
-  d <- data.frame(y = c(0, 3, 5, 7, 10))
-  res <- bs_prepare(d, ncuts = 10)
+test_that("brs_prep Mode 1: y only — delta inferred correctly", {
+  d <- data.frame(y = c(0, 1, 5, 9, 10), x = 1:5)
+  res <- brs_prep(d, ncuts = 10)
   expect_equal(res$delta, c(1L, 3L, 3L, 3L, 2L))
 })
 
-test_that("bs_prepare Mode 1: y only <U+2014> endpoints match check_response", {
-  y_vec <- c(0, 3, 5, 7, 10)
-  cr <- check_response(y_vec, ncuts = 10, lim = 0.5)
-  d <- data.frame(y = y_vec)
-  res <- bs_prepare(d, ncuts = 10, lim = 0.5)
+test_that("brs_prep Mode 1: y only — endpoints match brs_check", {
+  # For exact/left/right, logic is same. Interval is center.
+  y_vec <- c(0, 50, 100)
+  cr <- brs_check(y_vec, ncuts = 100, lim = 0.5)
+  d <- data.frame(y = y_vec, x = 1:3)
+  res <- brs_prep(d, ncuts = 100, lim = 0.5)
   expect_equal(res$left, as.numeric(cr[, "left"]), tolerance = 1e-8)
   expect_equal(res$right, as.numeric(cr[, "right"]), tolerance = 1e-8)
   expect_equal(res$yt, as.numeric(cr[, "yt"]), tolerance = 1e-8)
@@ -698,33 +686,33 @@ test_that("bs_prepare Mode 1: y only <U+2014> endpoints match check_response", {
 
 # -- Mode 2: y + explicit delta --------------------------------------------- #
 
-test_that("bs_prepare Mode 2: y + delta explicit <U+2014> exact", {
-  d <- data.frame(y = 50, delta = 0L)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 2: y + delta explicit — exact", {
+  d <- data.frame(y = 50, delta = 0, x = 1) # Forced exact
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 0L)
   expect_equal(res$left, 0.50, tolerance = 1e-4)
   expect_equal(res$right, 0.50, tolerance = 1e-4)
 })
 
-test_that("bs_prepare Mode 2: y + delta explicit <U+2014> left-censored", {
-  d <- data.frame(y = 0, delta = 1L)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 2: y + delta explicit — left-censored", {
+  d <- data.frame(y = 0, delta = 1, x = 1)
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 1L)
   expect_true(res$left < 0.01)
   expect_equal(res$right, 0.005, tolerance = 1e-4)
 })
 
-test_that("bs_prepare Mode 2: y + delta explicit <U+2014> right-censored", {
-  d <- data.frame(y = 100, delta = 2L)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 2: y + delta explicit — right-censored", {
+  d <- data.frame(y = 100, delta = 2, x = 1)
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 2L)
   expect_equal(res$left, 0.995, tolerance = 1e-4)
   expect_true(res$right > 0.99)
 })
 
-test_that("bs_prepare Mode 2: y + delta explicit <U+2014> interval-censored", {
-  d <- data.frame(y = 50, delta = 3L)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 2: y + delta explicit — interval-censored", {
+  d <- data.frame(y = 50, delta = 3, x = 1)
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 3L)
   expect_equal(res$left, 0.495, tolerance = 1e-4)
   expect_equal(res$right, 0.505, tolerance = 1e-4)
@@ -733,53 +721,53 @@ test_that("bs_prepare Mode 2: y + delta explicit <U+2014> interval-censored", {
 
 # -- Mode 3: left/right with NA patterns ------------------------------------ #
 
-test_that("bs_prepare Mode 3: only right given <U+2014> left-censored", {
-  d <- data.frame(left = NA_real_, right = 5, y = NA_real_)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 3: only right given — left-censored", {
+  d <- data.frame(right = 5, x = 1) # Implies left=NA -> left-censoring
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 1L)
   expect_true(res$left < 0.001)
   expect_equal(res$right, 0.05, tolerance = 1e-4)
 })
 
-test_that("bs_prepare Mode 3: only left given <U+2014> right-censored", {
-  d <- data.frame(left = 20, right = NA_real_, y = NA_real_)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 3: only left given — right-censored", {
+  d <- data.frame(left = 95, x = 1) # Implies right=NA -> right-censoring
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 2L)
-  expect_equal(res$left, 0.20, tolerance = 1e-4)
+  expect_equal(res$left, 0.95, tolerance = 1e-4)
   expect_true(res$right > 0.99)
 })
 
-test_that("bs_prepare Mode 3: left + right given <U+2014> interval-censored", {
-  d <- data.frame(left = 30, right = 45, y = NA_real_)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 3: left + right given — interval-censored", {
+  d <- data.frame(left = 40, right = 60, x = 1)
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 3L)
-  expect_equal(res$left, 0.30, tolerance = 1e-4)
-  expect_equal(res$right, 0.45, tolerance = 1e-4)
-  expect_equal(res$yt, 0.375, tolerance = 1e-4)
+  expect_equal(res$left, 0.40, tolerance = 1e-4)
+  expect_equal(res$right, 0.60, tolerance = 1e-4)
+  expect_equal(res$yt, 0.50, tolerance = 1e-4)
 })
 
-test_that("bs_prepare Mode 3: left=NA, right=NA, y=value -> exact (delta=0)", {
+test_that("brs_prep Mode 3: left=NA, right=NA, y=value -> exact (delta=0)", {
   # When analyst provides left/right columns but both are NA for a row,
 
   # while y has a value, the observation is exact (no censoring)
   d <- data.frame(left = NA_real_, right = NA_real_, y = 50)
-  res <- bs_prepare(d, ncuts = 100)
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 0L)
   expect_equal(res$yt, 0.50, tolerance = 1e-4)
 })
 
-test_that("bs_prepare: continuous y in (0,1) <U+2192> exact", {
+test_that("brs_prep: continuous y in (0,1) → exact", {
   d <- data.frame(y = c(0.2, 0.5, 0.8))
-  res <- bs_prepare(d, ncuts = 100)
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, c(0L, 0L, 0L))
   expect_equal(res$yt, c(0.2, 0.5, 0.8), tolerance = 1e-4)
 })
 
 # -- Mode 4: y + left + right (analyst-supplied intervals) ------------------- #
 
-test_that("bs_prepare Mode 4: y + left + right <U+2014> uses analyst endpoints", {
-  d <- data.frame(y = 50, left = 48, right = 52)
-  res <- bs_prepare(d, ncuts = 100)
+test_that("brs_prep Mode 4: y + left + right — uses analyst endpoints", {
+  d <- data.frame(y = 50, left = 48, right = 52, x = 1)
+  res <- brs_prep(d, ncuts = 100)
   expect_equal(res$delta, 3L)
   expect_equal(res$left, 0.48, tolerance = 1e-4)
   expect_equal(res$right, 0.52, tolerance = 1e-4)
@@ -788,107 +776,126 @@ test_that("bs_prepare Mode 4: y + left + right <U+2014> uses analyst endpoints",
 
 # -- Mixed censoring in one dataset ----------------------------------------- #
 
-test_that("bs_prepare handles mixed censoring types", {
+test_that("brs_prep handles mixed censoring types", {
   d <- data.frame(
-    left  = c(NA, 20, 30, NA),
-    right = c(5, NA, 45, NA),
-    y     = c(NA, NA, NA, 50)
+    y = c(0, 100, 50, NA),
+    left = c(NA, NA, NA, 30),
+    right = c(NA, NA, NA, 70),
+    x = 1:4
   )
-  res <- bs_prepare(d, ncuts = 100)
+  res <- brs_prep(d, ncuts = 100)
   # row 4: left=NA, right=NA, y=50 -> exact (delta=0)
-  expect_equal(res$delta, c(1L, 2L, 3L, 0L))
+  expect_equal(res$delta, c(1L, 2L, 0L, 3L))
 })
 
 # -- Input validation errors ------------------------------------------------- #
 
-test_that("bs_prepare errors on non-data.frame", {
-  expect_error(bs_prepare(list(y = 1:5)), "data.frame")
+test_that("brs_prep errors on non-data.frame", {
+  expect_error(brs_prep(list(y = 1:5)), "data.frame")
 })
 
-test_that("bs_prepare errors when no relevant columns", {
-  expect_error(bs_prepare(data.frame(x1 = 1:5)), "must be present")
+test_that("brs_prep errors when no relevant columns", {
+  expect_error(brs_prep(data.frame(x1 = 1:5)), "must be present")
 })
 
-test_that("bs_prepare errors on invalid delta values", {
-  d <- data.frame(y = 50, delta = 5L)
-  expect_error(bs_prepare(d, ncuts = 100), "\\{0, 1, 2, 3\\}")
+test_that("brs_prep errors on invalid delta values", {
+  d <- data.frame(y = 50, delta = 99)
+  expect_error(brs_prep(d, ncuts = 100), "\\{0, 1, 2, 3\\}")
 })
 
-test_that("bs_prepare errors when left > right", {
-  d <- data.frame(left = 50, right = 30, y = NA_real_)
-  expect_error(bs_prepare(d, ncuts = 100), "left > right")
+test_that("brs_prep errors when left > right", {
+  d <- data.frame(left = 60, right = 40)
+  expect_error(brs_prep(d, ncuts = 100), "left > right")
 })
 
-test_that("bs_prepare errors when all columns are NA", {
+test_that("brs_prep errors when all columns are NA", {
   d <- data.frame(y = NA_real_, left = NA_real_, right = NA_real_)
-  expect_error(bs_prepare(d, ncuts = 100), "all relevant columns are NA")
+  expect_error(brs_prep(d, ncuts = 100), "all relevant columns are NA")
 })
 
-test_that("bs_prepare errors when ncuts < max value", {
+test_that("brs_prep errors when ncuts < max value", {
   d <- data.frame(y = c(50, 150))
-  expect_error(bs_prepare(d, ncuts = 100), "ncuts")
+  expect_error(brs_prep(d, ncuts = 100), "ncuts")
 })
 
-test_that("bs_prepare errors on non-numeric y", {
+test_that("brs_prep errors on non-numeric y", {
   d <- data.frame(y = c("a", "b"))
-  expect_error(bs_prepare(d, ncuts = 100), "numeric")
+  expect_error(brs_prep(d, ncuts = 100), "numeric")
 })
 
-test_that("bs_prepare errors on negative y", {
+test_that("brs_prep errors on negative y", {
   d <- data.frame(y = c(-1, 5))
-  expect_error(bs_prepare(d, ncuts = 100), "non-negative")
+  expect_error(brs_prep(d, ncuts = 100), "non-negative")
 })
 
 # -- Consistency warnings ---------------------------------------------------- #
 
-test_that("bs_prepare warns: delta=1 but y != 0", {
+capture_warnings <- function(expr) {
+  warnings <- character(0)
+  value <- withCallingHandlers(
+    expr,
+    warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  list(value = value, warnings = warnings)
+}
+
+test_that("brs_prep warns: delta=1 but y != 0", {
   d <- data.frame(y = 5, delta = 1L)
-  expect_warning(bs_prepare(d, ncuts = 100), "delta = 1.*but y != 0")
+  out <- capture_warnings(brs_prep(d, ncuts = 100))
+  expect_equal(length(out$warnings), 1L)
+  expect_true(grepl("delta = 1 \\(left-censored\\) but y != 0", out$warnings[1]))
 })
 
-test_that("bs_prepare warns: delta=2 but y != ncuts", {
+test_that("brs_prep warns: delta=2 but y != ncuts", {
   d <- data.frame(y = 50, delta = 2L)
-  expect_warning(bs_prepare(d, ncuts = 100), "delta = 2.*but y != 100")
+  out <- capture_warnings(brs_prep(d, ncuts = 100))
+  expect_equal(length(out$warnings), 1L)
+  expect_true(grepl("delta = 2 \\(right-censored\\) but y != 100", out$warnings[1]))
 })
 
-test_that("bs_prepare warns: delta=3 but y at boundary", {
+test_that("brs_prep warns: delta=3 but y at boundary", {
   d <- data.frame(y = 0, delta = 3L)
-  expect_warning(bs_prepare(d, ncuts = 100), "delta = 3.*boundary")
+  out <- capture_warnings(brs_prep(d, ncuts = 100))
+  expect_equal(length(out$warnings), 1L)
+  expect_true(grepl("delta = 3 \\(interval-censored\\) but y is at a boundary", out$warnings[1]))
 })
 
-# -- censoring_summary with bs_prepare output -------------------------------- #
+# -- censoring_summary with brs_prep output -------------------------------- #
 
-test_that("censoring_summary works with bs_prepare output", {
+test_that("censoring_summary works with brs_prep output", {
   d <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
-  res <- bs_prepare(d, ncuts = 10)
-  cs <- censoring_summary(res)
+  res <- brs_prep(d, ncuts = 10)
+  cs <- brs_cens(res)
   expect_true(is.data.frame(cs))
   expect_equal(sum(cs$count), 5L)
 })
 
-# -- End-to-end: bs_prepare -> betaregscale ---------------------------------- #
+# -- End-to-end: brs_prep -> betaregscale ---------------------------------- #
 
-test_that("bs_prepare -> betaregscale produces identical fit to raw data", {
+test_that("brs_prep -> betaregscale produces identical fit to raw data", {
   sim <- sim_fixed(n = 200, seed = 42)
 
   # Fit 1: standard workflow
-  fit1 <- betaregscale(y ~ x1 + x2, data = sim, link = "logit", repar = 2L)
+  fit1 <- brs(y ~ x1 + x2, data = sim, link = "logit", repar = 2L)
 
-  # Fit 2: bs_prepare workflow <U+2014> extract only y + covariates
+  # Fit 2: brs_prep workflow <U+2014> extract only y + covariates
   sim_raw <- sim[, c("y", "x1", "x2")]
-  prep <- bs_prepare(sim_raw, ncuts = 100)
-  fit2 <- betaregscale(y ~ x1 + x2, data = prep, link = "logit", repar = 2L)
+  prep <- brs_prep(sim_raw, ncuts = 100)
+  fit2 <- brs(y ~ x1 + x2, data = prep, link = "logit", repar = 2L)
 
   expect_equal(coef(fit1), coef(fit2), tolerance = 1e-6)
   expect_equal(logLik(fit1), logLik(fit2), tolerance = 1e-6)
 })
 
-test_that("bs_prepare -> betaregscale_fit_z converges", {
+test_that("brs_prep -> brs_fit_var converges", {
   sim <- sim_variable(n = 200, seed = 42)
   sim_raw <- sim[, c("y", "x1", "x2", "z1")]
-  prep <- bs_prepare(sim_raw, ncuts = 100)
-  fit <- betaregscale(y ~ x1 + x2 | z1, data = prep, link = "logit", repar = 2L)
-  expect_s3_class(fit, "betaregscale")
+  prep <- brs_prep(sim_raw, ncuts = 100)
+  fit <- brs(y ~ x1 + x2 | z1, data = prep, link = "logit", repar = 2L)
+  expect_s3_class(fit, "brs")
   expect_equal(fit$convergence, 0L)
 })
 
@@ -901,7 +908,7 @@ test_that("simulate delta=0 produces all exact observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 0
@@ -918,7 +925,7 @@ test_that("simulate delta=1 produces all left-censored observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 1
@@ -935,7 +942,7 @@ test_that("simulate delta=2 produces all right-censored observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 2, ncuts = 100L
@@ -952,7 +959,7 @@ test_that("simulate delta=3 produces all interval-censored observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 3, ncuts = 100L
@@ -966,7 +973,7 @@ test_that("simulate delta=NULL preserves default mixed behavior", {
   set.seed(42)
   n <- 200
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5
   )
@@ -979,7 +986,7 @@ test_that("simulate errors on invalid delta", {
   n <- 10
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
   expect_error(
-    betaregscale_simulate(
+    brs_sim(
       formula = ~ x1 + x2, data = dat,
       beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
       delta = 5
@@ -987,7 +994,7 @@ test_that("simulate errors on invalid delta", {
     "\\{0, 1, 2, 3\\}"
   )
   expect_error(
-    betaregscale_simulate(
+    brs_sim(
       formula = ~ x1 + x2, data = dat,
       beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
       delta = c(0, 1)
@@ -1000,8 +1007,8 @@ test_that("simulate_z delta=3 produces all interval-censored", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n), z1 = runif(n))
-  sim <- betaregscale_simulate_z(
-    formula_x = ~ x1 + x2, formula_z = ~z1, data = dat,
+  sim <- brs_sim(
+    formula = ~ x1 + x2 | z1, data = dat,
     beta = c(0.2, -0.5, 0.3), zeta = c(0.5, -0.5),
     delta = 3
   )
@@ -1013,8 +1020,8 @@ test_that("simulate_z delta=0 produces all exact observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n), z1 = runif(n))
-  sim <- betaregscale_simulate_z(
-    formula_x = ~ x1 + x2, formula_z = ~z1, data = dat,
+  sim <- brs_sim(
+    formula = ~ x1 + x2 | z1, data = dat,
     beta = c(0.2, -0.5, 0.3), zeta = c(0.5, -0.5),
     delta = 0
   )
@@ -1028,12 +1035,12 @@ test_that("simulate delta=3 -> betaregscale converges", {
   set.seed(42)
   n <- 200
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 3
   )
-  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  fit <- brs(y ~ x1 + x2, data = sim)
   expect_equal(fit$convergence, 0L)
 })
 
@@ -1041,12 +1048,12 @@ test_that("simulate delta=0 -> betaregscale converges", {
   set.seed(42)
   n <- 200
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 0
   )
-  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  fit <- brs(y ~ x1 + x2, data = sim)
   expect_equal(fit$convergence, 0L)
 })
 
@@ -1054,12 +1061,12 @@ test_that("simulate delta=1 -> betaregscale converges", {
   set.seed(42)
   n <- 200
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 1
   )
-  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  fit <- brs(y ~ x1 + x2, data = sim)
   expect_equal(fit$convergence, 0L)
 })
 
@@ -1067,37 +1074,37 @@ test_that("simulate delta=2 -> betaregscale converges", {
   set.seed(42)
   n <- 200
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- betaregscale_simulate(
+  sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 2
   )
-  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  fit <- brs(y ~ x1 + x2, data = sim)
   expect_equal(fit$convergence, 0L)
 })
 
 # ============================================================================ #
-# Test: check_response with user-supplied delta
+# Test: brs_check with user-supplied delta
 # ============================================================================ #
 
-test_that("check_response with delta vector overrides boundary rules", {
+test_that("brs_check with delta vector overrides boundary rules", {
   y <- c(0, 50, 100)
   d <- c(0L, 0L, 0L) # force all to exact
-  res <- check_response(y, ncuts = 100, delta = d)
+  res <- brs_check(y, ncuts = 100, delta = d)
   expect_true(all(res[, "delta"] == 0))
 })
 
-test_that("check_response with delta vector respects user classification", {
+test_that("brs_check with delta vector respects user classification", {
   y <- c(50, 50)
   d <- c(1L, 2L)
-  res <- check_response(y, ncuts = 100, delta = d)
+  res <- brs_check(y, ncuts = 100, delta = d)
   expect_equal(as.integer(res[, "delta"]), c(1L, 2L))
 })
 
-test_that("check_response forced delta=1 on non-boundary uses y-based upper bound", {
+test_that("brs_check forced delta=1 on non-boundary uses y-based upper bound", {
   y <- c(30, 60)
   d <- c(1L, 1L)
-  res <- check_response(y, ncuts = 100, delta = d)
+  res <- brs_check(y, ncuts = 100, delta = d)
   # Left-censored: left = eps, right = (y + lim) / ncuts
   expect_equal(unname(res[, "left"]), c(1e-5, 1e-5))
   expect_equal(unname(res[, "right"]), c((30 + 0.5) / 100, (60 + 0.5) / 100),
@@ -1105,10 +1112,10 @@ test_that("check_response forced delta=1 on non-boundary uses y-based upper boun
   )
 })
 
-test_that("check_response forced delta=2 on non-boundary uses y-based lower bound", {
+test_that("brs_check forced delta=2 on non-boundary uses y-based lower bound", {
   y <- c(30, 60)
   d <- c(2L, 2L)
-  res <- check_response(y, ncuts = 100, delta = d)
+  res <- brs_check(y, ncuts = 100, delta = d)
   # Right-censored: left = (y - lim) / ncuts, right = 1 - eps
   expect_equal(unname(res[, "left"]), c((30 - 0.5) / 100, (60 - 0.5) / 100),
     tolerance = 1e-6
@@ -1116,54 +1123,28 @@ test_that("check_response forced delta=2 on non-boundary uses y-based lower boun
   expect_equal(unname(res[, "right"]), c(1 - 1e-5, 1 - 1e-5))
 })
 
-test_that("check_response boundary delta=1 (y=0) retains original endpoint formula", {
+test_that("brs_check boundary delta=1 (y=0) retains original endpoint formula", {
   y <- c(0)
   d <- c(1L)
-  res <- check_response(y, ncuts = 100, delta = d)
+  res <- brs_check(y, ncuts = 100, delta = d)
   expect_equal(unname(res[, "left"]), 1e-5)
   expect_equal(unname(res[, "right"]), 0.5 / 100, tolerance = 1e-6)
 })
 
-test_that("check_response boundary delta=2 (y=ncuts) retains original endpoint formula", {
+test_that("brs_check boundary delta=2 (y=ncuts) retains original endpoint formula", {
   y <- c(100)
   d <- c(2L)
-  res <- check_response(y, ncuts = 100, delta = d)
+  res <- brs_check(y, ncuts = 100, delta = d)
   expect_equal(unname(res[, "left"]), (100 - 0.5) / 100, tolerance = 1e-6)
   expect_equal(unname(res[, "right"]), 1 - 1e-5)
 })
 
-test_that("check_response delta must match y length", {
+test_that("brs_check delta must match y length", {
   y <- c(1, 2, 3)
-  expect_error(check_response(y, ncuts = 100, delta = c(0L, 1L)), "same length")
+  expect_error(brs_check(y, ncuts = 100, delta = c(0L, 1L)), "same length")
 })
 
-test_that("check_response delta must be valid values", {
+test_that("brs_check delta must be valid values", {
   y <- c(1, 2, 3)
-  expect_error(check_response(y, ncuts = 100, delta = c(0L, 1L, 5L)), "\\{0, 1, 2, 3\\}")
-})
-
-# ============================================================================ #
-# Test: deprecation warnings for type parameter
-# ============================================================================ #
-
-test_that("betaregscale_simulate warns on explicit type", {
-  set.seed(42)
-  n <- 10
-  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  expect_warning(
-    betaregscale_simulate(
-      formula = ~ x1 + x2, data = dat,
-      beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
-      type = "l"
-    ),
-    "deprecated"
-  )
-})
-
-test_that("betaregscale warns on explicit type", {
-  sim <- sim_fixed(n = 100, seed = 42)
-  expect_warning(
-    betaregscale(y ~ x1 + x2, data = sim, type = "l"),
-    "deprecated"
-  )
+  expect_error(brs_check(y, ncuts = 100, delta = c(0L, 1L, 5L)), "\\{0, 1, 2, 3\\}")
 })

@@ -15,9 +15,9 @@
 #' @param call. Logical; passed to \code{stop()}.
 #' @keywords internal
 .check_class <- function(x, call. = FALSE) {
-  if (!inherits(x, "betaregscale")) {
+  if (!inherits(x, "brs")) {
     stop(
-      "Expected an object of class 'betaregscale', got '",
+      "Expected an object of class 'brs', got '",
       paste(class(x), collapse = "', '"), "'.",
       call. = call.
     )
@@ -38,12 +38,12 @@
 #'
 #' @return Named numeric vector of estimated parameters.
 #'
-#' @method coef betaregscale
+#' @method coef brs
 #' @importFrom stats coef
 #' @export
-coef.betaregscale <- function(object,
-                              model = c("full", "mean", "precision"),
-                              ...) {
+coef.brs <- function(object,
+                     model = c("full", "mean", "precision"),
+                     ...) {
   .check_class(object)
   model <- match.arg(model)
   switch(model,
@@ -65,12 +65,12 @@ coef.betaregscale <- function(object,
 #'
 #' @return A square numeric matrix.
 #'
-#' @method vcov betaregscale
+#' @method vcov brs
 #' @importFrom stats vcov
 #' @export
-vcov.betaregscale <- function(object,
-                              model = c("full", "mean", "precision"),
-                              ...) {
+vcov.brs <- function(object,
+                     model = c("full", "mean", "precision"),
+                     ...) {
   .check_class(object)
   model <- match.arg(model)
 
@@ -116,10 +116,10 @@ vcov.betaregscale <- function(object,
 #'   \code{df} (number of estimated parameters) and \code{nobs}
 #'   (number of observations).
 #'
-#' @method logLik betaregscale
+#' @method logLik brs
 #' @importFrom stats logLik
 #' @export
-logLik.betaregscale <- function(object, ...) {
+logLik.brs <- function(object, ...) {
   .check_class(object)
   val <- object$value
   attr(val, "df") <- object$npar
@@ -139,10 +139,10 @@ logLik.betaregscale <- function(object, ...) {
 #'
 #' @return Scalar AIC value.
 #'
-#' @method AIC betaregscale
+#' @method AIC brs
 #' @importFrom stats AIC
 #' @export
-AIC.betaregscale <- function(object, ..., k = 2) {
+AIC.brs <- function(object, ..., k = 2) {
   .check_class(object)
   k * object$npar - 2 * object$value
 }
@@ -157,10 +157,10 @@ AIC.betaregscale <- function(object, ..., k = 2) {
 #'
 #' @return Scalar BIC value.
 #'
-#' @method BIC betaregscale
+#' @method BIC brs
 #' @importFrom stats BIC
 #' @export
-BIC.betaregscale <- function(object, ...) {
+BIC.brs <- function(object, ...) {
   .check_class(object)
   log(object$nobs) * object$npar - 2 * object$value
 }
@@ -175,10 +175,10 @@ BIC.betaregscale <- function(object, ...) {
 #'
 #' @return Integer: number of observations.
 #'
-#' @method nobs betaregscale
+#' @method nobs brs
 #' @importFrom stats nobs
 #' @export
-nobs.betaregscale <- function(object, ...) {
+nobs.brs <- function(object, ...) {
   .check_class(object)
   object$nobs
 }
@@ -193,10 +193,10 @@ nobs.betaregscale <- function(object, ...) {
 #'
 #' @return The formula used to fit the model.
 #'
-#' @method formula betaregscale
+#' @method formula brs
 #' @importFrom stats formula
 #' @export
-formula.betaregscale <- function(x, ...) {
+formula.brs <- function(x, ...) {
   .check_class(x)
   x$formula
 }
@@ -213,12 +213,12 @@ formula.betaregscale <- function(x, ...) {
 #'
 #' @return The design matrix for the specified submodel.
 #'
-#' @method model.matrix betaregscale
+#' @method model.matrix brs
 #' @importFrom stats model.matrix
 #' @export
-model.matrix.betaregscale <- function(object,
-                                      model = c("mean", "precision"),
-                                      ...) {
+model.matrix.brs <- function(object,
+                             model = c("mean", "precision"),
+                             ...) {
   .check_class(object)
   model <- match.arg(model)
   switch(model,
@@ -246,10 +246,10 @@ model.matrix.betaregscale <- function(object,
 #'
 #' @return A list of class \code{"summary.betaregscale"}.
 #'
-#' @method summary betaregscale
+#' @method summary brs
 #' @importFrom stats pnorm
 #' @export
-summary.betaregscale <- function(object, ...) {
+summary.brs <- function(object, ...) {
   .check_class(object)
 
   V <- vcov(object, model = "full")
@@ -310,7 +310,7 @@ summary.betaregscale <- function(object, ...) {
     censoring    = cens_counts,
     repar        = object$repar
   )
-  class(out) <- "summary.betaregscale"
+  class(out) <- "summary.brs"
   out
 }
 
@@ -321,12 +321,12 @@ summary.betaregscale <- function(object, ...) {
 #' @param digits Number of digits.
 #' @param ... Ignored.
 #'
-#' @method print summary.betaregscale
+#' @method print summary.brs
 #' @importFrom stats quantile printCoefmat
 #' @export
-print.summary.betaregscale <- function(x,
-                                       digits = max(3, getOption("digits") - 3),
-                                       ...) {
+print.summary.brs <- function(x,
+                              digits = max(3, getOption("digits") - 3),
+                              ...) {
   cat("\nCall:\n")
   print(x$call)
   cat("\n")
@@ -401,11 +401,11 @@ print.summary.betaregscale <- function(x,
 #' @param digits Number of significant digits.
 #' @param ...    Ignored.
 #'
-#' @method print betaregscale
+#' @method print brs
 #' @export
-print.betaregscale <- function(x,
-                               digits = max(3, getOption("digits") - 3),
-                               ...) {
+print.brs <- function(x,
+                      digits = max(3, getOption("digits") - 3),
+                      ...) {
   cat("\nCall:\n")
   print(x$call)
   cat("\n")
@@ -432,10 +432,10 @@ print.betaregscale <- function(x,
 #'
 #' @return Numeric vector of fitted values.
 #'
-#' @method fitted betaregscale
+#' @method fitted brs
 #' @importFrom stats fitted
 #' @export
-fitted.betaregscale <- function(object, type = c("mu", "phi"), ...) {
+fitted.brs <- function(object, type = c("mu", "phi"), ...) {
   .check_class(object)
   type <- match.arg(type)
   if (type == "mu") object$hatmu else object$hatphi
@@ -465,16 +465,16 @@ fitted.betaregscale <- function(object, type = c("mu", "phi"), ...) {
 #' formulation from the precision parameterization (repar = 1),
 #' so internal conversion is applied when \code{repar != 1}.
 #'
-#' @method residuals betaregscale
+#' @method residuals brs
 #' @importFrom stats residuals qnorm pbeta dbeta qlogis
 #' @export
-residuals.betaregscale <- function(object,
-                                   type = c(
-                                     "response", "pearson",
-                                     "deviance", "rqr",
-                                     "weighted", "sweighted"
-                                   ),
-                                   ...) {
+residuals.brs <- function(object,
+                          type = c(
+                            "response", "pearson",
+                            "deviance", "rqr",
+                            "weighted", "sweighted"
+                          ),
+                          ...) {
   .check_class(object)
   type <- match.arg(type)
 
@@ -489,7 +489,7 @@ residuals.betaregscale <- function(object,
 
   # Helper: get shape parameters (a, b) from (mu, phi) per repar
   get_shapes <- function(mu, phi, repar) {
-    rp <- beta_reparam(mu, phi, repar = repar)
+    rp <- brs_repar(mu, phi, repar = repar)
     list(a = rp$shape1, b = rp$shape2)
   }
 
@@ -571,12 +571,12 @@ residuals.betaregscale <- function(object,
 #'
 #' @return Matrix with columns for lower and upper confidence bounds.
 #'
-#' @method confint betaregscale
+#' @method confint brs
 #' @importFrom stats confint qnorm
 #' @export
-confint.betaregscale <- function(object, parm, level = 0.95,
-                                 model = c("full", "mean", "precision"),
-                                 ...) {
+confint.brs <- function(object, parm, level = 0.95,
+                        model = c("full", "mean", "precision"),
+                        ...) {
   .check_class(object)
   model <- match.arg(model)
 
@@ -613,16 +613,16 @@ confint.betaregscale <- function(object, parm, level = 0.95,
 #'
 #' @return Numeric vector or matrix.
 #'
-#' @method predict betaregscale
+#' @method predict brs
 #' @importFrom stats predict qbeta model.matrix make.link terms model.frame
 #' @export
-predict.betaregscale <- function(object, newdata = NULL,
-                                 type = c(
-                                   "response", "link",
-                                   "precision", "variance",
-                                   "quantile"
-                                 ),
-                                 at = 0.5, ...) {
+predict.brs <- function(object, newdata = NULL,
+                        type = c(
+                          "response", "link",
+                          "precision", "variance",
+                          "quantile"
+                        ),
+                        at = 0.5, ...) {
   .check_class(object)
   type <- match.arg(type)
 
@@ -663,13 +663,13 @@ predict.betaregscale <- function(object, newdata = NULL,
       } else if (repar == 2L) {
         mu * (1 - mu) * phi
       } else {
-        sh <- beta_reparam(mu, phi, repar = repar)
+        sh <- brs_repar(mu, phi, repar = repar)
         s <- sh$shape1 + sh$shape2
         (sh$shape1 * sh$shape2) / (s^2 * (s + 1))
       }
     },
     quantile = {
-      rp <- beta_reparam(mu, phi, repar = object$repar)
+      rp <- brs_repar(mu, phi, repar = object$repar)
       rval <- sapply(at, function(p) {
         stats::qbeta(p, rp$shape1, rp$shape2)
       })
@@ -701,10 +701,11 @@ predict.betaregscale <- function(object, newdata = NULL,
 #'
 #' @examples
 #' \dontrun{
-#' gof(fit)
+#' brs_gof(fit)
 #' }
+#' @rdname brs_gof
 #' @export
-gof <- function(object) {
+brs_gof <- function(object) {
   .check_class(object)
   data.frame(
     logLik    = as.numeric(logLik(object)),
@@ -724,17 +725,18 @@ gof <- function(object) {
 #'
 #' @examples
 #' \donttest{
-#' sim <- betaregscale_simulate(
+#' sim <- brs_sim(
 #'   formula = ~x1, data = data.frame(x1 = rnorm(50)),
 #'   beta = c(0, 0.5), phi = 0.1, ncuts = 10, repar = 2
 #' )
-#' fit <- betaregscale(y ~ x1, data = sim, repar = 2)
-#' est(fit)
+#' fit <- brs(y ~ x1, data = sim, repar = 2)
+#' brs_est(fit)
 #' }
 #'
 #' @importFrom stats pnorm
+#' @rdname brs_est
 #' @export
-est <- function(object, alpha = 0.05) {
+brs_est <- function(object, alpha = 0.05) {
   .check_class(object)
   V <- vcov(object)
   se <- sqrt(pmax(diag(V), 0))
@@ -754,16 +756,16 @@ est <- function(object, alpha = 0.05) {
   )
 }
 
-#' Internal coefficient table (deprecated, use est() or summary())
+#' Internal coefficient table (deprecated, use brs_est() or summary())
 #'
-#' @param fit   A fitted \code{"betaregscale"} object.
+#' @param fit   A fitted \code{"brs"} object.
 #' @param alpha Significance level.
 #' @return A list with \code{est} and \code{gof}.
 #' @keywords internal
 #' @export
-betaregscale_coef <- function(fit, alpha = 0.05) {
+brs_coef <- function(fit, alpha = 0.05) {
   .check_class(fit)
-  list(est = est(fit, alpha = alpha), gof = gof(fit))
+  list(est = brs_est(fit, alpha = alpha), gof = brs_gof(fit))
 }
 
 #' Extract the Hessian matrix
@@ -774,16 +776,17 @@ betaregscale_coef <- function(fit, alpha = 0.05) {
 #'
 #' @examples
 #' \donttest{
-#' sim <- betaregscale_simulate(
+#' sim <- brs_sim(
 #'   formula = ~x1, data = data.frame(x1 = rnorm(50)),
 #'   beta = c(0, 0.5), phi = 0.1, ncuts = 10, repar = 2
 #' )
-#' fit <- betaregscale(y ~ x1, data = sim, repar = 2)
-#' hessian_matrix(fit)
+#' fit <- brs(y ~ x1, data = sim, repar = 2)
+#' brs_hessian(fit)
 #' }
 #'
+#' @rdname brs_hessian
 #' @export
-hessian_matrix <- function(object) {
+brs_hessian <- function(object) {
   .check_class(object)
   object$hessian
 }

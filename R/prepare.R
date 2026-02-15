@@ -1,7 +1,7 @@
 # ============================================================================ #
-# Data preparation <U+2014> analyst-facing pre-processing for beta interval regression
+# Data preparation - analyst-facing pre-processing for beta interval regression
 #
-# bs_prepare() is the bridge between raw analyst data and betaregscale().
+# brs_prep() is the bridge between raw analyst data and betaregscale().
 # It validates, classifies, and rescales observations into the (0, 1) interval
 # with censoring indicators compatible with the complete likelihood
 # (Lopes, 2024, Eq. 2.24).
@@ -11,7 +11,7 @@
 #'
 #' @description
 #' Validates and transforms raw data into the format required by
-#' \code{\link{betaregscale}}.
+#' \code{\link{brs}}.
 #' The analyst can supply data in several ways:
 #'
 #' \enumerate{
@@ -70,7 +70,7 @@
 #' When the analyst supplies \code{delta} explicitly, the endpoint
 #' computation uses the actual \code{y} value to produce
 #' observation-specific bounds.  This is the same logic used by
-#' \code{\link{check_response}} with a user-supplied \code{delta}
+#' \code{\link{brs_check}} with a user-supplied \code{delta}
 #' vector:
 #'
 #' \tabular{llll}{
@@ -98,8 +98,8 @@
 #' All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]} with
 #' \eqn{\epsilon = 10^{-5}}.
 #'
-#' @param data   A \code{data.frame} containing the response and
-#'   (optionally) covariates.
+#' @param data   Data frame containing the response variable and
+#'   covariates.
 #' @param y      Character: name of the score column (default \code{"y"}).
 #' @param delta  Character: name of the censoring indicator column
 #'   (default \code{"delta"}). Values must be in \code{{0, 1, 2, 3}}.
@@ -108,12 +108,6 @@
 #' @param right  Character: name of the right-endpoint column
 #'   (default \code{"right"}).
 #' @param ncuts  Integer: number of scale categories (default 100).
-#' @param type   \strong{Deprecated.}
-#'   Character: interval type for interior scores when only
-#'   \code{y} and \code{delta} are available.
-#'   \code{"m"} = midpoint (default), \code{"l"} = left-aligned,
-#'   \code{"r"} = right-aligned.
-#'   This argument will be removed in a future version.
 #' @param lim    Numeric: half-width of the uncertainty region
 #'   (default 0.5). Used only when constructing intervals from \code{y}
 #'   alone.
@@ -129,76 +123,70 @@
 #'       2 = right, 3 = interval.}
 #'   }
 #'   Covariate columns are preserved.
-#'   The output carries attributes \code{"bs_prepared"} (\code{TRUE}),
-#'   \code{"ncuts"}, \code{"type"}, and \code{"lim"} so that
-#'   \code{\link{betaregscale}} can detect prepared data and skip the
-#'   internal \code{\link{check_response}} call.
+#'   The output carries attributes \code{"is_prepared"} (\code{TRUE}),
+#'   \code{"ncuts"} and \code{"lim"} so that
+#'   \code{\link{brs}} can detect prepared data and skip the
+#'   internal \code{\link{brs_check}} call.
 #'
-#' @seealso \code{\link{check_response}} for the automatic
+#' @seealso \code{\link{brs_check}} for the automatic
 #'   classification of raw scale scores;
-#'   \code{\link{betaregscale}} for fitting the model.
+#'   \code{\link{brs}} for fitting the model.
 #'
 #' @examples
-#' # --- Mode 1: y only (automatic classification, like check_response) ---
+#' # --- Mode 1: y only (automatic classification, like brs_check) ---
 #' d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
-#' bs_prepare(d1, ncuts = 10)
+#' brs_prep(d1, ncuts = 10)
 #'
 #' # --- Mode 2: y + explicit delta ---
 #' d2 <- data.frame(
-#'   y     = c(50, 0, 99, 50),
-#'   delta = c(0, 1, 2, 3),
-#'   x1    = rnorm(4)
+#'   y = d1$y,
+#'   delta = c(0, 3, 3, 3, 0), # Force interval-censoring for 3,5,7
+#'   x1 = d1$x1
 #' )
-#' bs_prepare(d2, ncuts = 100)
+#' brs_prep(d2, ncuts = 100)
 #'
 #' # --- Mode 3: left/right with NA patterns ---
 #' d3 <- data.frame(
-#'   left  = c(NA, 20, 30, NA),
+#'   left = c(NA, 20, 30, NA),
 #'   right = c(5, NA, 45, NA),
-#'   y     = c(NA, NA, NA, 50),
-#'   x1    = rnorm(4)
+#'   y = c(NA, NA, NA, 50),
+#'   x1 = d1$x1[1:4]
 #' )
-#' bs_prepare(d3, ncuts = 100)
+#' brs_prep(d3, ncuts = 100)
 #'
 #' # --- Mode 4: y + left + right (analyst-supplied intervals) ---
 #' d4 <- data.frame(
-#'   y     = c(50, 75),
-#'   left  = c(48, 73),
+#'   y = c(50, 75),
+#'   left = c(48, 73),
 #'   right = c(52, 77),
-#'   x1    = rnorm(2)
+#'   x1 = rnorm(2)
 #' )
-#' bs_prepare(d4, ncuts = 100)
+#' brs_prep(d4, ncuts = 100)
 #'
-#' # --- End-to-end workflow ---
+#' # --- Simulation Example ---
 #' \donttest{
 #' set.seed(42)
 #' n <- 200
 #' dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-#' sim <- betaregscale_simulate(
+#' sim <- brs_sim(
 #'   formula = ~ x1 + x2, data = dat,
 #'   beta = c(0.2, -0.5, 0.3), phi = 1 / 5
 #' )
-#' prep <- bs_prepare(sim, ncuts = 100)
-#' fit <- betaregscale(y ~ x1 + x2, data = prep)
+#' prep <- brs_prep(sim, ncuts = 100)
+#' fit <- brs(y ~ x1 + x2, data = prep)
 #' summary(fit)
 #' }
 #'
+#' @rdname brs_prep
 #' @export
-bs_prepare <- function(data, y = "y", delta = "delta",
-                       left = "left", right = "right",
-                       ncuts = 100L, type = "m", lim = 0.5) {
+brs_prep <- function(data, y = "y", delta = "delta",
+                     left = "left", right = "right",
+                     ncuts = 100L, lim = 0.5) {
   # -- Input validation -------------------------------------------------------
   if (!is.data.frame(data)) {
     stop("'data' must be a data.frame.", call. = FALSE)
   }
 
-  if (!missing(type)) {
-    .Deprecated(msg = paste0(
-      "The 'type' argument of bs_prepare() is deprecated ",
-      "and will be removed in a future version."
-    ))
-  }
-  type <- match.arg(type, c("m", "l", "r"))
   ncuts <- as.integer(ncuts)
   eps <- 1e-5
   K <- ncuts
@@ -298,7 +286,7 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 
     # ---- Determine delta ----
     if (!is.na(di) && di %in% 0:3) {
-      # Explicit delta from analyst <U+2014> use directly
+      # Explicit delta from analyst — use directly
       d_final <- as.integer(di)
     } else {
       # Infer delta from NA pattern
@@ -308,7 +296,7 @@ bs_prepare <- function(data, y = "y", delta = "delta",
     # ---- Compute endpoints ----
     endpoints <- .compute_endpoints(
       yi = yi, d = d_final, li = li, ri = ri,
-      K = K, type = type, lim = lim, eps = eps
+      K = K, lim = lim, eps = eps
     )
 
     out_left[i] <- endpoints$left
@@ -322,9 +310,6 @@ bs_prepare <- function(data, y = "y", delta = "delta",
   out_left <- pmin(pmax(out_left, eps), 1 - eps)
   out_right <- pmin(pmax(out_right, eps), 1 - eps)
   out_yt <- pmin(pmax(out_yt, eps), 1 - eps)
-
-  # -- Consistency warnings ---------------------------------------------------
-  .warn_consistency(out_delta, out_y, K)
 
   # -- Build output data.frame ------------------------------------------------
   # Identify covariate columns (everything except the input y/delta/left/right)
@@ -349,11 +334,13 @@ bs_prepare <- function(data, y = "y", delta = "delta",
   # which indexes by as.integer(rownames(model.frame)))
   rownames(result) <- NULL
 
-  # Attach metadata
-  attr(result, "bs_prepared") <- TRUE
-  attr(result, "ncuts") <- K
-  attr(result, "type") <- type
+  # Set attributes for downstream functions
+  attr(result, "is_prepared") <- TRUE
+  attr(result, "ncuts") <- ncuts
   attr(result, "lim") <- lim
+
+  # Emit consistency warnings once on the final output.
+  .warn_consistency(result$delta, result$y, ncuts)
 
   # Informative message
   tab <- table(factor(out_delta,
@@ -361,7 +348,7 @@ bs_prepare <- function(data, y = "y", delta = "delta",
     labels = c("exact", "left", "right", "interval")
   ))
   msg_parts <- paste0(names(tab), " = ", as.integer(tab))
-  message("bs_prepare: n = ", n, " | ", paste(msg_parts, collapse = ", "))
+  message("brs_prep: n = ", n, " | ", paste(msg_parts, collapse = ", "))
 
   result
 }
@@ -369,9 +356,9 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 
 # -- Internal helpers -------------------------------------------------------- #
 
-#' Infer censoring type from NA pattern
+#' Infer Censoring Type from NA Pattern
 #'
-#' Called by \code{bs_prepare()} when the analyst does not provide an
+#' Called by \code{brs_prep()} when the analyst does not provide an
 #' explicit \code{delta} value (or \code{delta} is \code{NA}) for a
 #' given observation.  The inference priority is:
 #'
@@ -423,12 +410,17 @@ bs_prepare <- function(data, y = "y", delta = "delta",
     return(3L)
   }
   if (has_y && has_lr_cols && !has_l && !has_r) {
-    # Analyst provided left/right columns but left both NA for this row,
-    # while y has a value -> exact observation (no censoring)
-    return(0L)
+    # Analyst provided left/right columns but left both NA for this row.
+    # If y is strictly inside (0, K), treat as exact.
+    # If y is 0 or K, it must be censored (boundary rule overrides "exact").
+    if (yi > 0 && yi < K) {
+      return(0L)
+    }
+    # If y is boundary, fall through to the y-only logic below (lines 417+)
+    # which correctly handles 0 -> 1 and K -> 2.
   }
   if (has_y) {
-    # y only (no left/right columns in data) -> classify like check_response:
+    # y only (no left/right columns in data) -> classify like brs_check:
     #   y == 0 -> left-censored
     #   y == K -> right-censored
     #   0 < y < K -> interval-censored
@@ -452,10 +444,10 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 }
 
 
-#' Compute rescaled endpoints for a single observation
+#' Compute Endpoints from Explicit Delta
 #'
-#' Called by \code{bs_prepare()} inside the per-observation loop.
-#' Implements four endpoint-computation modes (see bs_prepare docs):
+#' Called by \code{brs_prep()} inside the per-observation loop.
+#' Implements four endpoint-computation modes (see brs_prep docs):
 #'
 #' \strong{Mode 4} (analyst supplied left + right):
 #'   Rescale directly: \eqn{l = l_i / K}, \eqn{u = r_i / K}.
@@ -478,19 +470,18 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 #'     \item \eqn{\delta = 2, y \neq K}: \eqn{l = (y - h) / K}
 #'       (forced, observation-specific).
 #'   }
-#'   See \code{\link{check_response}} for the full formula table.
+#'   See \code{\link{brs_check}} for the full formula table.
 #'
 #' @param yi Numeric scalar: the score value (or NA).
 #' @param d  Integer scalar: the censoring type (0, 1, 2, or 3).
 #' @param li Numeric scalar: analyst-supplied left endpoint (or NA).
 #' @param ri Numeric scalar: analyst-supplied right endpoint (or NA).
 #' @param K  Integer: number of scale categories (ncuts).
-#' @param type Character: interval type for delta = 3.
 #' @param lim Numeric: half-width of the uncertainty region.
 #' @param eps Numeric: small constant to avoid boundary (1e-5).
 #' @return A list with elements \code{left}, \code{right}, \code{yt}.
 #' @noRd
-.compute_endpoints <- function(yi, d, li, ri, K, type, lim, eps) {
+.compute_endpoints <- function(yi, d, li, ri, K, lim, eps) {
   has_y <- !is.na(yi)
   has_l <- !is.na(li)
   has_r <- !is.na(ri)
@@ -529,7 +520,7 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 
   switch(as.character(d),
     "0" = {
-      # Exact <U+2014> if y is already on (0,1), use it directly; otherwise rescale
+      # Exact - if y is already on (0,1), use it directly; otherwise rescale
       if (yi > 0 && yi < 1) {
         yt_out <- yi
       } else {
@@ -558,24 +549,12 @@ bs_prepare <- function(data, y = "y", delta = "delta",
       }
     },
     "3" = {
-      # Interval-censored <U+2014> compute via type
+      # Interval-censored — midpoint geometry
       yt_out <- yi / K
-      switch(type,
-        m = list(
-          left  = (yi - lim) / K,
-          right = (yi + lim) / K,
-          yt    = yt_out
-        ),
-        l = list(
-          left  = (yi - 2 * lim) / K,
-          right = yi / K,
-          yt    = yt_out
-        ),
-        r = list(
-          left  = yi / K,
-          right = (yi + 2 * lim) / K,
-          yt    = yt_out
-        )
+      list(
+        left  = (yi - lim) / K,
+        right = (yi + lim) / K,
+        yt    = yt_out
       )
     },
     stop("Invalid delta value: ", d, call. = FALSE)

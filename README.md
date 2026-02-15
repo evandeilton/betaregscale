@@ -46,10 +46,10 @@ dataset.
   and `vcov()` methods accept `model = c("full", "mean", "precision")`.
 - **Diagnostic plots**: six residual diagnostic panels with both base
   R and ggplot2 backends, including a half-normal envelope plot.
-- **Censoring summary**: `censoring_summary()` provides visual and
+- **Censoring summary**: `brs_cens()` provides visual and
   tabular summaries of the censoring structure.
-- **Simulation toolkit**: `betaregscale_simulate()` and
-  `betaregscale_simulate_z()` for Monte Carlo studies.
+- **Simulation toolkit**: `brs_sim()` supports both fixed- and
+  variable-dispersion Monte Carlo studies via one- or two-part formulas.
 
 ## Installation
 
@@ -70,16 +70,16 @@ library(betaregscale)
 set.seed(42)
 n <- 200
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- betaregscale_simulate(
+sim <- brs_sim(
   formula = ~ x1 + x2, data = dat,
   beta = c(0.3, -0.6, 0.4), phi = 1/10,
   link = "logit", link_phi = "logit",
-  ncuts = 100, type = "m", repar = 2
+  ncuts = 100, repar = 2
 )
 head(sim)
 
 # Fit the model
-fit <- betaregscale(y ~ x1 + x2, data = sim, repar = 2)
+fit <- brs(y ~ x1 + x2, data = sim, repar = 2)
 summary(fit)
 ```
 
@@ -93,17 +93,17 @@ dat <- data.frame(
   x1 = rnorm(n), x2 = rnorm(n),
   z1 = rnorm(n), z2 = rnorm(n)
 )
-sim_z <- betaregscale_simulate_z(
-  formula_x = ~ x1 + x2, formula_z = ~ z1,
+sim_z <- brs_sim(
+  formula = ~ x1 + x2 | z1,
   data = dat,
   beta = c(0.2, -0.6, 0.2),
   zeta = c(0.2, -0.8),
   link = "logit", link_phi = "logit",
-  ncuts = 100, type = "m", repar = 2
+  ncuts = 100, repar = 2
 )
 
 # Fit variable-dispersion model (pipe notation)
-fit_z <- betaregscale(y ~ x1 + x2 | z1, data = sim_z, repar = 2)
+fit_z <- brs(y ~ x1 + x2 | z1, data = sim_z, repar = 2)
 summary(fit_z)
 ```
 
@@ -112,11 +112,11 @@ summary(fit_z)
 ```r
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits <- lapply(setNames(links, links), function(lnk) {
-  betaregscale(y ~ x1 + x2, data = sim, link = lnk, repar = 2)
+  brs(y ~ x1 + x2, data = sim, link = lnk, repar = 2)
 })
 
 # Goodness-of-fit comparison
-do.call(rbind, lapply(fits, gof))
+do.call(rbind, lapply(fits, brs_gof))
 ```
 
 ### S3 methods
@@ -150,7 +150,7 @@ plot(fit)
 plot(fit, gg = TRUE)
 
 # Censoring structure summary
-censoring_summary(fit)
+brs_cens(fit)
 ```
 
 ## Model details
@@ -178,14 +178,14 @@ censoring type.
 
 ### Interval construction
 
-Scale observations are mapped to (0, 1) with uncertainty intervals whose
-width depends on the `type` parameter:
+Scale observations are mapped to (0, 1) with midpoint uncertainty intervals:
 
-- `"m"` (midpoint): $y_t = y/K$, interval $[y_t - 0.5/K,\; y_t + 0.5/K]$
-- `"l"` (left): $y_t = y/K$, interval $[y_t,\; y_t + 1/K]$
-- `"r"` (right): $y_t = y/K$, interval $[y_t - 1/K,\; y_t]$
+$$
+y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
+$$
 
-where $K$ is the number of scale categories (`ncuts`).
+where $K$ is the number of scale categories (`ncuts`) and $h$ is the
+half-width (`lim`, default `0.5`).
 
 ## References
 

@@ -14,26 +14,20 @@
 #'
 #' @section Main functions:
 #' \describe{
-#'   \item{\code{\link{betaregscale}}}{Unified fitting interface for both
+#'   \item{\code{\link{brs}}}{Unified fitting interface for both
 #'     fixed- and variable-dispersion models.}
-#'   \item{\code{\link{betaregscale_fit}}}{Fit a fixed-dispersion model.}
-#'   \item{\code{\link{betaregscale_fit_z}}}{Fit a variable-dispersion model.}
-#'   \item{\code{\link{betaregscale_loglik}}}{Compute the log-likelihood
-#'     (fixed dispersion).}
-#'   \item{\code{\link{betaregscale_loglik_z}}}{Compute the log-likelihood
-#'     (variable dispersion).}
-#'   \item{\code{\link{betaregscale_simulate}}}{Simulate interval-censored
-#'     data from a fixed-dispersion beta model.}
-#'   \item{\code{\link{betaregscale_simulate_z}}}{Simulate data from a
-#'     variable-dispersion beta model.}
-#'   \item{\code{\link{censoring_summary}}}{Visual and tabular summary of
+#'   \item{\code{\link{brs_fit_fixed}}}{Fit a fixed-dispersion model.}
+#'   \item{\code{\link{brs_fit_var}}}{Fit a variable-dispersion model.}
+#'   \item{\code{\link{brs_sim}}}{Simulate interval-censored
+#'     data from fixed or variable-dispersion beta models.}
+#'   \item{\code{\link{brs_cens}}}{Visual and tabular summary of
 #'     censoring structure.}
-#'   \item{\code{\link{bs_prepare}}}{Pre-process analyst data (validate,
+#'   \item{\code{\link{brs_prep}}}{Pre-process analyst data (validate,
 #'     classify censoring, and rescale) before model fitting.}
 #' }
 #'
 #' @section S3 methods:
-#' Objects of class \code{"betaregscale"} support: \code{print},
+#' Objects of class \code{"brs"} support: \code{print},
 #' \code{summary}, \code{coef}, \code{vcov}, \code{logLik}, \code{AIC},
 #' \code{BIC}, \code{nobs}, \code{formula}, \code{model.matrix},
 #' \code{fitted}, \code{residuals}, \code{predict}, \code{confint},
@@ -46,7 +40,7 @@
 #' @section Censoring types:
 #' The complete likelihood (Lopes, 2024, Eq. 2.24) supports four
 #' censoring types, classified automatically by
-#' \code{\link{check_response}}:
+#' \code{\link{brs_check}}:
 #' \describe{
 #'   \item{\eqn{\delta = 0} (exact)}{Continuous observations in (0, 1).}
 #'   \item{\eqn{\delta = 1} (left-censored)}{Observations at the scale

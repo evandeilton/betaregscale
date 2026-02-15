@@ -10,7 +10,6 @@ compute_start(
   link = "logit",
   link_phi = "logit",
   ncuts = 100L,
-  type = "m",
   lim = 0.5
 )
 }
@@ -25,8 +24,6 @@ multi-part).}
 \item{link_phi}{Dispersion link function name.}
 
 \item{ncuts}{Number of scale categories.}
-
-\item{type}{Interval type.}
 
 \item{lim}{Uncertainty half-width.}
 }

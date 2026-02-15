@@ -1,13 +1,13 @@
 # ============================================================================ #
-# Censoring summary <U+2014> visual and tabular description of censoring types
+# Censoring summary - visual and tabular description of censoring types
 # ============================================================================ #
 
 #' Graphical and tabular censoring summary
 #'
 #' @description
 #' Produces a visual summary of the censoring structure in a fitted
-#' \code{"betaregscale"} model or a response matrix produced by
-#' \code{\link{check_response}}.  The summary includes:
+#' \code{"brs"} model or a response matrix produced by
+#' \code{\link{brs_check}}.  The summary includes:
 #' \enumerate{
 #'   \item Bar chart of censoring type counts
 #'   \item Histogram of midpoint responses colored by censoring type
@@ -15,9 +15,9 @@
 #'   \item Proportion table of censoring types
 #' }
 #'
-#' @param object A fitted \code{"betaregscale"} object, a matrix
-#'   returned by \code{\link{check_response}}, or a data frame
-#'   returned by \code{\link{bs_prepare}} (must contain columns
+#' @param object A fitted \code{"brs"} object, a matrix
+#'   returned by \code{\link{brs_check}}, or a data frame
+#'   returned by \code{\link{brs_prep}} (must contain columns
 #'   \code{left}, \code{right}, \code{yt}, and \code{delta}).
 #' @param n_sample Integer: maximum number of observations to show
 #'   in the interval plot (default 100).  If the data has more
@@ -29,22 +29,24 @@
 #'   proportions.
 #'
 #' @examples
-#' \dontrun{
-#' fit <- betaregscale(y ~ x1 + x2, data = sim)
-#' censoring_summary(fit)
-#' censoring_summary(fit, gg = TRUE)
-#' }
+#' y <- c(0, 3, 5, 7, 10)
+#' Y <- brs_check(y, ncuts = 10)
+#' brs_cens(Y)
+#'
+#' prep <- brs_prep(data.frame(y = y), ncuts = 10)
+#' brs_cens(prep)
 #'
 #' @importFrom graphics barplot hist par layout legend plot.new plot.window text title segments
 #' @importFrom grDevices adjustcolor
+#' @rdname brs_cens
 #' @export
-censoring_summary <- function(object, n_sample = 100L, gg = FALSE, ...) {
+brs_cens <- function(object, n_sample = 100L, gg = FALSE, ...) {
   # Extract Y and delta
 
-  if (inherits(object, "betaregscale")) {
+  if (inherits(object, "brs")) {
     Y <- object$Y
     delta <- object$delta
-  } else if (is.data.frame(object) && isTRUE(attr(object, "bs_prepared")) &&
+  } else if (is.data.frame(object) && isTRUE(attr(object, "is_prepared")) &&
     all(c("left", "right", "yt", "delta") %in% names(object))) {
     Y <- as.matrix(object[, c("left", "right", "yt", "delta")])
     delta <- as.integer(object[["delta"]])
@@ -53,8 +55,8 @@ censoring_summary <- function(object, n_sample = 100L, gg = FALSE, ...) {
     delta <- as.integer(object[, "delta"])
   } else {
     stop(
-      "object must be a 'betaregscale' object, a matrix from check_response(), ",
-      "or a data.frame from bs_prepare().",
+      "object must be a 'brs' object, a matrix from brs_check(), ",
+      "or a data.frame from brs_prep().",
       call. = FALSE
     )
   }
@@ -81,13 +83,13 @@ censoring_summary <- function(object, n_sample = 100L, gg = FALSE, ...) {
   )
 
   if (gg) {
-    .censoring_summary_gg(
+    .brs_cens_gg(
       yt, left, right, delta, type_factor,
       type_labels, type_colors, n_sample,
       summary_df
     )
   } else {
-    .censoring_summary_base(
+    .brs_cens_base(
       yt, left, right, delta, type_factor,
       type_labels, type_colors, n_sample,
       summary_df
@@ -100,9 +102,9 @@ censoring_summary <- function(object, n_sample = 100L, gg = FALSE, ...) {
 
 # -- Base R implementation -------------------------------------------------- #
 
-.censoring_summary_base <- function(yt, left, right, delta, type_factor,
-                                    type_labels, type_colors, n_sample,
-                                    summary_df) {
+.brs_cens_base <- function(yt, left, right, delta, type_factor,
+                           type_labels, type_colors, n_sample,
+                           summary_df) {
   n <- length(delta)
 
   op <- par(mfrow = c(2, 2), mar = c(4, 4, 3, 1), oma = c(0, 0, 2, 0))
@@ -188,9 +190,9 @@ censoring_summary <- function(object, n_sample = 100L, gg = FALSE, ...) {
 
 # -- ggplot2 implementation ------------------------------------------------- #
 
-.censoring_summary_gg <- function(yt, left, right, delta, type_factor,
-                                  type_labels, type_colors, n_sample,
-                                  summary_df) {
+.brs_cens_gg <- function(yt, left, right, delta, type_factor,
+                         type_labels, type_colors, n_sample,
+                         summary_df) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for gg = TRUE.", call. = FALSE)
   }

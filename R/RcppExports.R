@@ -18,7 +18,7 @@
 #' @param repar  Integer reparameterization type (0, 1, or 2).
 #' @return Scalar log-likelihood value.
 #' @keywords internal
-.betaregscale_loglik_fixed_cpp <- function(param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
+.brs_loglik_fixed_cpp <- function(param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
     .Call(`_betaregscale_betaregscale_loglik_fixed_cpp`, param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 
@@ -40,7 +40,7 @@
 #' @param repar  Integer reparameterization type (0, 1, or 2).
 #' @return Scalar log-likelihood value.
 #' @keywords internal
-.betaregscale_loglik_variable_cpp <- function(param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
+.brs_loglik_variable_cpp <- function(param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
     .Call(`_betaregscale_betaregscale_loglik_variable_cpp`, param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 
@@ -59,7 +59,7 @@
 #' @param repar  Integer reparameterization type.
 #' @return Numeric gradient vector of length \code{ncol(X) + 1}.
 #' @keywords internal
-.betaregscale_grad_fixed_cpp <- function(param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
+.brs_grad_fixed_cpp <- function(param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
     .Call(`_betaregscale_betaregscale_grad_fixed_cpp`, param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 
@@ -77,7 +77,7 @@
 #' @param repar  Integer reparameterization type.
 #' @return Numeric gradient vector.
 #' @keywords internal
-.betaregscale_grad_variable_cpp <- function(param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
+.brs_grad_variable_cpp <- function(param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
     .Call(`_betaregscale_betaregscale_grad_variable_cpp`, param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 

@@ -98,10 +98,10 @@ link_to_code <- function(link) {
 #'   \code{shape2}.
 #'
 #' @examples
-#' beta_reparam(mu = 0.5, phi = 0.2, repar = 2)
+#' brs_repar(mu = 0.5, phi = 0.2, repar = 2)
 #'
 #' @export
-beta_reparam <- function(mu, phi, repar = 2L) {
+brs_repar <- function(mu, phi, repar = 2L) {
   repar <- as.integer(repar)
   stopifnot(repar %in% 0:2)
 
