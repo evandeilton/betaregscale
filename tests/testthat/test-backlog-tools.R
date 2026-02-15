@@ -37,3 +37,34 @@ test_that("brs_table accepts list input and no censoring columns", {
   expect_equal(nrow(tab), 2L)
   expect_false(any(c("exact", "left", "right", "interval") %in% names(tab)))
 })
+
+test_that("brs_marginaleffects returns AME table for mean model", {
+  sim <- .sim_for_tools(seed = 303)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  me <- brs_marginaleffects(
+    fit,
+    model = "mean",
+    type = "response",
+    interval = TRUE,
+    n_sim = 120
+  )
+  expect_true(is.data.frame(me))
+  expect_true(all(c("variable", "ame", "std.error", "ci.lower", "ci.upper") %in% names(me)))
+  expect_true(all(c("x1", "x2") %in% me$variable))
+})
+
+test_that("brs_marginaleffects supports precision effects", {
+  sim <- .sim_for_tools(seed = 909)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  me <- brs_marginaleffects(
+    fit,
+    model = "precision",
+    type = "link",
+    interval = FALSE
+  )
+  expect_true(is.data.frame(me))
+  expect_true("z1" %in% me$variable)
+  expect_true(all(is.na(me$std.error)))
+})
