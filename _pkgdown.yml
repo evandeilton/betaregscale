@@ -28,8 +28,8 @@ reference:
     desc: "Core functions for fitting beta interval regression models."
     contents:
       - betaregscale
-      - betaregscale_fit
-      - betaregscale_fit_z
+      - brs_fit_fixed
+      - brs_fit_fixed_z
 
   - title: "Log-Likelihood"
     desc: "Log-likelihood evaluation for fixed and variable dispersion."
@@ -40,40 +40,40 @@ reference:
   - title: "Simulation"
     desc: "Data simulation for Monte Carlo studies."
     contents:
-      - betaregscale_simulate
-      - betaregscale_simulate_z
+      - brs_sim
+      - brs_sim_z
 
   - title: "S3 Methods"
     desc: "Standard methods for fitted model objects of class betaregscale."
     contents:
-      - coef.betaregscale
-      - vcov.betaregscale
-      - summary.betaregscale
-      - print.betaregscale
-      - print.summary.betaregscale
-      - logLik.betaregscale
-      - AIC.betaregscale
-      - BIC.betaregscale
-      - nobs.betaregscale
-      - formula.betaregscale
-      - model.matrix.betaregscale
-      - fitted.betaregscale
-      - residuals.betaregscale
-      - predict.betaregscale
-      - confint.betaregscale
-      - plot.betaregscale
+      - coef.brs
+      - vcov.brs
+      - summary.brs
+      - print.brs
+      - print.summary.brs
+      - logLik.brs
+      - AIC.brs
+      - BIC.brs
+      - nobs.brs
+      - formula.brs
+      - model.matrix.brs
+      - fitted.brs
+      - residuals.brs
+      - predict.brs
+      - confint.brs
+      - plot.brs
 
   - title: "Diagnostics and Summaries"
     desc: "Functions for model diagnostics and censoring summaries."
     contents:
-      - censoring_summary
+      - brs_cens
       - est
       - gof
       - hessian_matrix
 
-  - title: "Data Preparation"
-    desc: "Functions for preparing response variables and reparameterization."
+  - title: "Data brs_prepion"
+    desc: "Functions for preparing brs_check variables and reparameterization."
     contents:
       - bs_prepare
-      - check_response
-      - beta_reparam
+      - brs_check
+      - brs_repar

@@ -49,7 +49,7 @@ library(betaregscale)
 ## Censoring types
 
 The complete likelihood (Lopes, 2024, Eq. 2.24) supports four censoring
-types, automatically classified by `check_response()`:
+types, automatically classified by `brs_check()`:
 
 | $\delta$ | Type | Likelihood contribution |
 |:--------:|:-----|:-----------------------|
@@ -65,19 +65,17 @@ reparameterization.
 
 ## Interval construction
 
-Scale observations are mapped to $(0, 1)$ with uncertainty intervals
-controlled by the `type` argument:
+Scale observations are mapped to $(0, 1)$ with midpoint uncertainty intervals:
 
-- `"m"` (midpoint): $y_t = y/K$, interval $[y_t - 0.5/K,\; y_t + 0.5/K]$
-- `"l"` (left-aligned): $y_t = y/K$, interval $[y_t,\; y_t + 1/K]$
-- `"r"` (right-aligned): $y_t = y/K$, interval $[y_t - 1/K,\; y_t]$
+$$y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]$$
 
-where $K$ is the number of scale categories (`ncuts`).
+where $K$ is the number of scale categories (`ncuts`) and $h$ is the
+half-width (`lim`, default 0.5).
 
 ```{r check-response}
-# Illustrate check_response with a 0-10 NRS scale
+# Illustrate brs_check with a 0-10 NRS scale
 y_example <- c(0, 3, 5, 7, 10)
-cr <- check_response(y_example, ncuts = 10)
+cr <- brs_check(y_example, ncuts = 10)
 cr
 ```
 
@@ -85,21 +83,21 @@ The `delta` column shows that $y = 0$ is left-censored ($\delta = 1$),
 $y = 10$ is right-censored ($\delta = 2$), and all interior values are
 interval-censored ($\delta = 3$).
 
-## Data preparation with `bs_prepare()`
+## Data preparation with `brs_prep()`
 
 In practice, analysts may want to supply their own censoring indicators
 or interval endpoints rather than relying on the automatic classification
-of `check_response()`. The `bs_prepare()` function provides a flexible,
-validated bridge between raw analyst data and `betaregscale()`.
+of `brs_check()`. The `brs_prep()` function provides a flexible,
+validated bridge between raw analyst data and `brs()`.
 
 It supports four input modes:
 
 ### Mode 1: Score only (automatic)
 
 ```{r bs-prepare-mode1}
-# Equivalent to check_response <U+2014> delta inferred from y
+# Equivalent to brs_check - delta inferred from y
 d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
-bs_prepare(d1, ncuts = 10)
+brs_prep(d1, ncuts = 10)
 ```
 
 ### Mode 2: Score + explicit censoring indicator
@@ -111,7 +109,7 @@ d2 <- data.frame(
   delta = c(0, 1, 2, 3),
   x1    = rnorm(4)
 )
-bs_prepare(d2, ncuts = 100)
+brs_prep(d2, ncuts = 100)
 ```
 
 ### Mode 3: Interval endpoints with NA patterns
@@ -126,7 +124,7 @@ d3 <- data.frame(
   y     = c(NA, NA, NA, 50),
   x1    = rnorm(4)
 )
-bs_prepare(d3, ncuts = 100)
+brs_prep(d3, ncuts = 100)
 ```
 
 ### Mode 4: Analyst-supplied intervals
@@ -141,26 +139,26 @@ d4 <- data.frame(
   right = c(52, 77),
   x1    = rnorm(2)
 )
-bs_prepare(d4, ncuts = 100)
+brs_prep(d4, ncuts = 100)
 ```
 
-### Using prepared data with `betaregscale()`
+### Using brs_prep with `brs()`
 
-Data processed by `bs_prepare()` is automatically detected by
-`betaregscale()` — the internal `check_response()` step is skipped:
+Data processed by `brs_prep()` is automatically detected by
+`brs()` - the internal `brs_check()` step is skipped:
 
-```{r bs-prepare-workflow}
+```{r prepare-workflow}
 set.seed(42)
 n <- 1000
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- betaregscale_simulate(
+sim <- brs_sim(
   formula = ~ x1 + x2, data = dat,
   beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
   link = "logit", link_phi = "logit",
   repar = 2
 )
-prep <- bs_prepare(sim, ncuts = 100)
-fit_prep <- betaregscale(y ~ x1 + x2,
+prep <- brs_prep(sim, ncuts = 100)
+fit_prep <- brs(y ~ x1 + x2,
   data = prep, repar = 2,
   link = "logit", link_phi = "logit"
 )
@@ -179,7 +177,7 @@ set.seed(4255)
 n <- 1000
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
 
-sim_fixed <- betaregscale_simulate(
+sim_fixed <- brs_sim(
   formula  = ~ x1 + x2,
   data     = dat,
   beta     = c(0.3, -0.6, 0.4),
@@ -187,21 +185,19 @@ sim_fixed <- betaregscale_simulate(
   link     = "logit",
   link_phi = "logit",
   ncuts    = 100,
-  type     = "m",
   repar    = 2
 )
 
 head(sim_fixed)
 ```
 
-The default midpoint interval type means that each observation is centered
-in its interval. For example, a score of 67 on a 0--100 scale yields
-$y_t = 0.67$ with interval $[0.665, 0.675]$.
+Each observation is centered in its interval. For example, a score of 67
+on a 0--100 scale yields $y_t = 0.67$ with interval $[0.665, 0.675]$.
 
 ### Fitting the model
 
 ```{r fit-fixed}
-fit_fixed <- betaregscale(
+fit_fixed <- brs(
   y ~ x1 + x2,
   data     = sim_fixed,
   link     = "logit",
@@ -218,7 +214,7 @@ z-tests and $p$-values based on the standard normal distribution.
 ### Goodness of fit
 
 ```{r gof-fixed}
-gof(fit_fixed)
+brs_gof(fit_fixed)
 ```
 
 ### Comparing link functions
@@ -229,19 +225,19 @@ can compare them using information criteria:
 ```{r compare-links}
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits <- lapply(setNames(links, links), function(lnk) {
-  betaregscale(y ~ x1 + x2, data = sim_fixed, link = lnk, repar = 2)
+  brs(y ~ x1 + x2, data = sim_fixed, link = lnk, repar = 2)
 })
 
 # Estimates
 est_table <- do.call(rbind, lapply(names(fits), function(lnk) {
-  e <- est(fits[[lnk]])
+  e <- brs_est(fits[[lnk]])
   e$link <- lnk
   e
 }))
 est_table
 
 # Goodness of fit
-gof_table <- do.call(rbind, lapply(fits, gof))
+gof_table <- do.call(rbind, lapply(fits, brs_gof))
 gof_table
 ```
 
@@ -284,11 +280,11 @@ confint(fit_fixed, model = "mean")
 
 ### Censoring structure
 
-The `censoring_summary()` function provides a visual and tabular
+The `brs_cens()` function provides a visual and tabular
 overview of the censoring types in the fitted model:
 
 ```{r censoring-summary, fig.height = 5}
-censoring_summary(fit_fixed)
+brs_cens(fit_fixed)
 ```
 
 ## Example 2: Variable dispersion model
@@ -296,7 +292,9 @@ censoring_summary(fit_fixed)
 In many applications, the dispersion parameter $\phi$ may depend on
 covariates. The package supports variable-dispersion models using the
 `Formula` package notation: `y ~ x1 + x2 | z1 + z2`, where the terms
-after `|` define the linear predictor for $\phi$.
+after `|` define the linear predictor for $\phi$. The same `brs_sim()`
+function is used for fixed and variable dispersion; the second formula
+part activates the precision submodel in simulation.
 
 ### Simulating data
 
@@ -311,9 +309,8 @@ dat_z <- data.frame(
   z2 = rnorm(n)
 )
 
-sim_var <- betaregscale_simulate_z(
-  formula_x = ~ x1 + x2 + x3,
-  formula_z = ~ z1 + z2,
+sim_var <- brs_sim(
+  formula = ~ x1 + x2 + x3 | z1 + z2,
   data = dat_z,
   beta = c(0.2, -0.6, 0.2, 0.2),
   zeta = c(0.2, -0.8, 0.6),
@@ -329,7 +326,7 @@ head(sim_var)
 ### Fitting the model
 
 ```{r fit-variable}
-fit_var <- betaregscale(
+fit_var <- brs(
   y ~ x1 + x2 | z1,
   data     = sim_var,
   link     = "logit",
@@ -363,19 +360,19 @@ vcov(fit_var, model = "mean")
 ```{r compare-links-var}
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits_var <- lapply(setNames(links, links), function(lnk) {
-  betaregscale(y ~ x1 + x2 | z1, data = sim_var, link = lnk, repar = 2)
+  brs(y ~ x1 + x2 | z1, data = sim_var, link = lnk, repar = 2)
 })
 
 # Estimates
 est_var <- do.call(rbind, lapply(names(fits_var), function(lnk) {
-  e <- est(fits_var[[lnk]])
+  e <- brs_est(fits_var[[lnk]])
   e$link <- lnk
   e
 }))
 est_var
 
 # Goodness of fit
-gof_var <- do.call(rbind, lapply(fits_var, gof))
+gof_var <- do.call(rbind, lapply(fits_var, brs_gof))
 gof_var
 ```
 
@@ -388,7 +385,7 @@ plot(fit_var)
 ## S3 methods reference
 
 The following standard S3 methods are available for objects of class
-`"betaregscale"`:
+`"brs"`:
 
 | Method | Description |
 |:-------|:-----------|
@@ -426,10 +423,10 @@ variation: smaller $\phi$ means less variability.
 
 ```{r reparam}
 # Precision parameterization: mu = 0.5, phi = 10 (high precision)
-beta_reparam(mu = 0.5, phi = 10, repar = 1)
+brs_repar(mu = 0.5, phi = 10, repar = 1)
 
 # Mean-variance parameterization: mu = 0.5, phi = 0.1 (low dispersion)
-beta_reparam(mu = 0.5, phi = 0.1, repar = 2)
+brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 ```
 
 ## References
@@ -440,3 +437,4 @@ beta_reparam(mu = 0.5, phi = 0.1, repar = 2)
 - Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   **31**(7), 799--815.
+

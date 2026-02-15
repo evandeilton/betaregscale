@@ -11,11 +11,8 @@
 #   delta = 2 : right-censored       -- contribution 1 - F(l_i | theta)
 #   delta = 3 : interval-censored    -- contribution F(u_i | theta) - F(l_i | theta)
 #
-# Three interval types are supported for interval-censored observations
-# (Section 2.7, Figure 4):
-#   "m" (midpoint): symmetric interval centered on the observed value
-#   "l" (left):     interval shifted to the left
-#   "r" (right):    interval shifted to the right
+# Interval-censored observations use midpoint intervals centered on the
+# observed scale value (Section 2.7, Figure 4).
 #
 # ENDPOINT RULES (complete reference table)
 # -----------------------------------------
@@ -29,9 +26,7 @@
 #   1   | y != 0      | eps                | (y + h) / K       | y / K
 #   2   | y == K      | (K - h) / K        | 1 - eps           | 1 - eps
 #   2   | y != K      | (y - h) / K        | 1 - eps           | y / K
-#   3   | type = "m"  | (y - h) / K        | (y + h) / K       | y / K
-#   3   | type = "l"  | (y - 2h) / K       | y / K             | y / K
-#   3   | type = "r"  | y / K              | (y + 2h) / K      | y / K
+#   3   |             | (y - h) / K        | (y + h) / K       | y / K
 #
 # All final endpoints are clamped to [eps, 1 - eps].
 #
@@ -88,8 +83,8 @@
 #'     specific variation.  In both cases \eqn{u_i = 1 - \epsilon}.}
 #'   \item{\eqn{\delta = 3}}{Interval-censored: the standard case for
 #'     scale data.  The contribution is
-#'     \eqn{F(u_i | \theta) - F(l_i | \theta)}.  Endpoints depend on
-#'     the interval \code{type} (see Details).}
+#'     \eqn{F(u_i | \theta) - F(l_i | \theta)} with midpoint interval
+#'     endpoints \eqn{[(y - \mathrm{lim})/K,\; (y + \mathrm{lim})/K]}.}
 #' }
 #'
 #' @details
@@ -111,7 +106,7 @@
 #' When the \code{delta} argument is provided, the user-supplied
 #' censoring indicators override the automatic boundary-based rules
 #' on a per-observation basis.  This is the mechanism used by
-#' \code{\link{betaregscale_simulate}} when the analyst forces a
+#' \code{\link{brs_sim}} when the analyst forces a
 #' specific censoring type in Monte Carlo studies.
 #'
 #' The endpoint formulas for each delta value are:
@@ -130,12 +125,8 @@
 #'     \tab \eqn{1 - \epsilon} \cr
 #'   2 \tab \eqn{y \neq K} (forced) \tab \eqn{(y - \mathrm{lim}) / K}
 #'     \tab \eqn{1 - \epsilon} \cr
-#'   3 \tab type \code{"m"} \tab \eqn{(y - \mathrm{lim}) / K}
+#'   3 \tab midpoint interval \tab \eqn{(y - \mathrm{lim}) / K}
 #'     \tab \eqn{(y + \mathrm{lim}) / K} \cr
-#'   3 \tab type \code{"l"} \tab \eqn{(y - 2\mathrm{lim}) / K}
-#'     \tab \eqn{y / K} \cr
-#'   3 \tab type \code{"r"} \tab \eqn{y / K}
-#'     \tab \eqn{(y + 2\mathrm{lim}) / K} \cr
 #' }
 #'
 #' All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]} with
@@ -153,40 +144,34 @@
 #' \strong{Interaction with the fitting pipeline}:
 #'
 #' This function is called internally by \code{.extract_response()}
-#' when the data does \emph{not} carry the \code{"bs_prepared"}
-#' attribute.  When data has been pre-processed by
-#' \code{\link{bs_prepare}} or by simulation with forced delta
-#' (\code{\link{betaregscale_simulate}} with \code{delta != NULL}),
+#'   when the data does \emph{not} carry the \code{"is_prepared"}
+#'   attribute.  If data has already been processed by
+#'   \code{\link{brs_prep}} or by simulation with forced delta
+#' (\code{\link{brs_sim}} with \code{delta != NULL}),
 #' the pre-computed columns are used directly and
-#' \code{check_response()} is skipped.
+#' \code{brs_check()} is skipped.
 #'
-#' @param y      Numeric vector: the raw response.  Can be either
+#' @param y      Numeric vector: the raw response. Can be either
 #'   integer scores on the scale \eqn{\{0, 1, \ldots, K\}} or
 #'   continuous values already in \eqn{(0, 1)}.
-#' @param type   \strong{Deprecated.}
-#'   Character: interval type for \eqn{\delta = 3} observations.
-#'   \code{"m"} = midpoint (default),
-#'   \code{"l"} = left-aligned,
-#'   \code{"r"} = right-aligned.
-#'   Use \code{\link{bs_prepare}} to control interval geometry instead.
 #' @param ncuts  Integer: number of scale categories \eqn{K}
-#'   (default 100).  Must be \eqn{\geq \max(y)}.
+#'   (default 100). Must be \eqn{\geq \max(y)}.
 #' @param lim    Numeric: half-width \eqn{h} of the uncertainty
-#'   region (default 0.5).  Controls the width of the interval
+#'   region (default 0.5). Controls the width of the interval
 #'   around each scale point.
-#' @param delta  Integer vector or \code{NULL}.  If \code{NULL}
+#' @param delta  Integer vector or \code{NULL}. If \code{NULL}
 #'   (default), censoring types are inferred automatically from the
 #'   boundary rules described above.
 #'
 #'   If provided, must have the same length as \code{y}, with every
-#'   element in \code{\{0, 1, 2, 3\}}.  The supplied values override
+#'   element in \code{\{0, 1, 2, 3\}}. The supplied values override
 #'   the automatic classification on a per-observation basis, and the
 #'   endpoint formulas adapt to non-boundary observations as
 #'   described in the table above.
 #'
 #'   This parameter is used internally by the simulation functions
 #'   when the analyst forces a specific censoring type
-#'   (e.g., \code{betaregscale_simulate(..., delta = 2)}).
+#'   (e.g., \code{brs_sim(..., delta = 2)}).
 #'
 #' @return A numeric matrix with \eqn{n} rows and 5 columns:
 #' \describe{
@@ -202,28 +187,26 @@
 #'     \eqn{1 - F(l)}, 3 = interval-censored \eqn{F(u) - F(l)}.}
 #' }
 #'
-#' @seealso \code{\link{bs_prepare}} for the analyst-facing
-#'   pre-processing function; \code{\link{betaregscale_simulate}}
+#' @seealso \code{\link{brs_prep}} for the analyst-facing
+#'   pre-processing function; \code{\link{brs_sim}}
 #'   for simulation with forced delta.
 #'
 #' @examples
 #' # Scale data with boundary observations
 #' y <- c(0, 3, 5, 7, 9, 10)
-#' check_response(y, ncuts = 10)
+#' brs_check(y, ncuts = 10)
 #'
 #' # Force all observations to be exact (delta = 0)
-#' check_response(y, ncuts = 10, delta = rep(0L, length(y)))
+#' brs_check(y, ncuts = 10, delta = rep(0L, length(y)))
 #'
 #' # Force delta = 1 on non-boundary observations:
 #' # endpoints use actual y values, preserving variation
 #' y2 <- c(30, 60)
-#' check_response(y2, ncuts = 100, delta = c(1L, 1L))
+#' brs_check(y2, ncuts = 100, delta = c(1L, 1L))
 #' #  left = (eps, eps), right = (30.5/100, 60.5/100)
-#'
+#' @rdname brs_check
 #' @export
-check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5,
-                           delta = NULL) {
-  type <- match.arg(type, c("m", "l", "r"))
+brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL) {
   ncuts <- as.integer(ncuts)
   n <- length(y)
 
@@ -330,21 +313,9 @@ check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5,
         }
       },
       "3" = {
-        # Interval-censored
-        switch(type,
-          m = {
-            y_left[i] <- (yi - lim) / ncuts
-            y_right[i] <- (yi + lim) / ncuts
-          },
-          l = {
-            y_left[i] <- (yi - 2 * lim) / ncuts
-            y_right[i] <- yi / ncuts
-          },
-          r = {
-            y_left[i] <- yi / ncuts
-            y_right[i] <- (yi + 2 * lim) / ncuts
-          }
-        )
+        # Interval-censored (midpoint geometry)
+        y_left[i] <- (yi - lim) / ncuts
+        y_right[i] <- (yi + lim) / ncuts
       }
     )
   }
@@ -370,45 +341,43 @@ check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5,
 #'
 #' \strong{Decision logic}:
 #' \enumerate{
-#'   \item If \code{data} carries the \code{"bs_prepared"} attribute
-#'     (set by \code{\link{bs_prepare}} or by
-#'     \code{\link{betaregscale_simulate}} with forced \code{delta}),
-#'     the pre-computed columns are extracted directly.  Row subsetting
+#'   \item If \code{data} carries the \code{"is_prepared"} attribute
+#'     (set by \code{\link{brs_prep}} or by
+#'     \code{\link{brs_sim}} with forced \code{delta}),
+#'     the pre-computed columns are extracted directly. Row subsetting
 #'     uses \code{as.integer(rownames(mf))} to honour any subsetting
 #'     performed by \code{model.frame()}.
 #'   \item Otherwise, the raw response is extracted via
 #'     \code{model.response(mf)} and passed to
-#'     \code{\link{check_response}} for automatic classification.
+#'     \code{\link{brs_check}} for automatic classification.
 #' }
 #'
 #' This two-path design ensures that:
 #' \itemize{
-#'   \item Data prepared by \code{bs_prepare()} (with possibly
-#'     analyst-forced delta, custom left/right, or NA-pattern
-#'     inference) is passed through unchanged.
-#'   \item Simulated data with forced delta (which carries the
-#'     \code{"bs_prepared"} attribute) preserves the forced
+#'   \item Data prepared by \code{brs_prep()} (with possibly
+#'     forced intervals or custom endpoints) carries the
+#'     \code{"is_prepared"} attribute.
+#'   \item \code{brs_sim()} also attaches the \code{"is_prepared"}
+#'     attribute when \code{delta} is forced, preserving
 #'     censoring indicators and observation-specific endpoints.
 #'   \item Raw data without pre-processing is classified
 #'     automatically by the boundary rules of
-#'     \code{check_response()}.
+#'     \code{brs_check()}.
 #' }
 #'
 #' @param mf Model frame (from \code{model.frame}).
 #' @param data Original data frame passed by the user.  May carry
-#'   the \code{"bs_prepared"} attribute.
+#'   the \code{"is_prepared"} attribute.
 #' @param ncuts Integer: number of scale categories \eqn{K}.
-#' @param type Character: interval type (only used when falling back
-#'   to \code{check_response}).
 #' @param lim Numeric: uncertainty half-width (only used when falling
-#'   back to \code{check_response}).
+#'   back to \code{brs_check}).
 #' @return A numeric matrix with columns \code{left}, \code{right},
 #'   \code{yt}, \code{y}, \code{delta} --- the same structure
-#'   produced by \code{\link{check_response}}.
+#'   produced by \code{\link{brs_check}}.
 #' @keywords internal
 #' @noRd
-.extract_response <- function(mf, data, ncuts, type, lim) {
-  if (isTRUE(attr(data, "bs_prepared")) &&
+.extract_response <- function(mf, data, ncuts, lim) {
+  if (isTRUE(attr(data, "is_prepared")) &&
     all(c("left", "right", "yt", "delta") %in% names(data))) {
     rows <- as.integer(rownames(mf))
     cbind(
@@ -419,8 +388,8 @@ check_response <- function(y, type = "m", ncuts = 100L, lim = 0.5,
       delta = data[["delta"]][rows]
     )
   } else {
-    check_response(stats::model.response(mf, "numeric"),
-      ncuts = ncuts, type = type, lim = lim
+    brs_check(stats::model.response(mf, "numeric"),
+      ncuts = ncuts, lim = lim
     )
   }
 }

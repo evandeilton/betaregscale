@@ -1,3 +1,69 @@
+# betaregscale 2.4.0
+
+## Breaking changes
+
+* `brs_sim_var()` is no longer exported. Variable-dispersion simulation is now done through `brs_sim()` using a two-part formula (for example, `~ x1 + x2 | z1 + z2`).
+* `brs_loglik()` and `brs_loglik_var()` are now internal helpers and are no longer part of the user-facing API.
+
+## New features
+
+* `brs_sim()` is now the single simulation entry point for both fixed- and variable-dispersion models, with formula semantics aligned to `brs()`.
+
+## Improvements
+
+* Release documentation was updated to reflect the consolidated simulation API and current exported function set.
+* `brs_prep()` consistency warnings are emitted once per call on final prepared output, improving test stability and warning capture behavior.
+
+---
+
+# betaregscale 2.3.0
+
+## Breaking changes
+
+* **API Overhaul**: All exported functions have been renamed to use the compact `brs_` prefix for consistency and ease of typing.
+    * `betaregscale()` -> `brs()`
+    * `betaregscale_fit()` -> `brs_fit_fixed()`
+    * `betaregscale_fit_z()` -> `brs_fit_var()`
+    * `betaregscale_loglik()` -> `brs_loglik()`
+    * `betaregscale_loglik_z()` -> `brs_loglik_var()`
+    * `betaregscale_simulate()` -> `brs_sim()`
+    * `betaregscale_simulate_z()` -> `brs_sim_var()`
+    * `prepare_data()` -> `brs_prep()`
+    * `check_response()` -> `brs_check()`
+    * `censoring_summary()` -> `brs_cens()`
+    * `beta_reparam()` -> `brs_repar()`
+    * `gof()` -> `brs_gof()`
+    * `est()` -> `brs_est()`
+    * `hessian_matrix()` -> `brs_hessian()`
+    * `betaregscale_coef()` -> `brs_coef()`
+
+* **Class Renaming**: The S3 class `betaregscale` has been renamed to `brs`. All associated S3 methods have been updated accordingly (e.g., `summary.brs`, `plot.brs`).
+
+---
+
+# betaregscale 2.2.0
+
+## Breaking changes
+
+* **`type` argument removed**: The deprecated `type` argument has been
+  completely removed from all functions: `check_response()`,
+  `prepare_data()`, `betaregscale()`, `betaregscale_fit()`,
+  `betaregscale_fit_z()`, `betaregscale_loglik()`,
+  `betaregscale_loglik_z()`, `betaregscale_simulate()`,
+  `betaregscale_simulate_z()`, and internal helpers `compute_start()`,
+  `.extract_response()`, `.build_simulated_response()`, and
+  `.compute_endpoints()`.  The midpoint interval geometry
+  (`type = "m"`) is now the only option and is hardcoded internally.
+  Users who previously relied on `type = "l"` or `type = "r"` should
+  use `prepare_data()` to supply custom left/right endpoints instead.
+
+* **Renamed `bs_prepare()` to `prepare_data()`**: The data preparation
+  function has been renamed to `prepare_data()` to be more descriptive
+  and consistent with the package's verb-based API. The returned data
+  frame now carries the `is_prepared` attribute instead of `bs_prepared`.
+
+---
+
 # betaregscale 2.1.1
 
 ## New features
@@ -80,7 +146,7 @@
   `betaregscale_fit_z()`, `betaregscale_loglik()`,
   `betaregscale_loglik_z()`, `betaregscale_simulate()`,
   `betaregscale_simulate_z()`, `check_response()`, and
-  `bs_prepare()`. Use `bs_prepare()` to control interval geometry
+  `prepare_data()`. Use `prepare_data()` to control interval geometry
   instead. The parameter still works but emits a deprecation warning
   when passed explicitly.
 

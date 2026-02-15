@@ -16,16 +16,16 @@
 #'
 #' @description
 #' Produces up to six diagnostic plots for a fitted
-#' \code{"betaregscale"} model: residuals vs indices, Cook's
+#' \code{"brs"} model: residuals vs indices, Cook's
 #' distance, residuals vs linear predictor, residuals vs fitted
 #' values, a half-normal plot with simulated envelope, and
 #' predicted vs observed.
 #'
-#' @param x      A fitted \code{"betaregscale"} object.
+#' @param x      A fitted \code{"brs"} object.
 #' @param which  Integer vector selecting which plots to draw
 #'   (default \code{1:4}).
 #' @param type   Character: residual type passed to
-#'   \code{\link{residuals.betaregscale}} (default \code{"rqr"}).
+#'   \code{\link{residuals.brs}} (default \code{"rqr"}).
 #' @param nsim   Integer: number of simulations for the half-normal
 #'   envelope (default 100).
 #' @param level  Numeric: confidence level for the envelope
@@ -38,29 +38,29 @@
 #'
 #' @return Invisibly returns \code{x}.
 #'
-#' @method plot betaregscale
+#' @method plot brs
 #' @importFrom stats qnorm fitted residuals hatvalues qqnorm quantile median
 #' @importFrom graphics plot abline par mtext segments lines
 #' @importFrom grDevices dev.interactive devAskNewPage adjustcolor
 #' @export
-plot.betaregscale <- function(x,
-                              which = 1:4,
-                              type = "rqr",
-                              nsim = 100L,
-                              level = 0.9,
-                              caption = c(
-                                "Residuals vs indices",
-                                "Cook's distance",
-                                "Residuals vs linear predictor",
-                                "Residuals vs fitted values",
-                                "Half-normal plot",
-                                "Predicted vs observed"
-                              ),
-                              sub.caption = NULL,
-                              ask = prod(par("mfcol")) < length(which) &&
-                                dev.interactive(),
-                              gg = FALSE,
-                              ...) {
+plot.brs <- function(x,
+                     which = 1:4,
+                     type = "rqr",
+                     nsim = 100L,
+                     level = 0.9,
+                     caption = c(
+                       "Residuals vs indices",
+                       "Cook's distance",
+                       "Residuals vs linear predictor",
+                       "Residuals vs fitted values",
+                       "Half-normal plot",
+                       "Predicted vs observed"
+                     ),
+                     sub.caption = NULL,
+                     ask = prod(par("mfcol")) < length(which) &&
+                       dev.interactive(),
+                     gg = FALSE,
+                     ...) {
   .check_class(x)
   if (is.null(sub.caption)) {
     sub.caption <- deparse(x$call, width.cutoff = 80L)
