@@ -4,20 +4,21 @@ Validates and transforms raw data into the format required by
 [`betaregscale`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md).
 The analyst can supply data in several ways:
 
-1.  **Minimal**: only the score `y`. Censoring is inferred automatically
-    (equivalent to
-    [`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md)).
+1.  **Minimal (Mode 1)**: only the score `y`. Censoring is inferred
+    automatically: \\y = 0 \to \delta = 1\\, \\y = K \to \delta = 2\\,
+    \\0 \< y \< K \to \delta = 3\\, \\y \in (0, 1) \to \delta = 0\\.
 
-2.  **Classic**: `y` + explicit `delta`. The analyst states the
-    censoring type; interval endpoints are computed.
+2.  **Classic (Mode 2)**: `y` + explicit `delta`. The analyst declares
+    the censoring type; interval endpoints are computed using the actual
+    `y` value.
 
-3.  **Interval**: `left` and/or `right` columns (on the original scale).
-    Censoring is inferred from the NA pattern.
+3.  **Interval (Mode 3)**: `left` and/or `right` columns (on the
+    original scale). Censoring is inferred from the NA pattern.
 
-4.  **Full**: `y`, `left`, and `right` together. The analyst's own
-    endpoints are rescaled directly to \\(0, 1)\\.
+4.  **Full (Mode 4)**: `y`, `left`, and `right` together. The analyst's
+    own endpoints are rescaled directly to \\(0, 1)\\.
 
-All covariate columns are preserved unchanged in the output data frame.
+All covariate columns are preserved unchanged in the output.
 
 ## Usage
 
@@ -107,8 +108,9 @@ call.
 ## Details
 
 **Priority rule**: if `delta` is provided (non-`NA`), it takes
-precedence. When `delta` is `NA`, the function infers the censoring type
-from the pattern of `left`, `right`, and `y`:
+precedence over all automatic classification rules. When `delta` is
+`NA`, the function infers the censoring type from the pattern of `left`,
+`right`, and `y`:
 
 |        |         |      |         |                              |                     |
 |--------|---------|------|---------|------------------------------|---------------------|
@@ -125,6 +127,30 @@ When `y`, `left`, and `right` are all present for the same observation,
 the analyst's `left`/`right` values are used directly (rescaled by \\K
 =\\ `ncuts`) and `delta` is set to 3 (interval-censored) unless the
 analyst supplied `delta` explicitly.
+
+**Endpoint formulas for Mode 2 (y + explicit delta)**:
+
+When the analyst supplies `delta` explicitly, the endpoint computation
+uses the actual `y` value to produce observation-specific bounds. This
+is the same logic used by
+[`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+with a user-supplied `delta` vector:
+
+|            |              |                            |                            |
+|------------|--------------|----------------------------|----------------------------|
+| \\\delta\\ | Condition    | \\l_i\\ (left)             | \\u_i\\ (right)            |
+| 0          | (any)        | \\y / K\\                  | \\y / K\\                  |
+| 1          | \\y = 0\\    | \\\epsilon\\               | \\\mathrm{lim} / K\\       |
+| 1          | \\y \neq 0\\ | \\\epsilon\\               | \\(y + \mathrm{lim}) / K\\ |
+| 2          | \\y = K\\    | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
+| 2          | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
+| 3          | type `"m"`   | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
+
+**Consistency warnings**: when the analyst supplies `delta` values that
+are unusual for the given `y` (e.g., \\\delta = 1\\ but \\y \neq 0\\),
+the function emits a warning but proceeds. This is by design for Monte
+Carlo workflows where forced delta on non-boundary observations is
+intentional.
 
 All endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\ with
 \\\epsilon = 10^{-5}\\.
@@ -162,7 +188,7 @@ bs_prepare(d2, ncuts = 100)
 #>      left   right      yt  y delta           x1
 #> 1 0.50000 0.50000 0.50000 50     0 -1.113118208
 #> 2 0.00001 0.00500 0.00001  0     1  1.240983896
-#> 3 0.99500 0.99999 0.99999 99     2  0.003481935
+#> 3 0.98500 0.99999 0.99000 99     2  0.003481935
 #> 4 0.49500 0.50500 0.50000 50     3 -1.237794586
 
 # --- Mode 3: left/right with NA patterns ---

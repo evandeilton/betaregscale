@@ -1,20 +1,90 @@
 # Changelog
 
-## betaregscale 2.1.0
+## betaregscale 2.1.1
 
 ### New features
 
-- [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
+- **`delta` argument in simulation functions**:
+  [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
   and
   [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
   gain a `delta` argument (default `NULL`) that forces all simulated
   observations to a specific censoring type: 0 (exact), 1 (left), 2
   (right), or 3 (interval). This enables targeted Monte Carlo studies
-  with controlled censoring structures.
-- [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
-  gains a `delta` argument that accepts a vector of pre-specified
-  censoring indicators, overriding the automatic boundary-based
-  classification.
+  where the analyst controls the censoring structure.
+
+  When `delta` is non-NULL, the actual simulated values
+  (`y_raw = rbeta(n, a, b)`) are preserved on the scale grid, and the
+  forced censoring indicator is passed to
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+  as a vector. This ensures that each observation retains its
+  covariate-driven variation with observation-specific endpoints.
+
+  The returned data frame carries `attr(, "bs_prepared") = TRUE` so that
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md),
+  [`betaregscale_loglik()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.md),
+  and all fitting functions use the pre-computed `left`, `right`, `yt`,
+  and `delta` columns directly, bypassing the automatic boundary
+  classification. Without this attribute, the fitting pipeline would
+  re-classify the response from the `y` column alone, which would ignore
+  the forced delta.
+
+- **`delta` argument in
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)**:
+  accepts an integer vector of pre-specified censoring indicators,
+  overriding the automatic boundary-based classification on a
+  per-observation basis. The endpoint formulas adapt to non-boundary
+  observations:
+
+  | delta | condition | left (l_i)    | right (u_i)   |
+  |-------|-----------|---------------|---------------|
+  | 0     | any       | y / K         | y / K         |
+  | 1     | y = 0     | eps           | lim / K       |
+  | 1     | y != 0    | eps           | (y + lim) / K |
+  | 2     | y = K     | (K - lim) / K | 1 - eps       |
+  | 2     | y != K    | (y - lim) / K | 1 - eps       |
+  | 3     | type “m”  | (y - lim) / K | (y + lim) / K |
+
+  The distinction between boundary and non-boundary observations is
+  essential: when delta = 1 is forced on a non-zero y, the upper bound
+  uses the actual y value ((y + lim)/K) rather than the fixed boundary
+  formula (lim/K). This preserves the information content of each
+  observation.
+
+- **Observation-specific endpoints in
+  [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)**:
+  the internal `.compute_endpoints()` helper now uses the same adaptive
+  formulas as
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+  for analyst-forced left/right censoring on non-boundary scores.
+  Previously, delta = 1 always produced `right = lim/K` and delta = 2
+  always produced `left = (K - lim)/K`, regardless of the actual y
+  value.
+
+### Bug fixes
+
+- **Simulation with forced `delta = 1` or `delta = 2`**: the internal
+  `.build_simulated_response()` helper previously replaced all y values
+  with boundary values (`y_grid = rep(0, n)` for delta = 1,
+  `y_grid = rep(ncuts, n)` for delta = 2). This produced degenerate data
+  where every observation had identical endpoints (e.g., all
+  `left = 0.995, right = 0.99999` for delta = 2), destroying all
+  covariate-driven variation and making regression fitting impossible.
+
+  The fix preserves the actual simulated grid values
+  (`y_grid = round(y_raw * ncuts)`) and passes a forced delta vector to
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md),
+  which computes observation-specific endpoints using the actual y
+  values.
+
+- **Missing `"bs_prepared"` attribute on simulation output**: when
+  `delta` was forced, the simulation functions did not mark the output
+  with `attr(, "bs_prepared") = TRUE`. As a result,
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md)
+  would re-classify the response via
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md),
+  silently overwriting the forced delta with automatic boundary rules.
+  The attribute is now set correctly.
 
 ### Deprecations
 

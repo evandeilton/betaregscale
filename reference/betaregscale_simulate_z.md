@@ -2,7 +2,7 @@
 
 Generates observations from a beta regression model with
 observation-specific dispersion governed by a second linear predictor.
-The `delta` argument controls the censoring type.
+The `delta` argument controls the censoring type of the simulated data.
 
 ## Usage
 
@@ -55,7 +55,7 @@ betaregscale_simulate_z(
 
 - ncuts:
 
-  Number of scale categories (default 100).
+  Integer: number of scale categories \\K\\ (default 100).
 
 - type:
 
@@ -65,23 +65,63 @@ betaregscale_simulate_z(
 
 - lim:
 
-  Uncertainty half-width (default 0.5).
+  Numeric: uncertainty half-width \\h\\ (default 0.5).
 
 - repar:
 
-  Reparameterization scheme (default 2).
+  Integer: reparameterization scheme (default 2).
 
 - delta:
 
   Integer or `NULL`. If `NULL` (default), censoring is determined
   automatically. If an integer in `{0, 1, 2, 3}`, all simulated
-  observations are forced to that censoring type. See
+  observations are forced to that censoring type with
+  observation-specific endpoints. See
   [`betaregscale_simulate`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
-  for details.
+  for the full specification.
 
 ## Value
 
-A `data.frame` with interval endpoints and predictors.
+A `data.frame` with columns: `left`, `right`, `yt`, `y`, `delta`, plus
+the predictor columns from the mean and dispersion design matrices. When
+`delta != NULL`, the data frame carries the attribute
+`"bs_prepared" = TRUE`.
+
+## Details
+
+The data generation is analogous to
+[`betaregscale_simulate`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md),
+but with observation-specific dispersion:
+
+1.  Mean linear predictor: \\\mu_i = g^{-1}(X_i \beta)\\.
+
+2.  Dispersion linear predictor: \\\phi_i = h^{-1}(Z_i \zeta)\\.
+
+3.  Beta shape parameters \\(a_i, b_i)\\ are derived from \\(\mu_i,
+    \phi_i)\\ per the reparameterization.
+
+4.  \\y^\*\_i \sim \text{Beta}(a_i, b_i)\\.
+
+5.  Response matrix built by `.build_simulated_response()`.
+
+The `delta` argument has exactly the same semantics and endpoint rules
+as in
+[`betaregscale_simulate`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md).
+When `delta != NULL`, the returned data frame carries
+`attr(, "bs_prepared") = TRUE`.
+
+See
+[`betaregscale_simulate`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
+for the complete documentation of the delta-forced endpoint formulas,
+the `"bs_prepared"` attribute, and the interaction with the fitting
+pipeline.
+
+## See also
+
+[`betaregscale_simulate`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
+for the full documentation of delta semantics;
+[`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+for the endpoint formulas.
 
 ## Examples
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,16 +32,58 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.1.0" id="betaregscale-210">betaregscale 2.1.0<a class="anchor" aria-label="anchor" href="#betaregscale-210"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.1.1" id="betaregscale-211">betaregscale 2.1.1<a class="anchor" aria-label="anchor" href="#betaregscale-211"></a></h2>
 <div class="section level3">
-<h3 id="new-features-2-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-2-1-0"></a></h3>
+<h3 id="new-features-2-1-1">New features<a class="anchor" aria-label="anchor" href="#new-features-2-1-1"></a></h3>
 <ul><li>
-<code><a href="../reference/betaregscale_simulate.html">betaregscale_simulate()</a></code> and <code><a href="../reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code> gain a <code>delta</code> argument (default <code>NULL</code>) that forces all simulated observations to a specific censoring type: 0 (exact), 1 (left), 2 (right), or 3 (interval). This enables targeted Monte Carlo studies with controlled censoring structures.</li>
+<p><strong><code>delta</code> argument in simulation functions</strong>: <code><a href="../reference/betaregscale_simulate.html">betaregscale_simulate()</a></code> and <code><a href="../reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code> gain a <code>delta</code> argument (default <code>NULL</code>) that forces all simulated observations to a specific censoring type: 0 (exact), 1 (left), 2 (right), or 3 (interval). This enables targeted Monte Carlo studies where the analyst controls the censoring structure.</p>
+<p>When <code>delta</code> is non-NULL, the actual simulated values (<code>y_raw = rbeta(n, a, b)</code>) are preserved on the scale grid, and the forced censoring indicator is passed to <code><a href="../reference/check_response.html">check_response()</a></code> as a vector. This ensures that each observation retains its covariate-driven variation with observation-specific endpoints.</p>
+<p>The returned data frame carries <code>attr(, "bs_prepared") = TRUE</code> so that <code><a href="../reference/betaregscale.html">betaregscale()</a></code>, <code><a href="../reference/betaregscale_loglik.html">betaregscale_loglik()</a></code>, and all fitting functions use the pre-computed <code>left</code>, <code>right</code>, <code>yt</code>, and <code>delta</code> columns directly, bypassing the automatic boundary classification. Without this attribute, the fitting pipeline would re-classify the response from the <code>y</code> column alone, which would ignore the forced delta.</p>
+</li>
 <li>
-<code><a href="../reference/check_response.html">check_response()</a></code> gains a <code>delta</code> argument that accepts a vector of pre-specified censoring indicators, overriding the automatic boundary-based classification.</li>
+<p><strong><code>delta</code> argument in <code><a href="../reference/check_response.html">check_response()</a></code></strong>: accepts an integer vector of pre-specified censoring indicators, overriding the automatic boundary-based classification on a per-observation basis. The endpoint formulas adapt to non-boundary observations:</p>
+<table class="table"><thead><tr class="header"><th>delta</th>
+<th>condition</th>
+<th>left (l_i)</th>
+<th>right (u_i)</th>
+</tr></thead><tbody><tr class="odd"><td>0</td>
+<td>any</td>
+<td>y / K</td>
+<td>y / K</td>
+</tr><tr class="even"><td>1</td>
+<td>y = 0</td>
+<td>eps</td>
+<td>lim / K</td>
+</tr><tr class="odd"><td>1</td>
+<td>y != 0</td>
+<td>eps</td>
+<td>(y + lim) / K</td>
+</tr><tr class="even"><td>2</td>
+<td>y = K</td>
+<td>(K - lim) / K</td>
+<td>1 - eps</td>
+</tr><tr class="odd"><td>2</td>
+<td>y != K</td>
+<td>(y - lim) / K</td>
+<td>1 - eps</td>
+</tr><tr class="even"><td>3</td>
+<td>type “m”</td>
+<td>(y - lim) / K</td>
+<td>(y + lim) / K</td>
+</tr></tbody></table><p>The distinction between boundary and non-boundary observations is essential: when delta = 1 is forced on a non-zero y, the upper bound uses the actual y value ((y + lim)/K) rather than the fixed boundary formula (lim/K). This preserves the information content of each observation.</p>
+</li>
+<li><p><strong>Observation-specific endpoints in <code><a href="../reference/bs_prepare.html">bs_prepare()</a></code></strong>: the internal <code>.compute_endpoints()</code> helper now uses the same adaptive formulas as <code><a href="../reference/check_response.html">check_response()</a></code> for analyst-forced left/right censoring on non-boundary scores. Previously, delta = 1 always produced <code>right = lim/K</code> and delta = 2 always produced <code>left = (K - lim)/K</code>, regardless of the actual y value.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="deprecations-2-1-0">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-2-1-0"></a></h3>
+<h3 id="bug-fixes-2-1-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-1-1"></a></h3>
+<ul><li>
+<p><strong>Simulation with forced <code>delta = 1</code> or <code>delta = 2</code></strong>: the internal <code>.build_simulated_response()</code> helper previously replaced all y values with boundary values (<code>y_grid = rep(0, n)</code> for delta = 1, <code>y_grid = rep(ncuts, n)</code> for delta = 2). This produced degenerate data where every observation had identical endpoints (e.g., all <code>left = 0.995, right = 0.99999</code> for delta = 2), destroying all covariate-driven variation and making regression fitting impossible.</p>
+<p>The fix preserves the actual simulated grid values (<code>y_grid = round(y_raw * ncuts)</code>) and passes a forced delta vector to <code><a href="../reference/check_response.html">check_response()</a></code>, which computes observation-specific endpoints using the actual y values.</p>
+</li>
+<li><p><strong>Missing <code>"bs_prepared"</code> attribute on simulation output</strong>: when <code>delta</code> was forced, the simulation functions did not mark the output with <code>attr(, "bs_prepared") = TRUE</code>. As a result, <code><a href="../reference/betaregscale.html">betaregscale()</a></code> would re-classify the response via <code><a href="../reference/check_response.html">check_response()</a></code>, silently overwriting the forced delta with automatic boundary rules. The attribute is now set correctly.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="deprecations-2-1-1">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-2-1-1"></a></h3>
 <ul><li>The <code>type</code> parameter (<code>"m"</code>, <code>"l"</code>, <code>"r"</code>) is deprecated across all functions: <code><a href="../reference/betaregscale.html">betaregscale()</a></code>, <code><a href="../reference/betaregscale_fit.html">betaregscale_fit()</a></code>, <code><a href="../reference/betaregscale_fit_z.html">betaregscale_fit_z()</a></code>, <code><a href="../reference/betaregscale_loglik.html">betaregscale_loglik()</a></code>, <code><a href="../reference/betaregscale_loglik_z.html">betaregscale_loglik_z()</a></code>, <code><a href="../reference/betaregscale_simulate.html">betaregscale_simulate()</a></code>, <code><a href="../reference/betaregscale_simulate_z.html">betaregscale_simulate_z()</a></code>, <code><a href="../reference/check_response.html">check_response()</a></code>, and <code><a href="../reference/bs_prepare.html">bs_prepare()</a></code>. Use <code><a href="../reference/bs_prepare.html">bs_prepare()</a></code> to control interval geometry instead. The parameter still works but emits a deprecation warning when passed explicitly.</li>
 </ul></div>
 </div>
