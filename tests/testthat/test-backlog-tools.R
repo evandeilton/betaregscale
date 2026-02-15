@@ -68,3 +68,15 @@ test_that("brs_marginaleffects supports precision effects", {
   expect_true("z1" %in% me$variable)
   expect_true(all(is.na(me$std.error)))
 })
+
+test_that("autoplot.brs supports calibration and score_dist", {
+  skip_if_not_installed("ggplot2")
+  sim <- .sim_for_tools(seed = 1201)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  p1 <- autoplot.brs(fit, type = "calibration")
+  p2 <- autoplot.brs(fit, type = "score_dist")
+
+  expect_s3_class(p1, "ggplot")
+  expect_s3_class(p2, "ggplot")
+})
