@@ -11,45 +11,48 @@ endpoints.
 
 The package is designed for situations where the recorded score carries
 measurement uncertainty inherent to the instrument. For example, a pain
-score of 6 on a 0–10 NRS scale is interpreted as lying in the interval
+score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 \[5.5, 6.5\] after rescaling to (0, 1). The complete likelihood (Lopes,
-2024, Eq. 2.24) supports mixed censoring types—uncensored,
-left-censored, right-censored, and interval-censored—within the same
+2024, Eq. 2.24) supports mixed censoring types: **uncensored,
+left-censored, right-censored, and interval-censored** within the same
 dataset.
 
 ## Key features
 
-- **Mixed censoring support** — the complete likelihood handles four
+- **Mixed censoring support**: the complete likelihood handles four
   censoring types simultaneously: exact observations ($`\delta=0`$),
   left-censored ($`\delta=1`$), right-censored ($`\delta=2`$), and
   interval-censored ($`\delta=3`$).
-- **Fixed and variable dispersion** — model a scalar $`\phi`$ or let it
+- **Fixed and variable dispersion**: model a scalar $`\phi`$ or let it
   depend on covariates via a second linear predictor
   (`y ~ x1 + x2 | z1`).
-- **High-performance C++ backend** — the log-likelihood and analytical
+- **Mixed-effects support**:
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  fits Gaussian random-intercept models (`random = ~ 1 | group`) via
+  Laplace-approximated marginal likelihood.
+- **High-performance C++ backend**: the log-likelihood and analytical
   gradient are compiled via Rcpp/RcppArmadillo for fast, numerically
   stable estimation.
-- **Flexible link functions** — logit, probit, cauchit, cloglog for the
+- **Flexible link functions**: logit, probit, cauchit, cloglog for the
   mean; logit, log, identity, sqrt, inverse, and others for the
   dispersion.
-- **Three reparameterizations** — direct (0), Ferrari–Cribari-Neto
+- **Three reparameterizations**: direct (0), Ferrari–Cribari-Neto
   precision (1), and mean–variance (2).
-- **betareg-style S3 interface** — `print`, `summary`, `coef`, `vcov`,
+- **betareg-style S3 interface**: `print`, `summary`, `coef`, `vcov`,
   `logLik`, `AIC`, `BIC`, `nobs`, `formula`, `model.matrix`, `fitted`,
   `residuals`, `predict`, `confint`, and `plot` methods. The
   [`coef()`](https://rdrr.io/r/stats/coef.html) and
   [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods accept
   `model = c("full", "mean", "precision")`.
-- **Diagnostic plots** — six residual diagnostic panels with both base R
+- **Diagnostic plots**: six residual diagnostic panels with both base R
   and ggplot2 backends, including a half-normal envelope plot.
-- **Censoring summary** —
-  [`censoring_summary()`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md)
+- **Censoring summary**:
+  [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
   provides visual and tabular summaries of the censoring structure.
-- **Simulation toolkit** —
-  [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
-  and
-  [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
-  for Monte Carlo studies.
+- **Simulation toolkit**:
+  [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  supports both fixed- and variable-dispersion Monte Carlo studies via
+  one- or two-part formulas.
 
 ## Installation
 
@@ -72,16 +75,16 @@ library(betaregscale)
 set.seed(42)
 n <- 200
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- betaregscale_simulate(
+sim <- brs_sim(
   formula = ~ x1 + x2, data = dat,
   beta = c(0.3, -0.6, 0.4), phi = 1/10,
   link = "logit", link_phi = "logit",
-  ncuts = 100, type = "m", repar = 2
+  ncuts = 100, repar = 2
 )
 head(sim)
 
 # Fit the model
-fit <- betaregscale(y ~ x1 + x2, data = sim, repar = 2)
+fit <- brs(y ~ x1 + x2, data = sim, repar = 2)
 summary(fit)
 ```
 
@@ -96,17 +99,17 @@ dat <- data.frame(
   x1 = rnorm(n), x2 = rnorm(n),
   z1 = rnorm(n), z2 = rnorm(n)
 )
-sim_z <- betaregscale_simulate_z(
-  formula_x = ~ x1 + x2, formula_z = ~ z1,
+sim_z <- brs_sim(
+  formula = ~ x1 + x2 | z1,
   data = dat,
   beta = c(0.2, -0.6, 0.2),
   zeta = c(0.2, -0.8),
   link = "logit", link_phi = "logit",
-  ncuts = 100, type = "m", repar = 2
+  ncuts = 100, repar = 2
 )
 
 # Fit variable-dispersion model (pipe notation)
-fit_z <- betaregscale(y ~ x1 + x2 | z1, data = sim_z, repar = 2)
+fit_z <- brs(y ~ x1 + x2 | z1, data = sim_z, repar = 2)
 summary(fit_z)
 ```
 
@@ -116,11 +119,32 @@ summary(fit_z)
 
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits <- lapply(setNames(links, links), function(lnk) {
-  betaregscale(y ~ x1 + x2, data = sim, link = lnk, repar = 2)
+  brs(y ~ x1 + x2, data = sim, link = lnk, repar = 2)
 })
 
 # Goodness-of-fit comparison
-do.call(rbind, lapply(fits, gof))
+do.call(rbind, lapply(fits, brs_gof))
+```
+
+### Mixed model (random intercept)
+
+``` r
+
+set.seed(123)
+g <- 12
+ni <- 8
+id <- factor(rep(seq_len(g), each = ni))
+n <- length(id)
+x1 <- rnorm(n)
+b <- rnorm(g, sd = 0.5)
+mu <- plogis(0.2 + 0.6 * x1 + b[as.integer(id)])
+phi <- plogis(-0.3 + 0.2 * x1)
+shp <- brs_repar(mu = mu, phi = phi, repar = 2)
+y <- round(rbeta(n, shp$shape1, shp$shape2) * 100)
+dmm <- data.frame(y = y, x1 = x1, id = id)
+
+fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = dmm, repar = 2)
+summary(fit_mm)
 ```
 
 ### S3 methods
@@ -155,7 +179,7 @@ plot(fit)
 plot(fit, gg = TRUE)
 
 # Censoring structure summary
-censoring_summary(fit)
+brs_cens(fit)
 ```
 
 ## Model details
@@ -183,15 +207,15 @@ the censoring type.
 
 ### Interval construction
 
-Scale observations are mapped to (0, 1) with uncertainty intervals whose
-width depends on the `type` parameter:
+Scale observations are mapped to (0, 1) with midpoint uncertainty
+intervals:
 
-- `"m"` (midpoint): $`y_t = y/K`$, interval
-  $`[y_t - 0.5/K,\; y_t + 0.5/K]`$
-- `"l"` (left): $`y_t = y/K`$, interval $`[y_t,\; y_t + 1/K]`$
-- `"r"` (right): $`y_t = y/K`$, interval $`[y_t - 1/K,\; y_t]`$
+``` math
+y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
+```
 
-where $`K`$ is the number of scale categories (`ncuts`).
+where $`K`$ is the number of scale categories (`ncuts`) and $`h`$ is the
+half-width (`lim`, default `0.5`).
 
 ## References
 
@@ -203,4 +227,4 @@ where $`K`$ is the number of scale categories (`ncuts`).
 
 ## License
 
-MIT © Jos� Evandeilton Lopes
+MIT © José Evandeilton Lopes

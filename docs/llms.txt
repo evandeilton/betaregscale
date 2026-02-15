@@ -11,45 +11,48 @@ endpoints.
 
 The package is designed for situations where the recorded score carries
 measurement uncertainty inherent to the instrument. For example, a pain
-score of 6 on a 0–10 NRS scale is interpreted as lying in the interval
+score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 \[5.5, 6.5\] after rescaling to (0, 1). The complete likelihood (Lopes,
-2024, Eq. 2.24) supports mixed censoring types—uncensored,
-left-censored, right-censored, and interval-censored—within the same
+2024, Eq. 2.24) supports mixed censoring types: **uncensored,
+left-censored, right-censored, and interval-censored** within the same
 dataset.
 
 ## Key features
 
-- **Mixed censoring support** — the complete likelihood handles four
+- **Mixed censoring support**: the complete likelihood handles four
   censoring types simultaneously: exact observations ($`\delta=0`$),
   left-censored ($`\delta=1`$), right-censored ($`\delta=2`$), and
   interval-censored ($`\delta=3`$).
-- **Fixed and variable dispersion** — model a scalar $`\phi`$ or let it
+- **Fixed and variable dispersion**: model a scalar $`\phi`$ or let it
   depend on covariates via a second linear predictor
   (`y ~ x1 + x2 | z1`).
-- **High-performance C++ backend** — the log-likelihood and analytical
+- **Mixed-effects support**:
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  fits Gaussian random-intercept models (`random = ~ 1 | group`) via
+  Laplace-approximated marginal likelihood.
+- **High-performance C++ backend**: the log-likelihood and analytical
   gradient are compiled via Rcpp/RcppArmadillo for fast, numerically
   stable estimation.
-- **Flexible link functions** — logit, probit, cauchit, cloglog for the
+- **Flexible link functions**: logit, probit, cauchit, cloglog for the
   mean; logit, log, identity, sqrt, inverse, and others for the
   dispersion.
-- **Three reparameterizations** — direct (0), Ferrari–Cribari-Neto
+- **Three reparameterizations**: direct (0), Ferrari–Cribari-Neto
   precision (1), and mean–variance (2).
-- **betareg-style S3 interface** — `print`, `summary`, `coef`, `vcov`,
+- **betareg-style S3 interface**: `print`, `summary`, `coef`, `vcov`,
   `logLik`, `AIC`, `BIC`, `nobs`, `formula`, `model.matrix`, `fitted`,
   `residuals`, `predict`, `confint`, and `plot` methods. The
   [`coef()`](https://rdrr.io/r/stats/coef.html) and
   [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods accept
   `model = c("full", "mean", "precision")`.
-- **Diagnostic plots** — six residual diagnostic panels with both base R
+- **Diagnostic plots**: six residual diagnostic panels with both base R
   and ggplot2 backends, including a half-normal envelope plot.
-- **Censoring summary** —
-  [`censoring_summary()`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md)
+- **Censoring summary**:
+  [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
   provides visual and tabular summaries of the censoring structure.
-- **Simulation toolkit** —
-  [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
-  and
-  [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
-  for Monte Carlo studies.
+- **Simulation toolkit**:
+  [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  supports both fixed- and variable-dispersion Monte Carlo studies via
+  one- or two-part formulas.
 
 ## Installation
 
@@ -72,16 +75,16 @@ library(betaregscale)
 set.seed(42)
 n <- 200
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- betaregscale_simulate(
+sim <- brs_sim(
   formula = ~ x1 + x2, data = dat,
   beta = c(0.3, -0.6, 0.4), phi = 1/10,
   link = "logit", link_phi = "logit",
-  ncuts = 100, type = "m", repar = 2
+  ncuts = 100, repar = 2
 )
 head(sim)
 
 # Fit the model
-fit <- betaregscale(y ~ x1 + x2, data = sim, repar = 2)
+fit <- brs(y ~ x1 + x2, data = sim, repar = 2)
 summary(fit)
 ```
 
@@ -96,17 +99,17 @@ dat <- data.frame(
   x1 = rnorm(n), x2 = rnorm(n),
   z1 = rnorm(n), z2 = rnorm(n)
 )
-sim_z <- betaregscale_simulate_z(
-  formula_x = ~ x1 + x2, formula_z = ~ z1,
+sim_z <- brs_sim(
+  formula = ~ x1 + x2 | z1,
   data = dat,
   beta = c(0.2, -0.6, 0.2),
   zeta = c(0.2, -0.8),
   link = "logit", link_phi = "logit",
-  ncuts = 100, type = "m", repar = 2
+  ncuts = 100, repar = 2
 )
 
 # Fit variable-dispersion model (pipe notation)
-fit_z <- betaregscale(y ~ x1 + x2 | z1, data = sim_z, repar = 2)
+fit_z <- brs(y ~ x1 + x2 | z1, data = sim_z, repar = 2)
 summary(fit_z)
 ```
 
@@ -116,11 +119,32 @@ summary(fit_z)
 
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits <- lapply(setNames(links, links), function(lnk) {
-  betaregscale(y ~ x1 + x2, data = sim, link = lnk, repar = 2)
+  brs(y ~ x1 + x2, data = sim, link = lnk, repar = 2)
 })
 
 # Goodness-of-fit comparison
-do.call(rbind, lapply(fits, gof))
+do.call(rbind, lapply(fits, brs_gof))
+```
+
+### Mixed model (random intercept)
+
+``` r
+
+set.seed(123)
+g <- 12
+ni <- 8
+id <- factor(rep(seq_len(g), each = ni))
+n <- length(id)
+x1 <- rnorm(n)
+b <- rnorm(g, sd = 0.5)
+mu <- plogis(0.2 + 0.6 * x1 + b[as.integer(id)])
+phi <- plogis(-0.3 + 0.2 * x1)
+shp <- brs_repar(mu = mu, phi = phi, repar = 2)
+y <- round(rbeta(n, shp$shape1, shp$shape2) * 100)
+dmm <- data.frame(y = y, x1 = x1, id = id)
+
+fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = dmm, repar = 2)
+summary(fit_mm)
 ```
 
 ### S3 methods
@@ -155,7 +179,7 @@ plot(fit)
 plot(fit, gg = TRUE)
 
 # Censoring structure summary
-censoring_summary(fit)
+brs_cens(fit)
 ```
 
 ## Model details
@@ -183,15 +207,15 @@ the censoring type.
 
 ### Interval construction
 
-Scale observations are mapped to (0, 1) with uncertainty intervals whose
-width depends on the `type` parameter:
+Scale observations are mapped to (0, 1) with midpoint uncertainty
+intervals:
 
-- `"m"` (midpoint): $`y_t = y/K`$, interval
-  $`[y_t - 0.5/K,\; y_t + 0.5/K]`$
-- `"l"` (left): $`y_t = y/K`$, interval $`[y_t,\; y_t + 1/K]`$
-- `"r"` (right): $`y_t = y/K`$, interval $`[y_t - 1/K,\; y_t]`$
+``` math
+y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
+```
 
-where $`K`$ is the number of scale categories (`ncuts`).
+where $`K`$ is the number of scale categories (`ncuts`) and $`h`$ is the
+half-width (`lim`, default `0.5`).
 
 ## References
 
@@ -203,7 +227,7 @@ where $`K`$ is the number of scale categories (`ncuts`).
 
 ## License
 
-MIT © Jos� Evandeilton Lopes
+MIT © José Evandeilton Lopes
 
 # Package index
 
@@ -211,90 +235,133 @@ MIT © Jos� Evandeilton Lopes
 
 Core functions for fitting beta interval regression models.
 
-- [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md)
+- [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
   : Fit a beta interval regression model
-- [`betaregscale_fit()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit.md)
+- [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  : Fit a mixed-effects beta interval regression model
+- [`brs_fit_fixed()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_fixed.md)
   : Fit a fixed-dispersion beta interval regression model
-- [`betaregscale_fit_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_fit_z.md)
+- [`brs_fit_var()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_var.md)
   : Fit a variable-dispersion beta interval regression model
-
-## Log-Likelihood
-
-Log-likelihood evaluation for fixed and variable dispersion.
-
-- [`betaregscale_loglik()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.md)
-  : Log-likelihood for fixed-dispersion beta interval regression
-- [`betaregscale_loglik_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik_z.md)
-  : Log-likelihood for variable-dispersion beta interval regression
+- [`brs_coef()`](https://evandeilton.github.io/betaregscale/reference/brs_coef.md)
+  : Internal coefficient table (deprecated, use brs_est() or summary())
 
 ## Simulation
 
 Data simulation for Monte Carlo studies.
 
-- [`betaregscale_simulate()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate.md)
-  : Simulate data from a fixed-dispersion beta interval model
-- [`betaregscale_simulate_z()`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
-  : Simulate data from a variable-dispersion beta interval model
+- [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  : Simulate data from beta interval models
 
-## S3 Methods
+## S3 Methods - Fixed Effects Models
 
-Standard methods for fitted model objects of class betaregscale.
+Standard methods for fitted model objects of class brs.
 
-- [`coef(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.betaregscale.md)
+- [`coef(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.brs.md)
   : Extract model coefficients
-- [`vcov(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.betaregscale.md)
+- [`vcov(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md)
   : Variance-covariance matrix of estimated coefficients
-- [`summary(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/summary.betaregscale.md)
+- [`summary(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/summary.brs.md)
   : Summarize a fitted model (betareg style)
-- [`print(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.betaregscale.md)
+- [`print(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.brs.md)
   : Print a fitted model (brief betareg style)
-- [`print(`*`<summary.betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.summary.betaregscale.md)
+- [`print(`*`<summary.brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.summary.brs.md)
   : Print a model summary (betareg style)
-- [`logLik(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/logLik.betaregscale.md)
+- [`logLik(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/logLik.brs.md)
   : Extract log-likelihood
-- [`AIC(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/AIC.betaregscale.md)
+- [`AIC(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/AIC.brs.md)
   : Akaike information criterion
-- [`BIC(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/BIC.betaregscale.md)
+- [`BIC(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/BIC.brs.md)
   : Bayesian information criterion
-- [`nobs(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/nobs.betaregscale.md)
+- [`nobs(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/nobs.brs.md)
   : Number of observations
-- [`formula(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/formula.betaregscale.md)
+- [`formula(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/formula.brs.md)
   : Extract model formula
-- [`model.matrix(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/model.matrix.betaregscale.md)
+- [`model.matrix(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/model.matrix.brs.md)
   : Extract design matrix
-- [`fitted(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/fitted.betaregscale.md)
+- [`fitted(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/fitted.brs.md)
   : Extract fitted values
-- [`residuals(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/residuals.betaregscale.md)
+- [`residuals(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/residuals.brs.md)
   : Extract residuals
-- [`predict(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/predict.betaregscale.md)
+- [`predict(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/predict.brs.md)
   : Predict from a fitted model
-- [`confint(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/confint.betaregscale.md)
+- [`confint(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/confint.brs.md)
   : Wald confidence intervals
-- [`plot(`*`<betaregscale>`*`)`](https://evandeilton.github.io/betaregscale/reference/plot.betaregscale.md)
+- [`plot(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/plot.brs.md)
   : Diagnostic plots for beta interval regression
+
+## S3 Methods - Mixed Models
+
+Standard methods for fitted model objects of class brsmm.
+
+- [`coef(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.brsmm.md)
+  : Extract coefficients from a brsmm fit
+- [`vcov(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.brsmm.md)
+  : Variance-covariance matrix for brsmm coefficients
+- [`summary(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)
+  : Summarize a fitted brsmm model
+- [`print(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.brsmm.md)
+  : Print a fitted brsmm model
+- [`print(`*`<summary.brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.summary.brsmm.md)
+  : Print summary for brsmm models
+- [`logLik(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/logLik.brsmm.md)
+  : Log-likelihood for brsmm models
+- [`AIC(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/AIC.brsmm.md)
+  : AIC for brsmm models
+- [`BIC(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/BIC.brsmm.md)
+  : BIC for brsmm models
+- [`nobs(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/nobs.brsmm.md)
+  : Number of observations in a brsmm fit
+- [`fitted(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/fitted.brsmm.md)
+  : Fitted values from a brsmm model
+- [`residuals(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/residuals.brsmm.md)
+  : Residuals from a brsmm model
+- [`predict(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/predict.brsmm.md)
+  : Predict from a brsmm model
+- [`ranef.brsmm()`](https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.md)
+  : Extract random effects from a brsmm model
+- [`plot(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
+  : Diagnostic plots for mixed beta interval regression
 
 ## Diagnostics and Summaries
 
 Functions for model diagnostics and censoring summaries.
 
-- [`censoring_summary()`](https://evandeilton.github.io/betaregscale/reference/censoring_summary.md)
+- [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
   : Graphical and tabular censoring summary
-- [`est()`](https://evandeilton.github.io/betaregscale/reference/est.md)
+- [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
   : Coefficient estimates with inference
-- [`gof()`](https://evandeilton.github.io/betaregscale/reference/gof.md)
+- [`brs_gof()`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md)
   : Goodness-of-fit measures
-- [`hessian_matrix()`](https://evandeilton.github.io/betaregscale/reference/hessian_matrix.md)
+- [`brs_hessian()`](https://evandeilton.github.io/betaregscale/reference/brs_hessian.md)
   : Extract the Hessian matrix
+- [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+  : ggplot2 autoplot for brs models
+- [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+  : ggplot2 autoplot for brsmm models
+
+## Analyst Tools
+
+Post-estimation tables, effects, score probabilities, and validation.
+
+- [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)
+  : Compare fitted brs models in a single table
+- [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)
+  : Marginal effects for brs models
+- [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
+  : Predict score probabilities from a fitted brs model
+- [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
+  : K-fold cross-validation for brs models
 
 ## Data Preparation
 
-Functions for preparing response variables and reparameterization.
+Functions for preparing response data and beta reparameterization.
 
-- [`bs_prepare()`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+- [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
   : Pre-process analyst data for beta interval regression
-- [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+- [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
   : Transform and validate a scale-derived response variable
-- [`beta_reparam()`](https://evandeilton.github.io/betaregscale/reference/beta_reparam.md)
+- [`brs_repar()`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md)
   : Reparameterize (mu, phi) into beta shape parameters
 
 # Articles
@@ -303,3 +370,7 @@ Functions for preparing response variables and reparameterization.
 
 - [Introduction to
   betaregscale](https://evandeilton.github.io/betaregscale/articles/betaregscale.md):
+- [Mixed-Effects Beta Interval Regression with
+  brsmm](https://evandeilton.github.io/betaregscale/articles/brsmm.md):
+- [Analyst Tools for
+  betaregscale](https://evandeilton.github.io/betaregscale/articles/analyst-tools.md):
