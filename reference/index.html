@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,8 @@
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/analyst-tools.html">Analyst Tools for betaregscale</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brsmm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/analyst-tools.html">Analyst Tools for betaregscale</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -50,6 +51,13 @@
 
         </dt>
         <dd>Fit a beta interval regression model</dd>
+
+        <dt>
+
+          <code><a href="brsmm.html">brsmm()</a></code>
+
+        </dt>
+        <dd>Fit a mixed-effects beta interval regression model</dd>
 
         <dt>
 
@@ -88,7 +96,7 @@
         </dt>
         <dd>Simulate data from beta interval models</dd>
       </dl></div><div class="section level2">
-      <h2 id="s-methods">S3 Methods<a class="anchor" aria-label="anchor" href="#s-methods"></a></h2>
+      <h2 id="s-methods-fixed-effects-models">S3 Methods - Fixed Effects Models<a class="anchor" aria-label="anchor" href="#s-methods-fixed-effects-models"></a></h2>
 
       <div class="section-desc"><p>Standard methods for fitted model objects of class brs.</p></div>
 
@@ -209,6 +217,113 @@
         </dt>
         <dd>Diagnostic plots for beta interval regression</dd>
       </dl></div><div class="section level2">
+      <h2 id="s-methods-mixed-models">S3 Methods - Mixed Models<a class="anchor" aria-label="anchor" href="#s-methods-mixed-models"></a></h2>
+
+      <div class="section-desc"><p>Standard methods for fitted model objects of class brsmm.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="coef.brsmm.html">coef(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Extract coefficients from a brsmm fit</dd>
+
+        <dt>
+
+          <code><a href="vcov.brsmm.html">vcov(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Variance-covariance matrix for brsmm coefficients</dd>
+
+        <dt>
+
+          <code><a href="summary.brsmm.html">summary(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Summarize a fitted brsmm model</dd>
+
+        <dt>
+
+          <code><a href="print.brsmm.html">print(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print a fitted brsmm model</dd>
+
+        <dt>
+
+          <code><a href="print.summary.brsmm.html">print(<i>&lt;summary.brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print summary for brsmm models</dd>
+
+        <dt>
+
+          <code><a href="logLik.brsmm.html">logLik(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Log-likelihood for brsmm models</dd>
+
+        <dt>
+
+          <code><a href="AIC.brsmm.html">AIC(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>AIC for brsmm models</dd>
+
+        <dt>
+
+          <code><a href="BIC.brsmm.html">BIC(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>BIC for brsmm models</dd>
+
+        <dt>
+
+          <code><a href="nobs.brsmm.html">nobs(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Number of observations in a brsmm fit</dd>
+
+        <dt>
+
+          <code><a href="fitted.brsmm.html">fitted(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Fitted values from a brsmm model</dd>
+
+        <dt>
+
+          <code><a href="residuals.brsmm.html">residuals(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Residuals from a brsmm model</dd>
+
+        <dt>
+
+          <code><a href="predict.brsmm.html">predict(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Predict from a brsmm model</dd>
+
+        <dt>
+
+          <code><a href="ranef.brsmm.html">ranef.brsmm()</a></code>
+
+        </dt>
+        <dd>Extract random effects from a brsmm model</dd>
+
+        <dt>
+
+          <code><a href="plot.brsmm.html">plot(<i>&lt;brsmm&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Diagnostic plots for mixed beta interval regression</dd>
+      </dl></div><div class="section level2">
       <h2 id="diagnostics-and-summaries">Diagnostics and Summaries<a class="anchor" aria-label="anchor" href="#diagnostics-and-summaries"></a></h2>
 
       <div class="section-desc"><p>Functions for model diagnostics and censoring summaries.</p></div>
@@ -252,6 +367,13 @@
 
         </dt>
         <dd>ggplot2 autoplot for brs models</dd>
+
+        <dt>
+
+          <code><a href="autoplot.brsmm.html">autoplot.brsmm()</a></code>
+
+        </dt>
+        <dd>ggplot2 autoplot for brsmm models</dd>
       </dl></div><div class="section level2">
       <h2 id="analyst-tools">Analyst Tools<a class="anchor" aria-label="anchor" href="#analyst-tools"></a></h2>
 

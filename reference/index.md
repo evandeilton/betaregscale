@@ -6,6 +6,8 @@ Core functions for fitting beta interval regression models.
 
 - [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
   : Fit a beta interval regression model
+- [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  : Fit a mixed-effects beta interval regression model
 - [`brs_fit_fixed()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_fixed.md)
   : Fit a fixed-dispersion beta interval regression model
 - [`brs_fit_var()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_var.md)
@@ -20,7 +22,7 @@ Data simulation for Monte Carlo studies.
 - [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
   : Simulate data from beta interval models
 
-## S3 Methods
+## S3 Methods - Fixed Effects Models
 
 Standard methods for fitted model objects of class brs.
 
@@ -57,6 +59,39 @@ Standard methods for fitted model objects of class brs.
 - [`plot(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/plot.brs.md)
   : Diagnostic plots for beta interval regression
 
+## S3 Methods - Mixed Models
+
+Standard methods for fitted model objects of class brsmm.
+
+- [`coef(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.brsmm.md)
+  : Extract coefficients from a brsmm fit
+- [`vcov(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.brsmm.md)
+  : Variance-covariance matrix for brsmm coefficients
+- [`summary(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)
+  : Summarize a fitted brsmm model
+- [`print(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.brsmm.md)
+  : Print a fitted brsmm model
+- [`print(`*`<summary.brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.summary.brsmm.md)
+  : Print summary for brsmm models
+- [`logLik(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/logLik.brsmm.md)
+  : Log-likelihood for brsmm models
+- [`AIC(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/AIC.brsmm.md)
+  : AIC for brsmm models
+- [`BIC(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/BIC.brsmm.md)
+  : BIC for brsmm models
+- [`nobs(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/nobs.brsmm.md)
+  : Number of observations in a brsmm fit
+- [`fitted(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/fitted.brsmm.md)
+  : Fitted values from a brsmm model
+- [`residuals(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/residuals.brsmm.md)
+  : Residuals from a brsmm model
+- [`predict(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/predict.brsmm.md)
+  : Predict from a brsmm model
+- [`ranef.brsmm()`](https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.md)
+  : Extract random effects from a brsmm model
+- [`plot(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
+  : Diagnostic plots for mixed beta interval regression
+
 ## Diagnostics and Summaries
 
 Functions for model diagnostics and censoring summaries.
@@ -71,6 +106,8 @@ Functions for model diagnostics and censoring summaries.
   : Extract the Hessian matrix
 - [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
   : ggplot2 autoplot for brs models
+- [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+  : ggplot2 autoplot for brsmm models
 
 ## Analyst Tools
 

@@ -25,6 +25,11 @@ numerically stable, high-performance log-likelihood evaluation.
 
   Fit a variable-dispersion model.
 
+- [`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md):
+
+  Fit a mixed-effects beta interval model with Gaussian random
+  intercepts.
+
 - [`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md):
 
   Simulate interval-censored data from fixed or variable-dispersion beta
@@ -91,4 +96,4 @@ Useful links:
 
 ## Author
 
-Jose Eduardo Lopes <evandeilton@gmail.com>
+José Evandeilton Lopes <evandeilton@gmail.com>
