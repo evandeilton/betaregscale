@@ -1,10 +1,11 @@
 # betaregscale <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/evandeilton/betaregscale/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evandeilton/betaregscale/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/evandeilton/betaregscale/graph/badge.svg)](https://app.codecov.io/gh/evandeilton/betaregscale)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![CRAN status](https://www.r-pkg.org/badges/version/betaregscale)](https://CRAN.R-project.org/package=betaregscale)
 [![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/betaregscale)](https://cran.r-project.org/package=betaregscale)
-[![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen)](https://github.com/evandeilton/betaregscale)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
 **Beta Regression for Interval-Censored Scale-Derived Outcomes**
