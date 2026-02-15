@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,6 +17,10 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/betaregscale.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/analyst-tools.html">Analyst Tools for betaregscale</a></li>
+  </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/evandeilton/betaregscale" aria-label="GitHub"><span class="fa fab fa-github"></span></a></li>
@@ -85,14 +89,14 @@ doi:10.1016/j.jpainsymman.2010.08.016.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">brs_est</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      variable   estimate        se   z_value      p_value    ci_lower</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -2.8611765 0.1361136 -21.02050 4.258938e-98 -3.12795428</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          x1  0.2317141 0.1088125   2.12948 3.321453e-02  0.01844551</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       (phi) -3.0117569 0.2372581 -12.69401 6.383324e-37 -3.47677434</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      variable   estimate        se    z_value      p_value     ci_lower</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -3.0886607 0.1787335 -17.280815 6.561480e-67 -3.438971974</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          x1  0.3326557 0.1729164   1.923794 5.438036e-02 -0.006254317</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       (phi) -2.7342024 0.2646231 -10.332439 5.026571e-25 -3.252854133</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ci_upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -2.5943987</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.4449827</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -2.5467395</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -2.7383495</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.6715657</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -2.2155506</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -1,5 +1,39 @@
 # Changelog
 
+## betaregscale 2.5.0
+
+### New features
+
+- Added
+  [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)
+  to compare one or more fitted `brs` models in a single table with
+  `logLik`, `AIC`, `BIC`, pseudo-R2, and censoring composition.
+- Added
+  [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)
+  for average marginal effects in the mean or precision submodel, with
+  optional simulation-based uncertainty intervals.
+- Added
+  [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+  with `ggplot2` diagnostics for `type = "calibration"`,
+  `type = "score_dist"`, `type = "cdf"`, and
+  `type = "residuals_by_delta"`.
+- Added
+  [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
+  to obtain predicted probabilities on the original integer score scale.
+- Added
+  [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
+  for repeated k-fold cross-validation of `brs` models with fold-level
+  predictive metrics (`log_score`, `rmse_yt`, and `mae_yt`).
+
+### Improvements
+
+- Updated package reference organization (`pkgdown`) to expose the new
+  analyst-oriented tools.
+- Updated `README.md` and vignette content with examples for model
+  comparison, marginal effects, and score-probability predictions.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.4.0
 
 ### Breaking changes

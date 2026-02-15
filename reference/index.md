@@ -69,6 +69,21 @@ Functions for model diagnostics and censoring summaries.
   : Goodness-of-fit measures
 - [`brs_hessian()`](https://evandeilton.github.io/betaregscale/reference/brs_hessian.md)
   : Extract the Hessian matrix
+- [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+  : ggplot2 autoplot for brs models
+
+## Analyst Tools
+
+Post-estimation tables, effects, score probabilities, and validation.
+
+- [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)
+  : Compare fitted brs models in a single table
+- [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)
+  : Marginal effects for brs models
+- [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
+  : Predict score probabilities from a fitted brs model
+- [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
+  : K-fold cross-validation for brs models
 
 ## Data Preparation
 
