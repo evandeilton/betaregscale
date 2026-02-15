@@ -92,3 +92,18 @@ test_that("autoplot.brs supports cdf and residuals_by_delta", {
   expect_s3_class(p1, "ggplot")
   expect_s3_class(p2, "ggplot")
 })
+
+test_that("brs_predict_scoreprob returns coherent probability matrices", {
+  sim <- .sim_for_tools(seed = 404)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  P <- brs_predict_scoreprob(fit)
+  expect_true(is.matrix(P))
+  expect_equal(nrow(P), nrow(sim))
+  expect_equal(ncol(P), fit$ncuts + 1L)
+  expect_true(all(rowSums(P) > 0.98 & rowSums(P) < 1.02))
+
+  L <- brs_predict_scoreprob(fit, scores = 0:10, format = "long")
+  expect_true(is.data.frame(L))
+  expect_true(all(c("id", "score", "prob") %in% names(L)))
+})
