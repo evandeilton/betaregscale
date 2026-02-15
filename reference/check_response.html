@@ -10,22 +10,36 @@ Eq. 2.24):
 Uncensored (exact): the observation is a
     continuous value already in \((0, 1)\).  The likelihood
     contribution is the density \(f(y_i | \theta)\).
+    Endpoints: \(l_i = u_i = y_i\) (or \(y_i / K\) when on
+    the scale).
 
   \(\delta = 1\)
-Left-censored: the observation equals the
-    scale minimum (\(y = 0\)).  We only know that the latent
-    value is below some upper bound.  The contribution is
+Left-censored: the latent value is below
+    some upper bound \(u_i\).  The contribution is
     \(F(u_i | \theta)\).
+    When the observation is at the scale minimum (\(y = 0\)),
+    the upper bound is \(u_i = \mathrm{lim} / K\).
+    When the user forces \(\delta = 1\) on a non-boundary
+    observation (\(y \neq 0\)), the upper bound is
+    \(u_i = (y + \mathrm{lim}) / K\), preserving observation-
+    specific variation.  In both cases \(l_i = \epsilon\).
 
   \(\delta = 2\)
-Right-censored: the observation equals the
-    scale maximum (\(y = K\)).  The contribution is
+Right-censored: the latent value is above
+    some lower bound \(l_i\).  The contribution is
     \(1 - F(l_i | \theta)\).
+    When the observation is at the scale maximum (\(y = K\)),
+    the lower bound is \(l_i = (K - \mathrm{lim}) / K\).
+    When the user forces \(\delta = 2\) on a non-boundary
+    observation (\(y \neq K\)), the lower bound is
+    \(l_i = (y - \mathrm{lim}) / K\), preserving observation-
+    specific variation.  In both cases \(u_i = 1 - \epsilon\).
 
   \(\delta = 3\)
 Interval-censored: the standard case for
     scale data.  The contribution is
-    \(F(u_i | \theta) - F(l_i | \theta)\).
+    \(F(u_i | \theta) - F(l_i | \theta)\).  Endpoints depend on
+    the interval type (see Details).
 
 
 
@@ -40,22 +54,36 @@ Eq. 2.24):
 Uncensored (exact): the observation is a
     continuous value already in \((0, 1)\).  The likelihood
     contribution is the density \(f(y_i | \theta)\).
+    Endpoints: \(l_i = u_i = y_i\) (or \(y_i / K\) when on
+    the scale).
 
   \(\delta = 1\)
-Left-censored: the observation equals the
-    scale minimum (\(y = 0\)).  We only know that the latent
-    value is below some upper bound.  The contribution is
+Left-censored: the latent value is below
+    some upper bound \(u_i\).  The contribution is
     \(F(u_i | \theta)\).
+    When the observation is at the scale minimum (\(y = 0\)),
+    the upper bound is \(u_i = \mathrm{lim} / K\).
+    When the user forces \(\delta = 1\) on a non-boundary
+    observation (\(y \neq 0\)), the upper bound is
+    \(u_i = (y + \mathrm{lim}) / K\), preserving observation-
+    specific variation.  In both cases \(l_i = \epsilon\).
 
   \(\delta = 2\)
-Right-censored: the observation equals the
-    scale maximum (\(y = K\)).  The contribution is
+Right-censored: the latent value is above
+    some lower bound \(l_i\).  The contribution is
     \(1 - F(l_i | \theta)\).
+    When the observation is at the scale maximum (\(y = K\)),
+    the lower bound is \(l_i = (K - \mathrm{lim}) / K\).
+    When the user forces \(\delta = 2\) on a non-boundary
+    observation (\(y \neq K\)), the lower bound is
+    \(l_i = (y - \mathrm{lim}) / K\), preserving observation-
+    specific variation.  In both cases \(u_i = 1 - \epsilon\).
 
   \(\delta = 3\)
 Interval-censored: the standard case for
     scale data.  The contribution is
-    \(F(u_i | \theta) - F(l_i | \theta)\).
+    \(F(u_i | \theta) - F(l_i | \theta)\).  Endpoints depend on
+    the interval type (see Details).
 
 
 
@@ -67,7 +95,7 @@ Interval-censored: the standard case for
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,23 +130,37 @@ Eq. 2.24):</p>
 <dl><dt>\(\delta = 0\)</dt>
 <dd><p>Uncensored (exact): the observation is a
     continuous value already in \((0, 1)\).  The likelihood
-    contribution is the density \(f(y_i | \theta)\).</p></dd>
+    contribution is the density \(f(y_i | \theta)\).
+    Endpoints: \(l_i = u_i = y_i\) (or \(y_i / K\) when on
+    the scale).</p></dd>
 
   <dt>\(\delta = 1\)</dt>
-<dd><p>Left-censored: the observation equals the
-    scale minimum (\(y = 0\)).  We only know that the latent
-    value is below some upper bound.  The contribution is
-    \(F(u_i | \theta)\).</p></dd>
+<dd><p>Left-censored: the latent value is below
+    some upper bound \(u_i\).  The contribution is
+    \(F(u_i | \theta)\).
+    When the observation is at the scale minimum (\(y = 0\)),
+    the upper bound is \(u_i = \mathrm{lim} / K\).
+    When the user forces \(\delta = 1\) on a non-boundary
+    observation (\(y \neq 0\)), the upper bound is
+    \(u_i = (y + \mathrm{lim}) / K\), preserving observation-
+    specific variation.  In both cases \(l_i = \epsilon\).</p></dd>
 
   <dt>\(\delta = 2\)</dt>
-<dd><p>Right-censored: the observation equals the
-    scale maximum (\(y = K\)).  The contribution is
-    \(1 - F(l_i | \theta)\).</p></dd>
+<dd><p>Right-censored: the latent value is above
+    some lower bound \(l_i\).  The contribution is
+    \(1 - F(l_i | \theta)\).
+    When the observation is at the scale maximum (\(y = K\)),
+    the lower bound is \(l_i = (K - \mathrm{lim}) / K\).
+    When the user forces \(\delta = 2\) on a non-boundary
+    observation (\(y \neq K\)), the lower bound is
+    \(l_i = (y - \mathrm{lim}) / K\), preserving observation-
+    specific variation.  In both cases \(u_i = 1 - \epsilon\).</p></dd>
 
   <dt>\(\delta = 3\)</dt>
 <dd><p>Interval-censored: the standard case for
     scale data.  The contribution is
-    \(F(u_i | \theta) - F(l_i | \theta)\).</p></dd>
+    \(F(u_i | \theta) - F(l_i | \theta)\).  Endpoints depend on
+    the interval <code>type</code> (see Details).</p></dd>
 
 
 </dl></div>
@@ -133,12 +175,14 @@ Eq. 2.24):</p>
 
 
 <dl><dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Numeric vector — the raw response.</p></dd>
+<dd><p>Numeric vector: the raw response.  Can be either
+integer scores on the scale \(\{0, 1, \ldots, K\}\) or
+continuous values already in \((0, 1)\).</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p><strong>Deprecated.</strong>
-Character: interval type.
+Character: interval type for \(\delta = 3\) observations.
 <code>"m"</code> = midpoint (default),
 <code>"l"</code> = left-aligned,
 <code>"r"</code> = right-aligned.
@@ -146,59 +190,91 @@ Use <code><a href="bs_prepare.html">bs_prepare</a></code> to control interval ge
 
 
 <dt id="arg-ncuts">ncuts<a class="anchor" aria-label="anchor" href="#arg-ncuts"></a></dt>
-<dd><p>Integer: number of scale categories (default 100).</p></dd>
+<dd><p>Integer: number of scale categories \(K\)
+(default 100).  Must be \(\geq \max(y)\).</p></dd>
 
 
 <dt id="arg-lim">lim<a class="anchor" aria-label="anchor" href="#arg-lim"></a></dt>
-<dd><p>Numeric: half-width of the uncertainty region
-(default 0.5).</p></dd>
+<dd><p>Numeric: half-width \(h\) of the uncertainty
+region (default 0.5).  Controls the width of the interval
+around each scale point.</p></dd>
 
 
 <dt id="arg-delta">delta<a class="anchor" aria-label="anchor" href="#arg-delta"></a></dt>
 <dd><p>Integer vector or <code>NULL</code>.  If <code>NULL</code>
-(default), censoring types are inferred automatically from
-boundary rules.  If provided, must have the same length as
-<code>y</code> with values in <code>{0, 1, 2, 3}</code>.  When provided,
-overrides the automatic classification.</p></dd>
+  (default), censoring types are inferred automatically from the
+  boundary rules described above.</p>
+<p>If provided, must have the same length as <code>y</code>, with every
+  element in <code>{0, 1, 2, 3}</code>.  The supplied values override
+  the automatic classification on a per-observation basis, and the
+  endpoint formulas adapt to non-boundary observations as
+  described in the table above.</p>
+<p>This parameter is used internally by the simulation functions
+  when the analyst forces a specific censoring type
+  (e.g., <code>betaregscale_simulate(..., delta = 2)</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A matrix with columns <code>left</code>, <code>right</code>,
-  <code>yt</code> (midpoint approximation), <code>y</code> (original
-  value), and <code>delta</code> (censoring indicator: 0 = exact,
-  1 = left, 2 = right, 3 = interval).</p>
-    </div>
+    <p>A numeric matrix with \(n\) rows and 5 columns:</p><dl><dt><code>left</code></dt>
+<dd><p>Lower endpoint \(l_i\) on \((0, 1)\),
+    clamped to \([\epsilon, 1 - \epsilon]\).</p></dd>
+
+  <dt><code>right</code></dt>
+<dd><p>Upper endpoint \(u_i\) on \((0, 1)\),
+    clamped to \([\epsilon, 1 - \epsilon]\).</p></dd>
+
+  <dt><code>yt</code></dt>
+<dd><p>Midpoint approximation \(y_t\) for
+    starting-value computation (does not enter the likelihood).</p></dd>
+
+  <dt><code>y</code></dt>
+<dd><p>Original response value (preserved unchanged).</p></dd>
+
+  <dt><code>delta</code></dt>
+<dd><p>Censoring indicator: 0 = exact (density),
+    1 = left-censored \(F(u)\), 2 = right-censored
+    \(1 - F(l)\), 3 = interval-censored \(F(u) - F(l)\).</p></dd>
+
+
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If the input is already in \((0, 1)\) (i.e., all values satisfy
-\(0 &lt; y &lt; 1\)), observations are treated as uncensored
-(\(\delta = 0\)), unless <code>delta</code> is provided.</p>
-<p>If <code>delta</code> is supplied, the user-provided censoring indicators
-are used directly, overriding the automatic boundary-based
-classification rules.</p>
-<p>For scale (integer) data (when <code>delta = NULL</code>):</p><ul><li><p>\(y = 0\): left-censored. Upper bound is
-    \(u = \mathrm{lim} / K\).</p></li>
-<li><p>\(y = K\): right-censored. Lower bound is
-    \(l = (K - \mathrm{lim}) / K\).</p></li>
-<li><p>\(0 &lt; y &lt; K\): interval-censored with endpoints determined
-    by the interval <code>type</code>.</p></li>
-</ul><p>Three interval types (Section 2.7, Figure 4 of Lopes, 2024):</p><dl><dt><code>"m"</code> (midpoint)</dt>
-<dd><p>Symmetric: \(l = (y - \mathrm{lim})/K\),
-    \(u = (y + \mathrm{lim})/K\).</p></dd>
-
-  <dt><code>"l"</code> (left)</dt>
-<dd><p>Shifted left: \(l = (y - 2\mathrm{lim})/K\),
-    \(u = y/K\).</p></dd>
-
-  <dt><code>"r"</code> (right)</dt>
-<dd><p>Shifted right: \(l = y/K\),
-    \(u = (y + 2\mathrm{lim})/K\).</p></dd>
-
-
-</dl><p>All endpoints are clamped to \([\epsilon, 1 - \epsilon]\) with
+    <p><strong>Automatic classification</strong> (<code>delta = NULL</code>):</p>
+<p>If the entire input vector is already in \((0, 1)\) (i.e., all
+values satisfy \(0 &lt; y &lt; 1\)), all observations are treated as
+uncensored (\(\delta = 0\)).</p>
+<p>Otherwise, for scale (integer) data:</p><ul><li><p>\(y = 0\): left-censored (\(\delta = 1\)).</p></li>
+<li><p>\(y = K\): right-censored (\(\delta = 2\)).</p></li>
+<li><p>\(0 &lt; y &lt; K\): interval-censored (\(\delta = 3\)).</p></li>
+</ul><p><strong>User-supplied delta</strong> (<code>delta</code> vector):</p>
+<p>When the <code>delta</code> argument is provided, the user-supplied
+censoring indicators override the automatic boundary-based rules
+on a per-observation basis.  This is the mechanism used by
+<code><a href="betaregscale_simulate.html">betaregscale_simulate</a></code> when the analyst forces a
+specific censoring type in Monte Carlo studies.</p>
+<p>The endpoint formulas for each delta value are:</p>
+<table class="table table"><tr><td>\(\delta\)</td><td>Condition</td><td>\(l_i\) (left)</td><td>\(u_i\) (right)</td></tr><tr><td>0</td><td>\(y \in (0, 1)\)</td><td>\(y\)</td><td>\(y\)</td></tr><tr><td>0</td><td>\(y\) on scale</td><td>\(y / K\)</td><td>\(y / K\)</td></tr><tr><td>1</td><td>\(y = 0\) (boundary)</td><td>\(\epsilon\)</td><td>\(\mathrm{lim} / K\)</td></tr><tr><td>1</td><td>\(y \neq 0\) (forced)</td><td>\(\epsilon\)</td><td>\((y + \mathrm{lim}) / K\)</td></tr><tr><td>2</td><td>\(y = K\) (boundary)</td><td>\((K - \mathrm{lim}) / K\)</td><td>\(1 - \epsilon\)</td></tr><tr><td>2</td><td>\(y \neq K\) (forced)</td><td>\((y - \mathrm{lim}) / K\)</td><td>\(1 - \epsilon\)</td></tr><tr><td>3</td><td>type <code>"m"</code></td><td>\((y - \mathrm{lim}) / K\)</td><td>\((y + \mathrm{lim}) / K\)</td></tr><tr><td>3</td><td>type <code>"l"</code></td><td>\((y - 2\mathrm{lim}) / K\)</td><td>\(y / K\)</td></tr><tr><td>3</td><td>type <code>"r"</code></td><td>\(y / K\)</td><td>\((y + 2\mathrm{lim}) / K\)</td></tr></table><p>All endpoints are clamped to \([\epsilon, 1 - \epsilon]\) with
 \(\epsilon = 10^{-5}\) to avoid boundary issues in the beta
 likelihood.</p>
+<p>The midpoint approximation <code>yt</code> is computed as:</p><ul><li><p>\(y_t = y\) when \(y \in (0, 1)\) (continuous data).</p></li>
+<li><p>\(y_t = y / K\) when \(y\) is on the integer scale.</p></li>
+</ul><p>This value is used exclusively as an initialization aid for
+starting-value computation and does not enter the likelihood.</p>
+<p><strong>Interaction with the fitting pipeline</strong>:</p>
+<p>This function is called internally by <code>.extract_response()</code>
+when the data does <em>not</em> carry the <code>"bs_prepared"</code>
+attribute.  When data has been pre-processed by
+<code><a href="bs_prepare.html">bs_prepare</a></code> or by simulation with forced delta
+(<code><a href="betaregscale_simulate.html">betaregscale_simulate</a></code> with <code>delta != NULL</code>),
+the pre-computed columns are used directly and
+<code>check_response()</code> is skipped.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="bs_prepare.html">bs_prepare</a></code> for the analyst-facing
+  pre-processing function; <code><a href="betaregscale_simulate.html">betaregscale_simulate</a></code>
+  for simulation with forced delta.</p></div>
     </div>
 
     <div class="section level2">
@@ -223,6 +299,15 @@ likelihood.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.70000 0.70000 0.70000  7     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.90000 0.90000 0.90000  9     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.99999 0.99999 0.99999 10     0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Force delta = 1 on non-boundary observations:</span></span></span>
+<span class="r-in"><span><span class="co"># endpoints use actual y values, preserving variation</span></span></span>
+<span class="r-in"><span><span class="va">y2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">60</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">check_response</span><span class="op">(</span><span class="va">y2</span>, ncuts <span class="op">=</span> <span class="fl">100</span>, delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">1L</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       left right  yt  y delta</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1e-05 0.305 0.3 30     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 1e-05 0.605 0.6 60     1</span>
+<span class="r-in"><span><span class="co">#  left = (eps, eps), right = (30.5/100, 60.5/100)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

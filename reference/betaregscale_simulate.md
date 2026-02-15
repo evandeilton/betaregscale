@@ -1,9 +1,9 @@
 # Simulate data from a fixed-dispersion beta interval model
 
 Generates observations from a beta regression model with a single
-(scalar) dispersion parameter. This is useful for Monte Carlo studies
-and testing. The `delta` argument controls the censoring type of the
-simulated data.
+(scalar) dispersion parameter. This is useful for Monte Carlo studies,
+power analysis, and testing. The `delta` argument controls the censoring
+type of the simulated data.
 
 ## Usage
 
@@ -45,7 +45,8 @@ betaregscale_simulate(
 
 - link:
 
-  Mean link function (default `"logit"`).
+  Mean link function (default `"logit"`). Supported: `"logit"`,
+  `"probit"`, `"cloglog"`, `"cauchit"`, `"log"`.
 
 - link_phi:
 
@@ -53,7 +54,7 @@ betaregscale_simulate(
 
 - ncuts:
 
-  Number of scale categories (default 100).
+  Integer: number of scale categories \\K\\ (default 100).
 
 - type:
 
@@ -63,25 +64,118 @@ betaregscale_simulate(
 
 - lim:
 
-  Half-width of the uncertainty region (default 0.5).
+  Numeric: half-width \\h\\ of the uncertainty region (default 0.5).
 
 - repar:
 
-  Reparameterization scheme (default 2).
+  Integer: reparameterization scheme (default 2). 0 = direct \\(a, b)\\,
+  1 = precision/Ferrari \\(\mu, \phi = a + b)\\, 2 = mean-variance/Bayer
+  \\(\mu, \phi = 1/(a + b + 1))\\.
 
 - delta:
 
-  Integer or `NULL`. If `NULL` (default), the censoring type is
-  determined automatically by
+  Integer or `NULL`. If `NULL` (default), censoring is determined
+  automatically by
   [`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md).
+
   If an integer in `{0, 1, 2, 3}`, **all** simulated observations are
-  forced to that censoring type: 0 = exact (uncensored), 1 =
-  left-censored, 2 = right-censored, 3 = interval-censored.
+  forced to that censoring type. The actual simulated values are
+  preserved so that observation-specific endpoints reflect the
+  underlying covariate-driven variation. See Details.
 
 ## Value
 
-A `data.frame` containing columns `left`, `right`, `yt`, `y`, `delta`,
-and the predictor variables.
+A `data.frame` with \\n\\ rows and columns: `left`, `right`, `yt`, `y`,
+`delta`, plus the predictor columns from `data`. When `delta != NULL`,
+the data frame carries the attribute `"bs_prepared" = TRUE`.
+
+## Details
+
+**Data generation process**:
+
+1.  The design matrix \\X\\ is built from `formula` and `data`.
+
+2.  The linear predictor is \\\eta = X \beta\\, and the mean is \\\mu =
+    g^{-1}(\eta)\\ where \\g\\ is the link function.
+
+3.  The scalar dispersion is \\\phi = h^{-1}(\texttt{phi})\\ where \\h\\
+    is the dispersion link.
+
+4.  Beta shape parameters \\(a, b)\\ are derived from \\(\mu, \phi)\\
+    via the chosen reparameterization scheme.
+
+5.  Raw values \\y^\*\_i \sim \text{Beta}(a_i, b_i)\\ are drawn on \\(0,
+    1)\\.
+
+6.  The raw values are transformed into the response matrix by
+    `.build_simulated_response()` (see below).
+
+**Role of the `delta` argument**:
+
+When `delta = NULL` (default), the raw values are rounded to the scale
+grid (\\y\_{\text{grid}} = \text{round}(y^\* \times K)\\) and passed to
+[`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+for automatic classification: \\y = 0 \to \delta = 1\\, \\y = K \to
+\delta = 2\\, otherwise \\\delta = 3\\. The resulting dataset has a
+natural mix of censoring types driven by the simulated values.
+
+When `delta` is an integer in \\\\0, 1, 2, 3\\\\, **all** observations
+are forced to that censoring type, but the actual simulated \\y^\*\\
+values are **preserved** on the grid so that each observation retains
+its covariate-driven variation. Specifically:
+
+- `delta = 0` (exact):
+
+  The continuous \\y^\*\\ values are used directly on \\(0, 1)\\; \\l_i
+  = u_i = y_t = y^\*\_i\\.
+
+- `delta = 1` (left-censored):
+
+  The grid values \\y\_{\text{grid}} = \text{round}(y^\* K)\\ are kept.
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+  is called with forced `delta = rep(1, n)`, producing: \\l_i =
+  \epsilon\\, \\u_i = (y\_{\text{grid}} + h) / K\\ for non-boundary, or
+  \\u_i = h / K\\ when \\y\_{\text{grid}} = 0\\.
+
+- `delta = 2` (right-censored):
+
+  Same logic: \\u_i = 1 - \epsilon\\, \\l_i = (y\_{\text{grid}} - h) /
+  K\\ for non-boundary, or \\l_i = (K - h) / K\\ when \\y\_{\text{grid}}
+  = K\\.
+
+- `delta = 3` (interval-censored):
+
+  Grid values are clamped to \\\[1, K-1\]\\ (avoiding boundaries) and
+  [`check_response()`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+  is called with forced `delta = rep(3, n)`.
+
+**Attribute `"bs_prepared"`**:
+
+When `delta != NULL`, the returned data frame carries the attribute
+`"bs_prepared" = TRUE`. This signals to `.extract_response()` (and thus
+to
+[`betaregscale`](https://evandeilton.github.io/betaregscale/reference/betaregscale.md),
+[`betaregscale_loglik`](https://evandeilton.github.io/betaregscale/reference/betaregscale_loglik.md),
+etc.) that the pre-computed columns `left`, `right`, `yt`, and `delta`
+should be used directly, bypassing the automatic classification of
+[`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md).
+Without this attribute, the fitting functions would re-classify the
+response from the `y` column alone, which would ignore the forced delta
+and produce incorrect censoring indicators (e.g., an observation with
+\\y = 50\\ and forced \\\delta = 2\\ would be reclassified as \\\delta =
+3\\ by the boundary rules).
+
+When `delta = NULL`, the attribute is **not** set, so the default
+pipeline applies.
+
+## See also
+
+[`betaregscale_simulate_z`](https://evandeilton.github.io/betaregscale/reference/betaregscale_simulate_z.md)
+for variable- dispersion simulation;
+[`check_response`](https://evandeilton.github.io/betaregscale/reference/check_response.md)
+for the endpoint computation rules;
+[`bs_prepare`](https://evandeilton.github.io/betaregscale/reference/bs_prepare.md)
+for analyst-facing data pre-processing.
 
 ## Examples
 
@@ -113,4 +207,20 @@ table(sim3$delta)
 #> 
 #>   3 
 #> 200 
+
+# Force right-censored: y values vary, all delta = 2
+sim2 <- betaregscale_simulate(
+  formula = ~ x1 + x2, data = dat,
+  beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+  delta = 2
+)
+head(sim2[, c("left", "right", "y", "delta")])
+#>    left   right   y delta
+#> 1 0.005 0.99999   1     2
+#> 2 0.495 0.99999  50     2
+#> 3 0.015 0.99999   2     2
+#> 4 0.995 0.99999 100     2
+#> 5 0.015 0.99999   2     2
+#> 6 0.115 0.99999  12     2
+# Note: left varies per observation, right = 1 - eps
 ```

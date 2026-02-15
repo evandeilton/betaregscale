@@ -3,33 +3,45 @@
 betaregscale.
 The analyst can supply data in several ways:
 
-Minimal: only the score y. Censoring is
-    inferred automatically (equivalent to check_response).
-Classic: y + explicit delta. The
-    analyst states the censoring type; interval endpoints are computed.
-Interval: left and/or right columns
-    (on the original scale). Censoring is inferred from the NA pattern.
-Full: y, left, and right
-    together. The analyst's own endpoints are rescaled directly to
-    \((0, 1)\).
+Minimal (Mode 1): only the score y.
+    Censoring is inferred automatically:
+    \(y = 0 \to \delta = 1\), \(y = K \to \delta = 2\),
+    \(0 &amp;lt; y &amp;lt; K \to \delta = 3\),
+    \(y \in (0, 1) \to \delta = 0\).
+Classic (Mode 2): y + explicit
+    delta. The analyst declares the censoring type;
+    interval endpoints are computed using the actual y
+    value.
+Interval (Mode 3): left and/or
+    right columns (on the original scale). Censoring is
+    inferred from the NA pattern.
+Full (Mode 4): y, left, and
+    right together. The analyst's own endpoints are
+    rescaled directly to \((0, 1)\).
 
 
-All covariate columns are preserved unchanged in the output data frame."><meta property="og:description" content="Validates and transforms raw data into the format required by
+All covariate columns are preserved unchanged in the output."><meta property="og:description" content="Validates and transforms raw data into the format required by
 betaregscale.
 The analyst can supply data in several ways:
 
-Minimal: only the score y. Censoring is
-    inferred automatically (equivalent to check_response).
-Classic: y + explicit delta. The
-    analyst states the censoring type; interval endpoints are computed.
-Interval: left and/or right columns
-    (on the original scale). Censoring is inferred from the NA pattern.
-Full: y, left, and right
-    together. The analyst's own endpoints are rescaled directly to
-    \((0, 1)\).
+Minimal (Mode 1): only the score y.
+    Censoring is inferred automatically:
+    \(y = 0 \to \delta = 1\), \(y = K \to \delta = 2\),
+    \(0 &amp;lt; y &amp;lt; K \to \delta = 3\),
+    \(y \in (0, 1) \to \delta = 0\).
+Classic (Mode 2): y + explicit
+    delta. The analyst declares the censoring type;
+    interval endpoints are computed using the actual y
+    value.
+Interval (Mode 3): left and/or
+    right columns (on the original scale). Censoring is
+    inferred from the NA pattern.
+Full (Mode 4): y, left, and
+    right together. The analyst's own endpoints are
+    rescaled directly to \((0, 1)\).
 
 
-All covariate columns are preserved unchanged in the output data frame."><meta property="og:image" content="https://evandeilton.github.io/betaregscale/logo.png"></head><body>
+All covariate columns are preserved unchanged in the output."><meta property="og:image" content="https://evandeilton.github.io/betaregscale/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -37,7 +49,7 @@ All covariate columns are preserved unchanged in the output data frame."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,16 +78,22 @@ All covariate columns are preserved unchanged in the output data frame."><meta p
     <p>Validates and transforms raw data into the format required by
 <code><a href="betaregscale.html">betaregscale</a></code>.
 The analyst can supply data in several ways:</p>
-<ol><li><p><strong>Minimal</strong>: only the score <code>y</code>. Censoring is
-    inferred automatically (equivalent to <code><a href="check_response.html">check_response</a></code>).</p></li>
-<li><p><strong>Classic</strong>: <code>y</code> + explicit <code>delta</code>. The
-    analyst states the censoring type; interval endpoints are computed.</p></li>
-<li><p><strong>Interval</strong>: <code>left</code> and/or <code>right</code> columns
-    (on the original scale). Censoring is inferred from the NA pattern.</p></li>
-<li><p><strong>Full</strong>: <code>y</code>, <code>left</code>, and <code>right</code>
-    together. The analyst's own endpoints are rescaled directly to
-    \((0, 1)\).</p></li>
-</ol><p>All covariate columns are preserved unchanged in the output data frame.</p>
+<ol><li><p><strong>Minimal (Mode 1)</strong>: only the score <code>y</code>.
+    Censoring is inferred automatically:
+    \(y = 0 \to \delta = 1\), \(y = K \to \delta = 2\),
+    \(0 &lt; y &lt; K \to \delta = 3\),
+    \(y \in (0, 1) \to \delta = 0\).</p></li>
+<li><p><strong>Classic (Mode 2)</strong>: <code>y</code> + explicit
+    <code>delta</code>. The analyst declares the censoring type;
+    interval endpoints are computed using the actual <code>y</code>
+    value.</p></li>
+<li><p><strong>Interval (Mode 3)</strong>: <code>left</code> and/or
+    <code>right</code> columns (on the original scale). Censoring is
+    inferred from the NA pattern.</p></li>
+<li><p><strong>Full (Mode 4)</strong>: <code>y</code>, <code>left</code>, and
+    <code>right</code> together. The analyst's own endpoints are
+    rescaled directly to \((0, 1)\).</p></li>
+</ol><p>All covariate columns are preserved unchanged in the output.</p>
     </div>
 
     <div class="section level2">
@@ -168,7 +186,7 @@ alone.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><strong>Priority rule</strong>: if <code>delta</code> is provided (non-<code>NA</code>),
-it takes precedence.
+it takes precedence over all automatic classification rules.
 When <code>delta</code> is <code>NA</code>, the function infers the censoring type
 from the pattern of <code>left</code>, <code>right</code>, and <code>y</code>:</p>
 <table class="table table"><tr><td><code>left</code></td><td><code>right</code></td><td><code>y</code></td><td><code>delta</code></td><td>Interpretation</td><td>Inferred \(\delta\)</td></tr><tr><td><code>NA</code></td><td>5</td><td><code>NA</code></td><td><code>NA</code></td><td>Left-censored (below 5)</td><td>1</td></tr><tr><td>20</td><td><code>NA</code></td><td><code>NA</code></td><td><code>NA</code></td><td>Right-censored (above 20)</td><td>2</td></tr><tr><td>30</td><td>45</td><td><code>NA</code></td><td><code>NA</code></td><td>Interval-censored [30, 45]</td><td>3</td></tr><tr><td><code>NA</code></td><td><code>NA</code></td><td>50</td><td><code>NA</code></td><td>Exact observation</td><td>0</td></tr><tr><td><code>NA</code></td><td><code>NA</code></td><td>50</td><td>3</td><td>Analyst says interval</td><td>3</td></tr><tr><td><code>NA</code></td><td><code>NA</code></td><td>0</td><td>1</td><td>Analyst says left-censored</td><td>1</td></tr><tr><td><code>NA</code></td><td><code>NA</code></td><td>99</td><td>2</td><td>Analyst says right-censored</td><td>2</td></tr></table><p>When <code>y</code>, <code>left</code>, and <code>right</code> are all present for the
@@ -176,6 +194,17 @@ same observation, the analyst's <code>left</code>/<code>right</code> values are
 used directly (rescaled by \(K =\) <code>ncuts</code>) and <code>delta</code>
 is set to 3 (interval-censored) unless the analyst supplied
 <code>delta</code> explicitly.</p>
+<p><strong>Endpoint formulas for Mode 2 (y + explicit delta)</strong>:</p>
+<p>When the analyst supplies <code>delta</code> explicitly, the endpoint
+computation uses the actual <code>y</code> value to produce
+observation-specific bounds.  This is the same logic used by
+<code><a href="check_response.html">check_response</a></code> with a user-supplied <code>delta</code>
+vector:</p>
+<table class="table table"><tr><td>\(\delta\)</td><td>Condition</td><td>\(l_i\) (left)</td><td>\(u_i\) (right)</td></tr><tr><td>0</td><td>(any)</td><td>\(y / K\)</td><td>\(y / K\)</td></tr><tr><td>1</td><td>\(y = 0\)</td><td>\(\epsilon\)</td><td>\(\mathrm{lim} / K\)</td></tr><tr><td>1</td><td>\(y \neq 0\)</td><td>\(\epsilon\)</td><td>\((y + \mathrm{lim}) / K\)</td></tr><tr><td>2</td><td>\(y = K\)</td><td>\((K - \mathrm{lim}) / K\)</td><td>\(1 - \epsilon\)</td></tr><tr><td>2</td><td>\(y \neq K\)</td><td>\((y - \mathrm{lim}) / K\)</td><td>\(1 - \epsilon\)</td></tr><tr><td>3</td><td>type <code>"m"</code></td><td>\((y - \mathrm{lim}) / K\)</td><td>\((y + \mathrm{lim}) / K\)</td></tr></table><p><strong>Consistency warnings</strong>: when the analyst supplies <code>delta</code>
+values that are unusual for the given <code>y</code> (e.g.,
+\(\delta = 1\) but \(y \neq 0\)), the function emits a warning
+but proceeds.  This is by design for Monte Carlo workflows where
+forced delta on non-boundary observations is intentional.</p>
 <p>All endpoints are clamped to \([\epsilon, 1 - \epsilon]\) with
 \(\epsilon = 10^{-5}\).</p>
     </div>
@@ -211,7 +240,7 @@ is set to 3 (interval-censored) unless the analyst supplied
 <span class="r-out co"><span class="r-pr">#&gt;</span>      left   right      yt  y delta           x1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.50000 0.50000 0.50000 50     0 -1.113118208</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.00001 0.00500 0.00001  0     1  1.240983896</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.99500 0.99999 0.99999 99     2  0.003481935</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.98500 0.99999 0.99000 99     2  0.003481935</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.49500 0.50500 0.50000 50     3 -1.237794586</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 3: left/right with NA patterns ---</span></span></span>
