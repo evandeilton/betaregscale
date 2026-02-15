@@ -22,6 +22,7 @@ articles:
     navbar: ~
     contents:
       - betaregscale
+      - analyst-tools
 
 reference:
   - title: "Model Fitting"
@@ -64,6 +65,15 @@ reference:
       - brs_est
       - brs_gof
       - brs_hessian
+      - autoplot.brs
+
+  - title: "Analyst Tools"
+    desc: "Post-estimation tables, effects, score probabilities, and validation."
+    contents:
+      - brs_table
+      - brs_marginaleffects
+      - brs_predict_scoreprob
+      - brs_cv
 
   - title: "Data Preparation"
     desc: "Functions for preparing response data and beta reparameterization."

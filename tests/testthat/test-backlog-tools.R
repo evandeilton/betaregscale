@@ -107,3 +107,22 @@ test_that("brs_predict_scoreprob returns coherent probability matrices", {
   expect_true(is.data.frame(L))
   expect_true(all(c("id", "score", "prob") %in% names(L)))
 })
+
+test_that("brs_cv returns fold-level predictive metrics", {
+  sim <- .sim_for_tools(seed = 505)
+
+  cv <- brs_cv(
+    y ~ x1 + x2 | z1,
+    data = sim,
+    k = 3,
+    repeats = 1,
+    repar = 2,
+    seed = 505
+  )
+
+  expect_s3_class(cv, "brs_cv")
+  expect_true(is.data.frame(cv))
+  expect_equal(nrow(cv), 3L)
+  expect_true(all(c("repeat", "fold", "log_score", "rmse_yt", "mae_yt") %in% names(cv)))
+  expect_true(all(cv$fold %in% 1:3))
+})
