@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/evandeilton/betaregscale/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/evandeilton/betaregscale/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/evandeilton/betaregscale/graph/badge.svg)](https://app.codecov.io/gh/evandeilton/betaregscale)
+<!-- [![Codecov test coverage](https://codecov.io/gh/evandeilton/betaregscale/graph/badge.svg)](https://app.codecov.io/gh/evandeilton/betaregscale) -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![CRAN status](https://www.r-pkg.org/badges/version/betaregscale)](https://CRAN.R-project.org/package=betaregscale)
 [![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/betaregscale)](https://cran.r-project.org/package=betaregscale)
