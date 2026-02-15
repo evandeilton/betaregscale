@@ -15,22 +15,28 @@
 #' The analyst can supply data in several ways:
 #'
 #' \enumerate{
-#'   \item \strong{Minimal}: only the score \code{y}. Censoring is
-#'     inferred automatically (equivalent to \code{\link{check_response}}).
-#'   \item \strong{Classic}: \code{y} + explicit \code{delta}. The
-#'     analyst states the censoring type; interval endpoints are computed.
-#'   \item \strong{Interval}: \code{left} and/or \code{right} columns
-#'     (on the original scale). Censoring is inferred from the NA pattern.
-#'   \item \strong{Full}: \code{y}, \code{left}, and \code{right}
-#'     together. The analyst's own endpoints are rescaled directly to
-#'     \eqn{(0, 1)}.
+#'   \item \strong{Minimal (Mode 1)}: only the score \code{y}.
+#'     Censoring is inferred automatically:
+#'     \eqn{y = 0 \to \delta = 1}, \eqn{y = K \to \delta = 2},
+#'     \eqn{0 < y < K \to \delta = 3},
+#'     \eqn{y \in (0, 1) \to \delta = 0}.
+#'   \item \strong{Classic (Mode 2)}: \code{y} + explicit
+#'     \code{delta}. The analyst declares the censoring type;
+#'     interval endpoints are computed using the actual \code{y}
+#'     value.
+#'   \item \strong{Interval (Mode 3)}: \code{left} and/or
+#'     \code{right} columns (on the original scale). Censoring is
+#'     inferred from the NA pattern.
+#'   \item \strong{Full (Mode 4)}: \code{y}, \code{left}, and
+#'     \code{right} together. The analyst's own endpoints are
+#'     rescaled directly to \eqn{(0, 1)}.
 #' }
 #'
-#' All covariate columns are preserved unchanged in the output data frame.
+#' All covariate columns are preserved unchanged in the output.
 #'
 #' @details
 #' \strong{Priority rule}: if \code{delta} is provided (non-\code{NA}),
-#' it takes precedence.
+#' it takes precedence over all automatic classification rules.
 #' When \code{delta} is \code{NA}, the function infers the censoring type
 #' from the pattern of \code{left}, \code{right}, and \code{y}:
 #'
@@ -58,6 +64,36 @@
 #' used directly (rescaled by \eqn{K =} \code{ncuts}) and \code{delta}
 #' is set to 3 (interval-censored) unless the analyst supplied
 #' \code{delta} explicitly.
+#'
+#' \strong{Endpoint formulas for Mode 2 (y + explicit delta)}:
+#'
+#' When the analyst supplies \code{delta} explicitly, the endpoint
+#' computation uses the actual \code{y} value to produce
+#' observation-specific bounds.  This is the same logic used by
+#' \code{\link{check_response}} with a user-supplied \code{delta}
+#' vector:
+#'
+#' \tabular{llll}{
+#'   \eqn{\delta} \tab Condition \tab \eqn{l_i} (left)
+#'     \tab \eqn{u_i} (right) \cr
+#'   0 \tab (any) \tab \eqn{y / K} \tab \eqn{y / K} \cr
+#'   1 \tab \eqn{y = 0} \tab \eqn{\epsilon}
+#'     \tab \eqn{\mathrm{lim} / K} \cr
+#'   1 \tab \eqn{y \neq 0} \tab \eqn{\epsilon}
+#'     \tab \eqn{(y + \mathrm{lim}) / K} \cr
+#'   2 \tab \eqn{y = K} \tab \eqn{(K - \mathrm{lim}) / K}
+#'     \tab \eqn{1 - \epsilon} \cr
+#'   2 \tab \eqn{y \neq K} \tab \eqn{(y - \mathrm{lim}) / K}
+#'     \tab \eqn{1 - \epsilon} \cr
+#'   3 \tab type \code{"m"} \tab \eqn{(y - \mathrm{lim}) / K}
+#'     \tab \eqn{(y + \mathrm{lim}) / K} \cr
+#' }
+#'
+#' \strong{Consistency warnings}: when the analyst supplies \code{delta}
+#' values that are unusual for the given \code{y} (e.g.,
+#' \eqn{\delta = 1} but \eqn{y \neq 0}), the function emits a warning
+#' but proceeds.  This is by design for Monte Carlo workflows where
+#' forced delta on non-boundary observations is intentional.
 #'
 #' All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]} with
 #' \eqn{\epsilon = 10^{-5}}.
@@ -334,6 +370,27 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 # -- Internal helpers -------------------------------------------------------- #
 
 #' Infer censoring type from NA pattern
+#'
+#' Called by \code{bs_prepare()} when the analyst does not provide an
+#' explicit \code{delta} value (or \code{delta} is \code{NA}) for a
+#' given observation.  The inference priority is:
+#'
+#' \enumerate{
+#'   \item Both \code{left} and \code{right} given (no \code{y})
+#'     \eqn{\to \delta = 3} (interval-censored).
+#'   \item Only \code{right} given
+#'     \eqn{\to \delta = 1} (left-censored: value below right).
+#'   \item Only \code{left} given
+#'     \eqn{\to \delta = 2} (right-censored: value above left).
+#'   \item \code{y} + both \code{left} + \code{right}
+#'     \eqn{\to \delta = 3} (analyst-supplied interval).
+#'   \item \code{y} present, left/right columns exist but both
+#'     \code{NA} \eqn{\to \delta = 0} (exact observation).
+#'   \item \code{y} only: boundary rules
+#'     (\eqn{y = 0 \to 1}, \eqn{y = K \to 2},
+#'      \eqn{y \in (0,1) \to 0}, else \eqn{\to 3}).
+#' }
+#'
 #' @param yi Numeric scalar: the score value (or NA).
 #' @param li Numeric scalar: the left endpoint (or NA).
 #' @param ri Numeric scalar: the right endpoint (or NA).
@@ -396,6 +453,42 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 
 
 #' Compute rescaled endpoints for a single observation
+#'
+#' Called by \code{bs_prepare()} inside the per-observation loop.
+#' Implements four endpoint-computation modes (see bs_prepare docs):
+#'
+#' \strong{Mode 4} (analyst supplied left + right):
+#'   Rescale directly: \eqn{l = l_i / K}, \eqn{u = r_i / K}.
+#'
+#' \strong{Mode 3} (NA-pattern inference):
+#'   Left-censored (only right given): \eqn{l = \epsilon},
+#'     \eqn{u = r_i / K}.
+#'   Right-censored (only left given): \eqn{l = l_i / K},
+#'     \eqn{u = 1 - \epsilon}.
+#'
+#' \strong{Modes 1 & 2} (y-based, possibly with explicit delta):
+#'   Endpoint formulas depend on the delta value and whether y is
+#'   at a boundary.  The key distinction:
+#'   \itemize{
+#'     \item \eqn{\delta = 1, y = 0}: \eqn{u = h / K} (boundary).
+#'     \item \eqn{\delta = 1, y \neq 0}: \eqn{u = (y + h) / K}
+#'       (forced, observation-specific).
+#'     \item \eqn{\delta = 2, y = K}: \eqn{l = (K - h) / K}
+#'       (boundary).
+#'     \item \eqn{\delta = 2, y \neq K}: \eqn{l = (y - h) / K}
+#'       (forced, observation-specific).
+#'   }
+#'   See \code{\link{check_response}} for the full formula table.
+#'
+#' @param yi Numeric scalar: the score value (or NA).
+#' @param d  Integer scalar: the censoring type (0, 1, 2, or 3).
+#' @param li Numeric scalar: analyst-supplied left endpoint (or NA).
+#' @param ri Numeric scalar: analyst-supplied right endpoint (or NA).
+#' @param K  Integer: number of scale categories (ncuts).
+#' @param type Character: interval type for delta = 3.
+#' @param lim Numeric: half-width of the uncertainty region.
+#' @param eps Numeric: small constant to avoid boundary (1e-5).
+#' @return A list with elements \code{left}, \code{right}, \code{yt}.
 #' @noRd
 .compute_endpoints <- function(yi, d, li, ri, K, type, lim, eps) {
   has_y <- !is.na(yi)
@@ -445,12 +538,24 @@ bs_prepare <- function(data, y = "y", delta = "delta",
       list(left = yt_out, right = yt_out, yt = yt_out)
     },
     "1" = {
-      # Left-censored
-      list(left = eps, right = lim / K, yt = eps)
+      # Left-censored: latent value below upper bound u
+      # Boundary (y=0): u = lim/K
+      # Non-boundary (forced delta=1): u = (y + lim)/K
+      if (yi == 0) {
+        list(left = eps, right = lim / K, yt = eps)
+      } else {
+        list(left = eps, right = (yi + lim) / K, yt = yi / K)
+      }
     },
     "2" = {
-      # Right-censored
-      list(left = (K - lim) / K, right = 1 - eps, yt = 1 - eps)
+      # Right-censored: latent value above lower bound l
+      # Boundary (y=K): l = (K - lim)/K
+      # Non-boundary (forced delta=2): l = (y - lim)/K
+      if (yi == K) {
+        list(left = (K - lim) / K, right = 1 - eps, yt = 1 - eps)
+      } else {
+        list(left = (yi - lim) / K, right = 1 - eps, yt = yi / K)
+      }
     },
     "3" = {
       # Interval-censored <U+2014> compute via type
@@ -478,7 +583,22 @@ bs_prepare <- function(data, y = "y", delta = "delta",
 }
 
 
-#' Issue consistency warnings
+#' Issue consistency warnings for unusual delta/y combinations
+#'
+#' These warnings are \strong{informational}, not errors.  They alert
+#' the analyst when the supplied \code{delta} does not match the
+#' boundary convention:
+#' \itemize{
+#'   \item \eqn{\delta = 1} but \eqn{y \neq 0}: left-censored on a
+#'     non-zero score.  The endpoint formula adapts to the actual y
+#'     (see \code{.compute_endpoints()}).
+#'   \item \eqn{\delta = 2} but \eqn{y \neq K}: right-censored on a
+#'     non-maximum score.  Same adaptive endpoint logic.
+#'   \item \eqn{\delta = 3} but \eqn{y} at a boundary (0 or K):
+#'     interval-censored at a boundary score.
+#' }
+#' In Monte Carlo workflows with forced delta, these warnings are
+#' expected and can be suppressed with \code{suppressWarnings()}.
 #' @noRd
 .warn_consistency <- function(delta, y, K) {
   # delta=1 but y != 0
