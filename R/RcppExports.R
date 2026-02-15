@@ -81,3 +81,46 @@
     .Call(`_betaregscale_betaregscale_grad_variable_cpp`, param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 
+#' @title C++ log-likelihood for mixed beta interval regression (Laplace)
+#' @description Computes the marginal log-likelihood for a random-intercept
+#'   beta interval model using a Laplace approximation of group-specific
+#'   integrals over Gaussian random effects.
+#' @param param Parameter vector:
+#'   \code{beta (p), gamma (q), log_sigma_b (1)}.
+#' @param X Mean-model design matrix.
+#' @param Z Precision-model design matrix.
+#' @param y_left Left interval endpoints.
+#' @param y_right Right interval endpoints.
+#' @param yt Midpoint responses.
+#' @param delta Censoring indicator vector.
+#' @param group Integer group index (1..G), one per observation.
+#' @param link_mu_code Integer code for mean link.
+#' @param link_phi_code Integer code for precision link.
+#' @param repar Integer beta reparameterization code.
+#' @return Scalar marginal log-likelihood.
+#' @keywords internal
+.brsmm_loglik_laplace_cpp <- function(param, X, Z, y_left, y_right, yt, delta, group, link_mu_code, link_phi_code, repar) {
+    .Call(`_betaregscale_betaregscale_loglik_mixed_laplace_cpp`, param, X, Z, y_left, y_right, yt, delta, group, link_mu_code, link_phi_code, repar)
+}
+
+#' @title Group-level modes for random intercept (Laplace)
+#' @description Computes the posterior mode and local SD for each group random
+#'   intercept under the current parameter vector.
+#' @param param Parameter vector:
+#'   \code{beta (p), gamma (q), log_sigma_b (1)}.
+#' @param X Mean-model design matrix.
+#' @param Z Precision-model design matrix.
+#' @param y_left Left interval endpoints.
+#' @param y_right Right interval endpoints.
+#' @param yt Midpoint responses.
+#' @param delta Censoring indicator vector.
+#' @param group Integer group index (1..G), one per observation.
+#' @param link_mu_code Integer code for mean link.
+#' @param link_phi_code Integer code for precision link.
+#' @param repar Integer beta reparameterization code.
+#' @return Numeric matrix with columns \code{mode_b} and \code{sd_b}.
+#' @keywords internal
+.brsmm_group_modes_cpp <- function(param, X, Z, y_left, y_right, yt, delta, group, link_mu_code, link_phi_code, repar) {
+    .Call(`_betaregscale_betaregscale_group_modes_cpp`, param, X, Z, y_left, y_right, yt, delta, group, link_mu_code, link_phi_code, repar)
+}
+

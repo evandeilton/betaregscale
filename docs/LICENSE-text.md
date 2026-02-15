@@ -1,4 +1,4 @@
 # License
 
     YEAR: 2024
-    COPYRIGHT HOLDER: Jose Eduardo Lopes
+    COPYRIGHT HOLDER: José Evandeilton Lopes

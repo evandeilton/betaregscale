@@ -22,6 +22,7 @@ articles:
     navbar: ~
     contents:
       - betaregscale
+      - brsmm
       - analyst-tools
 
 reference:
@@ -29,6 +30,7 @@ reference:
     desc: "Core functions for fitting beta interval regression models."
     contents:
       - brs
+      - brsmm
       - brs_fit_fixed
       - brs_fit_var
       - brs_coef
@@ -57,6 +59,7 @@ reference:
       - predict.brs
       - confint.brs
       - plot.brs
+      - plot.brsmm
 
   - title: "Diagnostics and Summaries"
     desc: "Functions for model diagnostics and censoring summaries."
@@ -66,6 +69,7 @@ reference:
       - brs_gof
       - brs_hessian
       - autoplot.brs
+      - autoplot.brsmm
 
   - title: "Analyst Tools"
     desc: "Post-estimation tables, effects, score probabilities, and validation."

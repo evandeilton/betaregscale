@@ -1,0 +1,392 @@
+---
+title: "Mixed-Effects Beta Interval Regression with brsmm"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Mixed-Effects Beta Interval Regression with brsmm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 10,
+  fig.height = 5,
+  fig.align = "center",
+  warning = FALSE,
+  message = FALSE,
+  digits = 4
+)
+```
+
+## Overview
+
+`brsmm()` extends `brs()` to clustered data by adding a Gaussian random
+intercept in the mean submodel while preserving the interval-censored
+beta likelihood for scale-derived outcomes.
+
+This vignette covers:
+
+1. full model mathematics;
+2. estimation by marginal maximum likelihood (Laplace approximation);
+3. practical use of all current `brsmm` methods;
+4. inferential and validation workflows, including parameter recovery.
+
+```{r library}
+library(betaregscale)
+```
+
+## Mathematical model
+
+Assume observations \(i = 1, \dots, n_j\) within groups
+\(j = 1, \dots, G\), with random intercept \(b_j \sim \mathcal{N}(0,\sigma_b^2)\).
+
+### Linear predictors
+
+\[
+\eta_{\mu,ij} = x_{ij}^\top \beta + b_j,
+\qquad
+\eta_{\phi,ij} = z_{ij}^\top \gamma
+\]
+
+\[
+\mu_{ij} = g^{-1}(\eta_{\mu,ij}),
+\qquad
+\phi_{ij} = h^{-1}(\eta_{\phi,ij})
+\]
+
+with \(g(\cdot)\) and \(h(\cdot)\) chosen by `link` and `link_phi`.
+
+### Beta parameterization
+
+For each \((\mu_{ij}, \phi_{ij})\), `repar` maps to beta shape parameters
+\((a_{ij}, b_{ij})\) via `brs_repar()`.
+
+### Conditional contribution by censoring type
+
+Each observation contributes:
+
+\[
+L_{ij}(b_j;\theta)=
+\begin{cases}
+f(y_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=0\\
+F(u_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=1\\
+1 - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=2\\
+F(u_{ij}; a_{ij}, b_{ij}) - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=3
+\end{cases}
+\]
+
+where \(l_{ij},u_{ij}\) are interval endpoints on \((0,1)\),
+\(f(\cdot)\) is beta density, and \(F(\cdot)\) is beta CDF.
+
+### Group marginal likelihood
+
+\[
+L_j(\theta)=\int_{\mathbb{R}}
+\prod_{i=1}^{n_j} L_{ij}(b_j;\theta)\,
+\varphi(b_j;0,\sigma_b^2)\,db_j
+\]
+
+\[
+\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)
+\]
+
+### Laplace approximation used by `brsmm()`
+
+Define
+\[
+Q_j(b)=\sum_{i=1}^{n_j}\log L_{ij}(b;\theta)+\log\varphi(b;0,\sigma_b^2)
+\]
+and \(\hat b_j=\arg\max_b Q_j(b)\), with curvature
+\(H_j=-Q_j''(\hat b_j)\). Then
+
+\[
+\log L_j(\theta) \approx
+Q_j(\hat b_j) + \frac{1}{2}\log(2\pi) - \frac{1}{2}\log(H_j).
+\]
+
+`brsmm()` maximizes the approximated \(\ell(\theta)\) with
+`stats::optim()`, and computes group-level posterior modes
+\(\hat b_j\) and local standard deviations from the local curvature.
+
+## Simulating clustered scale data
+
+The next helper simulates data from a known mixed model to illustrate fitting,
+inference, and recovery checks.
+
+```{r simulate-data}
+sim_brsmm_data <- function(seed = 3501L, g = 24L, ni = 12L,
+                           beta = c(0.20, 0.65),
+                           gamma = c(-0.15),
+                           sigma_b = 0.55) {
+  set.seed(seed)
+  id <- factor(rep(seq_len(g), each = ni))
+  n <- length(id)
+  x1 <- rnorm(n)
+
+  b_true <- rnorm(g, mean = 0, sd = sigma_b)
+  eta_mu <- beta[1] + beta[2] * x1 + b_true[as.integer(id)]
+  eta_phi <- rep(gamma[1], n)
+
+  mu <- plogis(eta_mu)
+  phi <- plogis(eta_phi)
+  shp <- brs_repar(mu = mu, phi = phi, repar = 2)
+  y <- round(stats::rbeta(n, shp$shape1, shp$shape2) * 100)
+
+  list(
+    data = data.frame(y = y, x1 = x1, id = id),
+    truth = list(beta = beta, gamma = gamma, sigma_b = sigma_b, b = b_true)
+  )
+}
+
+sim <- sim_brsmm_data()
+str(sim$data)
+```
+
+## Fitting `brsmm()`
+
+```{r fit-brsmm}
+fit_mm <- brsmm(
+  y ~ x1,
+  random = ~ 1 | id,
+  data = sim$data,
+  repar = 2,
+  int_method = "laplace",
+  method = "BFGS",
+  control = list(maxit = 1000)
+)
+
+fit_mm
+```
+
+## Core methods
+
+### Coefficients and random effects
+
+`coef(fit_mm, model = "random")` is on the optimizer scale
+(\(\log \sigma_b\)); use `exp()` to report \(\sigma_b\).
+
+```{r methods-coef}
+coef(fit_mm, model = "full")
+coef(fit_mm, model = "mean")
+coef(fit_mm, model = "precision")
+coef(fit_mm, model = "random")
+exp(coef(fit_mm, model = "random"))
+head(ranef.brsmm(fit_mm))
+```
+
+### Variance-covariance, summary and likelihood criteria
+
+```{r methods-summary}
+vc <- vcov(fit_mm)
+dim(vc)
+
+sm <- summary(fit_mm)
+sm
+
+logLik(fit_mm)
+AIC(fit_mm)
+BIC(fit_mm)
+nobs(fit_mm)
+```
+
+### Fitted values, prediction and residuals
+
+```{r methods-predict}
+head(fitted(fit_mm, type = "mu"))
+head(fitted(fit_mm, type = "phi"))
+
+head(predict(fit_mm, type = "response"))
+head(predict(fit_mm, type = "link"))
+head(predict(fit_mm, type = "precision"))
+head(predict(fit_mm, type = "variance"))
+
+head(residuals(fit_mm, type = "response"))
+head(residuals(fit_mm, type = "pearson"))
+```
+
+### Diagnostic plotting methods
+
+`plot.brsmm()` supports base and ggplot2 backends:
+
+```{r methods-plot}
+plot(fit_mm, which = 1:4, type = "pearson")
+
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(fit_mm, which = 1:2, gg = TRUE)
+}
+```
+
+`autoplot.brsmm()` provides focused ggplot diagnostics:
+
+```{r methods-autoplot}
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot.brsmm(fit_mm, type = "calibration")
+  autoplot.brsmm(fit_mm, type = "score_dist")
+  autoplot.brsmm(fit_mm, type = "ranef_qq")
+  autoplot.brsmm(fit_mm, type = "residuals_by_group")
+}
+```
+
+### Prediction with `newdata`
+
+If `newdata` contains unseen groups, `predict.brsmm()` uses random effect
+equal to zero for those levels.
+
+```{r methods-newdata}
+nd <- sim$data[1:8, c("x1", "id")]
+predict(fit_mm, newdata = nd, type = "response")
+
+nd_unseen <- nd
+nd_unseen$id <- factor(rep("new_cluster", nrow(nd_unseen)))
+predict(fit_mm, newdata = nd_unseen, type = "response")
+```
+
+## Statistical tests and validation workflow
+
+### Wald tests (from `summary`)
+
+`summary.brsmm()` reports Wald \(z\)-tests for each parameter:
+\[
+z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
+\]
+
+```{r wald-tests}
+summary(fit_mm)$coefficients
+```
+
+### Likelihood-ratio test for nested fixed effects
+
+For nested models with the same random-effect structure, an LR test can be
+computed as:
+\[
+LR = 2\{\ell(\hat\theta_1)-\ell(\hat\theta_0)\},
+\]
+using a \(\chi^2\) reference with parameter-count difference.
+
+```{r lr-test, eval = FALSE}
+fit_null <- brsmm(
+  y ~ 1,
+  random = ~ 1 | id,
+  data = sim$data,
+  repar = 2,
+  int_method = "laplace",
+  method = "BFGS",
+  control = list(maxit = 1000)
+)
+
+ll0 <- logLik(fit_null)
+ll1 <- logLik(fit_mm)
+lr_stat <- 2 * (as.numeric(ll1) - as.numeric(ll0))
+df_diff <- attr(ll1, "df") - attr(ll0, "df")
+p_value <- stats::pchisq(lr_stat, df = df_diff, lower.tail = FALSE)
+
+c(LR = lr_stat, df = df_diff, p_value = p_value)
+```
+
+### Residual diagnostics (quick checks)
+
+```{r quick-diagnostics}
+r <- residuals(fit_mm, type = "pearson")
+c(
+  mean = mean(r),
+  sd = stats::sd(r),
+  q025 = as.numeric(stats::quantile(r, 0.025)),
+  q975 = as.numeric(stats::quantile(r, 0.975))
+)
+```
+
+## Parameter recovery experiment
+
+A single-fit recovery table can be produced directly from the previous fit:
+
+```{r recovery-single}
+est <- c(
+  beta0 = coef(fit_mm, model = "mean")[1],
+  beta1 = coef(fit_mm, model = "mean")[2],
+  sigma_b = exp(coef(fit_mm, model = "random"))
+)
+
+true <- c(
+  beta0 = sim$truth$beta[1],
+  beta1 = sim$truth$beta[2],
+  sigma_b = sim$truth$sigma_b
+)
+
+recovery_table <- data.frame(
+  parameter = names(true),
+  true = as.numeric(true),
+  estimate = as.numeric(est[names(true)]),
+  bias = as.numeric(est[names(true)] - true)
+)
+recovery_table
+```
+
+For a Monte Carlo recovery study, repeat simulation and fitting across
+replicates:
+
+```{r recovery-montecarlo, eval = FALSE}
+mc_recovery <- function(R = 50L, seed = 7001L) {
+  set.seed(seed)
+  out <- vector("list", R)
+
+  for (r in seq_len(R)) {
+    sim_r <- sim_brsmm_data(seed = seed + r)
+    fit_r <- brsmm(
+      y ~ x1,
+      random = ~ 1 | id,
+      data = sim_r$data,
+      repar = 2,
+      int_method = "laplace",
+      method = "BFGS",
+      control = list(maxit = 1000)
+    )
+
+    out[[r]] <- c(
+      beta0 = coef(fit_r, model = "mean")[1],
+      beta1 = coef(fit_r, model = "mean")[2],
+      sigma_b = exp(coef(fit_r, model = "random"))
+    )
+  }
+
+  est <- do.call(rbind, out)
+  truth <- c(beta0 = 0.20, beta1 = 0.65, sigma_b = 0.55)
+
+  data.frame(
+    parameter = colnames(est),
+    truth = as.numeric(truth[colnames(est)]),
+    mean_est = colMeans(est),
+    bias = colMeans(est) - truth[colnames(est)],
+    rmse = sqrt(colMeans((sweep(est, 2, truth[colnames(est)], "-"))^2))
+  )
+}
+
+mc_recovery(R = 50)
+```
+
+## How this maps to automated package tests
+
+The package test suite includes dedicated `brsmm` tests for:
+
+1. fitting with Laplace integration;
+2. one- and two-part formulas;
+3. S3 methods (`coef`, `vcov`, `summary`, `predict`, `residuals`, `ranef`);
+4. parameter recovery under known DGP settings.
+
+Run locally:
+
+```{r run-tests, eval = FALSE}
+devtools::test(filter = "brsmm")
+```
+
+## References
+
+Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for modelling
+rates and proportions. *Journal of Applied Statistics*, 31(7), 799-815.
+
+Lopes, J. E. (2024). *Beta Regression for Interval-Censored Scale-Derived
+Outcomes*. MSc Dissertation, PPGMNE/UFPR.
+
+Pinheiro, J. C. and Bates, D. M. (2000). *Mixed-Effects Models in S and S-PLUS*.
+Springer.

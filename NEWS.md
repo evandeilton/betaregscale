@@ -1,3 +1,24 @@
+# betaregscale 2.6.0
+
+## New features
+
+* Added `brsmm()` for mixed-effects beta interval regression with
+  Gaussian random intercepts (`random = ~ 1 | group`) using
+  Laplace-approximated marginal likelihood.
+* Added C++ mixed-model likelihood core:
+  `.brsmm_loglik_laplace_cpp()` and `.brsmm_group_modes_cpp()`.
+* Added a first S3 interface for `brsmm` objects:
+  `print`, `summary`, `coef`, `vcov`, `logLik`, `AIC`, `BIC`,
+  `nobs`, `fitted`, `predict`, and `residuals`.
+
+## Improvements
+
+* Added `test-brsmm.R` with mixed-model fitting and prediction tests.
+* Corrected author name spelling in package metadata/documentation:
+  **José Evandeilton Lopes**.
+
+---
+
 # betaregscale 2.5.0
 
 ## New features
