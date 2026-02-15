@@ -94,7 +94,6 @@ It supports four input modes:
 # Equivalent to brs_check - delta inferred from y
 d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
 brs_prep(d1, ncuts = 10)
-#> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3
 #>      left   right      yt  y delta           x1
 #> 1 0.00001 0.05000 0.00001  0     1 -1.400043517
 #> 2 0.25000 0.35000 0.30000  3     3  0.255317055
@@ -113,8 +112,6 @@ d2 <- data.frame(
   x1    = rnorm(4)
 )
 brs_prep(d2, ncuts = 100)
-#> Warning: Observation(s) 3: delta = 2 (right-censored) but y != 100.
-#> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
 #>      left   right      yt  y delta         x1
 #> 1 0.50000 0.50000 0.50000 50     0  1.1484116
 #> 2 0.00001 0.00500 0.00001  0     1 -1.8218177
@@ -135,7 +132,6 @@ d3 <- data.frame(
   x1    = rnorm(4)
 )
 brs_prep(d3, ncuts = 100)
-#> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
 #>    left   right    yt  y delta         x1
 #> 1 1e-05 0.05000 0.025 NA     1 -0.2827054
 #> 2 2e-01 0.99999 0.600 NA     2 -0.5536994
@@ -156,7 +152,6 @@ d4 <- data.frame(
   x1    = rnorm(2)
 )
 brs_prep(d4, ncuts = 100)
-#> brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2
 #>   left right   yt  y delta         x1
 #> 1 0.48  0.52 0.50 50     3 -1.6309894
 #> 2 0.73  0.77 0.75 75     3  0.5124269
@@ -183,7 +178,6 @@ sim <- brs_sim(
   repar = 2
 )
 prep <- brs_prep(sim, ncuts = 100)
-#> brs_prep: n = 1000 | exact = 0, left = 71, right = 106, interval = 823
 fit_prep <- brs(y ~ x1 + x2,
   data = prep, repar = 2,
   link = "logit", link_phi = "logit"
