@@ -924,7 +924,11 @@ test_that("simulate delta=1 produces all left-censored observations", {
     delta = 1
   )
   expect_true(all(sim$delta == 1))
-  expect_true(all(sim$y == 0))
+  # y values preserve simulated variation (not all forced to 0)
+  expect_true(length(unique(sim$y)) > 1)
+  # Left-censored: left = eps, right varies per observation
+  expect_true(all(sim$left == 1e-5))
+  expect_true(length(unique(sim$right)) > 1)
 })
 
 test_that("simulate delta=2 produces all right-censored observations", {
@@ -937,7 +941,11 @@ test_that("simulate delta=2 produces all right-censored observations", {
     delta = 2, ncuts = 100L
   )
   expect_true(all(sim$delta == 2))
-  expect_true(all(sim$y == 100))
+  # y values preserve simulated variation (not all forced to 100)
+  expect_true(length(unique(sim$y)) > 1)
+  # Right-censored: right = 1-eps, left varies per observation
+  expect_true(all(sim$right == 1 - 1e-5))
+  expect_true(length(unique(sim$left)) > 1)
 })
 
 test_that("simulate delta=3 produces all interval-censored observations", {
@@ -1042,6 +1050,32 @@ test_that("simulate delta=0 -> betaregscale converges", {
   expect_equal(fit$convergence, 0L)
 })
 
+test_that("simulate delta=1 -> betaregscale converges", {
+  set.seed(42)
+  n <- 200
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 1
+  )
+  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  expect_equal(fit$convergence, 0L)
+})
+
+test_that("simulate delta=2 -> betaregscale converges", {
+  set.seed(42)
+  n <- 200
+  dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
+  sim <- betaregscale_simulate(
+    formula = ~ x1 + x2, data = dat,
+    beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+    delta = 2
+  )
+  fit <- betaregscale(y ~ x1 + x2, data = sim)
+  expect_equal(fit$convergence, 0L)
+})
+
 # ============================================================================ #
 # Test: check_response with user-supplied delta
 # ============================================================================ #
@@ -1058,6 +1092,44 @@ test_that("check_response with delta vector respects user classification", {
   d <- c(1L, 2L)
   res <- check_response(y, ncuts = 100, delta = d)
   expect_equal(as.integer(res[, "delta"]), c(1L, 2L))
+})
+
+test_that("check_response forced delta=1 on non-boundary uses y-based upper bound", {
+  y <- c(30, 60)
+  d <- c(1L, 1L)
+  res <- check_response(y, ncuts = 100, delta = d)
+  # Left-censored: left = eps, right = (y + lim) / ncuts
+  expect_equal(unname(res[, "left"]), c(1e-5, 1e-5))
+  expect_equal(unname(res[, "right"]), c((30 + 0.5) / 100, (60 + 0.5) / 100),
+    tolerance = 1e-6
+  )
+})
+
+test_that("check_response forced delta=2 on non-boundary uses y-based lower bound", {
+  y <- c(30, 60)
+  d <- c(2L, 2L)
+  res <- check_response(y, ncuts = 100, delta = d)
+  # Right-censored: left = (y - lim) / ncuts, right = 1 - eps
+  expect_equal(unname(res[, "left"]), c((30 - 0.5) / 100, (60 - 0.5) / 100),
+    tolerance = 1e-6
+  )
+  expect_equal(unname(res[, "right"]), c(1 - 1e-5, 1 - 1e-5))
+})
+
+test_that("check_response boundary delta=1 (y=0) retains original endpoint formula", {
+  y <- c(0)
+  d <- c(1L)
+  res <- check_response(y, ncuts = 100, delta = d)
+  expect_equal(unname(res[, "left"]), 1e-5)
+  expect_equal(unname(res[, "right"]), 0.5 / 100, tolerance = 1e-6)
+})
+
+test_that("check_response boundary delta=2 (y=ncuts) retains original endpoint formula", {
+  y <- c(100)
+  d <- c(2L)
+  res <- check_response(y, ncuts = 100, delta = d)
+  expect_equal(unname(res[, "left"]), (100 - 0.5) / 100, tolerance = 1e-6)
+  expect_equal(unname(res[, "right"]), 1 - 1e-5)
 })
 
 test_that("check_response delta must match y length", {

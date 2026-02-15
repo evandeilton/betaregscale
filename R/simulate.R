@@ -94,8 +94,82 @@ compute_start <- function(formula, data, link = "logit",
 #' @description
 #' Generates observations from a beta regression model with a single
 #' (scalar) dispersion parameter.  This is useful for Monte Carlo
-#' studies and testing.  The \code{delta} argument controls the
-#' censoring type of the simulated data.
+#' studies, power analysis, and testing.  The \code{delta} argument
+#' controls the censoring type of the simulated data.
+#'
+#' @details
+#' \strong{Data generation process}:
+#' \enumerate{
+#'   \item The design matrix \eqn{X} is built from \code{formula} and
+#'     \code{data}.
+#'   \item The linear predictor is \eqn{\eta = X \beta}, and the mean
+#'     is \eqn{\mu = g^{-1}(\eta)} where \eqn{g} is the link
+#'     function.
+#'   \item The scalar dispersion is
+#'     \eqn{\phi = h^{-1}(\texttt{phi})} where \eqn{h} is the
+#'     dispersion link.
+#'   \item Beta shape parameters \eqn{(a, b)} are derived from
+#'     \eqn{(\mu, \phi)} via the chosen reparameterization scheme.
+#'   \item Raw values \eqn{y^*_i \sim \text{Beta}(a_i, b_i)} are
+#'     drawn on \eqn{(0, 1)}.
+#'   \item The raw values are transformed into the response matrix
+#'     by \code{.build_simulated_response()} (see below).
+#' }
+#'
+#' \strong{Role of the \code{delta} argument}:
+#'
+#' When \code{delta = NULL} (default), the raw values are rounded to
+#' the scale grid (\eqn{y_{\text{grid}} = \text{round}(y^* \times K)})
+#' and passed to \code{\link{check_response}} for automatic
+#' classification: \eqn{y = 0 \to \delta = 1}, \eqn{y = K \to
+#' \delta = 2}, otherwise \eqn{\delta = 3}.  The resulting dataset
+#' has a natural mix of censoring types driven by the simulated
+#' values.
+#'
+#' When \code{delta} is an integer in \eqn{\{0, 1, 2, 3\}},
+#' \strong{all} observations are forced to that censoring type, but
+#' the actual simulated \eqn{y^*} values are \strong{preserved} on
+#' the grid so that each observation retains its covariate-driven
+#' variation.  Specifically:
+#'
+#' \describe{
+#'   \item{\code{delta = 0} (exact)}{The continuous \eqn{y^*} values
+#'     are used directly on \eqn{(0, 1)};
+#'     \eqn{l_i = u_i = y_t = y^*_i}.}
+#'   \item{\code{delta = 1} (left-censored)}{The grid values
+#'     \eqn{y_{\text{grid}} = \text{round}(y^* K)} are kept.
+#'     \code{check_response()} is called with forced
+#'     \code{delta = rep(1, n)}, producing:
+#'     \eqn{l_i = \epsilon},
+#'     \eqn{u_i = (y_{\text{grid}} + h) / K} for non-boundary,
+#'     or \eqn{u_i = h / K} when \eqn{y_{\text{grid}} = 0}.}
+#'   \item{\code{delta = 2} (right-censored)}{Same logic:
+#'     \eqn{u_i = 1 - \epsilon},
+#'     \eqn{l_i = (y_{\text{grid}} - h) / K} for non-boundary,
+#'     or \eqn{l_i = (K - h) / K} when \eqn{y_{\text{grid}} = K}.}
+#'   \item{\code{delta = 3} (interval-censored)}{Grid values are
+#'     clamped to \eqn{[1, K-1]} (avoiding boundaries) and
+#'     \code{check_response()} is called with forced
+#'     \code{delta = rep(3, n)}.}
+#' }
+#'
+#' \strong{Attribute \code{"bs_prepared"}}:
+#'
+#' When \code{delta != NULL}, the returned data frame carries the
+#' attribute \code{"bs_prepared" = TRUE}.  This signals to
+#' \code{.extract_response()} (and thus to \code{\link{betaregscale}},
+#' \code{\link{betaregscale_loglik}}, etc.) that the pre-computed
+#' columns \code{left}, \code{right}, \code{yt}, and \code{delta}
+#' should be used directly, bypassing the automatic classification
+#' of \code{\link{check_response}}.  Without this attribute, the
+#' fitting functions would re-classify the response from the \code{y}
+#' column alone, which would ignore the forced delta and produce
+#' incorrect censoring indicators (e.g., an observation with
+#' \eqn{y = 50} and forced \eqn{\delta = 2} would be reclassified as
+#' \eqn{\delta = 3} by the boundary rules).
+#'
+#' When \code{delta = NULL}, the attribute is \strong{not} set, so
+#' the default pipeline applies.
 #'
 #' @param formula One-sided formula specifying the mean model
 #'   predictors (e.g., \code{~ x1 + x2}).
@@ -105,24 +179,40 @@ compute_start <- function(formula, data, link = "logit",
 #'   the intercept).
 #' @param phi    Scalar dispersion parameter (on the link scale).
 #' @param link   Mean link function (default \code{"logit"}).
+#'   Supported: \code{"logit"}, \code{"probit"}, \code{"cloglog"},
+#'   \code{"cauchit"}, \code{"log"}.
 #' @param link_phi Dispersion link function (default \code{"logit"}).
-#' @param ncuts  Number of scale categories (default 100).
+#' @param ncuts  Integer: number of scale categories \eqn{K}
+#'   (default 100).
 #' @param type   \strong{Deprecated.}
 #'   Interval type: \code{"m"}, \code{"l"}, or \code{"r"}.
 #'   Use \code{\link{bs_prepare}} to control interval geometry instead.
-#' @param lim    Half-width of the uncertainty region (default 0.5).
-#' @param repar  Reparameterization scheme (default 2).
-#' @param delta  Integer or \code{NULL}.  If \code{NULL} (default), the
-#'   censoring type is determined automatically by
+#' @param lim    Numeric: half-width \eqn{h} of the uncertainty
+#'   region (default 0.5).
+#' @param repar  Integer: reparameterization scheme (default 2).
+#'   0 = direct \eqn{(a, b)}, 1 = precision/Ferrari
+#'   \eqn{(\mu, \phi = a + b)}, 2 = mean-variance/Bayer
+#'   \eqn{(\mu, \phi = 1/(a + b + 1))}.
+#' @param delta  Integer or \code{NULL}.  If \code{NULL} (default),
+#'   censoring is determined automatically by
 #'   \code{\link{check_response}}.
-#'   If an integer in \code{{0, 1, 2, 3}}, \strong{all} simulated
-#'   observations are forced to that censoring type:
-#'   0 = exact (uncensored), 1 = left-censored, 2 = right-censored,
-#'   3 = interval-censored.
 #'
-#' @return A \code{data.frame} containing columns \code{left},
-#'   \code{right}, \code{yt}, \code{y}, \code{delta}, and the
-#'   predictor variables.
+#'   If an integer in \code{\{0, 1, 2, 3\}}, \strong{all} simulated
+#'   observations are forced to that censoring type.  The actual
+#'   simulated values are preserved so that observation-specific
+#'   endpoints reflect the underlying covariate-driven variation.
+#'   See Details.
+#'
+#' @return A \code{data.frame} with \eqn{n} rows and columns:
+#'   \code{left}, \code{right}, \code{yt}, \code{y}, \code{delta},
+#'   plus the predictor columns from \code{data}.
+#'   When \code{delta != NULL}, the data frame carries the attribute
+#'   \code{"bs_prepared" = TRUE}.
+#'
+#' @seealso \code{\link{betaregscale_simulate_z}} for variable-
+#'   dispersion simulation; \code{\link{check_response}} for the
+#'   endpoint computation rules; \code{\link{bs_prepare}} for
+#'   analyst-facing data pre-processing.
 #'
 #' @examples
 #' set.seed(42)
@@ -142,6 +232,15 @@ compute_start <- function(formula, data, link = "logit",
 #'   delta = 3
 #' )
 #' table(sim3$delta)
+#'
+#' # Force right-censored: y values vary, all delta = 2
+#' sim2 <- betaregscale_simulate(
+#'   formula = ~ x1 + x2, data = dat,
+#'   beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
+#'   delta = 2
+#' )
+#' head(sim2[, c("left", "right", "y", "delta")])
+#' # Note: left varies per observation, right = 1 - eps
 #'
 #' @importFrom stats rbeta
 #' @export
@@ -193,7 +292,15 @@ betaregscale_simulate <- function(formula, data, beta, phi = 1 / 5,
     type = type, lim = lim
   )
 
-  data.frame(out_y, X[, -1L, drop = FALSE])
+  result <- data.frame(out_y, X[, -1L, drop = FALSE])
+
+  # When delta is forced, mark data as pre-processed so that
+  # .extract_response() uses the pre-computed columns directly
+  if (!is.null(delta)) {
+    attr(result, "bs_prepared") <- TRUE
+  }
+
+  result
 }
 
 
@@ -202,7 +309,33 @@ betaregscale_simulate <- function(formula, data, beta, phi = 1 / 5,
 #' @description
 #' Generates observations from a beta regression model with
 #' observation-specific dispersion governed by a second linear
-#' predictor.  The \code{delta} argument controls the censoring type.
+#' predictor.  The \code{delta} argument controls the censoring type
+#' of the simulated data.
+#'
+#' @details
+#' The data generation is analogous to
+#' \code{\link{betaregscale_simulate}}, but with observation-specific
+#' dispersion:
+#' \enumerate{
+#'   \item Mean linear predictor: \eqn{\mu_i = g^{-1}(X_i \beta)}.
+#'   \item Dispersion linear predictor:
+#'     \eqn{\phi_i = h^{-1}(Z_i \zeta)}.
+#'   \item Beta shape parameters \eqn{(a_i, b_i)} are derived from
+#'     \eqn{(\mu_i, \phi_i)} per the reparameterization.
+#'   \item \eqn{y^*_i \sim \text{Beta}(a_i, b_i)}.
+#'   \item Response matrix built by
+#'     \code{.build_simulated_response()}.
+#' }
+#'
+#' The \code{delta} argument has exactly the same semantics and
+#' endpoint rules as in \code{\link{betaregscale_simulate}}.  When
+#' \code{delta != NULL}, the returned data frame carries
+#' \code{attr(, "bs_prepared") = TRUE}.
+#'
+#' See \code{\link{betaregscale_simulate}} for the complete
+#' documentation of the delta-forced endpoint formulas, the
+#' \code{"bs_prepared"} attribute, and the interaction with the
+#' fitting pipeline.
 #'
 #' @param formula_x One-sided formula for the mean model predictors.
 #' @param formula_z One-sided formula for the dispersion model
@@ -212,19 +345,31 @@ betaregscale_simulate <- function(formula, data, beta, phi = 1 / 5,
 #' @param zeta   Numeric vector of dispersion-model coefficients.
 #' @param link   Mean link function (default \code{"logit"}).
 #' @param link_phi Dispersion link function (default \code{"logit"}).
-#' @param ncuts  Number of scale categories (default 100).
+#' @param ncuts  Integer: number of scale categories \eqn{K}
+#'   (default 100).
 #' @param type   \strong{Deprecated.}
 #'   Interval type (default \code{"m"}).
 #'   Use \code{\link{bs_prepare}} to control interval geometry instead.
-#' @param lim    Uncertainty half-width (default 0.5).
-#' @param repar  Reparameterization scheme (default 2).
+#' @param lim    Numeric: uncertainty half-width \eqn{h}
+#'   (default 0.5).
+#' @param repar  Integer: reparameterization scheme (default 2).
 #' @param delta  Integer or \code{NULL}.  If \code{NULL} (default),
 #'   censoring is determined automatically.
-#'   If an integer in \code{{0, 1, 2, 3}}, all simulated observations
-#'   are forced to that censoring type.
-#'   See \code{\link{betaregscale_simulate}} for details.
+#'   If an integer in \code{\{0, 1, 2, 3\}}, all simulated
+#'   observations are forced to that censoring type with
+#'   observation-specific endpoints.
+#'   See \code{\link{betaregscale_simulate}} for the full
+#'   specification.
 #'
-#' @return A \code{data.frame} with interval endpoints and predictors.
+#' @return A \code{data.frame} with columns: \code{left},
+#'   \code{right}, \code{yt}, \code{y}, \code{delta}, plus the
+#'   predictor columns from the mean and dispersion design matrices.
+#'   When \code{delta != NULL}, the data frame carries the attribute
+#'   \code{"bs_prepared" = TRUE}.
+#'
+#' @seealso \code{\link{betaregscale_simulate}} for the full
+#'   documentation of delta semantics;
+#'   \code{\link{check_response}} for the endpoint formulas.
 #'
 #' @examples
 #' set.seed(42)
@@ -298,11 +443,19 @@ betaregscale_simulate_z <- function(formula_x = ~ x1 + x2,
     type = type, lim = lim
   )
 
-  data.frame(
+  result <- data.frame(
     out_y,
     X[, -1L, drop = FALSE],
     Z[, -1L, drop = FALSE]
   )
+
+  # When delta is forced, mark data as pre-processed so that
+  # .extract_response() uses the pre-computed columns directly
+  if (!is.null(delta)) {
+    attr(result, "bs_prepared") <- TRUE
+  }
+
+  result
 }
 
 
@@ -312,12 +465,57 @@ betaregscale_simulate_z <- function(formula_x = ~ x1 + x2,
 
 #' Build the response matrix for simulated data
 #'
-#' @param y_raw Numeric vector of simulated beta values on (0, 1).
-#' @param delta Integer or NULL: forced censoring type.
-#' @param ncuts Integer: number of scale categories.
-#' @param type  Character: interval type (for check_response).
-#' @param lim   Numeric: uncertainty half-width.
-#' @return A matrix with columns left, right, yt, y, delta.
+#' Internal helper called by \code{\link{betaregscale_simulate}} and
+#' \code{\link{betaregscale_simulate_z}} to transform raw simulated
+#' beta values into the five-column response matrix.
+#'
+#' \strong{Design principle}: for every forced censoring type, the
+#' actual simulated values (rounded to the scale grid) are preserved
+#' so that covariate-driven variation is maintained.  The forced
+#' \code{delta} is passed as a vector to
+#' \code{\link{check_response}}, which overrides the automatic
+#' boundary classification and computes observation-specific
+#' endpoints.
+#'
+#' \strong{Per-delta transformation}:
+#' \describe{
+#'   \item{\code{delta = NULL}}{Default path:
+#'     \eqn{y_{\text{grid}} = \text{round}(y^* \times K)}, then
+#'     \code{check_response(y_grid)} with automatic classification.}
+#'   \item{\code{delta = 0}}{Exact observations: the continuous
+#'     \eqn{y^*} values are used directly on \eqn{(0, 1)}.
+#'     \code{check_response()} is \strong{not} called; the matrix
+#'     is built manually with \eqn{l_i = u_i = y_t = y^*_i}.}
+#'   \item{\code{delta = 1}}{Left-censored:
+#'     \eqn{y_{\text{grid}} = \text{round}(y^* \times K)}, then
+#'     \code{check_response(y_grid, delta = rep(1, n))}.
+#'     The actual grid values are preserved; each observation gets
+#'     \eqn{l_i = \epsilon},
+#'     \eqn{u_i = (y_{\text{grid}} + h) / K} (non-boundary) or
+#'     \eqn{u_i = h / K} (when \eqn{y_{\text{grid}} = 0}).}
+#'   \item{\code{delta = 2}}{Right-censored:
+#'     \eqn{y_{\text{grid}} = \text{round}(y^* \times K)}, then
+#'     \code{check_response(y_grid, delta = rep(2, n))}.
+#'     Each observation gets \eqn{u_i = 1 - \epsilon},
+#'     \eqn{l_i = (y_{\text{grid}} - h) / K} (non-boundary) or
+#'     \eqn{l_i = (K - h) / K} (when \eqn{y_{\text{grid}} = K}).}
+#'   \item{\code{delta = 3}}{Interval-censored:
+#'     \eqn{y_{\text{grid}} = \text{round}(y^* \times K)}, then
+#'     clamped to \eqn{[1, K-1]} (boundaries avoided), then
+#'     \code{check_response(y_grid, delta = rep(3, n))}.}
+#' }
+#'
+#' @param y_raw Numeric vector of length \eqn{n}: simulated beta
+#'   values on \eqn{(0, 1)}.
+#' @param delta Integer scalar or \code{NULL}: forced censoring type
+#'   to apply to all observations.
+#' @param ncuts Integer: number of scale categories \eqn{K}.
+#' @param type  Character: interval type passed to
+#'   \code{check_response()} (only relevant for \code{delta = 3}
+#'   or \code{delta = NULL}).
+#' @param lim   Numeric: uncertainty half-width \eqn{h}.
+#' @return A numeric matrix with \eqn{n} rows and columns
+#'   \code{left}, \code{right}, \code{yt}, \code{y}, \code{delta}.
 #' @noRd
 .build_simulated_response <- function(y_raw, delta, ncuts, type, lim) {
   n <- length(y_raw)
@@ -342,20 +540,29 @@ betaregscale_simulate_z <- function(formula_x = ~ x1 + x2,
       )
     },
     "1" = {
-      # Left-censored: force all to lower boundary
-      y_grid <- rep(0, n)
-      check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+      # Left-censored: keep actual grid values, force delta=1
+      y_grid <- round(y_raw * ncuts, 0)
+      check_response(y_grid,
+        type = type, ncuts = ncuts, lim = lim,
+        delta = rep(1L, n)
+      )
     },
     "2" = {
-      # Right-censored: force all to upper boundary
-      y_grid <- rep(ncuts, n)
-      check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+      # Right-censored: keep actual grid values, force delta=2
+      y_grid <- round(y_raw * ncuts, 0)
+      check_response(y_grid,
+        type = type, ncuts = ncuts, lim = lim,
+        delta = rep(2L, n)
+      )
     },
     "3" = {
-      # Interval-censored: round to grid but avoid boundaries
+      # Interval-censored: round to grid, avoid boundaries, force delta=3
       y_grid <- round(y_raw * ncuts, 0)
       y_grid <- pmin(pmax(y_grid, 1L), ncuts - 1L)
-      check_response(y_grid, type = type, ncuts = ncuts, lim = lim)
+      check_response(y_grid,
+        type = type, ncuts = ncuts, lim = lim,
+        delta = rep(3L, n)
+      )
     }
   )
 }

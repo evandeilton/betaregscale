@@ -35,29 +35,63 @@ predictors.}
 
 \item{link_phi}{Dispersion link function (default \code{"logit"}).}
 
-\item{ncuts}{Number of scale categories (default 100).}
+\item{ncuts}{Integer: number of scale categories \eqn{K}
+(default 100).}
 
 \item{type}{\strong{Deprecated.}
 Interval type (default \code{"m"}).
 Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
-\item{lim}{Uncertainty half-width (default 0.5).}
+\item{lim}{Numeric: uncertainty half-width \eqn{h}
+(default 0.5).}
 
-\item{repar}{Reparameterization scheme (default 2).}
+\item{repar}{Integer: reparameterization scheme (default 2).}
 
 \item{delta}{Integer or \code{NULL}.  If \code{NULL} (default),
 censoring is determined automatically.
-If an integer in \code{{0, 1, 2, 3}}, all simulated observations
-are forced to that censoring type.
-See \code{\link{betaregscale_simulate}} for details.}
+If an integer in \code{\{0, 1, 2, 3\}}, all simulated
+observations are forced to that censoring type with
+observation-specific endpoints.
+See \code{\link{betaregscale_simulate}} for the full
+specification.}
 }
 \value{
-A \code{data.frame} with interval endpoints and predictors.
+A \code{data.frame} with columns: \code{left},
+  \code{right}, \code{yt}, \code{y}, \code{delta}, plus the
+  predictor columns from the mean and dispersion design matrices.
+  When \code{delta != NULL}, the data frame carries the attribute
+  \code{"bs_prepared" = TRUE}.
 }
 \description{
 Generates observations from a beta regression model with
 observation-specific dispersion governed by a second linear
-predictor.  The \code{delta} argument controls the censoring type.
+predictor.  The \code{delta} argument controls the censoring type
+of the simulated data.
+}
+\details{
+The data generation is analogous to
+\code{\link{betaregscale_simulate}}, but with observation-specific
+dispersion:
+\enumerate{
+  \item Mean linear predictor: \eqn{\mu_i = g^{-1}(X_i \beta)}.
+  \item Dispersion linear predictor:
+    \eqn{\phi_i = h^{-1}(Z_i \zeta)}.
+  \item Beta shape parameters \eqn{(a_i, b_i)} are derived from
+    \eqn{(\mu_i, \phi_i)} per the reparameterization.
+  \item \eqn{y^*_i \sim \text{Beta}(a_i, b_i)}.
+  \item Response matrix built by
+    \code{.build_simulated_response()}.
+}
+
+The \code{delta} argument has exactly the same semantics and
+endpoint rules as in \code{\link{betaregscale_simulate}}.  When
+\code{delta != NULL}, the returned data frame carries
+\code{attr(, "bs_prepared") = TRUE}.
+
+See \code{\link{betaregscale_simulate}} for the complete
+documentation of the delta-forced endpoint formulas, the
+\code{"bs_prepared"} attribute, and the interaction with the
+fitting pipeline.
 }
 \examples{
 set.seed(42)
@@ -74,4 +108,9 @@ sim <- betaregscale_simulate_z(
 )
 head(sim)
 
+}
+\seealso{
+\code{\link{betaregscale_simulate}} for the full
+  documentation of delta semantics;
+  \code{\link{check_response}} for the endpoint formulas.
 }

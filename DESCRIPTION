@@ -1,7 +1,7 @@
 Package: betaregscale
 Type: Package
 Title: Beta Regression for Interval-Censored Scale-Derived Outcomes
-Version: 2.1.0
+Version: 2.1.1
 Authors@R: c(person(given = "José Evandeilton",
                     family = "Lopes",
                     role = c("aut", "cre"),

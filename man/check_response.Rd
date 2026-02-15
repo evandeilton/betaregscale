@@ -7,31 +7,52 @@
 check_response(y, type = "m", ncuts = 100L, lim = 0.5, delta = NULL)
 }
 \arguments{
-\item{y}{Numeric vector --- the raw response.}
+\item{y}{Numeric vector: the raw response.  Can be either
+integer scores on the scale \eqn{\{0, 1, \ldots, K\}} or
+continuous values already in \eqn{(0, 1)}.}
 
 \item{type}{\strong{Deprecated.}
-Character: interval type.
+Character: interval type for \eqn{\delta = 3} observations.
 \code{"m"} = midpoint (default),
 \code{"l"} = left-aligned,
 \code{"r"} = right-aligned.
 Use \code{\link{bs_prepare}} to control interval geometry instead.}
 
-\item{ncuts}{Integer: number of scale categories (default 100).}
+\item{ncuts}{Integer: number of scale categories \eqn{K}
+(default 100).  Must be \eqn{\geq \max(y)}.}
 
-\item{lim}{Numeric: half-width of the uncertainty region
-(default 0.5).}
+\item{lim}{Numeric: half-width \eqn{h} of the uncertainty
+region (default 0.5).  Controls the width of the interval
+around each scale point.}
 
 \item{delta}{Integer vector or \code{NULL}.  If \code{NULL}
-(default), censoring types are inferred automatically from
-boundary rules.  If provided, must have the same length as
-\code{y} with values in \code{{0, 1, 2, 3}}.  When provided,
-overrides the automatic classification.}
+  (default), censoring types are inferred automatically from the
+  boundary rules described above.
+
+  If provided, must have the same length as \code{y}, with every
+  element in \code{\{0, 1, 2, 3\}}.  The supplied values override
+  the automatic classification on a per-observation basis, and the
+  endpoint formulas adapt to non-boundary observations as
+  described in the table above.
+
+  This parameter is used internally by the simulation functions
+  when the analyst forces a specific censoring type
+  (e.g., \code{betaregscale_simulate(..., delta = 2)}).}
 }
 \value{
-A matrix with columns \code{left}, \code{right},
-  \code{yt} (midpoint approximation), \code{y} (original
-  value), and \code{delta} (censoring indicator: 0 = exact,
-  1 = left, 2 = right, 3 = interval).
+A numeric matrix with \eqn{n} rows and 5 columns:
+\describe{
+  \item{\code{left}}{Lower endpoint \eqn{l_i} on \eqn{(0, 1)},
+    clamped to \eqn{[\epsilon, 1 - \epsilon]}.}
+  \item{\code{right}}{Upper endpoint \eqn{u_i} on \eqn{(0, 1)},
+    clamped to \eqn{[\epsilon, 1 - \epsilon]}.}
+  \item{\code{yt}}{Midpoint approximation \eqn{y_t} for
+    starting-value computation (does not enter the likelihood).}
+  \item{\code{y}}{Original response value (preserved unchanged).}
+  \item{\code{delta}}{Censoring indicator: 0 = exact (density),
+    1 = left-censored \eqn{F(u)}, 2 = right-censored
+    \eqn{1 - F(l)}, 3 = interval-censored \eqn{F(u) - F(l)}.}
+}
 }
 \description{
 Takes a discrete (or continuous) response on the scale
@@ -44,51 +65,100 @@ Eq. 2.24):
 \describe{
   \item{\eqn{\delta = 0}}{Uncensored (exact): the observation is a
     continuous value already in \eqn{(0, 1)}.  The likelihood
-    contribution is the density \eqn{f(y_i | \theta)}.}
-  \item{\eqn{\delta = 1}}{Left-censored: the observation equals the
-    scale minimum (\eqn{y = 0}).  We only know that the latent
-    value is below some upper bound.  The contribution is
-    \eqn{F(u_i | \theta)}.}
-  \item{\eqn{\delta = 2}}{Right-censored: the observation equals the
-    scale maximum (\eqn{y = K}).  The contribution is
-    \eqn{1 - F(l_i | \theta)}.}
+    contribution is the density \eqn{f(y_i | \theta)}.
+    Endpoints: \eqn{l_i = u_i = y_i} (or \eqn{y_i / K} when on
+    the scale).}
+  \item{\eqn{\delta = 1}}{Left-censored: the latent value is below
+    some upper bound \eqn{u_i}.  The contribution is
+    \eqn{F(u_i | \theta)}.
+    When the observation is at the scale minimum (\eqn{y = 0}),
+    the upper bound is \eqn{u_i = \mathrm{lim} / K}.
+    When the user forces \eqn{\delta = 1} on a non-boundary
+    observation (\eqn{y \neq 0}), the upper bound is
+    \eqn{u_i = (y + \mathrm{lim}) / K}, preserving observation-
+    specific variation.  In both cases \eqn{l_i = \epsilon}.}
+  \item{\eqn{\delta = 2}}{Right-censored: the latent value is above
+    some lower bound \eqn{l_i}.  The contribution is
+    \eqn{1 - F(l_i | \theta)}.
+    When the observation is at the scale maximum (\eqn{y = K}),
+    the lower bound is \eqn{l_i = (K - \mathrm{lim}) / K}.
+    When the user forces \eqn{\delta = 2} on a non-boundary
+    observation (\eqn{y \neq K}), the lower bound is
+    \eqn{l_i = (y - \mathrm{lim}) / K}, preserving observation-
+    specific variation.  In both cases \eqn{u_i = 1 - \epsilon}.}
   \item{\eqn{\delta = 3}}{Interval-censored: the standard case for
     scale data.  The contribution is
-    \eqn{F(u_i | \theta) - F(l_i | \theta)}.}
+    \eqn{F(u_i | \theta) - F(l_i | \theta)}.  Endpoints depend on
+    the interval \code{type} (see Details).}
 }
 }
 \details{
-If the input is already in \eqn{(0, 1)} (i.e., all values satisfy
-\eqn{0 < y < 1}), observations are treated as uncensored
-(\eqn{\delta = 0}), unless \code{delta} is provided.
+\strong{Automatic classification} (\code{delta = NULL}):
 
-If \code{delta} is supplied, the user-provided censoring indicators
-are used directly, overriding the automatic boundary-based
-classification rules.
+If the entire input vector is already in \eqn{(0, 1)} (i.e., all
+values satisfy \eqn{0 < y < 1}), all observations are treated as
+uncensored (\eqn{\delta = 0}).
 
-For scale (integer) data (when \code{delta = NULL}):
+Otherwise, for scale (integer) data:
 \itemize{
-  \item \eqn{y = 0}: left-censored. Upper bound is
-    \eqn{u = \mathrm{lim} / K}.
-  \item \eqn{y = K}: right-censored. Lower bound is
-    \eqn{l = (K - \mathrm{lim}) / K}.
-  \item \eqn{0 < y < K}: interval-censored with endpoints determined
-    by the interval \code{type}.
+  \item \eqn{y = 0}: left-censored (\eqn{\delta = 1}).
+  \item \eqn{y = K}: right-censored (\eqn{\delta = 2}).
+  \item \eqn{0 < y < K}: interval-censored (\eqn{\delta = 3}).
 }
 
-Three interval types (Section 2.7, Figure 4 of Lopes, 2024):
-\describe{
-  \item{\code{"m"} (midpoint)}{Symmetric: \eqn{l = (y - \mathrm{lim})/K},
-    \eqn{u = (y + \mathrm{lim})/K}.}
-  \item{\code{"l"} (left)}{Shifted left: \eqn{l = (y - 2\mathrm{lim})/K},
-    \eqn{u = y/K}.}
-  \item{\code{"r"} (right)}{Shifted right: \eqn{l = y/K},
-    \eqn{u = (y + 2\mathrm{lim})/K}.}
+\strong{User-supplied delta} (\code{delta} vector):
+
+When the \code{delta} argument is provided, the user-supplied
+censoring indicators override the automatic boundary-based rules
+on a per-observation basis.  This is the mechanism used by
+\code{\link{betaregscale_simulate}} when the analyst forces a
+specific censoring type in Monte Carlo studies.
+
+The endpoint formulas for each delta value are:
+
+\tabular{llll}{
+  \eqn{\delta} \tab Condition \tab \eqn{l_i} (left) \tab \eqn{u_i} (right) \cr
+  0 \tab \eqn{y \in (0, 1)} \tab \eqn{y}
+    \tab \eqn{y} \cr
+  0 \tab \eqn{y} on scale \tab \eqn{y / K}
+    \tab \eqn{y / K} \cr
+  1 \tab \eqn{y = 0} (boundary) \tab \eqn{\epsilon}
+    \tab \eqn{\mathrm{lim} / K} \cr
+  1 \tab \eqn{y \neq 0} (forced) \tab \eqn{\epsilon}
+    \tab \eqn{(y + \mathrm{lim}) / K} \cr
+  2 \tab \eqn{y = K} (boundary) \tab \eqn{(K - \mathrm{lim}) / K}
+    \tab \eqn{1 - \epsilon} \cr
+  2 \tab \eqn{y \neq K} (forced) \tab \eqn{(y - \mathrm{lim}) / K}
+    \tab \eqn{1 - \epsilon} \cr
+  3 \tab type \code{"m"} \tab \eqn{(y - \mathrm{lim}) / K}
+    \tab \eqn{(y + \mathrm{lim}) / K} \cr
+  3 \tab type \code{"l"} \tab \eqn{(y - 2\mathrm{lim}) / K}
+    \tab \eqn{y / K} \cr
+  3 \tab type \code{"r"} \tab \eqn{y / K}
+    \tab \eqn{(y + 2\mathrm{lim}) / K} \cr
 }
 
 All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]} with
 \eqn{\epsilon = 10^{-5}} to avoid boundary issues in the beta
 likelihood.
+
+The midpoint approximation \code{yt} is computed as:
+\itemize{
+  \item \eqn{y_t = y} when \eqn{y \in (0, 1)} (continuous data).
+  \item \eqn{y_t = y / K} when \eqn{y} is on the integer scale.
+}
+This value is used exclusively as an initialization aid for
+starting-value computation and does not enter the likelihood.
+
+\strong{Interaction with the fitting pipeline}:
+
+This function is called internally by \code{.extract_response()}
+when the data does \emph{not} carry the \code{"bs_prepared"}
+attribute.  When data has been pre-processed by
+\code{\link{bs_prepare}} or by simulation with forced delta
+(\code{\link{betaregscale_simulate}} with \code{delta != NULL}),
+the pre-computed columns are used directly and
+\code{check_response()} is skipped.
 }
 \examples{
 # Scale data with boundary observations
@@ -98,4 +168,15 @@ check_response(y, ncuts = 10)
 # Force all observations to be exact (delta = 0)
 check_response(y, ncuts = 10, delta = rep(0L, length(y)))
 
+# Force delta = 1 on non-boundary observations:
+# endpoints use actual y values, preserving variation
+y2 <- c(30, 60)
+check_response(y2, ncuts = 100, delta = c(1L, 1L))
+#  left = (eps, eps), right = (30.5/100, 60.5/100)
+
+}
+\seealso{
+\code{\link{bs_prepare}} for the analyst-facing
+  pre-processing function; \code{\link{betaregscale_simulate}}
+  for simulation with forced delta.
 }

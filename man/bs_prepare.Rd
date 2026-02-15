@@ -66,22 +66,28 @@ Validates and transforms raw data into the format required by
 The analyst can supply data in several ways:
 
 \enumerate{
-  \item \strong{Minimal}: only the score \code{y}. Censoring is
-    inferred automatically (equivalent to \code{\link{check_response}}).
-  \item \strong{Classic}: \code{y} + explicit \code{delta}. The
-    analyst states the censoring type; interval endpoints are computed.
-  \item \strong{Interval}: \code{left} and/or \code{right} columns
-    (on the original scale). Censoring is inferred from the NA pattern.
-  \item \strong{Full}: \code{y}, \code{left}, and \code{right}
-    together. The analyst's own endpoints are rescaled directly to
-    \eqn{(0, 1)}.
+  \item \strong{Minimal (Mode 1)}: only the score \code{y}.
+    Censoring is inferred automatically:
+    \eqn{y = 0 \to \delta = 1}, \eqn{y = K \to \delta = 2},
+    \eqn{0 < y < K \to \delta = 3},
+    \eqn{y \in (0, 1) \to \delta = 0}.
+  \item \strong{Classic (Mode 2)}: \code{y} + explicit
+    \code{delta}. The analyst declares the censoring type;
+    interval endpoints are computed using the actual \code{y}
+    value.
+  \item \strong{Interval (Mode 3)}: \code{left} and/or
+    \code{right} columns (on the original scale). Censoring is
+    inferred from the NA pattern.
+  \item \strong{Full (Mode 4)}: \code{y}, \code{left}, and
+    \code{right} together. The analyst's own endpoints are
+    rescaled directly to \eqn{(0, 1)}.
 }
 
-All covariate columns are preserved unchanged in the output data frame.
+All covariate columns are preserved unchanged in the output.
 }
 \details{
 \strong{Priority rule}: if \code{delta} is provided (non-\code{NA}),
-it takes precedence.
+it takes precedence over all automatic classification rules.
 When \code{delta} is \code{NA}, the function infers the censoring type
 from the pattern of \code{left}, \code{right}, and \code{y}:
 
@@ -109,6 +115,36 @@ same observation, the analyst's \code{left}/\code{right} values are
 used directly (rescaled by \eqn{K =} \code{ncuts}) and \code{delta}
 is set to 3 (interval-censored) unless the analyst supplied
 \code{delta} explicitly.
+
+\strong{Endpoint formulas for Mode 2 (y + explicit delta)}:
+
+When the analyst supplies \code{delta} explicitly, the endpoint
+computation uses the actual \code{y} value to produce
+observation-specific bounds.  This is the same logic used by
+\code{\link{check_response}} with a user-supplied \code{delta}
+vector:
+
+\tabular{llll}{
+  \eqn{\delta} \tab Condition \tab \eqn{l_i} (left)
+    \tab \eqn{u_i} (right) \cr
+  0 \tab (any) \tab \eqn{y / K} \tab \eqn{y / K} \cr
+  1 \tab \eqn{y = 0} \tab \eqn{\epsilon}
+    \tab \eqn{\mathrm{lim} / K} \cr
+  1 \tab \eqn{y \neq 0} \tab \eqn{\epsilon}
+    \tab \eqn{(y + \mathrm{lim}) / K} \cr
+  2 \tab \eqn{y = K} \tab \eqn{(K - \mathrm{lim}) / K}
+    \tab \eqn{1 - \epsilon} \cr
+  2 \tab \eqn{y \neq K} \tab \eqn{(y - \mathrm{lim}) / K}
+    \tab \eqn{1 - \epsilon} \cr
+  3 \tab type \code{"m"} \tab \eqn{(y - \mathrm{lim}) / K}
+    \tab \eqn{(y + \mathrm{lim}) / K} \cr
+}
+
+\strong{Consistency warnings}: when the analyst supplies \code{delta}
+values that are unusual for the given \code{y} (e.g.,
+\eqn{\delta = 1} but \eqn{y \neq 0}), the function emits a warning
+but proceeds.  This is by design for Monte Carlo workflows where
+forced delta on non-boundary observations is intentional.
 
 All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]} with
 \eqn{\epsilon = 10^{-5}}.
