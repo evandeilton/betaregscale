@@ -24,6 +24,8 @@ high-performance log-likelihood evaluation.
     fixed- and variable-dispersion models.}
   \item{\code{\link{brs_fit_fixed}}}{Fit a fixed-dispersion model.}
   \item{\code{\link{brs_fit_var}}}{Fit a variable-dispersion model.}
+  \item{\code{\link{brsmm}}}{Fit a mixed-effects beta interval model
+    with Gaussian random intercepts.}
   \item{\code{\link{brs_sim}}}{Simulate interval-censored
     data from fixed or variable-dispersion beta models.}
   \item{\code{\link{brs_cens}}}{Visual and tabular summary of
@@ -79,6 +81,6 @@ Useful links:
 
 }
 \author{
-Jose Eduardo Lopes \email{evandeilton@gmail.com}
+José Evandeilton Lopes \email{evandeilton@gmail.com}
 }
 \keyword{internal}

@@ -1,0 +1,385 @@
+# ============================================================================ #
+# S3 methods for brsmm objects
+# ============================================================================ #
+
+#' Validate a brsmm object
+#' @param x Object to validate.
+#' @param call. Logical; passed to \code{stop()}.
+#' @keywords internal
+.check_class_mm <- function(x, call. = FALSE) {
+  if (!inherits(x, "brsmm")) {
+    stop(
+      "Expected an object of class 'brsmm', got '",
+      paste(class(x), collapse = "', '"), "'.",
+      call. = call.
+    )
+  }
+}
+
+
+#' Extract coefficients from a brsmm fit
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param model Character: \code{"full"} (default), \code{"mean"},
+#'   \code{"precision"}, or \code{"random"}.
+#' @param ... Ignored.
+#'
+#' @return Named numeric vector.
+#'
+#' @method coef brsmm
+#' @importFrom stats coef
+#' @export
+coef.brsmm <- function(object,
+                       model = c("full", "mean", "precision", "random"),
+                       ...) {
+  .check_class_mm(object)
+  model <- match.arg(model)
+  switch(model,
+    full = object$par,
+    mean = object$coefficients$mean,
+    precision = object$coefficients$precision,
+    random = object$coefficients$random
+  )
+}
+
+
+#' Variance-covariance matrix for brsmm coefficients
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param model Character: \code{"full"}, \code{"mean"},
+#'   \code{"precision"}, or \code{"random"}.
+#' @param ... Ignored.
+#'
+#' @return Numeric matrix.
+#'
+#' @method vcov brsmm
+#' @importFrom stats vcov
+#' @export
+vcov.brsmm <- function(object,
+                       model = c("full", "mean", "precision", "random"),
+                       ...) {
+  .check_class_mm(object)
+  model <- match.arg(model)
+
+  V <- tryCatch(
+    solve(-object$hessian),
+    error = function(e) {
+      warning(
+        "Hessian is computationally singular; returning generalized inverse.",
+        call. = FALSE
+      )
+      if (requireNamespace("MASS", quietly = TRUE)) {
+        MASS::ginv(-object$hessian)
+      } else {
+        matrix(NA_real_, nrow(object$hessian), ncol(object$hessian))
+      }
+    }
+  )
+  rownames(V) <- colnames(V) <- names(object$par)
+
+  p <- object$p
+  q <- object$q
+  idx_mean <- seq_len(p)
+  idx_precision <- p + seq_len(q)
+  idx_random <- p + q + 1L
+
+  switch(model,
+    full = V,
+    mean = V[idx_mean, idx_mean, drop = FALSE],
+    precision = V[idx_precision, idx_precision, drop = FALSE],
+    random = V[idx_random, idx_random, drop = FALSE]
+  )
+}
+
+
+#' Log-likelihood for brsmm models
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param ... Ignored.
+#'
+#' @return Object of class \code{"logLik"}.
+#'
+#' @method logLik brsmm
+#' @importFrom stats logLik
+#' @export
+logLik.brsmm <- function(object, ...) {
+  .check_class_mm(object)
+  val <- object$value
+  attr(val, "df") <- object$npar
+  attr(val, "nobs") <- object$nobs
+  class(val) <- "logLik"
+  val
+}
+
+
+#' AIC for brsmm models
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param ... Ignored.
+#' @param k Numeric penalty per parameter.
+#'
+#' @return Numeric scalar.
+#'
+#' @method AIC brsmm
+#' @importFrom stats AIC
+#' @export
+AIC.brsmm <- function(object, ..., k = 2) {
+  .check_class_mm(object)
+  -2 * object$value + k * object$npar
+}
+
+
+#' BIC for brsmm models
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param ... Ignored.
+#'
+#' @return Numeric scalar.
+#'
+#' @method BIC brsmm
+#' @importFrom stats BIC
+#' @export
+BIC.brsmm <- function(object, ...) {
+  .check_class_mm(object)
+  -2 * object$value + log(object$nobs) * object$npar
+}
+
+
+#' Number of observations in a brsmm fit
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param ... Ignored.
+#'
+#' @return Integer.
+#'
+#' @method nobs brsmm
+#' @importFrom stats nobs
+#' @export
+nobs.brsmm <- function(object, ...) {
+  .check_class_mm(object)
+  object$nobs
+}
+
+
+#' Fitted values from a brsmm model
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param type Character: \code{"mu"} (default) or \code{"phi"}.
+#' @param ... Ignored.
+#'
+#' @return Numeric vector.
+#'
+#' @method fitted brsmm
+#' @importFrom stats fitted
+#' @export
+fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
+  .check_class_mm(object)
+  type <- match.arg(type)
+  if (identical(type, "mu")) {
+    return(object$fitted_mu)
+  }
+  object$fitted_phi
+}
+
+
+#' Predict from a brsmm model
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param newdata Optional data frame.
+#' @param type Character: \code{"response"} (default), \code{"link"},
+#'   \code{"precision"}, or \code{"variance"}.
+#' @param ... Ignored.
+#'
+#' @return Numeric vector.
+#'
+#' @method predict brsmm
+#' @importFrom stats predict model.frame model.matrix delete.response
+#' @export
+predict.brsmm <- function(object,
+                          newdata = NULL,
+                          type = c("response", "link", "precision", "variance"),
+                          ...) {
+  .check_class_mm(object)
+  type <- match.arg(type)
+
+  p <- object$p
+  q <- object$q
+  beta <- object$par[seq_len(p)]
+  gamma <- object$par[p + seq_len(q)]
+
+  if (is.null(newdata)) {
+    eta_mu <- as.numeric(object$model_matrices$X %*% beta) +
+      object$random$mode_b[object$group_index]
+    eta_phi <- as.numeric(object$model_matrices$Z %*% gamma)
+  } else {
+    if (!is.data.frame(newdata)) {
+      stop("'newdata' must be a data.frame.", call. = FALSE)
+    }
+
+    tm_mu <- stats::delete.response(object$terms$mean)
+    mf_mu <- stats::model.frame(tm_mu, data = newdata)
+    Xn <- stats::model.matrix(tm_mu, mf_mu)
+
+    mf_phi <- stats::model.frame(object$terms$precision, data = newdata)
+    Zn <- stats::model.matrix(object$terms$precision, mf_phi)
+
+    if (object$random$group %in% names(newdata)) {
+      gnew <- as.character(newdata[[object$random$group]])
+      map <- object$random$mode_b
+      bnew <- as.numeric(map[gnew])
+      bnew[is.na(bnew)] <- 0
+    } else {
+      bnew <- rep(0, nrow(Xn))
+    }
+
+    eta_mu <- as.numeric(Xn %*% beta + bnew)
+    eta_phi <- as.numeric(Zn %*% gamma)
+  }
+
+  mu <- apply_inv_link(eta_mu, object$link)
+  phi <- apply_inv_link(eta_phi, object$link_phi)
+
+  switch(type,
+    response = mu,
+    link = eta_mu,
+    precision = phi,
+    variance = {
+      shp <- brs_repar(mu = mu, phi = phi, repar = object$repar)
+      s <- shp$shape1 + shp$shape2
+      (shp$shape1 * shp$shape2) / (s^2 * (s + 1))
+    }
+  )
+}
+
+
+#' Residuals from a brsmm model
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param type Character: \code{"response"} (default) or \code{"pearson"}.
+#' @param ... Ignored.
+#'
+#' @return Numeric vector.
+#'
+#' @method residuals brsmm
+#' @importFrom stats residuals
+#' @export
+residuals.brsmm <- function(object, type = c("response", "pearson"), ...) {
+  .check_class_mm(object)
+  type <- match.arg(type)
+
+  y <- as.numeric(object$Y[, "yt"])
+  mu <- as.numeric(object$fitted_mu)
+  r <- y - mu
+  if (identical(type, "response")) {
+    return(r)
+  }
+
+  v <- predict(object, type = "variance")
+  v <- pmax(v, 1e-12)
+  r / sqrt(v)
+}
+
+
+#' Summarize a fitted brsmm model
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param ... Ignored.
+#'
+#' @return Object of class \code{"summary.brsmm"}.
+#'
+#' @method summary brsmm
+#' @importFrom stats pnorm
+#' @export
+summary.brsmm <- function(object, ...) {
+  .check_class_mm(object)
+  V <- vcov(object, model = "full")
+  se <- sqrt(diag(V))
+  est <- object$par
+  z <- est / se
+  p <- 2 * (1 - stats::pnorm(abs(z)))
+
+  tab <- cbind(
+    Estimate = est,
+    `Std. Error` = se,
+    `z value` = z,
+    `Pr(>|z|)` = p
+  )
+  out <- list(
+    call = object$call,
+    coefficients = tab,
+    logLik = object$value,
+    AIC = AIC(object),
+    BIC = BIC(object),
+    nobs = object$nobs,
+    ngroups = object$ngroups,
+    integration = object$int_method
+  )
+  class(out) <- "summary.brsmm"
+  out
+}
+
+
+#' Print summary for brsmm models
+#'
+#' @param x A \code{"summary.brsmm"} object.
+#' @param digits Number of digits.
+#' @param ... Ignored.
+#'
+#' @return Invisibly returns \code{x}.
+#'
+#' @method print summary.brsmm
+#' @importFrom stats printCoefmat
+#' @export
+print.summary.brsmm <- function(x,
+                                digits = max(3, getOption("digits") - 3),
+                                ...) {
+  cat("\nCall:\n")
+  print(x$call)
+  cat("\nMixed beta interval model (Laplace)\n")
+  cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
+  cat("logLik =", formatC(x$logLik, digits = digits, format = "f"),
+    " | AIC =", formatC(x$AIC, digits = digits, format = "f"),
+    " | BIC =", formatC(x$BIC, digits = digits, format = "f"), "\n\n",
+    sep = ""
+  )
+  stats::printCoefmat(x$coefficients, digits = digits, P.values = TRUE, has.Pvalue = TRUE)
+  invisible(x)
+}
+
+
+#' Print a fitted brsmm model
+#'
+#' @param x A fitted \code{"brsmm"} object.
+#' @param digits Number of digits.
+#' @param ... Ignored.
+#'
+#' @return Invisibly returns \code{x}.
+#'
+#' @method print brsmm
+#' @export
+print.brsmm <- function(x,
+                        digits = max(3, getOption("digits") - 3),
+                        ...) {
+  .check_class_mm(x)
+  cat("\nCall:\n")
+  print(x$call)
+  cat("\nMixed beta interval model (Laplace)\n")
+  cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
+  cat("Log-likelihood:", formatC(x$value, digits = digits, format = "f"), "\n")
+  cat("Random SD:", formatC(x$random$sigma_b, digits = digits, format = "f"), "\n")
+  cat("Convergence code:", x$convergence, "\n")
+  invisible(x)
+}
+
+
+#' Extract random effects from a brsmm model
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param ... Ignored.
+#'
+#' @return Named numeric vector of group-specific random-intercept modes.
+#' @export
+ranef.brsmm <- function(object, ...) {
+  .check_class_mm(object)
+  object$random$mode_b
+}

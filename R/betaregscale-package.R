@@ -18,6 +18,8 @@
 #'     fixed- and variable-dispersion models.}
 #'   \item{\code{\link{brs_fit_fixed}}}{Fit a fixed-dispersion model.}
 #'   \item{\code{\link{brs_fit_var}}}{Fit a variable-dispersion model.}
+#'   \item{\code{\link{brsmm}}}{Fit a mixed-effects beta interval model
+#'     with Gaussian random intercepts.}
 #'   \item{\code{\link{brs_sim}}}{Simulate interval-censored
 #'     data from fixed or variable-dispersion beta models.}
 #'   \item{\code{\link{brs_cens}}}{Visual and tabular summary of
@@ -51,7 +53,7 @@
 #'     observations between the boundaries.}
 #' }
 #'
-#' @author Jose Eduardo Lopes \email{evandeilton@@gmail.com}
+#' @author José Evandeilton Lopes \email{evandeilton@@gmail.com}
 #' @references
 #' Lopes, J. E. (2024). \emph{Beta Regression for Interval-Censored
 #' Scale-Derived Outcomes}. MSc Dissertation, PPGMNE/UFPR.

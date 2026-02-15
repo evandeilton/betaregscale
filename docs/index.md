@@ -203,4 +203,4 @@ where $`K`$ is the number of scale categories (`ncuts`).
 
 ## License
 
-MIT © Jose Eduardo Lopes
+MIT © Jos� Evandeilton Lopes

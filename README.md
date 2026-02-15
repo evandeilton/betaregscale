@@ -32,6 +32,9 @@ dataset.
   interval-censored ($\delta=3$).
 - **Fixed and variable dispersion**: model a scalar $\phi$ or let it
   depend on covariates via a second linear predictor (`y ~ x1 + x2 | z1`).
+- **Mixed-effects support**: `brsmm()` fits Gaussian random-intercept
+  models (`random = ~ 1 | group`) via Laplace-approximated marginal
+  likelihood.
 - **High-performance C++ backend**: the log-likelihood and analytical
   gradient are compiled via Rcpp/RcppArmadillo for fast, numerically
   stable estimation.
@@ -117,6 +120,26 @@ fits <- lapply(setNames(links, links), function(lnk) {
 
 # Goodness-of-fit comparison
 do.call(rbind, lapply(fits, brs_gof))
+```
+
+### Mixed model (random intercept)
+
+```r
+set.seed(123)
+g <- 12
+ni <- 8
+id <- factor(rep(seq_len(g), each = ni))
+n <- length(id)
+x1 <- rnorm(n)
+b <- rnorm(g, sd = 0.5)
+mu <- plogis(0.2 + 0.6 * x1 + b[as.integer(id)])
+phi <- plogis(-0.3 + 0.2 * x1)
+shp <- brs_repar(mu = mu, phi = phi, repar = 2)
+y <- round(rbeta(n, shp$shape1, shp$shape2) * 100)
+dmm <- data.frame(y = y, x1 = x1, id = id)
+
+fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = dmm, repar = 2)
+summary(fit_mm)
 ```
 
 ### S3 methods
