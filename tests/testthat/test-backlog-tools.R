@@ -80,3 +80,15 @@ test_that("autoplot.brs supports calibration and score_dist", {
   expect_s3_class(p1, "ggplot")
   expect_s3_class(p2, "ggplot")
 })
+
+test_that("autoplot.brs supports cdf and residuals_by_delta", {
+  skip_if_not_installed("ggplot2")
+  sim <- .sim_for_tools(seed = 2002)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  p1 <- autoplot.brs(fit, type = "cdf", max_curves = 4)
+  p2 <- autoplot.brs(fit, type = "residuals_by_delta", residual_type = "rqr")
+
+  expect_s3_class(p1, "ggplot")
+  expect_s3_class(p2, "ggplot")
+})
