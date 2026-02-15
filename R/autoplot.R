@@ -9,10 +9,18 @@
 #'
 #' @param object A fitted \code{"brs"} object.
 #' @param type Plot type:
-#'   \code{"calibration"} or \code{"score_dist"}.
+#'   \code{"calibration"}, \code{"score_dist"}, \code{"cdf"}, or
+#'   \code{"residuals_by_delta"}.
 #' @param bins Number of bins used in calibration plots.
 #' @param scores Optional integer vector of scores for \code{"score_dist"}.
 #'   Defaults to all scores from \code{0} to \code{ncuts}.
+#' @param newdata Optional data frame of covariate scenarios used by
+#'   \code{type = "cdf"}.
+#' @param n_grid Number of points on \eqn{(0,1)} used to draw CDF curves.
+#' @param max_curves Maximum number of CDF curves shown when \code{newdata}
+#'   is not provided.
+#' @param residual_type Residual type passed to \code{\link{residuals.brs}}
+#'   for \code{type = "residuals_by_delta"}.
 #' @param ... Currently ignored.
 #'
 #' @return A \code{ggplot2} object.
@@ -59,9 +67,18 @@
 #'
 #' @export
 autoplot.brs <- function(object,
-                         type = c("calibration", "score_dist"),
+                         type = c(
+                           "calibration",
+                           "score_dist",
+                           "cdf",
+                           "residuals_by_delta"
+                         ),
                          bins = 10L,
                          scores = NULL,
+                         newdata = NULL,
+                         n_grid = 200L,
+                         max_curves = 6L,
+                         residual_type = "rqr",
                          ...) {
   .check_class(object)
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
@@ -74,10 +91,20 @@ autoplot.brs <- function(object,
     stop("'bins' must be an integer >= 3.", call. = FALSE)
   }
 
-  if (identical(type, "calibration")) {
-    return(.brs_autoplot_calibration(object, bins = bins))
-  }
-  .brs_autoplot_score_dist(object, scores = scores)
+  switch(type,
+    calibration = .brs_autoplot_calibration(object, bins = bins),
+    score_dist = .brs_autoplot_score_dist(object, scores = scores),
+    cdf = .brs_autoplot_cdf(
+      object,
+      newdata = newdata,
+      n_grid = as.integer(n_grid),
+      max_curves = as.integer(max_curves)
+    ),
+    residuals_by_delta = .brs_autoplot_resid_delta(
+      object,
+      residual_type = residual_type
+    )
+  )
 }
 
 #' @keywords internal
@@ -185,4 +212,82 @@ autoplot.brs <- function(object,
   }
   colnames(P) <- paste0("score_", scores)
   P
+}
+
+#' @keywords internal
+.brs_autoplot_cdf <- function(object,
+                              newdata = NULL,
+                              n_grid = 200L,
+                              max_curves = 6L) {
+  n_grid <- as.integer(n_grid)
+  max_curves <- as.integer(max_curves)
+  if (!is.finite(n_grid) || n_grid < 20L) {
+    stop("'n_grid' must be an integer >= 20.", call. = FALSE)
+  }
+  if (!is.finite(max_curves) || max_curves < 1L) {
+    stop("'max_curves' must be an integer >= 1.", call. = FALSE)
+  }
+
+  grid <- seq(1e-4, 1 - 1e-4, length.out = n_grid)
+
+  if (is.null(newdata)) {
+    ord <- order(object$hatmu)
+    idx <- unique(round(seq(1, length(ord), length.out = min(max_curves, length(ord)))))
+    mu <- object$hatmu[ord[idx]]
+    phi <- object$hatphi[ord[idx]]
+    labels <- paste0("scenario_", seq_along(mu))
+  } else {
+    if (!is.data.frame(newdata)) {
+      stop("'newdata' must be a data.frame.", call. = FALSE)
+    }
+    if (nrow(newdata) > max_curves) {
+      newdata <- newdata[seq_len(max_curves), , drop = FALSE]
+    }
+    mu <- predict(object, newdata = newdata, type = "response")
+    phi <- predict(object, newdata = newdata, type = "precision")
+    labels <- paste0("scenario_", seq_along(mu))
+  }
+
+  shp <- brs_repar(mu = mu, phi = phi, repar = object$repar)
+  curves <- lapply(seq_along(mu), function(i) {
+    data.frame(
+      y = grid,
+      cdf = stats::pbeta(grid, shp$shape1[i], shp$shape2[i]),
+      scenario = labels[i],
+      stringsAsFactors = FALSE
+    )
+  })
+  df <- do.call(rbind, curves)
+
+  ggplot2::ggplot(df, ggplot2::aes(x = .data$y, y = .data$cdf, color = .data$scenario)) +
+    ggplot2::geom_line(linewidth = 0.9) +
+    ggplot2::labs(
+      title = "Predicted Beta CDF by Scenario",
+      x = "y (unit scale)",
+      y = "F(y)",
+      color = ""
+    ) +
+    ggplot2::theme_minimal()
+}
+
+#' @keywords internal
+.brs_autoplot_resid_delta <- function(object, residual_type = "rqr") {
+  dlab <- c("Exact", "Left", "Right", "Interval")
+  df <- data.frame(
+    residual = residuals(object, type = residual_type),
+    delta = factor(object$delta, levels = 0:3, labels = dlab),
+    stringsAsFactors = FALSE
+  )
+
+  ggplot2::ggplot(df, ggplot2::aes(x = .data$delta, y = .data$residual, fill = .data$delta)) +
+    ggplot2::geom_boxplot(alpha = 0.65, outlier.shape = NA) +
+    ggplot2::geom_jitter(width = 0.18, alpha = 0.25, size = 1) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray35") +
+    ggplot2::labs(
+      title = paste0("Residuals by Censoring Type (", residual_type, ")"),
+      x = "Censoring type",
+      y = "Residual"
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(legend.position = "none")
 }

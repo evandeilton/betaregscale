@@ -6,9 +6,13 @@
 \usage{
 autoplot.brs(
   object,
-  type = c("calibration", "score_dist"),
+  type = c("calibration", "score_dist", "cdf", "residuals_by_delta"),
   bins = 10L,
   scores = NULL,
+  newdata = NULL,
+  n_grid = 200L,
+  max_curves = 6L,
+  residual_type = "rqr",
   ...
 )
 }
@@ -16,12 +20,24 @@ autoplot.brs(
 \item{object}{A fitted \code{"brs"} object.}
 
 \item{type}{Plot type:
-\code{"calibration"} or \code{"score_dist"}.}
+\code{"calibration"}, \code{"score_dist"}, \code{"cdf"}, or
+\code{"residuals_by_delta"}.}
 
 \item{bins}{Number of bins used in calibration plots.}
 
 \item{scores}{Optional integer vector of scores for \code{"score_dist"}.
 Defaults to all scores from \code{0} to \code{ncuts}.}
+
+\item{newdata}{Optional data frame of covariate scenarios used by
+\code{type = "cdf"}.}
+
+\item{n_grid}{Number of points on \eqn{(0,1)} used to draw CDF curves.}
+
+\item{max_curves}{Maximum number of CDF curves shown when \code{newdata}
+is not provided.}
+
+\item{residual_type}{Residual type passed to \code{\link{residuals.brs}}
+for \code{type = "residuals_by_delta"}.}
 
 \item{...}{Currently ignored.}
 }
