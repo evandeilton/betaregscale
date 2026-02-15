@@ -703,6 +703,22 @@ predict.brs <- function(object, newdata = NULL,
 #' \dontrun{
 #' brs_gof(fit)
 #' }
+#' @references
+#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
+#' Arthritis Care and Research, 63(S11), S240-S252.
+#' doi:10.1002/acr.20543.
+#'
+#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
+#' Visual Analogue Scales for assessment of pain intensity in adults:
+#' a systematic literature review.
+#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
+#' doi:10.1016/j.jpainsymman.2010.08.016.
 #' @rdname brs_gof
 #' @export
 brs_gof <- function(object) {
@@ -733,6 +749,23 @@ brs_gof <- function(object) {
 #' brs_est(fit)
 #' }
 #'
+#' @references
+#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
+#' Arthritis Care and Research, 63(S11), S240-S252.
+#' doi:10.1002/acr.20543.
+#'
+#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
+#' Visual Analogue Scales for assessment of pain intensity in adults:
+#' a systematic literature review.
+#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
+#' doi:10.1016/j.jpainsymman.2010.08.016.
+#'
 #' @importFrom stats pnorm
 #' @rdname brs_est
 #' @export
@@ -761,6 +794,22 @@ brs_est <- function(object, alpha = 0.05) {
 #' @param fit   A fitted \code{"brs"} object.
 #' @param alpha Significance level.
 #' @return A list with \code{est} and \code{gof}.
+#' @references
+#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
+#' Arthritis Care and Research, 63(S11), S240-S252.
+#' doi:10.1002/acr.20543.
+#'
+#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
+#' Visual Analogue Scales for assessment of pain intensity in adults:
+#' a systematic literature review.
+#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
+#' doi:10.1016/j.jpainsymman.2010.08.016.
 #' @keywords internal
 #' @export
 brs_coef <- function(fit, alpha = 0.05) {
@@ -783,6 +832,23 @@ brs_coef <- function(fit, alpha = 0.05) {
 #' fit <- brs(y ~ x1, data = sim, repar = 2)
 #' brs_hessian(fit)
 #' }
+#'
+#' @references
+#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
+#' Arthritis Care and Research, 63(S11), S240-S252.
+#' doi:10.1002/acr.20543.
+#'
+#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
+#' Visual Analogue Scales for assessment of pain intensity in adults:
+#' a systematic literature review.
+#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
+#' doi:10.1016/j.jpainsymman.2010.08.016.
 #'
 #' @rdname brs_hessian
 #' @export

@@ -41,6 +41,23 @@
 #' )
 #' print(fit)
 #'
+#' @references
+#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
+#' Arthritis Care and Research, 63(S11), S240-S252.
+#' doi:10.1002/acr.20543.
+#'
+#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
+#' Visual Analogue Scales for assessment of pain intensity in adults:
+#' a systematic literature review.
+#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
+#' doi:10.1016/j.jpainsymman.2010.08.016.
+#'
 #' @importFrom stats optim cor model.frame model.matrix model.response terms
 #' @importFrom stats make.link
 #' @importFrom numDeriv hessian
@@ -234,6 +251,23 @@ brs_fit_fixed <- function(formula, data,
 #'   link = "logit", link_phi = "logit"
 #' )
 #' print(fit)
+#'
+#' @references
+#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
+#' Arthritis Care and Research, 63(S11), S240-S252.
+#' doi:10.1002/acr.20543.
+#'
+#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
+#' Visual Analogue Scales for assessment of pain intensity in adults:
+#' a systematic literature review.
+#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
+#' doi:10.1016/j.jpainsymman.2010.08.016.
 #'
 #' @importFrom Formula as.Formula Formula
 #' @importFrom stats optim cor make.link delete.response
@@ -444,6 +478,23 @@ brs_fit_var <- function(formula, data,
 #' # Variable dispersion
 #' fit2 <- brs(y ~ x1 + x2 | z1, data = sim)
 #' print(fit2)
+#'
+#' @references
+#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
+#' Arthritis Care and Research, 63(S11), S240-S252.
+#' doi:10.1002/acr.20543.
+#'
+#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
+#' Visual Analogue Scales for assessment of pain intensity in adults:
+#' a systematic literature review.
+#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
+#' doi:10.1016/j.jpainsymman.2010.08.016.
 #'
 #' @importFrom Formula as.Formula Formula
 #' @export
