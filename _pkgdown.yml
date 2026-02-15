@@ -1,9 +1,7 @@
 url: https://evandeilton.github.io/betaregscale/
-
 template:
   bootstrap: 5
   bootswatch: cosmo
-
 navbar:
   structure:
     left:  [intro, reference, articles]
@@ -16,7 +14,6 @@ navbar:
       icon: fab fa-github
       href: https://github.com/evandeilton/betaregscale
       aria-label: GitHub
-
 articles:
   - title: "Getting Started"
     navbar: ~
@@ -24,7 +21,6 @@ articles:
       - betaregscale
       - brsmm
       - analyst-tools
-
 reference:
   - title: "Model Fitting"
     desc: "Core functions for fitting beta interval regression models."
@@ -34,13 +30,11 @@ reference:
       - brs_fit_fixed
       - brs_fit_var
       - brs_coef
-
   - title: "Simulation"
     desc: "Data simulation for Monte Carlo studies."
     contents:
       - brs_sim
-
-  - title: "S3 Methods"
+  - title: "S3 Methods - Fixed Effects Models"
     desc: "Standard methods for fitted model objects of class brs."
     contents:
       - coef.brs
@@ -59,8 +53,23 @@ reference:
       - predict.brs
       - confint.brs
       - plot.brs
+  - title: "S3 Methods - Mixed Models"
+    desc: "Standard methods for fitted model objects of class brsmm."
+    contents:
+      - coef.brsmm
+      - vcov.brsmm
+      - summary.brsmm
+      - print.brsmm
+      - print.summary.brsmm
+      - logLik.brsmm
+      - AIC.brsmm
+      - BIC.brsmm
+      - nobs.brsmm
+      - fitted.brsmm
+      - residuals.brsmm
+      - predict.brsmm
+      - ranef.brsmm
       - plot.brsmm
-
   - title: "Diagnostics and Summaries"
     desc: "Functions for model diagnostics and censoring summaries."
     contents:
@@ -70,7 +79,6 @@ reference:
       - brs_hessian
       - autoplot.brs
       - autoplot.brsmm
-
   - title: "Analyst Tools"
     desc: "Post-estimation tables, effects, score probabilities, and validation."
     contents:
@@ -78,7 +86,6 @@ reference:
       - brs_marginaleffects
       - brs_predict_scoreprob
       - brs_cv
-
   - title: "Data Preparation"
     desc: "Functions for preparing response data and beta reparameterization."
     contents:
