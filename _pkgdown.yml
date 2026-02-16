@@ -9,7 +9,7 @@ navbar:
   components:
     intro:
       text: Get started
-      href: articles/betaregscale.html
+      href: articles/brs-intro.html
     github:
       icon: fab fa-github
       href: https://github.com/evandeilton/betaregscale
@@ -18,9 +18,9 @@ articles:
   - title: "Getting Started"
     navbar: ~
     contents:
-      - betaregscale
-      - brsmm
-      - analyst-tools
+      - brs-intro
+      - brs-mm
+      - brs-analyst-tools
 reference:
   - title: "Model Fitting"
     desc: "Core functions for fitting beta interval regression models."

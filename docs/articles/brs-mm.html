@@ -34,13 +34,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/betaregscale.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/brs-intro.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/brsmm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/analyst-tools.html">Analyst Tools for betaregscale</a></li>
+<li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
   </ul>
 </li>
       </ul>
@@ -64,8 +65,8 @@
       <img src="../logo.png" class="logo" alt=""><h1>Mixed-Effects Beta Interval Regression with brsmm</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/vignettes/brsmm.Rmd" class="external-link"><code>vignettes/brsmm.Rmd</code></a></small>
-      <div class="d-none name"><code>brsmm.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/vignettes/brs-mm.Rmd" class="external-link"><code>vignettes/brs-mm.Rmd</code></a></small>
+      <div class="d-none name"><code>brs-mm.Rmd</code></div>
     </div>
 
     
@@ -342,13 +343,13 @@ use <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp()<
 <p><code><a href="../reference/plot.brsmm.html">plot.brsmm()</a></code> supports base and ggplot2 backends:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_mm</span>, which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, type <span class="op">=</span> <span class="st">"pearson"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="brsmm_files/figure-html/methods-plot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-mm_files/figure-html/methods-plot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_mm</span>, which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="brsmm_files/figure-html/methods-plot-2.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-mm_files/figure-html/methods-plot-2.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <p><code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> provides focused ggplot
 diagnostics:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -358,7 +359,7 @@ diagnostics:</p>
 <span>  <span class="fu"><a href="../reference/autoplot.brsmm.html">autoplot.brsmm</a></span><span class="op">(</span><span class="va">fit_mm</span>, type <span class="op">=</span> <span class="st">"ranef_qq"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="../reference/autoplot.brsmm.html">autoplot.brsmm</a></span><span class="op">(</span><span class="va">fit_mm</span>, type <span class="op">=</span> <span class="st">"residuals_by_group"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="brsmm_files/figure-html/methods-autoplot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-mm_files/figure-html/methods-autoplot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="prediction-with-newdata">Prediction with <code>newdata</code><a class="anchor" aria-label="anchor" href="#prediction-with-newdata"></a>

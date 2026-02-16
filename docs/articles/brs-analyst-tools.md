@@ -212,28 +212,28 @@ subset selection).
 autoplot.brs(fit_var, type = "calibration")
 ```
 
-![](analyst-tools_files/figure-html/autoplot-1.png)
+![](brs-analyst-tools_files/figure-html/autoplot-1.png)
 
 ``` r
 
 autoplot.brs(fit_var, type = "score_dist", scores = 0:20)
 ```
 
-![](analyst-tools_files/figure-html/autoplot-2.png)
+![](brs-analyst-tools_files/figure-html/autoplot-2.png)
 
 ``` r
 
 autoplot.brs(fit_var, type = "cdf", max_curves = 4)
 ```
 
-![](analyst-tools_files/figure-html/autoplot-3.png)
+![](brs-analyst-tools_files/figure-html/autoplot-3.png)
 
 ``` r
 
 autoplot.brs(fit_var, type = "residuals_by_delta", residual_type = "rqr")
 ```
 
-![](analyst-tools_files/figure-html/autoplot-4.png)
+![](brs-analyst-tools_files/figure-html/autoplot-4.png)
 
 ### 6) Repeated k-fold cross-validation
 

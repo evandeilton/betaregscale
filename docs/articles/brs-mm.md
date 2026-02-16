@@ -267,7 +267,7 @@ supports base and ggplot2 backends:
 plot(fit_mm, which = 1:4, type = "pearson")
 ```
 
-![](brsmm_files/figure-html/methods-plot-1.png)
+![](brs-mm_files/figure-html/methods-plot-1.png)
 
 ``` r
 
@@ -277,7 +277,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 }
 ```
 
-![](brsmm_files/figure-html/methods-plot-2.png)
+![](brs-mm_files/figure-html/methods-plot-2.png)
 
 [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
 provides focused ggplot diagnostics:
@@ -292,7 +292,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 }
 ```
 
-![](brsmm_files/figure-html/methods-autoplot-1.png)
+![](brs-mm_files/figure-html/methods-autoplot-1.png)
 
 ### Prediction with `newdata`
 
