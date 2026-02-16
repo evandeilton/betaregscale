@@ -34,13 +34,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/betaregscale.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/brs-intro.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/brsmm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/analyst-tools.html">Analyst Tools for betaregscale</a></li>
+<li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
   </ul>
 </li>
       </ul>
@@ -64,8 +65,8 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to betaregscale</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/vignettes/betaregscale.Rmd" class="external-link"><code>vignettes/betaregscale.Rmd</code></a></small>
-      <div class="d-none name"><code>betaregscale.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/vignettes/brs-intro.Rmd" class="external-link"><code>vignettes/brs-intro.Rmd</code></a></small>
+      <div class="d-none name"><code>brs-intro.Rmd</code></div>
     </div>
 
     
@@ -475,12 +476,12 @@ can compare them using information criteria:</p>
 default, the first four are shown:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/plot-fixed-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-intro_files/figure-html/plot-fixed-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <p>For ggplot2 output (requires the <strong>ggplot2</strong>
 package):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/plot-fixed-gg-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-intro_files/figure-html/plot-fixed-gg-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
@@ -529,7 +530,7 @@ approximation:</p>
 overview of the censoring types in the fitted model:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_cens.html">brs_cens</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-intro_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
@@ -730,7 +731,7 @@ names, following the <code>betareg</code> convention.</p>
 </h3>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span></code></pre></div>
-<p><img src="betaregscale_files/figure-html/plot-variable-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-intro_files/figure-html/plot-variable-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">

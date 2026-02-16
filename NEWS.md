@@ -1,3 +1,12 @@
+# betaregscale 2.6.1
+
+## Bug fixes
+
+* Renamed vignettes to avoid naming collisions with the package name, which caused `pkgdown` site build failures.
+* Updated `_pkgdown.yml` to reflect new vignette names.
+
+---
+
 # betaregscale 2.6.0
 
 ## New features

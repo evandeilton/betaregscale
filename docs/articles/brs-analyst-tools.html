@@ -34,13 +34,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/betaregscale.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/brs-intro.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/brsmm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/analyst-tools.html">Analyst Tools for betaregscale</a></li>
+<li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
   </ul>
 </li>
       </ul>
@@ -64,8 +65,8 @@
       <img src="../logo.png" class="logo" alt=""><h1>Analyst Tools for betaregscale</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/vignettes/analyst-tools.Rmd" class="external-link"><code>vignettes/analyst-tools.Rmd</code></a></small>
-      <div class="d-none name"><code>analyst-tools.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/vignettes/brs-analyst-tools.Rmd" class="external-link"><code>vignettes/brs-analyst-tools.Rmd</code></a></small>
+      <div class="d-none name"><code>brs-analyst-tools.Rmd</code></div>
     </div>
 
     
@@ -291,16 +292,16 @@ tolerance and score subset selection).</p>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"calibration"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analyst-tools_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-analyst-tools_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"score_dist"</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analyst-tools_files/figure-html/autoplot-2.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-analyst-tools_files/figure-html/autoplot-2.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"cdf"</span>, max_curves <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analyst-tools_files/figure-html/autoplot-3.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-analyst-tools_files/figure-html/autoplot-3.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"residuals_by_delta"</span>, residual_type <span class="op">=</span> <span class="st">"rqr"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="analyst-tools_files/figure-html/autoplot-4.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-analyst-tools_files/figure-html/autoplot-4.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="repeated-k-fold-cross-validation">6) Repeated k-fold cross-validation<a class="anchor" aria-label="anchor" href="#repeated-k-fold-cross-validation"></a>

@@ -387,7 +387,7 @@ provides six diagnostic panels. By default, the first four are shown:
 plot(fit_fixed)
 ```
 
-![](betaregscale_files/figure-html/plot-fixed-1.png)
+![](brs-intro_files/figure-html/plot-fixed-1.png)
 
 For ggplot2 output (requires the **ggplot2** package):
 
@@ -396,7 +396,7 @@ For ggplot2 output (requires the **ggplot2** package):
 plot(fit_fixed, gg = TRUE)
 ```
 
-![](betaregscale_files/figure-html/plot-fixed-gg-1.png)
+![](brs-intro_files/figure-html/plot-fixed-gg-1.png)
 
 ### Predictions
 
@@ -452,7 +452,7 @@ in the fitted model:
 brs_cens(fit_fixed)
 ```
 
-![](betaregscale_files/figure-html/censoring-summary-1.png)
+![](brs-intro_files/figure-html/censoring-summary-1.png)
 
 ## Example 2: Variable dispersion model
 
@@ -656,7 +656,7 @@ gof_var
 plot(fit_var)
 ```
 
-![](betaregscale_files/figure-html/plot-variable-1.png)
+![](brs-intro_files/figure-html/plot-variable-1.png)
 
 ## S3 methods reference
 
