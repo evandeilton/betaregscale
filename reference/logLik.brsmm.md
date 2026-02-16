@@ -17,7 +17,7 @@ logLik(object, ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

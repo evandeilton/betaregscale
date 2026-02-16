@@ -31,7 +31,7 @@ predict(
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

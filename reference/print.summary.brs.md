@@ -21,4 +21,4 @@ print(x, digits = max(3, getOption("digits") - 3), ...)
 
 - ...:
 
-  Ignored.
+  Passed to `printCoefmat`.

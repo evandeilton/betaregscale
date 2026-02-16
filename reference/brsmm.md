@@ -1,9 +1,10 @@
 # Fit a mixed-effects beta interval regression model
 
 Fits a beta interval-censored mixed model with Gaussian random
-intercepts using marginal maximum likelihood. The current implementation
-supports `random = ~ 1 | group` and uses a Laplace approximation for
-group-specific integrals.
+intercepts using marginal maximum likelihood. The implementation
+supports `random = ~ 1 | group` and offers three integration methods for
+the random effects: Laplace approximation, Adaptive Gauss-Hermite
+Quadrature (AGHQ), and Quasi-Monte Carlo (QMC).
 
 ## Usage
 
@@ -65,15 +66,16 @@ brsmm(
 
 - int_method:
 
-  Integration method. Currently, only `"laplace"` is implemented.
+  Integration method: `"laplace"` (default), `"aghq"`, or `"qmc"`.
 
 - n_points:
 
-  Reserved for future AGHQ support.
+  Number of quadrature points for `int_method="aghq"`. Ignored for other
+  methods. Default is 11.
 
 - qmc_points:
 
-  Reserved for future QMC support.
+  Number of QMC points for `int_method="qmc"`. Default is 1024.
 
 - start:
 
@@ -116,7 +118,18 @@ censoring likelihood used by
 4.  \\\delta=3\\: interval contribution via CDF difference.
 
 For group \\i\\, the random intercept \\b_i \sim N(0, \sigma_b^2)\\ is
-integrated out numerically via Laplace approximation.
+integrated out numerically.
+
+- `"laplace"`: Uses a second-order Laplace approximation at the
+  conditional mode. Fast and generally accurate for \\n_i\\ large.
+
+- `"aghq"`: Adaptive Gauss-Hermite Quadrature. Uses `n_points`
+  quadrature nodes centered and scaled by the conditional mode and
+  curvature. More accurate than Laplace, especially for small \\n_i\\.
+
+- `"qmc"`: Quasi-Monte Carlo integration using a Halton sequence. Uses
+  `qmc_points` evaluation points. Suitable for high-dimensional
+  integration (future proofing) or checking robustness.
 
 ## References
 
@@ -154,7 +167,7 @@ fit_mm
 #> Mixed beta interval model (Laplace)
 #> Observations: 120  | Groups: 15 
 #> Log-likelihood: -499.3888 
-#> Random SD: 0.2206 
+#> Random SD: 0.2205 
 #> Convergence code: 0 
 # }
 ```

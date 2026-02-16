@@ -37,7 +37,7 @@ confint(
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

@@ -17,7 +17,7 @@ BIC(object, ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

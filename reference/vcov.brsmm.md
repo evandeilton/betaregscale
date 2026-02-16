@@ -21,7 +21,7 @@ vcov(object, model = c("full", "mean", "precision", "random"), ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

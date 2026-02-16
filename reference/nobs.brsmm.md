@@ -17,7 +17,7 @@ nobs(object, ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

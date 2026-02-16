@@ -17,7 +17,7 @@ summary(object, ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 
