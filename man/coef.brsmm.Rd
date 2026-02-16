@@ -12,7 +12,7 @@
 \item{model}{Character: \code{"full"} (default), \code{"mean"},
 \code{"precision"}, or \code{"random"}.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Named numeric vector.

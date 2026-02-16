@@ -11,7 +11,7 @@
 
 \item{digits}{Number of digits.}
 
-\item{...}{Ignored.}
+\item{...}{Passed to \code{printCoefmat}.}
 }
 \value{
 Invisibly returns \code{x}.

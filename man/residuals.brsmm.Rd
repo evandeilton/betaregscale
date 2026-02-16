@@ -11,7 +11,7 @@
 
 \item{type}{Character: \code{"response"} (default) or \code{"pearson"}.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Numeric vector.

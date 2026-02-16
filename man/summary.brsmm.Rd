@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Object of class \code{"summary.brsmm"}.

@@ -2,6 +2,7 @@
 // Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #include <RcppArmadillo.h>
+#include <RcppEigen.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
@@ -131,6 +132,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// brsmm_loglik_eigen
+double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X, Eigen::MatrixXd Z, Eigen::VectorXd y_left, Eigen::VectorXd y_right, Eigen::VectorXd yt, Eigen::VectorXi delta, Eigen::VectorXi group, int link_mu, int link_phi, int repar, int method, int n_points);
+RcppExport SEXP _betaregscale_brsmm_loglik_eigen(SEXP paramSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP groupSEXP, SEXP link_muSEXP, SEXP link_phiSEXP, SEXP reparSEXP, SEXP methodSEXP, SEXP n_pointsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type param(paramSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type y_left(y_leftSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type y_right(y_rightSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type yt(ytSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXi >::type group(groupSEXP);
+    Rcpp::traits::input_parameter< int >::type link_mu(link_muSEXP);
+    Rcpp::traits::input_parameter< int >::type link_phi(link_phiSEXP);
+    Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< int >::type n_points(n_pointsSEXP);
+    rcpp_result_gen = Rcpp::wrap(brsmm_loglik_eigen(param, X, Z, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_betaregscale_betaregscale_loglik_fixed_cpp", (DL_FUNC) &_betaregscale_betaregscale_loglik_fixed_cpp, 9},
@@ -139,6 +163,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_betaregscale_betaregscale_grad_variable_cpp", (DL_FUNC) &_betaregscale_betaregscale_grad_variable_cpp, 10},
     {"_betaregscale_betaregscale_loglik_mixed_laplace_cpp", (DL_FUNC) &_betaregscale_betaregscale_loglik_mixed_laplace_cpp, 11},
     {"_betaregscale_betaregscale_group_modes_cpp", (DL_FUNC) &_betaregscale_betaregscale_group_modes_cpp, 11},
+    {"_betaregscale_brsmm_loglik_eigen", (DL_FUNC) &_betaregscale_brsmm_loglik_eigen, 13},
     {NULL, NULL, 0}
 };
 

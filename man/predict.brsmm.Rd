@@ -19,7 +19,7 @@
 \item{type}{Character: \code{"response"} (default), \code{"link"},
 \code{"precision"}, or \code{"variance"}.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Numeric vector.

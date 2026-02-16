@@ -15,9 +15,7 @@ This is a new CRAN submission. There are no downstream dependencies.
 
 ### Notes
 
-* This version (2.4.0) consolidates simulation into `brs_sim()`,
-  removes `brs_sim_var()` from the public API, and keeps
-  `brs_loglik()`/`brs_loglik_var()` as internal helpers.
+* This version (2.6.2) brings numerical stability improvements to `brsmm()` and updates the `simulate()` method.
 * The package includes compiled C++ code via Rcpp and RcppArmadillo.
 * The only `R CMD check` note is the standard "New submission" incoming
   feasibility note.

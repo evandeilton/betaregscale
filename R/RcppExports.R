@@ -124,3 +124,16 @@
     .Call(`_betaregscale_betaregscale_group_modes_cpp`, param, X, Z, y_left, y_right, yt, delta, group, link_mu_code, link_phi_code, repar)
 }
 
+#' @title Mixed Model Log-Likelihood (Eigen)
+#' @description Computes marginal log-likelihood using Laplace, AGHQ, or QMC.
+#' @param param [beta, gamma, log_sigma]
+#' @param X, Z Design matrices
+#' @param y_left, y_right, yt, delta Data
+#' @param group Group indices
+#' @param method 0=Laplace, 1=AGHQ, 2=QMC
+#' @param n_points Number of quadrature/QMC points
+#' @keywords internal
+brsmm_loglik_eigen <- function(param, X, Z, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points) {
+    .Call(`_betaregscale_brsmm_loglik_eigen`, param, X, Z, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points)
+}
+

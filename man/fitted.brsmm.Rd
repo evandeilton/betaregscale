@@ -11,7 +11,7 @@
 
 \item{type}{Character: \code{"mu"} (default) or \code{"phi"}.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Numeric vector.

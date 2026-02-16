@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Integer.

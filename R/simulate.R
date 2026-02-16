@@ -45,14 +45,10 @@ compute_start <- function(formula, data, link = "logit",
   y <- rowMeans(Y[, c("left", "right"), drop = FALSE], na.rm = TRUE)
 
   # Mean-model starting values via quasi-binomial GLM
-  q <- ncol(x)
-  glm_data <- if (q == 1L) {
-    data.frame(y = y, x)
-  } else {
-    data.frame(y = y, x[, -1L, drop = FALSE])
-  }
+  # Mean-model starting values via quasi-binomial GLM
+  glm_data <- data.frame(y = y, x)
   init_beta <- stats::coef(
-    stats::glm(y ~ .,
+    stats::glm(y ~ 0 + .,
       data = glm_data,
       family = stats::quasibinomial(link = link)
     )

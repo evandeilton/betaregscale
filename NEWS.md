@@ -1,3 +1,13 @@
+# betaregscale 2.6.2
+
+## Improvements
+
+* Improved numerical stability in `brsmm()` by refining the optimization control and starting values.
+* Updated `simulate()` method to better handle edge cases in random effects simulation.
+* Enhanced `methods.R` for better compatibility with downstream packages.
+
+---
+
 # betaregscale 2.6.1
 
 ## Bug fixes
