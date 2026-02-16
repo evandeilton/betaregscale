@@ -12,7 +12,7 @@
 \item{model}{Character: \code{"full"}, \code{"mean"},
 \code{"precision"}, or \code{"random"}.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Numeric matrix.

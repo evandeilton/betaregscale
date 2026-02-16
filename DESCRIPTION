@@ -1,7 +1,7 @@
 Package: betaregscale
 Type: Package
 Title: Beta Regression for Interval-Censored Scale-Derived Outcomes
-Version: 2.6.1
+Version: 2.6.2
 Authors@R: c(person(given = "José Evandeilton",
                     family = "Lopes",
                     role = c("aut", "cre"),
@@ -44,7 +44,8 @@ Suggests:
     testthat (>= 3.0.0)
 LinkingTo:
     Rcpp,
-    RcppArmadillo
+    RcppArmadillo,
+    RcppEigen
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true

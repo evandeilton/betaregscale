@@ -157,7 +157,7 @@ fit_mm <- brsmm(
   control = list(maxit = 1000)
 )
 
-fit_mm
+summary(fit_mm)
 ```
 
 ## Core methods

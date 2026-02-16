@@ -24,7 +24,7 @@
 \item{at}{Numeric vector of probabilities for quantile
 predictions (default 0.5).}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Numeric vector or matrix.

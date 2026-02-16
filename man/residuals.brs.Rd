@@ -17,7 +17,7 @@
 \code{"pearson"}, \code{"deviance"}, \code{"rqr"} (randomized
 quantile), \code{"weighted"}, or \code{"sweighted"}.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Numeric vector of residuals.

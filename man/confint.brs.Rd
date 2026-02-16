@@ -23,7 +23,7 @@ all parameters are returned.}
 \item{model}{Character: \code{"full"}, \code{"mean"}, or
 \code{"precision"}.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
 Matrix with columns for lower and upper confidence bounds.

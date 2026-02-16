@@ -11,7 +11,7 @@
 
 \item{digits}{Number of digits.}
 
-\item{...}{Ignored.}
+\item{...}{Included for consistency with generic methods.}
 }
 \value{
 Invisibly returns \code{x}.

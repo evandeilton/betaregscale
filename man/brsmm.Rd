@@ -42,12 +42,14 @@ brsmm(
 
 \item{lim}{Half-width used to construct interval endpoints.}
 
-\item{int_method}{Integration method. Currently, only \code{"laplace"}
-is implemented.}
+\item{int_method}{Integration method: \code{"laplace"} (default),
+\code{"aghq"}, or \code{"qmc"}.}
 
-\item{n_points}{Reserved for future AGHQ support.}
+\item{n_points}{Number of quadrature points for \code{int_method="aghq"}.
+Ignored for other methods. Default is 11.}
 
-\item{qmc_points}{Reserved for future QMC support.}
+\item{qmc_points}{Number of QMC points for \code{int_method="qmc"}.
+Default is 1024.}
 
 \item{start}{Optional numeric vector of starting values
 (\code{beta}, \code{gamma}, \code{log_sigma_b}).}
@@ -66,9 +68,10 @@ An object of class \code{"brsmm"}.
 }
 \description{
 Fits a beta interval-censored mixed model with Gaussian random
-intercepts using marginal maximum likelihood. The current implementation
-supports \code{random = ~ 1 | group} and uses a Laplace approximation for
-group-specific integrals.
+intercepts using marginal maximum likelihood. The implementation supports
+\code{random = ~ 1 | group} and offers three integration methods for the
+random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
+(AGHQ), and Quasi-Monte Carlo (QMC).
 }
 \details{
 The conditional contribution for each observation follows the same mixed
@@ -82,7 +85,18 @@ censoring likelihood used by \code{\link{brs}}:
 }
 
 For group \eqn{i}, the random intercept \eqn{b_i \sim N(0, \sigma_b^2)} is
-integrated out numerically via Laplace approximation.
+integrated out numerically.
+
+\itemize{
+  \item \code{"laplace"}: Uses a second-order Laplace approximation at the
+    conditional mode. Fast and generally accurate for \eqn{n_i} large.
+  \item \code{"aghq"}: Adaptive Gauss-Hermite Quadrature. Uses \code{n_points}
+    quadrature nodes centered and scaled by the conditional mode and curvature.
+    More accurate than Laplace, especially for small \eqn{n_i}.
+  \item \code{"qmc"}: Quasi-Monte Carlo integration using a Halton sequence.
+    Uses \code{qmc_points} evaluation points. Suitable for high-dimensional
+    integration (future proofing) or checking robustness.
+}
 }
 \examples{
 \donttest{

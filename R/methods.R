@@ -221,6 +221,9 @@ model.matrix.brs <- function(object,
                              ...) {
   .check_class(object)
   model <- match.arg(model)
+  # In the future, if we rebuild the matrix from data, we could pass ... to model.matrix
+  # Currently object contains the matrix, so ... is truly not used here.
+  # But we leave it available for consistency.
   switch(model,
     mean = object$model_matrices$X,
     precision = {
@@ -319,7 +322,7 @@ summary.brs <- function(object, ...) {
 #'
 #' @param x A \code{"summary.betaregscale"} object.
 #' @param digits Number of digits.
-#' @param ... Ignored.
+#' @param ... Passed to \code{printCoefmat}.
 #'
 #' @method print summary.brs
 #' @importFrom stats quantile printCoefmat
@@ -346,7 +349,8 @@ print.summary.brs <- function(x,
   stats::printCoefmat(x$coefficients$mean,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
-    signif.stars = TRUE
+    signif.stars = TRUE,
+    ...
   )
   cat("\n")
 
@@ -360,7 +364,8 @@ print.summary.brs <- function(x,
   stats::printCoefmat(x$coefficients$precision,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
-    signif.stars = TRUE
+    signif.stars = TRUE,
+    ...
   )
 
   cat("---\n")
@@ -399,7 +404,8 @@ print.summary.brs <- function(x,
 #'
 #' @param x      A fitted \code{"betaregscale"} object.
 #' @param digits Number of significant digits.
-#' @param ...    Ignored.
+#' @param ... Included for consistency with generic methods. Currently
+#'   passed to internal methods where applicable.
 #'
 #' @method print brs
 #' @export
@@ -428,7 +434,7 @@ print.brs <- function(x,
 #'
 #' @param object A fitted \code{"betaregscale"} object.
 #' @param type   Character: \code{"mu"} (default) or \code{"phi"}.
-#' @param ...    Ignored.
+#' @param ...    Currently ignored.
 #'
 #' @return Numeric vector of fitted values.
 #'
@@ -450,7 +456,7 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #' @param type   Residual type. One of \code{"response"} (default),
 #'   \code{"pearson"}, \code{"deviance"}, \code{"rqr"} (randomized
 #'   quantile), \code{"weighted"}, or \code{"sweighted"}.
-#' @param ...    Ignored.
+#' @param ...    Currently ignored.
 #'
 #' @return Numeric vector of residuals.
 #'
@@ -567,7 +573,7 @@ residuals.brs <- function(object,
 #' @param level  Confidence level (default 0.95).
 #' @param model  Character: \code{"full"}, \code{"mean"}, or
 #'   \code{"precision"}.
-#' @param ...    Ignored.
+#' @param ...    Currently ignored.
 #'
 #' @return Matrix with columns for lower and upper confidence bounds.
 #'
@@ -609,7 +615,7 @@ confint.brs <- function(object, parm, level = 0.95,
 #'   \code{"quantile"}.
 #' @param at      Numeric vector of probabilities for quantile
 #'   predictions (default 0.5).
-#' @param ...     Ignored.
+#' @param ...     Currently ignored.
 #'
 #' @return Numeric vector or matrix.
 #'
@@ -633,7 +639,8 @@ predict.brs <- function(object, newdata = NULL,
   } else {
     # Build X from newdata
     mt_mu <- stats::delete.response(object$terms$mean)
-    mf <- stats::model.frame(mt_mu, data = newdata)
+    mt_mu <- stats::delete.response(object$terms$mean)
+    mf <- stats::model.frame(mt_mu, data = newdata, ...)
     X <- stats::model.matrix(mt_mu, mf)
     eta_mu <- as.numeric(X %*% object$coefficients$mean)
     mu <- stats::make.link(object$link)$linkinv(eta_mu)
@@ -641,7 +648,7 @@ predict.brs <- function(object, newdata = NULL,
     # Build Z from newdata (variable dispersion)
     if (!is.null(object$model_matrices$Z) && object$q > 1L) {
       mt_phi <- object$terms$precision
-      mf_z <- stats::model.frame(mt_phi, data = newdata)
+      mf_z <- stats::model.frame(mt_phi, data = newdata, ...)
       Z <- stats::model.matrix(mt_phi, mf_z)
       eta_phi <- as.numeric(Z %*% object$coefficients$precision)
       phi <- stats::make.link(object$link_phi)$linkinv(eta_phi)

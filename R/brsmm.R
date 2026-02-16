@@ -6,9 +6,10 @@
 #'
 #' @description
 #' Fits a beta interval-censored mixed model with Gaussian random
-#' intercepts using marginal maximum likelihood. The current implementation
-#' supports \code{random = ~ 1 | group} and uses a Laplace approximation for
-#' group-specific integrals.
+#' intercepts using marginal maximum likelihood. The implementation supports
+#' \code{random = ~ 1 | group} and offers three integration methods for the
+#' random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
+#' (AGHQ), and Quasi-Monte Carlo (QMC).
 #'
 #' @details
 #' The conditional contribution for each observation follows the same mixed
@@ -22,7 +23,18 @@
 #' }
 #'
 #' For group \eqn{i}, the random intercept \eqn{b_i \sim N(0, \sigma_b^2)} is
-#' integrated out numerically via Laplace approximation.
+#' integrated out numerically.
+#'
+#' \itemize{
+#'   \item \code{"laplace"}: Uses a second-order Laplace approximation at the
+#'     conditional mode. Fast and generally accurate for \eqn{n_i} large.
+#'   \item \code{"aghq"}: Adaptive Gauss-Hermite Quadrature. Uses \code{n_points}
+#'     quadrature nodes centered and scaled by the conditional mode and curvature.
+#'     More accurate than Laplace, especially for small \eqn{n_i}.
+#'   \item \code{"qmc"}: Quasi-Monte Carlo integration using a Halton sequence.
+#'     Uses \code{qmc_points} evaluation points. Suitable for high-dimensional
+#'     integration (future proofing) or checking robustness.
+#' }
 #'
 #' @param formula Model formula. Supports one- or two-part formulas:
 #'   \code{y ~ x1 + x2} or \code{y ~ x1 + x2 | z1 + z2}.
@@ -34,10 +46,12 @@
 #' @param repar Beta reparameterization code (0, 1, 2).
 #' @param ncuts Number of categories on the original scale.
 #' @param lim Half-width used to construct interval endpoints.
-#' @param int_method Integration method. Currently, only \code{"laplace"}
-#'   is implemented.
-#' @param n_points Reserved for future AGHQ support.
-#' @param qmc_points Reserved for future QMC support.
+#' @param int_method Integration method: \code{"laplace"} (default),
+#'   \code{"aghq"}, or \code{"qmc"}.
+#' @param n_points Number of quadrature points for \code{int_method="aghq"}.
+#'   Ignored for other methods. Default is 11.
+#' @param qmc_points Number of QMC points for \code{int_method="qmc"}.
+#'   Default is 1024.
 #' @param start Optional numeric vector of starting values
 #'   (\code{beta}, \code{gamma}, \code{log_sigma_b}).
 #' @param method Optimizer passed to \code{\link[stats]{optim}}.
@@ -113,12 +127,7 @@ brsmm <- function(formula,
   if (!is.data.frame(data)) {
     stop("'data' must be a data.frame.", call. = FALSE)
   }
-  if (!identical(int_method, "laplace")) {
-    stop(
-      "Only int_method = 'laplace' is currently implemented.",
-      call. = FALSE
-    )
-  }
+  # int_method check removed to support aghq and qmc
   if (!is.finite(n_points) || n_points < 1L) {
     stop("'n_points' must be >= 1.", call. = FALSE)
   }
@@ -185,8 +194,15 @@ brsmm <- function(formula,
   lc_mu <- link_to_code(link)
   lc_phi <- link_to_code(link_phi)
 
+  # Map string method to integer code
+  method_code <- match(int_method, c("laplace", "aghq", "qmc")) - 1L
+
+  # Determine number of points
+  n_pts <- if (int_method == "qmc") qmc_points else n_points
+
   fn_ll <- function(par) {
-    .brsmm_loglik_laplace_cpp(
+    # Call the new Eigen-based backend
+    brsmm_loglik_eigen(
       param = as.numeric(par),
       X = X,
       Z = Z,
@@ -195,9 +211,11 @@ brsmm <- function(formula,
       yt = as.numeric(Y[, "yt"]),
       delta = delta,
       group = group_index,
-      link_mu_code = lc_mu,
-      link_phi_code = lc_phi,
-      repar = repar
+      link_mu = lc_mu,
+      link_phi = lc_phi,
+      repar = repar,
+      method = method_code,
+      n_points = n_pts
     )
   }
 

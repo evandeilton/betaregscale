@@ -11,7 +11,8 @@
 
 \item{digits}{Number of significant digits.}
 
-\item{...}{Ignored.}
+\item{...}{Included for consistency with generic methods. Currently
+passed to internal methods where applicable.}
 }
 \description{
 Print a fitted model (brief betareg style)

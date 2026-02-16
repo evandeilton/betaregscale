@@ -22,7 +22,7 @@
 #' @param object A fitted \code{"brsmm"} object.
 #' @param model Character: \code{"full"} (default), \code{"mean"},
 #'   \code{"precision"}, or \code{"random"}.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Named numeric vector.
 #'
@@ -48,7 +48,7 @@ coef.brsmm <- function(object,
 #' @param object A fitted \code{"brsmm"} object.
 #' @param model Character: \code{"full"}, \code{"mean"},
 #'   \code{"precision"}, or \code{"random"}.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Numeric matrix.
 #'
@@ -95,7 +95,7 @@ vcov.brsmm <- function(object,
 #' Log-likelihood for brsmm models
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Object of class \code{"logLik"}.
 #'
@@ -115,7 +115,7 @@ logLik.brsmm <- function(object, ...) {
 #' AIC for brsmm models
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #' @param k Numeric penalty per parameter.
 #'
 #' @return Numeric scalar.
@@ -132,7 +132,7 @@ AIC.brsmm <- function(object, ..., k = 2) {
 #' BIC for brsmm models
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Numeric scalar.
 #'
@@ -148,7 +148,7 @@ BIC.brsmm <- function(object, ...) {
 #' Number of observations in a brsmm fit
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Integer.
 #'
@@ -165,7 +165,7 @@ nobs.brsmm <- function(object, ...) {
 #'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param type Character: \code{"mu"} (default) or \code{"phi"}.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Numeric vector.
 #'
@@ -188,7 +188,7 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
 #' @param newdata Optional data frame.
 #' @param type Character: \code{"response"} (default), \code{"link"},
 #'   \code{"precision"}, or \code{"variance"}.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Numeric vector.
 #'
@@ -217,10 +217,11 @@ predict.brsmm <- function(object,
     }
 
     tm_mu <- stats::delete.response(object$terms$mean)
-    mf_mu <- stats::model.frame(tm_mu, data = newdata)
+    tm_mu <- stats::delete.response(object$terms$mean)
+    mf_mu <- stats::model.frame(tm_mu, data = newdata, ...)
     Xn <- stats::model.matrix(tm_mu, mf_mu)
 
-    mf_phi <- stats::model.frame(object$terms$precision, data = newdata)
+    mf_phi <- stats::model.frame(object$terms$precision, data = newdata, ...)
     Zn <- stats::model.matrix(object$terms$precision, mf_phi)
 
     if (object$random$group %in% names(newdata)) {
@@ -256,7 +257,7 @@ predict.brsmm <- function(object,
 #'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param type Character: \code{"response"} (default) or \code{"pearson"}.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Numeric vector.
 #'
@@ -283,7 +284,7 @@ residuals.brsmm <- function(object, type = c("response", "pearson"), ...) {
 #' Summarize a fitted brsmm model
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Object of class \code{"summary.brsmm"}.
 #'
@@ -323,7 +324,7 @@ summary.brsmm <- function(object, ...) {
 #'
 #' @param x A \code{"summary.brsmm"} object.
 #' @param digits Number of digits.
-#' @param ... Ignored.
+#' @param ... Passed to \code{printCoefmat}.
 #'
 #' @return Invisibly returns \code{x}.
 #'
@@ -335,14 +336,20 @@ print.summary.brsmm <- function(x,
                                 ...) {
   cat("\nCall:\n")
   print(x$call)
-  cat("\nMixed beta interval model (Laplace)\n")
+  method_name <- switch(x$integration,
+    "laplace" = "Laplace",
+    "aghq" = "AGHQ",
+    "qmc" = "QMC",
+    x$integration
+  )
+  cat("\nMixed beta interval model (", method_name, ")\n", sep = "")
   cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
   cat("logLik =", formatC(x$logLik, digits = digits, format = "f"),
     " | AIC =", formatC(x$AIC, digits = digits, format = "f"),
     " | BIC =", formatC(x$BIC, digits = digits, format = "f"), "\n\n",
     sep = ""
   )
-  stats::printCoefmat(x$coefficients, digits = digits, P.values = TRUE, has.Pvalue = TRUE)
+  stats::printCoefmat(x$coefficients, digits = digits, P.values = TRUE, has.Pvalue = TRUE, ...)
   invisible(x)
 }
 
@@ -351,7 +358,7 @@ print.summary.brsmm <- function(x,
 #'
 #' @param x A fitted \code{"brsmm"} object.
 #' @param digits Number of digits.
-#' @param ... Ignored.
+#' @param ... Included for consistency with generic methods.
 #'
 #' @return Invisibly returns \code{x}.
 #'
@@ -363,7 +370,13 @@ print.brsmm <- function(x,
   .check_class_mm(x)
   cat("\nCall:\n")
   print(x$call)
-  cat("\nMixed beta interval model (Laplace)\n")
+  method_name <- switch(x$int_method,
+    "laplace" = "Laplace",
+    "aghq" = "AGHQ",
+    "qmc" = "QMC",
+    x$int_method
+  )
+  cat("\nMixed beta interval model (", method_name, ")\n", sep = "")
   cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
   cat("Log-likelihood:", formatC(x$value, digits = digits, format = "f"), "\n")
   cat("Random SD:", formatC(x$random$sigma_b, digits = digits, format = "f"), "\n")
@@ -375,7 +388,7 @@ print.brsmm <- function(x,
 #' Extract random effects from a brsmm model
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param ... Ignored.
+#' @param ... Currently ignored.
 #'
 #' @return Named numeric vector of group-specific random-intercept modes.
 #' @export
