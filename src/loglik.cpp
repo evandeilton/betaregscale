@@ -73,14 +73,34 @@ inline double inv_link(double eta, int code) {
   case 5:
     return eta * eta; // sqrt
   case 6:
+    if (std::abs(eta) < EPS_PROB) {
+      return (eta >= 0.0) ? MAX_SHAPE : -MAX_SHAPE;
+    }
     return 1.0 / eta; // inverse
   case 7:
+    if (eta <= EPS_PROB) {
+      return MAX_SHAPE;
+    }
     return 1.0 / std::sqrt(eta); // 1/mu^2
   case 8:
     return eta; // identity
   default:
     return 1.0 / (1.0 + std::exp(-eta));
   }
+}
+
+// Clamp phi according to the selected beta reparameterization.
+// repar = 1: precision-style phi > 0
+// repar = 2: mean-variance phi in (0, 1)
+// repar = 0: direct shape2-like parameter, enforce positivity
+inline double clamp_phi_by_repar(double phi, int repar) {
+  if (!std::isfinite(phi)) {
+    return (repar == 2) ? (1.0 - EPS_BOUND) : MAX_SHAPE;
+  }
+  if (repar == 2) {
+    return clamp(phi, EPS_BOUND, 1.0 - EPS_BOUND);
+  }
+  return clamp(phi, EPS_BOUND, MAX_SHAPE);
 }
 
 // Beta reparameterization (Lopes, 2024, Section 2.8).
@@ -217,6 +237,7 @@ double betaregscale_loglik_fixed_cpp(const arma::vec &param, const arma::mat &X,
 
   arma::vec eta = X * beta_vec;
   double phi = inv_link(phi_raw, link_phi_code);
+  phi = clamp_phi_by_repar(phi, repar);
 
   double ll = 0.0;
   for (int i = 0; i < n; i++) {
@@ -273,7 +294,7 @@ double betaregscale_loglik_variable_cpp(
     double phi_i = inv_link(eta_phi(i), link_phi_code);
 
     mu_i = clamp(mu_i, EPS_BOUND, 1.0 - EPS_BOUND);
-    phi_i = clamp(phi_i, EPS_BOUND, 1.0 - EPS_BOUND);
+    phi_i = clamp_phi_by_repar(phi_i, repar);
 
     double a, b;
     beta_shapes(mu_i, phi_i, repar, a, b);
@@ -425,7 +446,7 @@ inline double group_Q(
     double phi_i = inv_link(eta_phi(ii), link_phi_code);
 
     mu_i = clamp(mu_i, EPS_BOUND, 1.0 - EPS_BOUND);
-    phi_i = clamp(phi_i, EPS_BOUND, 1.0 - EPS_BOUND);
+    phi_i = clamp_phi_by_repar(phi_i, repar);
 
     double a, bb;
     beta_shapes(mu_i, phi_i, repar, a, bb);

@@ -120,7 +120,40 @@ link_to_code <- function(link) {
 #' @export
 brs_repar <- function(mu, phi, repar = 2L) {
   repar <- as.integer(repar)
-  stopifnot(repar %in% 0:2)
+  if (!(repar %in% 0:2)) {
+    stop("`repar` must be one of 0, 1, or 2.", call. = FALSE)
+  }
+  if (!is.numeric(mu) || !is.numeric(phi)) {
+    stop("`mu` and `phi` must be numeric.", call. = FALSE)
+  }
+
+  mu <- as.numeric(mu)
+  phi <- as.numeric(phi)
+
+  if (length(phi) == 1L && length(mu) > 1L) {
+    phi <- rep(phi, length(mu))
+  }
+  if (length(mu) == 1L && length(phi) > 1L) {
+    mu <- rep(mu, length(phi))
+  }
+  if (length(mu) != length(phi)) {
+    stop("`mu` and `phi` must have compatible lengths.", call. = FALSE)
+  }
+  if (any(!is.finite(mu)) || any(!is.finite(phi))) {
+    stop("`mu` and `phi` must be finite.", call. = FALSE)
+  }
+  if (any(mu <= 0 | mu >= 1)) {
+    stop("`mu` must lie in (0, 1).", call. = FALSE)
+  }
+  if (repar == 2L) {
+    if (any(phi <= 0 | phi >= 1)) {
+      stop("For `repar = 2`, `phi` must lie in (0, 1).", call. = FALSE)
+    }
+  } else {
+    if (any(phi <= 0)) {
+      stop("For `repar = 0` or `repar = 1`, `phi` must be > 0.", call. = FALSE)
+    }
+  }
 
   switch(as.character(repar),
     "0" = data.frame(

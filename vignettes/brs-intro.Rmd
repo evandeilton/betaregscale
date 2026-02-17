@@ -240,7 +240,7 @@ knitr::kable(est_table, digits = 4)
 
 # Goodness of fit
 gof_table <- do.call(rbind, lapply(fits, brs_gof))
-knitr::kable(gof_table, dogits = 4)
+knitr::kable(gof_table, digits = 4)
 ```
 
 ### Residual diagnostics
@@ -262,10 +262,16 @@ plot(fit_fixed, gg = TRUE)
 
 ```{r predict-fixed}
 # Fitted means
-round(head(predict(fit_fixed, type = "response")), 4)
+knitr::kable(
+  data.frame(mu_hat = head(predict(fit_fixed, type = "response"))),
+  digits = 4
+)
 
 # Conditional variance
-round(head(predict(fit_fixed, type = "variance")), 4)
+knitr::kable(
+  data.frame(var_hat = head(predict(fit_fixed, type = "variance"))),
+  digits = 4
+)
 
 # Quantile predictions
 knitr::kable(head(predict(fit_fixed, type = "quantile", at = c(0.25, 0.5, 0.75))), digits = 4)
@@ -375,13 +381,80 @@ knitr::kable(est_var, digits = 4)
 
 # Goodness of fit
 gof_var <- do.call(rbind, lapply(fits_var, brs_gof))
-knitr::kable(gof_var, digit = 4)
+knitr::kable(gof_var, digits = 4)
 ```
 
 ### Diagnostics for variable dispersion
 
 ```{r plot-variable, fig.height = 6}
 plot(fit_var)
+```
+
+## Advanced analyst functions
+
+The package includes analyst-facing helpers for uncertainty quantification,
+effect interpretation, score-scale communication, and predictive validation.
+
+### Parametric bootstrap confidence intervals
+
+```{r bootstrap-fixed}
+set.seed(101)
+boot_ci <- brs_bootstrap(
+  fit_fixed,
+  R = 80,
+  level = 0.95
+)
+knitr::kable(head(boot_ci), digits = 4)
+```
+
+### Average marginal effects (AME)
+
+```{r marginaleffects-fixed}
+set.seed(202)
+ame <- brs_marginaleffects(
+  fit_fixed,
+  model = "mean",
+  type = "response",
+  interval = TRUE,
+  n_sim = 120
+)
+knitr::kable(ame, digits = 4)
+```
+
+### Score probabilities on the original scale
+
+```{r scoreprob-fixed}
+prob_scores <- brs_predict_scoreprob(fit_fixed, scores = 0:10)
+knitr::kable(prob_scores[1:6, 1:6], digits = 4)
+knitr::kable(
+  data.frame(row_sum = rowSums(prob_scores)[1:6]),
+  digits = 4
+)
+```
+
+### Repeated k-fold cross-validation
+
+```{r cv-fixed}
+cv_res <- brs_cv(
+  y ~ x1 + x2,
+  data = sim_fixed,
+  k = 3,
+  repeats = 1,
+  repar = 2,
+  seed = 303
+)
+knitr::kable(cv_res, digits = 4)
+knitr::kable(
+  data.frame(
+    metric = c("log_score", "rmse_yt", "mae_yt"),
+    mean = c(
+      mean(cv_res$log_score, na.rm = TRUE),
+      mean(cv_res$rmse_yt, na.rm = TRUE),
+      mean(cv_res$mae_yt, na.rm = TRUE)
+    )
+  ),
+  digits = 4
+)
 ```
 
 ## S3 methods reference
@@ -436,6 +509,39 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 - Lopes, J. E. (2024). *Beta Regression for Interval-Censored
   Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 
-- Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for
+- Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
-  **31**(7), 799--815.
+  **31**(7), 799--815. DOI: 10.1080/0266476042000214501.
+  Validated online via:
+  <https://doi.org/10.1080/0266476042000214501> and
+  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+
+- Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
+  Maximum-likelihood regression with beta-distributed dependent variables.
+  *Psychological Methods*, **11**(1), 54--71.
+  DOI: 10.1037/1082-989X.11.1.54.
+  Validated online via:
+  <https://doi.org/10.1037/1082-989X.11.1.54> and
+  <https://pubmed.ncbi.nlm.nih.gov/16594767/>.
+
+- Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+  Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+  Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+  Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+  (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+  Intermittent and Constant Osteoarthritis Pain (ICOAP).
+  *Arthritis Care and Research*, **63**(S11), S240--S252.
+  DOI: 10.1002/acr.20543.
+  Validated online via:
+  <https://doi.org/10.1002/acr.20543> and
+  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+
+- Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+  Studies comparing numerical rating scales, verbal rating scales, and
+  visual analogue scales for assessment of pain intensity in adults:
+  a systematic literature review.
+  *Journal of Pain and Symptom Management*, **41**(6), 1073--1093.
+  DOI: 10.1016/j.jpainsymman.2010.08.016.
+  Validated online via:
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
+  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.

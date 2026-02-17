@@ -26,11 +26,26 @@ inline double inv_link(double eta, int code) {
   case 3: return 1.0 - std::exp(-std::exp(eta)); // cloglog
   case 4: return std::exp(eta); // log
   case 5: return eta * eta; // sqrt
-  case 6: return 1.0 / eta; // inverse
-  case 7: return 1.0 / std::sqrt(eta); // 1/mu^2
+  case 6:
+    if (std::abs(eta) < EPS_PROB) return (eta >= 0.0) ? MAX_SHAPE : -MAX_SHAPE;
+    return 1.0 / eta; // inverse
+  case 7:
+    if (eta <= EPS_PROB) return MAX_SHAPE;
+    return 1.0 / std::sqrt(eta); // 1/mu^2
   case 8: return eta; // identity
   default: return 1.0 / (1.0 + std::exp(-eta));
   }
+}
+
+// Clamp phi in accordance with the selected parameterization.
+inline double clamp_phi_by_repar(double phi, int repar) {
+  if (!std::isfinite(phi)) {
+    return (repar == 2) ? (1.0 - EPS_BOUND) : MAX_SHAPE;
+  }
+  if (repar == 2) {
+    return clamp(phi, EPS_BOUND, 1.0 - EPS_BOUND);
+  }
+  return clamp(phi, EPS_BOUND, MAX_SHAPE);
 }
 
 // Helper: Beta shapes
@@ -100,7 +115,7 @@ double h_func(double b_val, const GroupData &gd, double sigma_b,
     double phi = inv_link(gd.eta_phi(i), link_phi_code);
     
     mu = clamp(mu, EPS_BOUND, 1.0 - EPS_BOUND);
-    phi = clamp(phi, EPS_BOUND, 1.0 - EPS_BOUND);
+    phi = clamp_phi_by_repar(phi, repar);
     
     double a, bb;
     beta_shapes(mu, phi, repar, a, bb);

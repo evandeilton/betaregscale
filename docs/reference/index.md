@@ -96,6 +96,9 @@ Standard methods for fitted model objects of class brsmm.
 
 Functions for model diagnostics and censoring summaries.
 
+- [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+  [`print(`*`<brs_bootstrap>`*`)`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+  : Parametric bootstrap confidence intervals for brs models
 - [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
   : Graphical and tabular censoring summary
 - [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)

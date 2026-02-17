@@ -444,7 +444,15 @@ print.brs <- function(x,
 fitted.brs <- function(object, type = c("mu", "phi"), ...) {
   .check_class(object)
   type <- match.arg(type)
-  if (type == "mu") object$hatmu else object$hatphi
+  if (type == "mu") {
+    return(object$hatmu)
+  }
+  n <- length(object$hatmu)
+  if (length(object$hatphi) == 1L) {
+    rep(as.numeric(object$hatphi), n)
+  } else {
+    as.numeric(object$hatphi)
+  }
 }
 
 
@@ -537,7 +545,24 @@ residuals.brs <- function(object,
     },
     rqr = {
       sh <- get_shapes(mu, phi, repar)
-      u <- stats::pbeta(y, sh$a, sh$b)
+      left <- object$Y[, "left"]
+      right <- object$Y[, "right"]
+      delta <- as.integer(object$Y[, "delta"])
+
+      f_left <- stats::pbeta(left, sh$a, sh$b)
+      f_right <- stats::pbeta(right, sh$a, sh$b)
+      f_y <- stats::pbeta(y, sh$a, sh$b)
+
+      # Randomized PIT to respect censoring intervals.
+      lo <- ifelse(delta == 0L, f_y,
+        ifelse(delta == 1L, 0, f_left)
+      )
+      hi <- ifelse(delta == 0L, f_y,
+        ifelse(delta == 2L, 1, f_right)
+      )
+      hi <- pmax(hi, lo)
+
+      u <- stats::runif(length(lo), min = lo, max = hi)
       u <- pmin(pmax(u, 1e-10), 1 - 1e-10)
       stats::qnorm(u)
     },
@@ -634,7 +659,11 @@ predict.brs <- function(object, newdata = NULL,
 
   if (is.null(newdata)) {
     mu <- object$hatmu
-    phi <- object$hatphi
+    phi <- if (length(object$hatphi) == 1L) {
+      rep(as.numeric(object$hatphi), length(mu))
+    } else {
+      as.numeric(object$hatphi)
+    }
     eta_mu <- stats::make.link(object$link)$linkfun(mu)
   } else {
     # Build X from newdata
@@ -653,9 +682,10 @@ predict.brs <- function(object, newdata = NULL,
       eta_phi <- as.numeric(Z %*% object$coefficients$precision)
       phi <- stats::make.link(object$link_phi)$linkinv(eta_phi)
     } else {
-      phi <- stats::make.link(object$link_phi)$linkinv(
+      phi_scalar <- stats::make.link(object$link_phi)$linkinv(
         as.numeric(object$coefficients$precision)
       )
+      phi <- rep(phi_scalar, nrow(X))
     }
   }
 

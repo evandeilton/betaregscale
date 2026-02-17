@@ -128,15 +128,15 @@ is the same logic used by
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
 with a user-supplied `delta` vector:
 
-|  |  |  |  |
-|----|----|----|----|
-| \\\delta\\ | Condition | \\l_i\\ (left) | \\u_i\\ (right) |
-| 0 | (any) | \\y / K\\ | \\y / K\\ |
-| 1 | \\y = 0\\ | \\\epsilon\\ | \\\mathrm{lim} / K\\ |
-| 1 | \\y \neq 0\\ | \\\epsilon\\ | \\(y + \mathrm{lim}) / K\\ |
-| 2 | \\y = K\\ | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
-| 2 | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
-| 3 | type `"m"` | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
+|            |              |                            |                            |
+|------------|--------------|----------------------------|----------------------------|
+| \\\delta\\ | Condition    | \\l_i\\ (left)             | \\u_i\\ (right)            |
+| 0          | (any)        | \\y / K\\                  | \\y / K\\                  |
+| 1          | \\y = 0\\    | \\\epsilon\\               | \\\mathrm{lim} / K\\       |
+| 1          | \\y \neq 0\\ | \\\epsilon\\               | \\(y + \mathrm{lim}) / K\\ |
+| 2          | \\y = K\\    | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
+| 2          | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
+| 3          | type `"m"`   | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
 
 **Consistency warnings**: when the analyst supplies `delta` values that
 are unusual for the given `y` (e.g., \\\delta = 1\\ but \\y \neq 0\\),
@@ -246,7 +246,7 @@ summary(fit)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -3.0625 -0.5896  0.2555  0.6723  1.5528 
+#> -3.5282 -0.5680  0.2875  0.7798  2.7336 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
@@ -254,13 +254,13 @@ summary(fit)
 #> x1          -0.38266    0.06216  -6.156 7.45e-10 ***
 #> x2           0.12275    0.06556   1.872   0.0612 .  
 #> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
 #> Phi coefficients (precision model with logit link):
 #>       Estimate Std. Error z value Pr(>|z|)    
 #> (phi)  -4.8810     0.1352  -36.11   <2e-16 ***
 #> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> ---
 #> Log-likelihood: -896.1340 on 4 Df
 #> Pseudo R-squared: 0.1097 

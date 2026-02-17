@@ -21,7 +21,7 @@ fitted(object, type = c("mu", "phi"), ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

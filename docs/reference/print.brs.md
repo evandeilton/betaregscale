@@ -21,4 +21,5 @@ print(x, digits = max(3, getOption("digits") - 3), ...)
 
 - ...:
 
-  Ignored.
+  Included for consistency with generic methods. Currently passed to
+  internal methods where applicable.

@@ -24,6 +24,19 @@ score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 left-censored, right-censored, and interval-censored** within the same
 dataset.
 
+Mathematically, for each observation \(i\), the complete likelihood
+contribution is
+\[
+L_i(\theta)=
+\begin{cases}
+f(y_i; a_i, b_i), & \delta_i=0,\\
+F(u_i; a_i, b_i), & \delta_i=1,\\
+1-F(l_i; a_i, b_i), & \delta_i=2,\\
+F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3,
+\end{cases}
+\]
+with \(f(\cdot)\) and \(F(\cdot)\) denoting beta density and CDF.
+
 ## Key features
 
 - **Mixed censoring support**: the complete likelihood handles four
@@ -35,7 +48,7 @@ dataset.
 - **Mixed-effects support**: `brsmm()` fits Gaussian random-intercept
   models (`random = ~ 1 | group`) via Laplace-approximated marginal
   likelihood.
-- **High-performance C++ backend**: the log-likelihood and analytical
+- **High-performance C++ backend**: the log-likelihood and numerical
   gradient are compiled via Rcpp/RcppArmadillo for fast, numerically
   stable estimation.
 - **Flexible link functions**: logit, probit, cauchit, cloglog for
@@ -53,6 +66,9 @@ dataset.
   tabular summaries of the censoring structure.
 - **Simulation toolkit**: `brs_sim()` supports both fixed- and
   variable-dispersion Monte Carlo studies via one- or two-part formulas.
+- **Analyst toolkit**: `brs_bootstrap()`, `brs_marginaleffects()`,
+  `brs_predict_scoreprob()`, `brs_cv()`, and `brs_table()` for
+  uncertainty quantification, interpretation, and model validation.
 
 ## Installation
 
@@ -120,6 +136,9 @@ fits <- lapply(setNames(links, links), function(lnk) {
 
 # Goodness-of-fit comparison
 do.call(rbind, lapply(fits, brs_gof))
+
+# Analyst-friendly table
+knitr::kable(do.call(rbind, lapply(fits, brs_gof)), digits = 4)
 ```
 
 ### Mixed model (random intercept)
@@ -197,7 +216,27 @@ censoring type.
 |------|------|-----------------|
 | 0 | Direct | $a = \mu,\; b = \phi$ |
 | 1 | Precision (Ferrari & Cribari-Neto) | $a = \mu\phi,\; b = (1-\mu)\phi$ |
-| 2 | Mean--variance (Bayer) | $a = \mu(1-\phi)/\phi,\; b = (1-\mu)(1-\phi)/\phi$ |
+| 2 | Mean--variance | $a = \mu(1-\phi)/\phi,\; b = (1-\mu)(1-\phi)/\phi$ |
+
+### Analyst-oriented outputs (clean tables)
+
+```r
+# Parametric bootstrap CI
+boot_ci <- brs_bootstrap(fit, B = 100, level = 0.95)
+knitr::kable(head(boot_ci), digits = 4)
+
+# Average marginal effects
+ame <- brs_marginaleffects(fit, model = "mean", type = "response")
+knitr::kable(ame, digits = 4)
+
+# Score-scale probabilities
+ps <- brs_predict_scoreprob(fit, scores = 0:10)
+knitr::kable(ps[1:6, 1:6], digits = 4)
+
+# Cross-validation summary
+cv <- brs_cv(y ~ x1 + x2, data = sim, k = 5, repeats = 1, seed = 123)
+knitr::kable(cv, digits = 4)
+```
 
 ### Interval construction
 
@@ -214,9 +253,27 @@ half-width (`lim`, default `0.5`).
 
 - Lopes, J. E. (2024). *Beta Regression for Interval-Censored
   Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
-- Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for
+- Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
-  31(7), 799--815.
+  31(7), 799--815. DOI: 10.1080/0266476042000214501.
+  Validated online via:
+  <https://doi.org/10.1080/0266476042000214501> and
+  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+
+- Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+  Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS,
+  and ICOAP. *Arthritis Care and Research*, 63(S11), S240--S252.
+  DOI: 10.1002/acr.20543. Validated online via:
+  <https://doi.org/10.1002/acr.20543> and
+  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+
+- Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+  Studies comparing numerical rating scales, verbal rating scales, and
+  visual analogue scales for assessment of pain intensity in adults.
+  *Journal of Pain and Symptom Management*, 41(6), 1073--1093.
+  DOI: 10.1016/j.jpainsymman.2010.08.016. Validated online via:
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
+  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.
 
 ## License
 

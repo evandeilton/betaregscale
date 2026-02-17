@@ -1,5 +1,29 @@
 # Changelog
 
+## betaregscale 2.6.2
+
+### Improvements
+
+- Improved numerical stability in
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  by refining the optimization control and starting values.
+- Updated [`simulate()`](https://rdrr.io/r/stats/simulate.html) method
+  to better handle edge cases in random effects simulation.
+- Enhanced `methods.R` for better compatibility with downstream
+  packages.
+
+------------------------------------------------------------------------
+
+## betaregscale 2.6.1
+
+### Bug fixes
+
+- Renamed vignettes to avoid naming collisions with the package name,
+  which caused `pkgdown` site build failures.
+- Updated `_pkgdown.yml` to reflect new vignette names.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.0
 
 ### New features
@@ -282,9 +306,9 @@
 ### New features
 
 - **Mixed censoring support**: the complete likelihood (Eq. 2.24) now
-  handles four censoring types simultaneously: exact ($`\delta=0`$),
-  left-censored ($`\delta=1`$), right-censored ($`\delta=2`$), and
-  interval-censored ($`\delta=3`$).
+  handles four censoring types simultaneously: exact ($\delta = 0$),
+  left-censored ($\delta = 1$), right-censored ($\delta = 2$), and
+  interval-censored ($\delta = 3$).
 - **C++ backend rewrite**: log-likelihood and analytical gradient
   functions rewritten in C++ (RcppArmadillo) for numerically stable,
   high-performance evaluation.

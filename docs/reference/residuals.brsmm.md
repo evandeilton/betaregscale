@@ -21,7 +21,7 @@ residuals(object, type = c("response", "pearson"), ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

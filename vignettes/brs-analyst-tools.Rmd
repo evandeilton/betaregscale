@@ -152,7 +152,7 @@ tab <- brs_table(
   variable = fit_var,
   sort_by = "AIC"
 )
-tab
+knitr::kable(tab, digits = 4)
 ```
 
 ### 3) Estimate average marginal effects
@@ -165,7 +165,7 @@ me_mean <- brs_marginaleffects(
   interval = TRUE,
   n_sim = 120
 )
-me_mean
+knitr::kable(me_mean, digits = 4)
 
 me_precision <- brs_marginaleffects(
   fit_var,
@@ -173,7 +173,7 @@ me_precision <- brs_marginaleffects(
   type = "link",
   interval = FALSE
 )
-me_precision
+knitr::kable(me_precision, digits = 4)
 ```
 
 ### 4) Predict score probabilities
@@ -181,8 +181,11 @@ me_precision
 ```{r scoreprob}
 P <- brs_predict_scoreprob(fit_var, scores = 0:10)
 dim(P)
-head(P[, 1:5])
-summary(rowSums(P))
+knitr::kable(P[1:6, 1:5], digits = 4)
+knitr::kable(
+  data.frame(row_sum = rowSums(P)),
+  digits = 4
+)
 ```
 
 `rowSums(P)` should be close to 1 (up to numerical tolerance and score
@@ -209,8 +212,14 @@ cv_res <- brs_cv(
   seed = 2026
 )
 
-cv_res
-colMeans(cv_res[, c("log_score", "rmse_yt", "mae_yt")], na.rm = TRUE)
+knitr::kable(cv_res, digits = 4)
+knitr::kable(
+  data.frame(
+    metric = c("log_score", "rmse_yt", "mae_yt"),
+    mean = colMeans(cv_res[, c("log_score", "rmse_yt", "mae_yt")], na.rm = TRUE)
+  ),
+  digits = 4
+)
 ```
 
 ## Practical interpretation
@@ -226,13 +235,22 @@ colMeans(cv_res[, c("log_score", "rmse_yt", "mae_yt")], na.rm = TRUE)
 
 - Lopes, J. E. (2024). *Beta Regression for Interval-Censored
   Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
-- Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for
+- Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
-  31(7), 799-815.
+  31(7), 799-815. DOI: 10.1080/0266476042000214501.
+  Validated online via:
+  <https://doi.org/10.1080/0266476042000214501> and
+  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
 - Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
   Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS,
   and ICOAP. *Arthritis Care and Research*, 63(S11), S240-S252.
+  DOI: 10.1002/acr.20543. Validated online via:
+  <https://doi.org/10.1002/acr.20543> and
+  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
 - Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
   Comparing NRS, VRS, and VAS pain scales in adults:
   a systematic review. *Journal of Pain and Symptom Management*,
-  41(6), 1073-1093.
+  41(6), 1073-1093. DOI: 10.1016/j.jpainsymman.2010.08.016.
+  Validated online via:
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
+  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.

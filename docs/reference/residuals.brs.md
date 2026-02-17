@@ -27,7 +27,7 @@ residuals(
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

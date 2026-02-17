@@ -168,12 +168,17 @@ summary(fit_mm)
 (\(\log \sigma_b\)); use `exp()` to report \(\sigma_b\).
 
 ```{r methods-coef}
-coef(fit_mm, model = "full")
-coef(fit_mm, model = "mean")
-coef(fit_mm, model = "precision")
-coef(fit_mm, model = "random")
-exp(coef(fit_mm, model = "random"))
-head(ranef.brsmm(fit_mm))
+knitr::kable(
+  data.frame(parameter = names(coef(fit_mm, model = "full")),
+             estimate = as.numeric(coef(fit_mm, model = "full"))),
+  digits = 4
+)
+knitr::kable(
+  data.frame(log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
+             sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))),
+  digits = 4
+)
+knitr::kable(head(ranef.brsmm(fit_mm)), digits = 4)
 ```
 
 ### Variance-covariance, summary and likelihood criteria
@@ -183,27 +188,41 @@ vc <- vcov(fit_mm)
 dim(vc)
 
 sm <- summary(fit_mm)
-sm
+knitr::kable(sm$coefficients, digits = 4)
 
-logLik(fit_mm)
-AIC(fit_mm)
-BIC(fit_mm)
-nobs(fit_mm)
+knitr::kable(
+  data.frame(
+    logLik = as.numeric(logLik(fit_mm)),
+    AIC = AIC(fit_mm),
+    BIC = BIC(fit_mm),
+    nobs = nobs(fit_mm)
+  ),
+  digits = 4
+)
 ```
 
 ### Fitted values, prediction and residuals
 
 ```{r methods-predict}
-head(fitted(fit_mm, type = "mu"))
-head(fitted(fit_mm, type = "phi"))
+knitr::kable(
+  data.frame(
+    mu_hat = head(fitted(fit_mm, type = "mu")),
+    phi_hat = head(fitted(fit_mm, type = "phi")),
+    pred_mu = head(predict(fit_mm, type = "response")),
+    pred_eta = head(predict(fit_mm, type = "link")),
+    pred_phi = head(predict(fit_mm, type = "precision")),
+    pred_var = head(predict(fit_mm, type = "variance"))
+  ),
+  digits = 4
+)
 
-head(predict(fit_mm, type = "response"))
-head(predict(fit_mm, type = "link"))
-head(predict(fit_mm, type = "precision"))
-head(predict(fit_mm, type = "variance"))
-
-head(residuals(fit_mm, type = "response"))
-head(residuals(fit_mm, type = "pearson"))
+knitr::kable(
+  data.frame(
+    res_response = head(residuals(fit_mm, type = "response")),
+    res_pearson = head(residuals(fit_mm, type = "pearson"))
+  ),
+  digits = 4
+)
 ```
 
 ### Diagnostic plotting methods
@@ -236,11 +255,17 @@ equal to zero for those levels.
 
 ```{r methods-newdata}
 nd <- sim$data[1:8, c("x1", "id")]
-predict(fit_mm, newdata = nd, type = "response")
+knitr::kable(
+  data.frame(pred_seen = as.numeric(predict(fit_mm, newdata = nd, type = "response"))),
+  digits = 4
+)
 
 nd_unseen <- nd
 nd_unseen$id <- factor(rep("new_cluster", nrow(nd_unseen)))
-predict(fit_mm, newdata = nd_unseen, type = "response")
+knitr::kable(
+  data.frame(pred_unseen = as.numeric(predict(fit_mm, newdata = nd_unseen, type = "response"))),
+  digits = 4
+)
 ```
 
 ## Statistical tests and validation workflow
@@ -253,7 +278,8 @@ z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
 \]
 
 ```{r wald-tests}
-summary(fit_mm)$coefficients
+sm <- summary(fit_mm)
+knitr::kable(sm$coefficients, digits = 4)
 ```
 
 ### Likelihood-ratio test for nested fixed effects
@@ -289,11 +315,14 @@ c(LR = lr_stat, df = df_diff, p_value = p_value)
 
 ```{r quick-diagnostics}
 r <- residuals(fit_mm, type = "pearson")
-c(
-  mean = mean(r),
-  sd = stats::sd(r),
-  q025 = as.numeric(stats::quantile(r, 0.025)),
-  q975 = as.numeric(stats::quantile(r, 0.975))
+knitr::kable(
+  data.frame(
+    mean = mean(r),
+    sd = stats::sd(r),
+    q025 = as.numeric(stats::quantile(r, 0.025)),
+    q975 = as.numeric(stats::quantile(r, 0.975))
+  ),
+  digits = 4
 )
 ```
 
@@ -320,7 +349,7 @@ recovery_table <- data.frame(
   estimate = as.numeric(est[names(true)]),
   bias = as.numeric(est[names(true)] - true)
 )
-recovery_table
+knitr::kable(recovery_table, digits = 4)
 ```
 
 For a Monte Carlo recovery study, repeat simulation and fitting across
@@ -384,9 +413,14 @@ devtools::test(filter = "brsmm")
 
 Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for modelling
 rates and proportions. *Journal of Applied Statistics*, 31(7), 799-815.
+DOI: 10.1080/0266476042000214501. Validated online via:
+<https://doi.org/10.1080/0266476042000214501> and
+<https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
 
 Lopes, J. E. (2024). *Beta Regression for Interval-Censored Scale-Derived
 Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 
 Pinheiro, J. C. and Bates, D. M. (2000). *Mixed-Effects Models in S and S-PLUS*.
-Springer.
+Springer. DOI: 10.1007/b98882. Validated online via:
+<https://doi.org/10.1007/b98882> and
+<https://books.google.com/books?id=N3WeyHFbHLQC>.

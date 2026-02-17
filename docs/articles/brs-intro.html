@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,16 +79,16 @@ estimation of beta regression models for responses derived from bounded
 rating scales. Common examples include pain intensity scales (NRS-11,
 NRS-21, NRS-101), Likert-type scales, product quality ratings, and any
 instrument whose response can be mapped to the open interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>.</p>
 <p>The key idea is that a discrete score recorded on a bounded scale
 carries measurement uncertainty inherent to the instrument. For
 instance, a pain score of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">y = 6</annotation></semantics></math>
 on a 0–10 NRS is not an exact value but rather represents a range: after
 rescaling to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>,
 the observation is treated as interval-censored in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.55</mn><mo>,</mo><mn>0.65</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.55, 0.65]</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.55</mn><mo>,</mo><mn>0.65</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.55, 0.65]</annotation></semantics></math>.
 The package uses the beta distribution to model such data, building a
 complete likelihood that supports mixed censoring types within the same
 dataset.</p>
@@ -119,35 +119,35 @@ censoring types, automatically classified by
 <tr class="odd">
 <td align="center">0</td>
 <td align="left">Exact (uncensored)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(y_i;\, a_i, b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(y_i;\, a_i, b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="center">1</td>
 <td align="left">Left-censored
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y = 0</annotation></semantics></math>)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(u_i;\, a_i, b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;\, a_i, b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
 <td align="center">2</td>
 <td align="left">Right-censored
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">y = K</annotation></semantics></math>)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">1 - F(l_i;\, a_i, b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">1 - F(l_i;\, a_i, b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="center">3</td>
 <td align="left">Interval-censored</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(u_i;\, a_i, b_i) - F(l_i;\, a_i, b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;\, a_i, b_i) - F(l_i;\, a_i, b_i)</annotation></semantics></math></td>
 </tr>
 </tbody>
 </table>
 <p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
 are the beta density and CDF,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i, u_i]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i, u_i]</annotation></semantics></math>
 are the interval endpoints, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_i, b_i)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_i, b_i)</annotation></semantics></math>
 are the beta shape parameters derived from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_i</annotation></semantics></math>
 and
@@ -158,9 +158,9 @@ via the chosen reparameterization.</p>
 <h2 id="interval-construction">Interval construction<a class="anchor" aria-label="anchor" href="#interval-construction"></a>
 </h2>
 <p>Scale observations are mapped to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>
 with midpoint uncertainty intervals:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]</annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
 is the number of scale categories (<code>ncuts</code>) and
@@ -170,13 +170,53 @@ is the half-width (<code>lim</code>, default 0.5).</p>
 <code class="sourceCode R"><span><span class="co"># Illustrate brs_check with a 0-10 NRS scale</span></span>
 <span><span class="va">y_example</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_check.html">brs_check</a></span><span class="op">(</span><span class="va">y_example</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">cr</span></span>
-<span><span class="co">#&gt;         left   right      yt  y delta</span></span>
-<span><span class="co">#&gt; [1,] 0.00001 0.05000 0.00001  0     1</span></span>
-<span><span class="co">#&gt; [2,] 0.25000 0.35000 0.30000  3     3</span></span>
-<span><span class="co">#&gt; [3,] 0.45000 0.55000 0.50000  5     3</span></span>
-<span><span class="co">#&gt; [4,] 0.65000 0.75000 0.70000  7     3</span></span>
-<span><span class="co">#&gt; [5,] 0.95000 0.99999 0.99999 10     2</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cr</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">left</th>
+<th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
+<th align="right">delta</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+<td align="right">0.0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">0.25</td>
+<td align="right">0.35</td>
+<td align="right">0.3</td>
+<td align="right">3</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="right">0.45</td>
+<td align="right">0.55</td>
+<td align="right">0.5</td>
+<td align="right">5</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="right">0.65</td>
+<td align="right">0.75</td>
+<td align="right">0.7</td>
+<td align="right">7</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="right">0.95</td>
+<td align="right">1.00</td>
+<td align="right">1.0</td>
+<td align="right">10</td>
+<td align="right">2</td>
+</tr>
+</tbody>
+</table>
 <p>The <code>delta</code> column shows that
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y = 0</annotation></semantics></math>
 is left-censored
@@ -202,13 +242,59 @@ and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Equivalent to brs_check - delta inferred from y</span></span>
 <span><span class="va">d1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      left   right      yt  y delta           x1</span></span>
-<span><span class="co">#&gt; 1 0.00001 0.05000 0.00001  0     1 -1.400043517</span></span>
-<span><span class="co">#&gt; 2 0.25000 0.35000 0.30000  3     3  0.255317055</span></span>
-<span><span class="co">#&gt; 3 0.45000 0.55000 0.50000  5     3 -2.437263611</span></span>
-<span><span class="co">#&gt; 4 0.65000 0.75000 0.70000  7     3 -0.005571287</span></span>
-<span><span class="co">#&gt; 5 0.95000 0.99999 0.99999 10     2  0.621552721</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">left</th>
+<th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
+<th align="right">delta</th>
+<th align="right">x1</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.00</td>
+<td align="right">0.05</td>
+<td align="right">0.0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">-1.4000</td>
+</tr>
+<tr class="even">
+<td align="right">0.25</td>
+<td align="right">0.35</td>
+<td align="right">0.3</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">0.2553</td>
+</tr>
+<tr class="odd">
+<td align="right">0.45</td>
+<td align="right">0.55</td>
+<td align="right">0.5</td>
+<td align="right">5</td>
+<td align="right">3</td>
+<td align="right">-2.4373</td>
+</tr>
+<tr class="even">
+<td align="right">0.65</td>
+<td align="right">0.75</td>
+<td align="right">0.7</td>
+<td align="right">7</td>
+<td align="right">3</td>
+<td align="right">-0.0056</td>
+</tr>
+<tr class="odd">
+<td align="right">0.95</td>
+<td align="right">1.00</td>
+<td align="right">1.0</td>
+<td align="right">10</td>
+<td align="right">2</td>
+<td align="right">0.6216</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="mode-2-score-explicit-censoring-indicator">Mode 2: Score + explicit censoring indicator<a class="anchor" aria-label="anchor" href="#mode-2-score-explicit-censoring-indicator"></a>
@@ -220,12 +306,51 @@ and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <span>  delta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      left   right      yt  y delta         x1</span></span>
-<span><span class="co">#&gt; 1 0.50000 0.50000 0.50000 50     0  1.1484116</span></span>
-<span><span class="co">#&gt; 2 0.00001 0.00500 0.00001  0     1 -1.8218177</span></span>
-<span><span class="co">#&gt; 3 0.98500 0.99999 0.99000 99     2 -0.2473253</span></span>
-<span><span class="co">#&gt; 4 0.49500 0.50500 0.50000 50     3 -0.2441996</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">left</th>
+<th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
+<th align="right">delta</th>
+<th align="right">x1</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.500</td>
+<td align="right">0.500</td>
+<td align="right">0.50</td>
+<td align="right">50</td>
+<td align="right">0</td>
+<td align="right">1.1484</td>
+</tr>
+<tr class="even">
+<td align="right">0.000</td>
+<td align="right">0.005</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">-1.8218</td>
+</tr>
+<tr class="odd">
+<td align="right">0.985</td>
+<td align="right">1.000</td>
+<td align="right">0.99</td>
+<td align="right">99</td>
+<td align="right">2</td>
+<td align="right">-0.2473</td>
+</tr>
+<tr class="even">
+<td align="right">0.495</td>
+<td align="right">0.505</td>
+<td align="right">0.50</td>
+<td align="right">50</td>
+<td align="right">3</td>
+<td align="right">-0.2442</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="mode-3-interval-endpoints-with-na-patterns">Mode 3: Interval endpoints with NA patterns<a class="anchor" aria-label="anchor" href="#mode-3-interval-endpoints-with-na-patterns"></a>
@@ -239,12 +364,51 @@ columns, censoring is inferred from the NA pattern:</p>
 <span>  y     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">50</span><span class="op">)</span>,</span>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    left   right    yt  y delta         x1</span></span>
-<span><span class="co">#&gt; 1 1e-05 0.05000 0.025 NA     1 -0.2827054</span></span>
-<span><span class="co">#&gt; 2 2e-01 0.99999 0.600 NA     2 -0.5536994</span></span>
-<span><span class="co">#&gt; 3 3e-01 0.45000 0.375 NA     3  0.6289820</span></span>
-<span><span class="co">#&gt; 4 5e-01 0.50000 0.500 50     0  2.0650249</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">left</th>
+<th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
+<th align="right">delta</th>
+<th align="right">x1</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0</td>
+<td align="right">0.05</td>
+<td align="right">0.025</td>
+<td align="right">NA</td>
+<td align="right">1</td>
+<td align="right">-0.2827</td>
+</tr>
+<tr class="even">
+<td align="right">0.2</td>
+<td align="right">1.00</td>
+<td align="right">0.600</td>
+<td align="right">NA</td>
+<td align="right">2</td>
+<td align="right">-0.5537</td>
+</tr>
+<tr class="odd">
+<td align="right">0.3</td>
+<td align="right">0.45</td>
+<td align="right">0.375</td>
+<td align="right">NA</td>
+<td align="right">3</td>
+<td align="right">0.6290</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">0.50</td>
+<td align="right">0.500</td>
+<td align="right">50</td>
+<td align="right">0</td>
+<td align="right">2.0650</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="mode-4-analyst-supplied-intervals">Mode 4: Analyst-supplied intervals<a class="anchor" aria-label="anchor" href="#mode-4-analyst-supplied-intervals"></a>
@@ -260,10 +424,35 @@ columns, censoring is inferred from the NA pattern:</p>
 <span>  right <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">52</span>, <span class="fl">77</span><span class="op">)</span>,</span>
 <span>  x1    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d4</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   left right   yt  y delta         x1</span></span>
-<span><span class="co">#&gt; 1 0.48  0.52 0.50 50     3 -1.6309894</span></span>
-<span><span class="co">#&gt; 2 0.73  0.77 0.75 75     3  0.5124269</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d4</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">left</th>
+<th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
+<th align="right">delta</th>
+<th align="right">x1</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.48</td>
+<td align="right">0.52</td>
+<td align="right">0.50</td>
+<td align="right">50</td>
+<td align="right">3</td>
+<td align="right">-1.6310</td>
+</tr>
+<tr class="even">
+<td align="right">0.73</td>
+<td align="right">0.77</td>
+<td align="right">0.75</td>
+<td align="right">75</td>
+<td align="right">3</td>
+<td align="right">0.5124</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="using-brs_prep-with-brs">Using brs_prep with <code>brs()</code><a class="anchor" aria-label="anchor" href="#using-brs_prep-with-brs"></a>
@@ -286,7 +475,7 @@ skipped:</p>
 <span>  data <span class="op">=</span> <span class="va">prep</span>, repar <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  link <span class="op">=</span> <span class="st">"logit"</span>, link_phi <span class="op">=</span> <span class="st">"logit"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_prep</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_prep</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; brs(formula = y ~ x1 + x2, data = prep, link = "logit", link_phi = "logit", </span></span>
@@ -294,7 +483,7 @@ skipped:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.9434 -0.5715  0.2788  0.6560  1.3786 </span></span>
+<span><span class="co">#&gt; -3.6892 -0.5626  0.3367  0.7101  2.4038 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error  z value Pr(&gt;|z|)    </span></span>
@@ -340,19 +529,97 @@ dispersion, two covariates, and logit link for the mean.</p>
 <span>  repar    <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_fixed</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      left right      yt  y delta          x1         x2</span></span>
-<span><span class="co">#&gt; 1 0.16500 0.175 0.17000 17     3  1.95102377  0.2888356</span></span>
-<span><span class="co">#&gt; 2 0.98500 0.995 0.99000 99     3  0.77253858  1.6102584</span></span>
-<span><span class="co">#&gt; 3 0.00001 0.005 0.00001  0     1  0.72640816  1.0542434</span></span>
-<span><span class="co">#&gt; 4 0.57500 0.585 0.58000 58     3  0.04873961 -0.4923176</span></span>
-<span><span class="co">#&gt; 5 0.09500 0.105 0.10000 10     3 -0.54450108 -1.4098059</span></span>
-<span><span class="co">#&gt; 6 0.06500 0.075 0.07000  7     3  0.36002855 -1.0115571</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_fixed</span>, <span class="fl">8</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">left</th>
+<th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
+<th align="right">delta</th>
+<th align="right">x1</th>
+<th align="right">x2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.165</td>
+<td align="right">0.175</td>
+<td align="right">0.17</td>
+<td align="right">17</td>
+<td align="right">3</td>
+<td align="right">1.9510</td>
+<td align="right">0.2888</td>
+</tr>
+<tr class="even">
+<td align="right">0.985</td>
+<td align="right">0.995</td>
+<td align="right">0.99</td>
+<td align="right">99</td>
+<td align="right">3</td>
+<td align="right">0.7725</td>
+<td align="right">1.6103</td>
+</tr>
+<tr class="odd">
+<td align="right">0.000</td>
+<td align="right">0.005</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.7264</td>
+<td align="right">1.0542</td>
+</tr>
+<tr class="even">
+<td align="right">0.575</td>
+<td align="right">0.585</td>
+<td align="right">0.58</td>
+<td align="right">58</td>
+<td align="right">3</td>
+<td align="right">0.0487</td>
+<td align="right">-0.4923</td>
+</tr>
+<tr class="odd">
+<td align="right">0.095</td>
+<td align="right">0.105</td>
+<td align="right">0.10</td>
+<td align="right">10</td>
+<td align="right">3</td>
+<td align="right">-0.5445</td>
+<td align="right">-1.4098</td>
+</tr>
+<tr class="even">
+<td align="right">0.065</td>
+<td align="right">0.075</td>
+<td align="right">0.07</td>
+<td align="right">7</td>
+<td align="right">3</td>
+<td align="right">0.3600</td>
+<td align="right">-1.0116</td>
+</tr>
+<tr class="odd">
+<td align="right">0.025</td>
+<td align="right">0.035</td>
+<td align="right">0.03</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">0.7136</td>
+<td align="right">2.3083</td>
+</tr>
+<tr class="even">
+<td align="right">0.355</td>
+<td align="right">0.365</td>
+<td align="right">0.36</td>
+<td align="right">36</td>
+<td align="right">3</td>
+<td align="right">-0.7274</td>
+<td align="right">0.2061</td>
+</tr>
+</tbody>
+</table>
 <p>Each observation is centered in its interval. For example, a score of
 67 on a 0–100 scale yields
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mn>0.67</mn></mrow><annotation encoding="application/x-tex">y_t = 0.67</annotation></semantics></math>
 with interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.665</mn><mo>,</mo><mn>0.675</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.665, 0.675]</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.665</mn><mo>,</mo><mn>0.675</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.665, 0.675]</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="fitting-the-model">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model"></a>
@@ -373,7 +640,7 @@ with interval
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.4331 -0.6619  0.0070  0.7339  3.0637 </span></span>
+<span><span class="co">#&gt; -3.0753 -0.6600  0.0058  0.7071  3.3708 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
@@ -391,7 +658,7 @@ with interval
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -4035.2262 on 4 Df</span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.2393 </span></span>
-<span><span class="co">#&gt; Number of iterations: 41 (BFGS) </span></span>
+<span><span class="co">#&gt; Number of iterations: 39 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 809 interval | 65 left | 126 right</span></span></code></pre></div>
 <p>The summary output follows the <code>betareg</code> package style,
 showing separate coefficient tables for the mean and precision
@@ -403,9 +670,21 @@ based on the standard normal distribution.</p>
 <h3 id="goodness-of-fit">Goodness of fit<a class="anchor" aria-label="anchor" href="#goodness-of-fit"></a>
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_gof.html">brs_gof</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      logLik      AIC      BIC pseudo_r2</span></span>
-<span><span class="co">#&gt; 1 -4035.226 8078.452 8098.083  0.239315</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_gof.html">brs_gof</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">logLik</th>
+<th align="right">AIC</th>
+<th align="right">BIC</th>
+<th align="right">pseudo_r2</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="right">-4035.226</td>
+<td align="right">8078.452</td>
+<td align="right">8098.083</td>
+<td align="right">0.2393</td>
+</tr></tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="comparing-link-functions">Comparing link functions<a class="anchor" aria-label="anchor" href="#comparing-link-functions"></a>
@@ -424,111 +703,429 @@ can compare them using information criteria:</p>
 <span>  <span class="va">e</span><span class="op">$</span><span class="va">link</span> <span class="op">&lt;-</span> <span class="va">lnk</span></span>
 <span>  <span class="va">e</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">est_table</span></span>
-<span><span class="co">#&gt;       variable   estimate         se    z_value      p_value    ci_lower</span></span>
-<span><span class="co">#&gt; 1  (Intercept)  0.3060440 0.04312435   7.096780 1.276975e-12  0.22152185</span></span>
-<span><span class="co">#&gt; 2           x1 -0.6033155 0.04530453 -13.316890 1.846401e-40 -0.69211076</span></span>
-<span><span class="co">#&gt; 3           x2  0.4413494 0.04384507  10.066111 7.800146e-24  0.35541462</span></span>
-<span><span class="co">#&gt; 4        (phi)  0.1099131 0.04056639   2.709462 6.739236e-03  0.03040444</span></span>
-<span><span class="co">#&gt; 5  (Intercept)  0.1865515 0.02619220   7.122409 1.060567e-12  0.13521578</span></span>
-<span><span class="co">#&gt; 6           x1 -0.3652474 0.02663952 -13.710732 8.757018e-43 -0.41745989</span></span>
-<span><span class="co">#&gt; 7           x2  0.2668812 0.02611963  10.217650 1.652993e-24  0.21568767</span></span>
-<span><span class="co">#&gt; 8        (phi)  0.1118450 0.04051860   2.760338 5.774158e-03  0.03243004</span></span>
-<span><span class="co">#&gt; 9  (Intercept)  0.2765516 0.04086691   6.767127 1.313647e-11  0.19645391</span></span>
-<span><span class="co">#&gt; 10          x1 -0.5595132 0.04925737 -11.358973 6.692672e-30 -0.65605587</span></span>
-<span><span class="co">#&gt; 11          x2  0.4092917 0.04464584   9.167523 4.840115e-20  0.32178751</span></span>
-<span><span class="co">#&gt; 12       (phi)  0.1098256 0.04056937   2.707105 6.787279e-03  0.03031104</span></span>
-<span><span class="co">#&gt; 13 (Intercept) -0.1949445 0.02881644  -6.765044 1.332689e-11 -0.25142368</span></span>
-<span><span class="co">#&gt; 14          x1 -0.3814461 0.02769930 -13.770966 3.810822e-43 -0.43573575</span></span>
-<span><span class="co">#&gt; 15          x2  0.2779569 0.02703699  10.280617 8.617392e-25  0.22496541</span></span>
-<span><span class="co">#&gt; 16       (phi)  0.1203423 0.04032397   2.984386 2.841477e-03  0.04130877</span></span>
-<span><span class="co">#&gt;      ci_upper    link</span></span>
-<span><span class="co">#&gt; 1   0.3905662   logit</span></span>
-<span><span class="co">#&gt; 2  -0.5145202   logit</span></span>
-<span><span class="co">#&gt; 3   0.5272842   logit</span></span>
-<span><span class="co">#&gt; 4   0.1894218   logit</span></span>
-<span><span class="co">#&gt; 5   0.2378873  probit</span></span>
-<span><span class="co">#&gt; 6  -0.3130349  probit</span></span>
-<span><span class="co">#&gt; 7   0.3180747  probit</span></span>
-<span><span class="co">#&gt; 8   0.1912600  probit</span></span>
-<span><span class="co">#&gt; 9   0.3566493 cauchit</span></span>
-<span><span class="co">#&gt; 10 -0.4629705 cauchit</span></span>
-<span><span class="co">#&gt; 11  0.4967960 cauchit</span></span>
-<span><span class="co">#&gt; 12  0.1893401 cauchit</span></span>
-<span><span class="co">#&gt; 13 -0.1384653 cloglog</span></span>
-<span><span class="co">#&gt; 14 -0.3271565 cloglog</span></span>
-<span><span class="co">#&gt; 15  0.3309485 cloglog</span></span>
-<span><span class="co">#&gt; 16  0.1993758 cloglog</span></span>
-<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">est_table</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="16%">
+<col width="12%">
+<col width="9%">
+<col width="12%">
+<col width="11%">
+<col width="12%">
+<col width="12%">
+<col width="11%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">variable</th>
+<th align="right">estimate</th>
+<th align="right">se</th>
+<th align="right">z_value</th>
+<th align="right">p_value</th>
+<th align="right">ci_lower</th>
+<th align="right">ci_upper</th>
+<th align="left">link</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.3060</td>
+<td align="right">0.0431</td>
+<td align="right">7.0968</td>
+<td align="right">0.0000</td>
+<td align="right">0.2215</td>
+<td align="right">0.3906</td>
+<td align="left">logit</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.6033</td>
+<td align="right">0.0453</td>
+<td align="right">-13.3169</td>
+<td align="right">0.0000</td>
+<td align="right">-0.6921</td>
+<td align="right">-0.5145</td>
+<td align="left">logit</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.4413</td>
+<td align="right">0.0438</td>
+<td align="right">10.0661</td>
+<td align="right">0.0000</td>
+<td align="right">0.3554</td>
+<td align="right">0.5273</td>
+<td align="left">logit</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)</td>
+<td align="right">0.1099</td>
+<td align="right">0.0406</td>
+<td align="right">2.7095</td>
+<td align="right">0.0067</td>
+<td align="right">0.0304</td>
+<td align="right">0.1894</td>
+<td align="left">logit</td>
+</tr>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.1866</td>
+<td align="right">0.0262</td>
+<td align="right">7.1224</td>
+<td align="right">0.0000</td>
+<td align="right">0.1352</td>
+<td align="right">0.2379</td>
+<td align="left">probit</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.3652</td>
+<td align="right">0.0266</td>
+<td align="right">-13.7107</td>
+<td align="right">0.0000</td>
+<td align="right">-0.4175</td>
+<td align="right">-0.3130</td>
+<td align="left">probit</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.2669</td>
+<td align="right">0.0261</td>
+<td align="right">10.2177</td>
+<td align="right">0.0000</td>
+<td align="right">0.2157</td>
+<td align="right">0.3181</td>
+<td align="left">probit</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)</td>
+<td align="right">0.1118</td>
+<td align="right">0.0405</td>
+<td align="right">2.7603</td>
+<td align="right">0.0058</td>
+<td align="right">0.0324</td>
+<td align="right">0.1913</td>
+<td align="left">probit</td>
+</tr>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.2766</td>
+<td align="right">0.0409</td>
+<td align="right">6.7671</td>
+<td align="right">0.0000</td>
+<td align="right">0.1965</td>
+<td align="right">0.3566</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.5595</td>
+<td align="right">0.0493</td>
+<td align="right">-11.3590</td>
+<td align="right">0.0000</td>
+<td align="right">-0.6561</td>
+<td align="right">-0.4630</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.4093</td>
+<td align="right">0.0446</td>
+<td align="right">9.1675</td>
+<td align="right">0.0000</td>
+<td align="right">0.3218</td>
+<td align="right">0.4968</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)</td>
+<td align="right">0.1098</td>
+<td align="right">0.0406</td>
+<td align="right">2.7071</td>
+<td align="right">0.0068</td>
+<td align="right">0.0303</td>
+<td align="right">0.1893</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">-0.1949</td>
+<td align="right">0.0288</td>
+<td align="right">-6.7650</td>
+<td align="right">0.0000</td>
+<td align="right">-0.2514</td>
+<td align="right">-0.1385</td>
+<td align="left">cloglog</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.3814</td>
+<td align="right">0.0277</td>
+<td align="right">-13.7710</td>
+<td align="right">0.0000</td>
+<td align="right">-0.4357</td>
+<td align="right">-0.3272</td>
+<td align="left">cloglog</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.2780</td>
+<td align="right">0.0270</td>
+<td align="right">10.2806</td>
+<td align="right">0.0000</td>
+<td align="right">0.2250</td>
+<td align="right">0.3309</td>
+<td align="left">cloglog</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)</td>
+<td align="right">0.1203</td>
+<td align="right">0.0403</td>
+<td align="right">2.9844</td>
+<td align="right">0.0028</td>
+<td align="right">0.0413</td>
+<td align="right">0.1994</td>
+<td align="left">cloglog</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">gof_table</span></span>
-<span><span class="co">#&gt;            logLik      AIC      BIC pseudo_r2</span></span>
-<span><span class="co">#&gt; logit   -4035.226 8078.452 8098.083 0.2393150</span></span>
-<span><span class="co">#&gt; probit  -4035.685 8079.370 8099.001 0.2382638</span></span>
-<span><span class="co">#&gt; cauchit -4035.500 8079.000 8098.631 0.1918217</span></span>
-<span><span class="co">#&gt; cloglog -4037.563 8083.126 8102.757 0.1823572</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">gof_table</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">logLik</th>
+<th align="right">AIC</th>
+<th align="right">BIC</th>
+<th align="right">pseudo_r2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">logit</td>
+<td align="right">-4035.226</td>
+<td align="right">8078.452</td>
+<td align="right">8098.083</td>
+<td align="right">0.2393</td>
+</tr>
+<tr class="even">
+<td align="left">probit</td>
+<td align="right">-4035.685</td>
+<td align="right">8079.370</td>
+<td align="right">8099.001</td>
+<td align="right">0.2383</td>
+</tr>
+<tr class="odd">
+<td align="left">cauchit</td>
+<td align="right">-4035.500</td>
+<td align="right">8079.000</td>
+<td align="right">8098.631</td>
+<td align="right">0.1918</td>
+</tr>
+<tr class="even">
+<td align="left">cloglog</td>
+<td align="right">-4037.563</td>
+<td align="right">8083.126</td>
+<td align="right">8102.757</td>
+<td align="right">0.1824</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="residual-diagnostics">Residual diagnostics<a class="anchor" aria-label="anchor" href="#residual-diagnostics"></a>
 </h3>
 <p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method provides six diagnostic panels. By
 default, the first four are shown:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/plot-fixed-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <p>For ggplot2 output (requires the <strong>ggplot2</strong>
 package):</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="brs-intro_files/figure-html/plot-fixed-gg-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="brs-intro_files/figure-html/plot-fixed-gg-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"><img src="brs-intro_files/figure-html/plot-fixed-gg-2.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"><img src="brs-intro_files/figure-html/plot-fixed-gg-3.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"><img src="brs-intro_files/figure-html/plot-fixed-gg-4.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fitted means</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.3222258 0.6342855 0.5825087 0.5148343 0.5030832 0.4115366</span></span>
-<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>mu_hat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">mu_hat</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.3222</td>
+</tr>
+<tr class="even">
+<td align="right">0.6343</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5825</td>
+</tr>
+<tr class="even">
+<td align="right">0.5148</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5031</td>
+</tr>
+<tr class="even">
+<td align="right">0.4115</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Conditional variance</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.1151933 0.1223514 0.1282719 0.1317466 0.1318576 0.1277349</span></span>
-<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>var_hat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">var_hat</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.1152</td>
+</tr>
+<tr class="even">
+<td align="right">0.1224</td>
+</tr>
+<tr class="odd">
+<td align="right">0.1283</td>
+</tr>
+<tr class="even">
+<td align="right">0.1317</td>
+</tr>
+<tr class="odd">
+<td align="right">0.1319</td>
+</tr>
+<tr class="even">
+<td align="right">0.1277</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Quantile predictions</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          q_0.25     q_0.5    q_0.75</span></span>
-<span><span class="co">#&gt; [1,] 0.01699962 0.1779476 0.6024063</span></span>
-<span><span class="co">#&gt; [2,] 0.31481409 0.7508330 0.9674995</span></span>
-<span><span class="co">#&gt; [3,] 0.23110586 0.6578331 0.9397720</span></span>
-<span><span class="co">#&gt; [4,] 0.14442537 0.5287586 0.8860292</span></span>
-<span><span class="co">#&gt; [5,] 0.13183539 0.5059798 0.8744926</span></span>
-<span><span class="co">#&gt; [6,] 0.05648038 0.3311318 0.7600606</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">q_0.25</th>
+<th align="right">q_0.5</th>
+<th align="right">q_0.75</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.0170</td>
+<td align="right">0.1779</td>
+<td align="right">0.6024</td>
+</tr>
+<tr class="even">
+<td align="right">0.3148</td>
+<td align="right">0.7508</td>
+<td align="right">0.9675</td>
+</tr>
+<tr class="odd">
+<td align="right">0.2311</td>
+<td align="right">0.6578</td>
+<td align="right">0.9398</td>
+</tr>
+<tr class="even">
+<td align="right">0.1444</td>
+<td align="right">0.5288</td>
+<td align="right">0.8860</td>
+</tr>
+<tr class="odd">
+<td align="right">0.1318</td>
+<td align="right">0.5060</td>
+<td align="right">0.8745</td>
+</tr>
+<tr class="even">
+<td align="right">0.0565</td>
+<td align="right">0.3311</td>
+<td align="right">0.7601</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="confidence-intervals">Confidence intervals<a class="anchor" aria-label="anchor" href="#confidence-intervals"></a>
 </h3>
 <p>Wald confidence intervals based on the asymptotic normal
 approximation:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                   2.5 %     97.5 %</span></span>
-<span><span class="co">#&gt; (Intercept)  0.22152185  0.3905662</span></span>
-<span><span class="co">#&gt; x1          -0.69211076 -0.5145202</span></span>
-<span><span class="co">#&gt; x2           0.35541462  0.5272842</span></span>
-<span><span class="co">#&gt; (phi)        0.03040444  0.1894218</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                  2.5 %     97.5 %</span></span>
-<span><span class="co">#&gt; (Intercept)  0.2215218  0.3905662</span></span>
-<span><span class="co">#&gt; x1          -0.6921108 -0.5145202</span></span>
-<span><span class="co">#&gt; x2           0.3554146  0.5272842</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">2.5 %</th>
+<th align="right">97.5 %</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.2215</td>
+<td align="right">0.3906</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.6921</td>
+<td align="right">-0.5145</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.3554</td>
+<td align="right">0.5273</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)</td>
+<td align="right">0.0304</td>
+<td align="right">0.1894</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">2.5 %</th>
+<th align="right">97.5 %</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.2215</td>
+<td align="right">0.3906</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.6921</td>
+<td align="right">-0.5145</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.3554</td>
+<td align="right">0.5273</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="censoring-structure">Censoring structure<a class="anchor" aria-label="anchor" href="#censoring-structure"></a>
 </h3>
 <p>The <code><a href="../reference/brs_cens.html">brs_cens()</a></code> function provides a visual and tabular
 overview of the censoring types in the fitted model:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_cens.html">brs_cens</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
@@ -549,7 +1146,7 @@ simulation.</p>
 <div class="section level3">
 <h3 id="simulating-data-1">Simulating data<a class="anchor" aria-label="anchor" href="#simulating-data-1"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2222</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">dat_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -571,26 +1168,100 @@ simulation.</p>
 <span>  repar <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_var</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      left right      yt  y delta         x1         x2 x3          z1</span></span>
-<span><span class="co">#&gt; 1 0.26500 0.275 0.27000 27     3 -0.3380621 -0.8235432  0  0.03062031</span></span>
-<span><span class="co">#&gt; 2 0.17500 0.185 0.18000 18     3  0.9391643 -1.7562699  0  0.19384974</span></span>
-<span><span class="co">#&gt; 3 0.00001 0.005 0.00001  0     1  1.7377190 -1.3148242  1 -0.42828641</span></span>
-<span><span class="co">#&gt; 4 0.52500 0.535 0.53000 53     3  0.6963261 -0.8195514  0  0.36942900</span></span>
-<span><span class="co">#&gt; 5 0.08500 0.095 0.09000  9     3  0.4622959 -0.1182560  1  0.05528553</span></span>
-<span><span class="co">#&gt; 6 0.95500 0.965 0.96000 96     3 -0.3150868 -0.0648210  1  0.71694347</span></span>
-<span><span class="co">#&gt;           z2</span></span>
-<span><span class="co">#&gt; 1 -1.1221809</span></span>
-<span><span class="co">#&gt; 2 -0.2890842</span></span>
-<span><span class="co">#&gt; 3  0.3479434</span></span>
-<span><span class="co">#&gt; 4  0.2811058</span></span>
-<span><span class="co">#&gt; 5 -1.2184445</span></span>
-<span><span class="co">#&gt; 6 -0.5612588</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim_var</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">left</th>
+<th align="right">right</th>
+<th align="right">yt</th>
+<th align="right">y</th>
+<th align="right">delta</th>
+<th align="right">x1</th>
+<th align="right">x2</th>
+<th align="right">x3</th>
+<th align="right">z1</th>
+<th align="right">z2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.265</td>
+<td align="right">0.275</td>
+<td align="right">0.27</td>
+<td align="right">27</td>
+<td align="right">3</td>
+<td align="right">-0.3381</td>
+<td align="right">-0.8235</td>
+<td align="right">0</td>
+<td align="right">0.0306</td>
+<td align="right">-1.1222</td>
+</tr>
+<tr class="even">
+<td align="right">0.175</td>
+<td align="right">0.185</td>
+<td align="right">0.18</td>
+<td align="right">18</td>
+<td align="right">3</td>
+<td align="right">0.9392</td>
+<td align="right">-1.7563</td>
+<td align="right">0</td>
+<td align="right">0.1938</td>
+<td align="right">-0.2891</td>
+</tr>
+<tr class="odd">
+<td align="right">0.000</td>
+<td align="right">0.005</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1.7377</td>
+<td align="right">-1.3148</td>
+<td align="right">1</td>
+<td align="right">-0.4283</td>
+<td align="right">0.3479</td>
+</tr>
+<tr class="even">
+<td align="right">0.525</td>
+<td align="right">0.535</td>
+<td align="right">0.53</td>
+<td align="right">53</td>
+<td align="right">3</td>
+<td align="right">0.6963</td>
+<td align="right">-0.8196</td>
+<td align="right">0</td>
+<td align="right">0.3694</td>
+<td align="right">0.2811</td>
+</tr>
+<tr class="odd">
+<td align="right">0.085</td>
+<td align="right">0.095</td>
+<td align="right">0.09</td>
+<td align="right">9</td>
+<td align="right">3</td>
+<td align="right">0.4623</td>
+<td align="right">-0.1183</td>
+<td align="right">1</td>
+<td align="right">0.0553</td>
+<td align="right">-1.2184</td>
+</tr>
+<tr class="even">
+<td align="right">0.955</td>
+<td align="right">0.965</td>
+<td align="right">0.96</td>
+<td align="right">96</td>
+<td align="right">3</td>
+<td align="right">-0.3151</td>
+<td align="right">-0.0648</td>
+<td align="right">1</td>
+<td align="right">0.7169</td>
+<td align="right">-0.5613</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="fitting-the-model-1">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model-1"></a>
 </h3>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>  data     <span class="op">=</span> <span class="va">sim_var</span>,</span>
@@ -606,7 +1277,7 @@ simulation.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -4.4614 -0.6362  0.0056  0.6578  3.4202 </span></span>
+<span><span class="co">#&gt; -3.6111 -0.6344  0.0131  0.6654  3.2463 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
@@ -625,7 +1296,7 @@ simulation.</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -3922.2430 on 5 Df</span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.1159 </span></span>
-<span><span class="co">#&gt; Number of iterations: 43 (BFGS) </span></span>
+<span><span class="co">#&gt; Number of iterations: 42 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 744 interval | 105 left | 151 right</span></span></code></pre></div>
 <p>Notice the <code>(phi)_</code> prefix in the precision coefficient
 names, following the <code>betareg</code> convention.</p>
@@ -633,35 +1304,59 @@ names, following the <code>betareg</code> convention.</p>
 <div class="section level3">
 <h3 id="accessing-coefficients-by-submodel">Accessing coefficients by submodel<a class="anchor" aria-label="anchor" href="#accessing-coefficients-by-submodel"></a>
 </h3>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Full parameter vector</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       (Intercept)                x1                x2 (phi)_(Intercept) </span></span>
-<span><span class="co">#&gt;         0.2714053        -0.5455337         0.1722582         0.2465266 </span></span>
+<span><span class="co">#&gt;            0.2714           -0.5455            0.1723            0.2465 </span></span>
 <span><span class="co">#&gt;          (phi)_z1 </span></span>
-<span><span class="co">#&gt;        -0.7223034</span></span>
+<span><span class="co">#&gt;           -0.7223</span></span>
 <span></span>
 <span><span class="co"># Mean submodel only</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; (Intercept)          x1          x2 </span></span>
-<span><span class="co">#&gt;   0.2714053  -0.5455337   0.1722582</span></span>
+<span><span class="co">#&gt;      0.2714     -0.5455      0.1723</span></span>
 <span></span>
 <span><span class="co"># Precision submodel only</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; (phi)_(Intercept)          (phi)_z1 </span></span>
-<span><span class="co">#&gt;         0.2465266        -0.7223034</span></span>
+<span><span class="co">#&gt;            0.2465           -0.7223</span></span>
 <span></span>
 <span><span class="co"># Variance-covariance matrix for the mean submodel</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;               (Intercept)            x1           x2</span></span>
-<span><span class="co">#&gt; (Intercept)  1.801851e-03 -7.620050e-05 4.312471e-05</span></span>
-<span><span class="co">#&gt; x1          -7.620050e-05  1.914399e-03 2.137302e-05</span></span>
-<span><span class="co">#&gt; x2           4.312471e-05  2.137302e-05 1.714705e-03</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">(Intercept)</th>
+<th align="right">x1</th>
+<th align="right">x2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.0018</td>
+<td align="right">-0.0001</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.0001</td>
+<td align="right">0.0019</td>
+<td align="right">0.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.0000</td>
+<td align="right">0.0000</td>
+<td align="right">0.0017</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="comparing-link-functions-variable-dispersion">Comparing link functions (variable dispersion)<a class="anchor" aria-label="anchor" href="#comparing-link-functions-variable-dispersion"></a>
 </h3>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"probit"</span>, <span class="st">"cauchit"</span>, <span class="st">"cloglog"</span><span class="op">)</span></span>
 <span><span class="va">fits_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">links</span>, <span class="va">links</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim_var</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -673,65 +1368,605 @@ names, following the <code>betareg</code> convention.</p>
 <span>  <span class="va">e</span><span class="op">$</span><span class="va">link</span> <span class="op">&lt;-</span> <span class="va">lnk</span></span>
 <span>  <span class="va">e</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">est_var</span></span>
-<span><span class="co">#&gt;             variable   estimate         se    z_value      p_value    ci_lower</span></span>
-<span><span class="co">#&gt; 1        (Intercept)  0.2714053 0.04244822   6.393797 1.618164e-10  0.18820830</span></span>
-<span><span class="co">#&gt; 2                 x1 -0.5455337 0.04375384 -12.468246 1.112473e-35 -0.63128964</span></span>
-<span><span class="co">#&gt; 3                 x2  0.1722582 0.04140899   4.159922 3.183566e-05  0.09109804</span></span>
-<span><span class="co">#&gt; 4  (phi)_(Intercept)  0.2465266 0.04233361   5.823424 5.765395e-09  0.16355421</span></span>
-<span><span class="co">#&gt; 5           (phi)_z1 -0.7223034 0.04506591 -16.027712 8.184121e-58 -0.81063101</span></span>
-<span><span class="co">#&gt; 6        (Intercept)  0.1675402 0.02604987   6.431519 1.263347e-10  0.11648343</span></span>
-<span><span class="co">#&gt; 7                 x1 -0.3351860 0.02618407 -12.801144 1.615537e-37 -0.38650588</span></span>
-<span><span class="co">#&gt; 8                 x2  0.1056477 0.02529232   4.177066 2.952933e-05  0.05607565</span></span>
-<span><span class="co">#&gt; 9  (phi)_(Intercept)  0.2467114 0.04232425   5.829080 5.573390e-09  0.16375741</span></span>
-<span><span class="co">#&gt; 10          (phi)_z1 -0.7228855 0.04508355 -16.034353 7.354593e-58 -0.81124759</span></span>
-<span><span class="co">#&gt; 11       (Intercept)  0.2313768 0.03790774   6.103682 1.036527e-09  0.15707897</span></span>
-<span><span class="co">#&gt; 12                x1 -0.4748684 0.04383936 -10.832010 2.427666e-27 -0.56079196</span></span>
-<span><span class="co">#&gt; 13                x2  0.1487280 0.03733542   3.983564 6.788944e-05  0.07555194</span></span>
-<span><span class="co">#&gt; 14 (phi)_(Intercept)  0.2487158 0.04230585   5.878993 4.127706e-09  0.16579786</span></span>
-<span><span class="co">#&gt; 15          (phi)_z1 -0.7182945 0.04497995 -15.969214 2.094066e-57 -0.80645362</span></span>
-<span><span class="co">#&gt; 16       (Intercept) -0.2030447 0.02869977  -7.074785 1.496804e-12 -0.25929521</span></span>
-<span><span class="co">#&gt; 17                x1 -0.3596966 0.02798194 -12.854597 8.104674e-38 -0.41454021</span></span>
-<span><span class="co">#&gt; 18                x2  0.1150788 0.02705914   4.252863 2.110551e-05  0.06204385</span></span>
-<span><span class="co">#&gt; 19 (phi)_(Intercept)  0.2490380 0.04225119   5.894224 3.764455e-09  0.16622720</span></span>
-<span><span class="co">#&gt; 20          (phi)_z1 -0.7243353 0.04514341 -16.045206 6.175330e-58 -0.81281476</span></span>
-<span><span class="co">#&gt;      ci_upper    link</span></span>
-<span><span class="co">#&gt; 1   0.3546023   logit</span></span>
-<span><span class="co">#&gt; 2  -0.4597777   logit</span></span>
-<span><span class="co">#&gt; 3   0.2534183   logit</span></span>
-<span><span class="co">#&gt; 4   0.3294989   logit</span></span>
-<span><span class="co">#&gt; 5  -0.6339759   logit</span></span>
-<span><span class="co">#&gt; 6   0.2185970  probit</span></span>
-<span><span class="co">#&gt; 7  -0.2838662  probit</span></span>
-<span><span class="co">#&gt; 8   0.1552197  probit</span></span>
-<span><span class="co">#&gt; 9   0.3296654  probit</span></span>
-<span><span class="co">#&gt; 10 -0.6345233  probit</span></span>
-<span><span class="co">#&gt; 11  0.3056746 cauchit</span></span>
-<span><span class="co">#&gt; 12 -0.3889448 cauchit</span></span>
-<span><span class="co">#&gt; 13  0.2219041 cauchit</span></span>
-<span><span class="co">#&gt; 14  0.3316338 cauchit</span></span>
-<span><span class="co">#&gt; 15 -0.6301354 cauchit</span></span>
-<span><span class="co">#&gt; 16 -0.1467942 cloglog</span></span>
-<span><span class="co">#&gt; 17 -0.3048530 cloglog</span></span>
-<span><span class="co">#&gt; 18  0.1681137 cloglog</span></span>
-<span><span class="co">#&gt; 19  0.3318488 cloglog</span></span>
-<span><span class="co">#&gt; 20 -0.6358558 cloglog</span></span>
-<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">est_var</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="23%">
+<col width="11%">
+<col width="9%">
+<col width="11%">
+<col width="10%">
+<col width="11%">
+<col width="11%">
+<col width="10%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">variable</th>
+<th align="right">estimate</th>
+<th align="right">se</th>
+<th align="right">z_value</th>
+<th align="right">p_value</th>
+<th align="right">ci_lower</th>
+<th align="right">ci_upper</th>
+<th align="left">link</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.2714</td>
+<td align="right">0.0424</td>
+<td align="right">6.3938</td>
+<td align="right">0e+00</td>
+<td align="right">0.1882</td>
+<td align="right">0.3546</td>
+<td align="left">logit</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.5455</td>
+<td align="right">0.0438</td>
+<td align="right">-12.4682</td>
+<td align="right">0e+00</td>
+<td align="right">-0.6313</td>
+<td align="right">-0.4598</td>
+<td align="left">logit</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.1723</td>
+<td align="right">0.0414</td>
+<td align="right">4.1599</td>
+<td align="right">0e+00</td>
+<td align="right">0.0911</td>
+<td align="right">0.2534</td>
+<td align="left">logit</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)_(Intercept)</td>
+<td align="right">0.2465</td>
+<td align="right">0.0423</td>
+<td align="right">5.8234</td>
+<td align="right">0e+00</td>
+<td align="right">0.1636</td>
+<td align="right">0.3295</td>
+<td align="left">logit</td>
+</tr>
+<tr class="odd">
+<td align="left">(phi)_z1</td>
+<td align="right">-0.7223</td>
+<td align="right">0.0451</td>
+<td align="right">-16.0277</td>
+<td align="right">0e+00</td>
+<td align="right">-0.8106</td>
+<td align="right">-0.6340</td>
+<td align="left">logit</td>
+</tr>
+<tr class="even">
+<td align="left">(Intercept)</td>
+<td align="right">0.1675</td>
+<td align="right">0.0260</td>
+<td align="right">6.4315</td>
+<td align="right">0e+00</td>
+<td align="right">0.1165</td>
+<td align="right">0.2186</td>
+<td align="left">probit</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">-0.3352</td>
+<td align="right">0.0262</td>
+<td align="right">-12.8011</td>
+<td align="right">0e+00</td>
+<td align="right">-0.3865</td>
+<td align="right">-0.2839</td>
+<td align="left">probit</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">0.1056</td>
+<td align="right">0.0253</td>
+<td align="right">4.1771</td>
+<td align="right">0e+00</td>
+<td align="right">0.0561</td>
+<td align="right">0.1552</td>
+<td align="left">probit</td>
+</tr>
+<tr class="odd">
+<td align="left">(phi)_(Intercept)</td>
+<td align="right">0.2467</td>
+<td align="right">0.0423</td>
+<td align="right">5.8291</td>
+<td align="right">0e+00</td>
+<td align="right">0.1638</td>
+<td align="right">0.3297</td>
+<td align="left">probit</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)_z1</td>
+<td align="right">-0.7229</td>
+<td align="right">0.0451</td>
+<td align="right">-16.0344</td>
+<td align="right">0e+00</td>
+<td align="right">-0.8112</td>
+<td align="right">-0.6345</td>
+<td align="left">probit</td>
+</tr>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.2314</td>
+<td align="right">0.0379</td>
+<td align="right">6.1037</td>
+<td align="right">0e+00</td>
+<td align="right">0.1571</td>
+<td align="right">0.3057</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.4749</td>
+<td align="right">0.0438</td>
+<td align="right">-10.8320</td>
+<td align="right">0e+00</td>
+<td align="right">-0.5608</td>
+<td align="right">-0.3889</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.1487</td>
+<td align="right">0.0373</td>
+<td align="right">3.9836</td>
+<td align="right">1e-04</td>
+<td align="right">0.0756</td>
+<td align="right">0.2219</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)_(Intercept)</td>
+<td align="right">0.2487</td>
+<td align="right">0.0423</td>
+<td align="right">5.8790</td>
+<td align="right">0e+00</td>
+<td align="right">0.1658</td>
+<td align="right">0.3316</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="odd">
+<td align="left">(phi)_z1</td>
+<td align="right">-0.7183</td>
+<td align="right">0.0450</td>
+<td align="right">-15.9692</td>
+<td align="right">0e+00</td>
+<td align="right">-0.8065</td>
+<td align="right">-0.6301</td>
+<td align="left">cauchit</td>
+</tr>
+<tr class="even">
+<td align="left">(Intercept)</td>
+<td align="right">-0.2030</td>
+<td align="right">0.0287</td>
+<td align="right">-7.0748</td>
+<td align="right">0e+00</td>
+<td align="right">-0.2593</td>
+<td align="right">-0.1468</td>
+<td align="left">cloglog</td>
+</tr>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">-0.3597</td>
+<td align="right">0.0280</td>
+<td align="right">-12.8546</td>
+<td align="right">0e+00</td>
+<td align="right">-0.4145</td>
+<td align="right">-0.3049</td>
+<td align="left">cloglog</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">0.1151</td>
+<td align="right">0.0271</td>
+<td align="right">4.2529</td>
+<td align="right">0e+00</td>
+<td align="right">0.0620</td>
+<td align="right">0.1681</td>
+<td align="left">cloglog</td>
+</tr>
+<tr class="odd">
+<td align="left">(phi)_(Intercept)</td>
+<td align="right">0.2490</td>
+<td align="right">0.0423</td>
+<td align="right">5.8942</td>
+<td align="right">0e+00</td>
+<td align="right">0.1662</td>
+<td align="right">0.3318</td>
+<td align="left">cloglog</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)_z1</td>
+<td align="right">-0.7243</td>
+<td align="right">0.0451</td>
+<td align="right">-16.0452</td>
+<td align="right">0e+00</td>
+<td align="right">-0.8128</td>
+<td align="right">-0.6359</td>
+<td align="left">cloglog</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits_var</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">gof_var</span></span>
-<span><span class="co">#&gt;            logLik      AIC      BIC  pseudo_r2</span></span>
-<span><span class="co">#&gt; logit   -3922.243 7854.486 7879.025 0.11589802</span></span>
-<span><span class="co">#&gt; probit  -3922.227 7854.455 7878.994 0.12161749</span></span>
-<span><span class="co">#&gt; cauchit -3923.161 7856.323 7880.862 0.09022080</span></span>
-<span><span class="co">#&gt; cloglog -3922.296 7854.593 7879.132 0.08976588</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">gof_var</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">logLik</th>
+<th align="right">AIC</th>
+<th align="right">BIC</th>
+<th align="right">pseudo_r2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">logit</td>
+<td align="right">-3922.243</td>
+<td align="right">7854.486</td>
+<td align="right">7879.025</td>
+<td align="right">0.1159</td>
+</tr>
+<tr class="even">
+<td align="left">probit</td>
+<td align="right">-3922.227</td>
+<td align="right">7854.455</td>
+<td align="right">7878.994</td>
+<td align="right">0.1216</td>
+</tr>
+<tr class="odd">
+<td align="left">cauchit</td>
+<td align="right">-3923.161</td>
+<td align="right">7856.323</td>
+<td align="right">7880.862</td>
+<td align="right">0.0902</td>
+</tr>
+<tr class="even">
+<td align="left">cloglog</td>
+<td align="right">-3922.296</td>
+<td align="right">7854.593</td>
+<td align="right">7879.132</td>
+<td align="right">0.0898</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="diagnostics-for-variable-dispersion">Diagnostics for variable dispersion<a class="anchor" aria-label="anchor" href="#diagnostics-for-variable-dispersion"></a>
 </h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/plot-variable-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="advanced-analyst-functions">Advanced analyst functions<a class="anchor" aria-label="anchor" href="#advanced-analyst-functions"></a>
+</h2>
+<p>The package includes analyst-facing helpers for uncertainty
+quantification, effect interpretation, score-scale communication, and
+predictive validation.</p>
+<div class="section level3">
+<h3 id="parametric-bootstrap-confidence-intervals">Parametric bootstrap confidence intervals<a class="anchor" aria-label="anchor" href="#parametric-bootstrap-confidence-intervals"></a>
+</h3>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span>
+<span><span class="va">boot_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_fixed</span>,</span>
+<span>  R <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">boot_ci</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">parameter</th>
+<th align="right">estimate</th>
+<th align="right">se_boot</th>
+<th align="right">ci_lower</th>
+<th align="right">ci_upper</th>
+<th align="right">level</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.3060</td>
+<td align="right">0.0402</td>
+<td align="right">0.2411</td>
+<td align="right">0.4103</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.6033</td>
+<td align="right">0.0412</td>
+<td align="right">-0.6861</td>
+<td align="right">-0.5395</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.4413</td>
+<td align="right">0.0423</td>
+<td align="right">0.3398</td>
+<td align="right">0.4996</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)</td>
+<td align="right">0.1099</td>
+<td align="right">0.0402</td>
+<td align="right">0.0279</td>
+<td align="right">0.1716</td>
+<td align="right">0.95</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="average-marginal-effects-ame">Average marginal effects (AME)<a class="anchor" aria-label="anchor" href="#average-marginal-effects-ame"></a>
+</h3>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">202</span><span class="op">)</span></span>
+<span><span class="va">ame</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_fixed</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"response"</span>,</span>
+<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_sim <span class="op">=</span> <span class="fl">120</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">ame</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="13%">
+<col width="12%">
+<col width="15%">
+<col width="13%">
+<col width="13%">
+<col width="9%">
+<col width="13%">
+<col width="7%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">variable</th>
+<th align="right">ame</th>
+<th align="right">std.error</th>
+<th align="right">ci.lower</th>
+<th align="right">ci.upper</th>
+<th align="left">model</th>
+<th align="left">type</th>
+<th align="right">n</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">-0.1321</td>
+<td align="right">0.0088</td>
+<td align="right">-0.1473</td>
+<td align="right">-0.1123</td>
+<td align="left">mean</td>
+<td align="left">response</td>
+<td align="right">1000</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">0.0966</td>
+<td align="right">0.0096</td>
+<td align="right">0.0759</td>
+<td align="right">0.1130</td>
+<td align="left">mean</td>
+<td align="left">response</td>
+<td align="right">1000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="score-probabilities-on-the-original-scale">Score probabilities on the original scale<a class="anchor" aria-label="anchor" href="#score-probabilities-on-the-original-scale"></a>
+</h3>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">prob_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_fixed</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">prob_scores</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">score_0</th>
+<th align="right">score_1</th>
+<th align="right">score_2</th>
+<th align="right">score_3</th>
+<th align="right">score_4</th>
+<th align="right">score_5</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.1754</td>
+<td align="right">0.0657</td>
+<td align="right">0.0386</td>
+<td align="right">0.0288</td>
+<td align="right">0.0235</td>
+<td align="right">0.0201</td>
+</tr>
+<tr class="even">
+<td align="right">0.0218</td>
+<td align="right">0.0190</td>
+<td align="right">0.0139</td>
+<td align="right">0.0117</td>
+<td align="right">0.0104</td>
+<td align="right">0.0095</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0320</td>
+<td align="right">0.0249</td>
+<td align="right">0.0176</td>
+<td align="right">0.0145</td>
+<td align="right">0.0127</td>
+<td align="right">0.0115</td>
+</tr>
+<tr class="even">
+<td align="right">0.0516</td>
+<td align="right">0.0342</td>
+<td align="right">0.0230</td>
+<td align="right">0.0185</td>
+<td align="right">0.0159</td>
+<td align="right">0.0142</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0559</td>
+<td align="right">0.0360</td>
+<td align="right">0.0240</td>
+<td align="right">0.0192</td>
+<td align="right">0.0165</td>
+<td align="right">0.0146</td>
+</tr>
+<tr class="even">
+<td align="right">0.1016</td>
+<td align="right">0.0509</td>
+<td align="right">0.0318</td>
+<td align="right">0.0246</td>
+<td align="right">0.0206</td>
+<td align="right">0.0180</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>row_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">prob_scores</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">row_sum</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.4263</td>
+</tr>
+<tr class="even">
+<td align="right">0.1260</td>
+</tr>
+<tr class="odd">
+<td align="right">0.1605</td>
+</tr>
+<tr class="even">
+<td align="right">0.2141</td>
+</tr>
+<tr class="odd">
+<td align="right">0.2245</td>
+</tr>
+<tr class="even">
+<td align="right">0.3163</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="repeated-k-fold-cross-validation">Repeated k-fold cross-validation<a class="anchor" aria-label="anchor" href="#repeated-k-fold-cross-validation"></a>
+</h3>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
+<span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">sim_fixed</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  repeats <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  repar <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">303</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cv_res</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="10%">
+<col width="7%">
+<col width="11%">
+<col width="10%">
+<col width="14%">
+<col width="11%">
+<col width="10%">
+<col width="14%">
+<col width="8%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">repeat</th>
+<th align="right">fold</th>
+<th align="right">n_train</th>
+<th align="right">n_test</th>
+<th align="right">log_score</th>
+<th align="right">rmse_yt</th>
+<th align="right">mae_yt</th>
+<th align="left">converged</th>
+<th align="left">error</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">666</td>
+<td align="right">334</td>
+<td align="right">-4.0044</td>
+<td align="right">0.3447</td>
+<td align="right">0.3034</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">667</td>
+<td align="right">333</td>
+<td align="right">-4.0302</td>
+<td align="right">0.3369</td>
+<td align="right">0.2919</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">667</td>
+<td align="right">333</td>
+<td align="right">-4.0772</td>
+<td align="right">0.3403</td>
+<td align="right">0.2956</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rmse_yt"</span>, <span class="st">"mae_yt"</span><span class="op">)</span>,</span>
+<span>    mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">$</span><span class="va">log_score</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">$</span><span class="va">rmse_yt</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">$</span><span class="va">mae_yt</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">metric</th>
+<th align="right">mean</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">log_score</td>
+<td align="right">-4.0373</td>
+</tr>
+<tr class="even">
+<td align="left">rmse_yt</td>
+<td align="right">0.3406</td>
+</tr>
+<tr class="odd">
+<td align="left">mae_yt</td>
+<td align="right">0.2970</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section level2">
@@ -826,30 +2061,30 @@ and
 are used directly. This is rarely used in practice.</p>
 <p><strong>Precision (<code>repar = 1</code>, Ferrari &amp;
 Cribari-Neto, 2004):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math>
 and precision
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\phi &gt; 0</annotation></semantics></math>
 yield
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a = \mu\phi</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b = (1-\mu)\phi</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b = (1-\mu)\phi</annotation></semantics></math>.
 Higher
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 means less variability.</p>
 <p><strong>Mean–variance (<code>repar = 2</code>):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math>
 and dispersion
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi \in (0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\phi \in (0,1)</annotation></semantics></math>
 yield
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a = \mu(1-\phi)/\phi</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a = \mu(1-\phi)/\phi</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b = (1-\mu)(1-\phi)/\phi</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b = (1-\mu)(1-\phi)/\phi</annotation></semantics></math>.
 Here
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 acts as a coefficient of variation: smaller
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 means less variability.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Precision parameterization: mu = 0.5, phi = 10 (high precision)</span></span>
 <span><span class="fu"><a href="../reference/brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">0.5</span>, phi <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   shape1 shape2</span></span>
@@ -866,9 +2101,28 @@ means less variability.</p>
 <ul>
 <li><p>Lopes, J. E. (2024). <em>Beta Regression for Interval-Censored
 Scale-Derived Outcomes</em>. MSc Dissertation, PPGMNE/UFPR.</p></li>
-<li><p>Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for
-modelling rates and proportions. <em>Journal of Applied Statistics</em>,
-<strong>31</strong>(7), 799–815.</p></li>
+<li><p>Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression
+for modelling rates and proportions. <em>Journal of Applied
+Statistics</em>, <strong>31</strong>(7), 799–815. DOI:
+10.1080/0266476042000214501. Validated online via: <a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a> and <a href="https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815" class="external-link uri">https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815</a>.</p></li>
+<li><p>Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
+Maximum-likelihood regression with beta-distributed dependent variables.
+<em>Psychological Methods</em>, <strong>11</strong>(1), 54–71. DOI:
+10.1037/1082-989X.11.1.54. Validated online via: <a href="https://doi.org/10.1037/1082-989X.11.1.54" class="external-link uri">https://doi.org/10.1037/1082-989X.11.1.54</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/16594767/" class="external-link uri">https://pubmed.ncbi.nlm.nih.gov/16594767/</a>.</p></li>
+<li><p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+Measures of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric
+Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+(CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+Intermittent and Constant Osteoarthritis Pain (ICOAP). <em>Arthritis
+Care and Research</em>, <strong>63</strong>(S11), S240–S252. DOI:
+10.1002/acr.20543. Validated online via: <a href="https://doi.org/10.1002/acr.20543" class="external-link uri">https://doi.org/10.1002/acr.20543</a> and <a href="https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543" class="external-link uri">https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543</a>.</p></li>
+<li><p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+Studies comparing numerical rating scales, verbal rating scales, and
+visual analogue scales for assessment of pain intensity in adults: a
+systematic literature review. <em>Journal of Pain and Symptom
+Management</em>, <strong>41</strong>(6), 1073–1093. DOI:
+10.1016/j.jpainsymman.2010.08.016. Validated online via: <a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link uri">https://doi.org/10.1016/j.jpainsymman.2010.08.016</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/21621130/" class="external-link uri">https://pubmed.ncbi.nlm.nih.gov/21621130/</a>.</p></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

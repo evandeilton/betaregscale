@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,23 @@
       <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.2" id="betaregscale-262">betaregscale 2.6.2<a class="anchor" aria-label="anchor" href="#betaregscale-262"></a></h2>
+<div class="section level3">
+<h3 id="improvements-2-6-2">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-2"></a></h3>
+<ul><li>Improved numerical stability in <code><a href="../reference/brsmm.html">brsmm()</a></code> by refining the optimization control and starting values.</li>
+<li>Updated <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> method to better handle edge cases in random effects simulation.</li>
+<li>Enhanced <code>methods.R</code> for better compatibility with downstream packages.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.1" id="betaregscale-261">betaregscale 2.6.1<a class="anchor" aria-label="anchor" href="#betaregscale-261"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-2-6-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-6-1"></a></h3>
+<ul><li>Renamed vignettes to avoid naming collisions with the package name, which caused <code>pkgdown</code> site build failures.</li>
+<li>Updated <code>_pkgdown.yml</code> to reflect new vignette names.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.0" id="betaregscale-260">betaregscale 2.6.0<a class="anchor" aria-label="anchor" href="#betaregscale-260"></a></h2>
 <div class="section level3">
@@ -163,31 +180,31 @@
 </li>
 <li>
 <p><strong><code>delta</code> argument in <code>check_response()</code></strong>: accepts an integer vector of pre-specified censoring indicators, overriding the automatic boundary-based classification on a per-observation basis. The endpoint formulas adapt to non-boundary observations:</p>
-<table class="table"><thead><tr><th>delta</th>
+<table class="table"><thead><tr class="header"><th>delta</th>
 <th>condition</th>
 <th>left (l_i)</th>
 <th>right (u_i)</th>
-</tr></thead><tbody><tr><td>0</td>
+</tr></thead><tbody><tr class="odd"><td>0</td>
 <td>any</td>
 <td>y / K</td>
 <td>y / K</td>
-</tr><tr><td>1</td>
+</tr><tr class="even"><td>1</td>
 <td>y = 0</td>
 <td>eps</td>
 <td>lim / K</td>
-</tr><tr><td>1</td>
+</tr><tr class="odd"><td>1</td>
 <td>y != 0</td>
 <td>eps</td>
 <td>(y + lim) / K</td>
-</tr><tr><td>2</td>
+</tr><tr class="even"><td>2</td>
 <td>y = K</td>
 <td>(K - lim) / K</td>
 <td>1 - eps</td>
-</tr><tr><td>2</td>
+</tr><tr class="odd"><td>2</td>
 <td>y != K</td>
 <td>(y - lim) / K</td>
 <td>1 - eps</td>
-</tr><tr><td>3</td>
+</tr><tr class="even"><td>3</td>
 <td>type “m”</td>
 <td>(y - lim) / K</td>
 <td>(y + lim) / K</td>

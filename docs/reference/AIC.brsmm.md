@@ -17,7 +17,7 @@ AIC(object, ..., k = 2)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 - k:
 

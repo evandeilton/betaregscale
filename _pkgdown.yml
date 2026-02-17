@@ -73,6 +73,7 @@ reference:
   - title: "Diagnostics and Summaries"
     desc: "Functions for model diagnostics and censoring summaries."
     contents:
+      - brs_bootstrap
       - brs_cens
       - brs_est
       - brs_gof
