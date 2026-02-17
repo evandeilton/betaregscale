@@ -19,8 +19,8 @@ knitr::opts_chunk$set(
   digits = 4
 )
 
-kbl10 <- function(x, digits = 4, ...) {
-  knitr::kable(utils::head(as.data.frame(x), 10), digits = digits, align = "c", ...)
+kbl10 <- function(x, n = 10, digits = 4, ...) {
+  knitr::kable(utils::head(as.data.frame(x), n), digits = digits, align = "c", ...)
 }
 ```
 
@@ -164,7 +164,11 @@ sim_brsmm_data <- function(seed = 3501L, g = 24L, ni = 12L,
   )
 }
 
-sim <- sim_brsmm_data()
+sim <- sim_brsmm_data(g = 5,
+                      ni = 200,
+                      beta = c(0.20, 0.65),
+                      gamma = c(-0.15),
+                      sigma_b = 0.55)
 str(sim$data)
 ```
 
@@ -511,7 +515,7 @@ mc_recovery <- function(R = 50L, seed = 7001L) {
   )
 }
 
-mc_recovery(R = 50)
+kbl10(mc_recovery(R = 50))
 ```
 
 ## How this maps to automated package tests
