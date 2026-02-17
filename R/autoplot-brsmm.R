@@ -10,7 +10,8 @@
 #' @param object A fitted \code{"brsmm"} object.
 #' @param type Plot type:
 #'   \code{"calibration"}, \code{"score_dist"}, \code{"ranef_qq"}, or
-#'   \code{"residuals_by_group"}.
+#'   \code{"residuals_by_group"}, \code{"ranef_caterpillar"},
+#'   \code{"ranef_density"}, \code{"ranef_pairs"}.
 #' @param bins Number of bins used in calibration plots.
 #' @param scores Optional integer vector of scores for \code{"score_dist"}.
 #'   Defaults to all scores from \code{0} to \code{ncuts}.
@@ -52,7 +53,10 @@ autoplot.brsmm <- function(object,
                              "calibration",
                              "score_dist",
                              "ranef_qq",
-                             "residuals_by_group"
+                             "residuals_by_group",
+                             "ranef_caterpillar",
+                             "ranef_density",
+                             "ranef_pairs"
                            ),
                            bins = 10L,
                            scores = NULL,
@@ -84,7 +88,10 @@ autoplot.brsmm <- function(object,
       object,
       residual_type = residual_type,
       max_groups = max_groups
-    )
+    ),
+    ranef_caterpillar = .brsmm_autoplot_ranef_caterpillar(object),
+    ranef_density = .brsmm_autoplot_ranef_density(object),
+    ranef_pairs = .brsmm_autoplot_ranef_pairs(object)
   )
 }
 
@@ -160,23 +167,33 @@ autoplot.brsmm <- function(object,
 
 #' @keywords internal
 .brsmm_autoplot_ranef_qq <- function(object) {
-  re <- sort(as.numeric(object$random$mode_b))
-  n <- length(re)
-  q <- stats::qnorm(stats::ppoints(n))
-  df <- data.frame(theoretical = q, sample = re)
+  re <- .brsmm_ranef_matrix(object)
+  parts <- lapply(colnames(re), function(term) {
+    x <- sort(as.numeric(re[, term]))
+    n <- length(x)
+    q <- stats::qnorm(stats::ppoints(n))
+    data.frame(
+      theoretical = q,
+      sample = x,
+      term = term,
+      intercept = mean(x) - stats::sd(x) * mean(q),
+      slope = stats::sd(x)
+    )
+  })
+  df <- do.call(rbind, parts)
 
   ggplot2::ggplot(df, ggplot2::aes(x = .data$theoretical, y = .data$sample)) +
-    ggplot2::geom_point(color = "#1b9e77", alpha = 0.9) +
+    ggplot2::geom_point(color = "#1b9e77", alpha = 0.85, size = 1.1) +
     ggplot2::geom_abline(
-      intercept = mean(re) - stats::sd(re) * mean(q),
-      slope = stats::sd(re),
+      ggplot2::aes(intercept = .data$intercept, slope = .data$slope),
       linetype = "dashed",
       color = "gray35"
     ) +
+    ggplot2::facet_wrap(~term, scales = "free_y") +
     ggplot2::labs(
-      title = "Random-Effect Q-Q Plot",
+      title = "Random-Effects Q-Q Plot",
       x = "Theoretical Normal Quantiles",
-      y = "Estimated random intercept mode"
+      y = "Estimated random-effect mode"
     ) +
     ggplot2::theme_minimal()
 }
@@ -213,4 +230,93 @@ autoplot.brsmm <- function(object,
       legend.position = "none",
       axis.text.x = ggplot2::element_text(angle = 60, hjust = 1)
     )
+}
+
+#' @keywords internal
+.brsmm_ranef_matrix <- function(object) {
+  re <- object$random$mode_b
+  if (is.matrix(re)) {
+    return(re)
+  }
+  out <- matrix(as.numeric(re), ncol = 1L)
+  rownames(out) <- names(re)
+  cn <- object$random$terms
+  if (is.null(cn) || length(cn) == 0L) cn <- "(Intercept)"
+  colnames(out) <- cn[1L]
+  out
+}
+
+#' @keywords internal
+.brsmm_autoplot_ranef_caterpillar <- function(object) {
+  re <- .brsmm_ranef_matrix(object)
+  parts <- lapply(colnames(re), function(term) {
+    v <- as.numeric(re[, term])
+    ord <- order(v)
+    data.frame(
+      group = factor(rownames(re)[ord], levels = rownames(re)[ord]),
+      mode = v[ord],
+      term = term
+    )
+  })
+  df <- do.call(rbind, parts)
+
+  ggplot2::ggplot(df, ggplot2::aes(x = .data$group, y = .data$mode)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray35") +
+    ggplot2::geom_segment(ggplot2::aes(xend = .data$group, y = 0, yend = .data$mode),
+      color = "#7570b3", alpha = 0.5
+    ) +
+    ggplot2::geom_point(color = "#1b9e77", size = 1.6) +
+    ggplot2::facet_wrap(~term, scales = "free_y") +
+    ggplot2::labs(
+      title = "Caterpillar Plot of Random Effects",
+      x = "Group (ordered by mode)",
+      y = "Random-effect mode"
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank())
+}
+
+#' @keywords internal
+.brsmm_autoplot_ranef_density <- function(object) {
+  re <- .brsmm_ranef_matrix(object)
+  df <- data.frame(
+    value = as.numeric(re),
+    term = rep(colnames(re), each = nrow(re))
+  )
+  ggplot2::ggplot(df, ggplot2::aes(x = .data$value, color = .data$term, fill = .data$term)) +
+    ggplot2::geom_density(alpha = 0.20, linewidth = 0.9) +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "gray35") +
+    ggplot2::labs(
+      title = "Density of Random Effects",
+      x = "Random-effect mode",
+      y = "Density",
+      color = "Term",
+      fill = "Term"
+    ) +
+    ggplot2::theme_minimal()
+}
+
+#' @keywords internal
+.brsmm_autoplot_ranef_pairs <- function(object) {
+  re <- .brsmm_ranef_matrix(object)
+  if (ncol(re) < 2L) {
+    stop("ranef_pairs requires at least two random-effect terms.", call. = FALSE)
+  }
+  df <- data.frame(
+    x = re[, 1L],
+    y = re[, 2L]
+  )
+  xlab <- colnames(re)[1L]
+  ylab <- colnames(re)[2L]
+  ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y)) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray35") +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "gray35") +
+    ggplot2::geom_point(color = "#1b9e77", alpha = 0.8) +
+    ggplot2::geom_smooth(method = "lm", se = FALSE, color = "#d95f02", linewidth = 0.8) +
+    ggplot2::labs(
+      title = "Random-Effects Pair Plot",
+      x = xlab,
+      y = ylab
+    ) +
+    ggplot2::theme_minimal()
 }

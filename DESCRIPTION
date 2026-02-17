@@ -1,7 +1,7 @@
 Package: betaregscale
 Type: Package
 Title: Beta Regression for Interval-Censored Scale-Derived Outcomes
-Version: 2.6.3
+Version: 2.6.4
 Authors@R: c(person(given = "José Evandeilton",
                     family = "Lopes",
                     role = c("aut", "cre"),
@@ -11,6 +11,7 @@ Authors@R: c(person(given = "José Evandeilton",
                     family = "Bonat",
                     role = "aut",
                     comment = c(ORCID = "0000-0002-0349-7054")))
+Maintainer: José Evandeilton Lopes <evandeilton@gmail.com>
 Description: Maximum-likelihood estimation of beta regression models for
     responses derived from bounded rating scales. Observations are treated
     as interval-censored on (0, 1) after a scale-to-unit transformation,

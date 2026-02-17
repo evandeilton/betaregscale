@@ -15,10 +15,9 @@ This is a new CRAN submission. There are no downstream dependencies.
 
 ### Notes
 
-* This version (2.6.3) revises and expands package vignettes and README with stronger mathematical exposition and analyst-focused workflows.
-* Vignettes were fully rendered (`devtools::build_vignettes()`) and documentation site rebuilt (`pkgdown::build_site()`).
-* Examples and outputs were standardized with `knitr::kable(..., digits = 4)` for clearer reporting.
-* Bibliographic entries in vignettes/README were updated with DOI and dual online validation links.
+* This version (2.6.4) extends `brsmm()` to multivariate random effects in the mean predictor (random intercept + random slope), adds generic `anova()` model comparison methods (`anova.brs`, `anova.brsmm`), and introduces dedicated random-effects studies (`brsmm_re_study`) with new visual diagnostics.
+* Vignettes were updated and rebuilt with an explicit evolutionary model-selection workflow (`brs` -> `brsmm RI` -> `brsmm RI+RS`) based on likelihood-ratio comparisons.
+* Bibliographic entries in package documentation were revised to keep only DOI-based validated links (`https://doi.org/...`) for CRAN URL checks.
 * The package includes compiled C++ code via Rcpp and RcppArmadillo.
 * The only `R CMD check` note is the standard "New submission" incoming
   feasibility note.

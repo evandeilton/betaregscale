@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,6 +48,7 @@
 <span>  <span class="va">param</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  <span class="va">Z</span>,</span>
+<span>  <span class="va">Xr</span>,</span>
 <span>  <span class="va">y_left</span>,</span>
 <span>  <span class="va">y_right</span>,</span>
 <span>  <span class="va">yt</span>,</span>
@@ -66,19 +67,23 @@
 
 
 <dl><dt id="arg-param">param<a class="anchor" aria-label="anchor" href="#arg-param"></a></dt>
-<dd><p>[beta, gamma, log_sigma]</p></dd>
+<dd><p>[beta, gamma, theta_re]</p></dd>
 
 
-<dt id="arg-x-">X, <a class="anchor" aria-label="anchor" href="#arg-x-"></a></dt>
-<dd><p>Z Design matrices</p></dd>
+<dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>Mean design matrix</p></dd>
 
 
-<dt id="arg-y-left-">y_left, <a class="anchor" aria-label="anchor" href="#arg-y-left-"></a></dt>
-<dd><p>y_right, yt, delta Data</p></dd>
+<dt id="arg-z">Z<a class="anchor" aria-label="anchor" href="#arg-z"></a></dt>
+<dd><p>Precision design matrix</p></dd>
 
 
-<dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
-<dd><p>Group indices</p></dd>
+<dt id="arg-xr">Xr<a class="anchor" aria-label="anchor" href="#arg-xr"></a></dt>
+<dd><p>Random-effects design matrix</p></dd>
+
+
+<dt id="arg-y-left-y-right-yt-delta-group">y_left, y_right, yt, delta, group<a class="anchor" aria-label="anchor" href="#arg-y-left-y-right-yt-delta-group"></a></dt>
+<dd><p>Data</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>

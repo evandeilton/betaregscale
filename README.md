@@ -46,9 +46,10 @@ where $f(\cdot)$ and $F(\cdot)$ denote the beta density and CDF.
   interval-censored ($\delta=3$).
 - **Fixed and variable dispersion**: model a scalar $\phi$ or let it
   depend on covariates via a second linear predictor (`y ~ x1 + x2 | z1`).
-- **Mixed-effects support**: `brsmm()` fits Gaussian random-intercept
-  models (`random = ~ 1 | group`) via Laplace-approximated marginal
-  likelihood.
+- **Mixed-effects support**: `brsmm()` fits Gaussian mixed beta interval
+  models with random effects in the mean predictor (e.g.
+  `random = ~ 1 | group` and `random = ~ 1 + x | group`) via
+  Laplace-approximated marginal likelihood.
 - **High-performance C++ backend**: the log-likelihood and numerical
   gradient are compiled via Rcpp/RcppArmadillo for fast, numerically
   stable estimation.
@@ -162,6 +163,40 @@ fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = dmm, repar = 2)
 summary(fit_mm)
 ```
 
+### Mixed model (random intercept + random slope)
+
+```r
+fit_mm_rs <- brsmm(
+  y ~ x1,
+  random = ~ 1 + x1 | id,
+  data = dmm,
+  repar = 2,
+  int_method = "laplace"
+)
+
+summary(fit_mm_rs)
+knitr::kable(fit_mm_rs$random$D, digits = 4)
+knitr::kable(head(ranef.brsmm(fit_mm_rs)), digits = 4)
+```
+
+### Evolutionary model selection (`anova`)
+
+```r
+fit_brs <- brs(y ~ x1, data = dmm, repar = 2)
+fit_mm_ri <- brsmm(y ~ x1, random = ~ 1 | id, data = dmm, repar = 2)
+fit_mm_rs <- brsmm(y ~ x1, random = ~ 1 + x1 | id, data = dmm, repar = 2)
+
+anova(fit_brs, fit_mm_ri, fit_mm_rs, test = "Chisq")
+```
+
+### Random-effects numerical study
+
+```r
+re_study <- brsmm_re_study(fit_mm_rs)
+print(re_study)
+knitr::kable(re_study$summary, digits = 4)
+```
+
 ### S3 methods
 
 ```r
@@ -254,6 +289,42 @@ $$
 where $K$ is the number of scale categories (`ncuts`) and $h$ is the
 half-width (`lim`, default `0.5`).
 
+### Mixed-model likelihood (`brsmm`)
+
+For group $j$ with random-effects vector $\mathbf{b}_j \in \mathbb{R}^{q_b}$:
+
+$$
+\eta_{\mu,ij} = x_{ij}^\top\beta + w_{ij}^\top\mathbf{b}_j,
+\qquad
+\eta_{\phi,ij} = z_{ij}^\top\gamma,
+$$
+
+with
+
+$$
+\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D).
+$$
+
+The marginal group likelihood is
+
+$$
+L_j(\theta)=\int_{\mathbb{R}^{q_b}}
+\left\{\prod_{i=1}^{n_j} L_{ij}(\mathbf{b}_j;\theta)\right\}
+\varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j,
+$$
+
+and the log-likelihood is $\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)$.
+`brsmm()` uses a multivariate Laplace approximation:
+
+$$
+\log L_j(\theta)\approx
+Q_j(\hat{\mathbf{b}}_j)+\frac{q_b}{2}\log(2\pi)-\frac{1}{2}\log|H_j|,
+$$
+
+where
+$Q_j(\mathbf{b})=\sum_i \log L_{ij}(\mathbf{b};\theta)+\log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)$
+and $H_j=-\nabla^2Q_j(\hat{\mathbf{b}}_j)$.
+
 ## References
 
 - Lopes, J. E. (2024). *Beta Regression for Interval-Censored
@@ -261,24 +332,20 @@ half-width (`lim`, default `0.5`).
 - Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   31(7), 799--815. DOI: 10.1080/0266476042000214501.
-  Validated online via:
-  <https://doi.org/10.1080/0266476042000214501> and
-  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+  DOI validated via: <https://doi.org/10.1080/0266476042000214501>.
 
 - Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
   Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS,
   and ICOAP. *Arthritis Care and Research*, 63(S11), S240--S252.
   DOI: 10.1002/acr.20543. Validated online via:
-  <https://doi.org/10.1002/acr.20543> and
-  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+  <https://doi.org/10.1002/acr.20543>.
 
 - Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
   Studies comparing numerical rating scales, verbal rating scales, and
   visual analogue scales for assessment of pain intensity in adults.
   *Journal of Pain and Symptom Management*, 41(6), 1073--1093.
   DOI: 10.1016/j.jpainsymman.2010.08.016. Validated online via:
-  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
-  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016>.
 
 ## License
 

@@ -15,6 +15,8 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/AIC.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/BIC.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/BIC.brsmm.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/anova.brs.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/anova.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/apply_inv_link.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.html</loc></url>
@@ -37,11 +39,14 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_sim.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_table.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_group_modes_eigen.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_loglik_eigen.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/compute_start.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/confint.brs.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-anova_brs_family.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_grad_fixed_cpp.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_grad_variable_cpp.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_loglik_fixed_cpp.html</loc></url>
@@ -68,6 +73,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/predict.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/print.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/print.brsmm.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/print.brsmm_re_study.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/print.summary.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/print.summary.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.html</loc></url>

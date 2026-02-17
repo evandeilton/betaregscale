@@ -37,6 +37,7 @@ reference:
   - title: "S3 Methods - Fixed Effects Models"
     desc: "Standard methods for fitted model objects of class brs."
     contents:
+      - anova.brs
       - coef.brs
       - vcov.brs
       - summary.brs
@@ -56,6 +57,7 @@ reference:
   - title: "S3 Methods - Mixed Models"
     desc: "Standard methods for fitted model objects of class brsmm."
     contents:
+      - anova.brsmm
       - coef.brsmm
       - vcov.brsmm
       - summary.brsmm
@@ -70,6 +72,8 @@ reference:
       - predict.brsmm
       - ranef.brsmm
       - plot.brsmm
+      - brsmm_re_study
+      - print.brsmm_re_study
   - title: "Diagnostics and Summaries"
     desc: "Functions for model diagnostics and censoring summaries."
     contents:

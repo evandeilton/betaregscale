@@ -91,3 +91,82 @@ test_that("brsmm print methods show correct method", {
   out_sum <- capture.output(print(summary(fit)))
   expect_match(paste(out_sum, collapse = " "), "Mixed beta interval model \\(AGHQ\\)")
 })
+
+test_that("brsmm supports random intercept and slope with Laplace", {
+  skip_on_cran()
+
+  set.seed(321)
+  n_groups <- 12
+  n_per_group <- 16
+  n <- n_groups * n_per_group
+  id <- factor(rep(seq_len(n_groups), each = n_per_group))
+  x <- rnorm(n)
+
+  b0 <- rnorm(n_groups, sd = 0.4)
+  b1 <- rnorm(n_groups, sd = 0.25)
+  eta <- -0.1 + 0.7 * x + b0[id] + b1[id] * x
+  mu <- plogis(eta)
+  phi <- 12
+  y <- rbeta(n, mu * phi, (1 - mu) * phi)
+  dat <- data.frame(y = y, x = x, id = id)
+
+  fit <- brsmm(
+    y ~ x,
+    random = ~ 1 + x | id,
+    data = dat,
+    int_method = "laplace",
+    ncuts = 10,
+    control = list(maxit = 800)
+  )
+
+  expect_s3_class(fit, "brsmm")
+  expect_equal(fit$q_re, 2L)
+  expect_equal(ncol(ranef.brsmm(fit)), 2L)
+  expect_equal(length(predict(fit, type = "response")), nrow(dat))
+  expect_true(is.matrix(fit$random$D))
+  expect_equal(dim(fit$random$D), c(2L, 2L))
+})
+
+test_that("random-effects study and new autoplot diagnostics run", {
+  skip_on_cran()
+  skip_if_not_installed("ggplot2")
+
+  set.seed(322)
+  n_groups <- 10
+  n_per_group <- 14
+  n <- n_groups * n_per_group
+  id <- factor(rep(seq_len(n_groups), each = n_per_group))
+  x <- rnorm(n)
+  b0 <- rnorm(n_groups, sd = 0.35)
+  b1 <- rnorm(n_groups, sd = 0.20)
+  eta <- 0.1 + 0.6 * x + b0[id] + b1[id] * x
+  mu <- plogis(eta)
+  phi <- 11
+  y <- rbeta(n, mu * phi, (1 - mu) * phi)
+  dat <- data.frame(y = y, x = x, id = id)
+
+  fit <- brsmm(
+    y ~ x,
+    random = ~ 1 + x | id,
+    data = dat,
+    int_method = "laplace",
+    ncuts = 10,
+    control = list(maxit = 700)
+  )
+
+  rs <- brsmm_re_study(fit)
+  expect_true(inherits(rs, "brsmm_re_study"))
+  expect_true(all(c("term", "sd_model", "mean_mode", "sd_mode", "shrinkage_ratio") %in% names(rs$summary)))
+  expect_equal(dim(rs$D), c(2L, 2L))
+  expect_equal(dim(rs$Corr), c(2L, 2L))
+
+  p1 <- autoplot.brsmm(fit, type = "ranef_caterpillar")
+  p2 <- autoplot.brsmm(fit, type = "ranef_density")
+  p3 <- autoplot.brsmm(fit, type = "ranef_pairs")
+  p4 <- autoplot.brsmm(fit, type = "ranef_qq")
+
+  expect_s3_class(p1, "ggplot")
+  expect_s3_class(p2, "ggplot")
+  expect_s3_class(p3, "ggplot")
+  expect_s3_class(p4, "ggplot")
+})

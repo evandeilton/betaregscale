@@ -13,3 +13,7 @@ Meta/
 .cursor/
 /doc/
 /Meta/
+*.tar.gz
+*.Rcheck/
+..Rcheck/
+src/symbols.rds

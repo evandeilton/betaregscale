@@ -1,10 +1,11 @@
 # Fit a mixed-effects beta interval regression model
 
 Fits a beta interval-censored mixed model with Gaussian random
-intercepts using marginal maximum likelihood. The implementation
-supports `random = ~ 1 | group` and offers three integration methods for
-the random effects: Laplace approximation, Adaptive Gauss-Hermite
-Quadrature (AGHQ), and Quasi-Monte Carlo (QMC).
+intercepts/slopes using marginal maximum likelihood. The implementation
+supports random-effects formulas such as `~ 1 | group` and
+`~ 1 + x | group`, and offers three integration methods for the random
+effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
+(AGHQ), and Quasi-Monte Carlo (QMC).
 
 ## Usage
 
@@ -38,7 +39,8 @@ brsmm(
 
 - random:
 
-  Random-effects specification. The supported format is `~ 1 | group`.
+  Random-effects specification of the form `~ terms | group`, e.g.
+  `~ 1 | id` or `~ 1 + x | id`.
 
 - data:
 
@@ -79,8 +81,8 @@ brsmm(
 
 - start:
 
-  Optional numeric vector of starting values (`beta`, `gamma`,
-  `log_sigma_b`).
+  Optional numeric vector of starting values (`beta`, `gamma`, and
+  packed lower-Cholesky random parameters).
 
 - method:
 
@@ -117,8 +119,8 @@ censoring likelihood used by
 
 4.  \\\delta=3\\: interval contribution via CDF difference.
 
-For group \\i\\, the random intercept \\b_i \sim N(0, \sigma_b^2)\\ is
-integrated out numerically.
+For group \\i\\, the random-effects vector \\\mathbf{b}\_i \sim
+N(\mathbf{0}, D)\\ is integrated out numerically.
 
 - `"laplace"`: Uses a second-order Laplace approximation at the
   conditional mode. Fast and generally accurate for \\n_i\\ large.
@@ -167,7 +169,7 @@ fit_mm
 #> Mixed beta interval model (Laplace)
 #> Observations: 120  | Groups: 15 
 #> Log-likelihood: -499.3888 
-#> Random SD: 0.2205 
+#> Random SD: 0.2207 
 #> Convergence code: 0 
 # }
 ```

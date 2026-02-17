@@ -27,8 +27,8 @@ brsmm(
 \item{formula}{Model formula. Supports one- or two-part formulas:
 \code{y ~ x1 + x2} or \code{y ~ x1 + x2 | z1 + z2}.}
 
-\item{random}{Random-effects specification. The supported format is
-\code{~ 1 | group}.}
+\item{random}{Random-effects specification of the form
+\code{~ terms | group}, e.g. \code{~ 1 | id} or \code{~ 1 + x | id}.}
 
 \item{data}{Data frame.}
 
@@ -52,7 +52,7 @@ Ignored for other methods. Default is 11.}
 Default is 1024.}
 
 \item{start}{Optional numeric vector of starting values
-(\code{beta}, \code{gamma}, \code{log_sigma_b}).}
+(\code{beta}, \code{gamma}, and packed lower-Cholesky random parameters).}
 
 \item{method}{Optimizer passed to \code{\link[stats]{optim}}.}
 
@@ -68,8 +68,9 @@ An object of class \code{"brsmm"}.
 }
 \description{
 Fits a beta interval-censored mixed model with Gaussian random
-intercepts using marginal maximum likelihood. The implementation supports
-\code{random = ~ 1 | group} and offers three integration methods for the
+intercepts/slopes using marginal maximum likelihood. The implementation supports
+random-effects formulas such as \code{~ 1 | group} and \code{~ 1 + x | group},
+and offers three integration methods for the
 random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
 (AGHQ), and Quasi-Monte Carlo (QMC).
 }
@@ -84,8 +85,8 @@ censoring likelihood used by \code{\link{brs}}:
   \item \eqn{\delta=3}: interval contribution via CDF difference.
 }
 
-For group \eqn{i}, the random intercept \eqn{b_i \sim N(0, \sigma_b^2)} is
-integrated out numerically.
+For group \eqn{i}, the random-effects vector
+\eqn{\mathbf{b}_i \sim N(\mathbf{0}, D)} is integrated out numerically.
 
 \itemize{
   \item \code{"laplace"}: Uses a second-order Laplace approximation at the

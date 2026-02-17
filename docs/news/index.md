@@ -1,5 +1,80 @@
 # Changelog
 
+## betaregscale 2.6.4
+
+### New features
+
+- Extended
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  to support multivariate random effects in the mean predictor,
+  including random intercept + random slope specifications such as
+  `random = ~ 1 + x | group`.
+- Added multivariate Laplace approximation in the Eigen C++ backend for
+  group-specific latent vectors and covariance matrix handling via
+  packed lower-Cholesky parameterization.
+- Added
+  [`brsmm_group_modes_eigen()`](https://evandeilton.github.io/betaregscale/reference/brsmm_group_modes_eigen.md)
+  to compute posterior modes of group random effects for general
+  random-effects dimension.
+- Added generic model-comparison methods
+  [`anova.brs()`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
+  and
+  [`anova.brsmm()`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md)
+  for likelihood-ratio workflow across `brs` and `brsmm` candidates.
+- Added
+  [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
+  and
+  [`print.brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/print.brsmm_re_study.md)
+  for numeric random-effects diagnostics (covariance/correlation,
+  shrinkage, normality checks).
+
+### Improvements
+
+- Updated
+  [`predict.brsmm()`](https://evandeilton.github.io/betaregscale/reference/predict.brsmm.md),
+  [`vcov.brsmm()`](https://evandeilton.github.io/betaregscale/reference/vcov.brsmm.md),
+  and
+  [`print.brsmm()`](https://evandeilton.github.io/betaregscale/reference/print.brsmm.md)
+  to support both scalar (`q_b=1`) and vector (`q_b>1`) random-effects
+  structures.
+- Expanded mixed-model test coverage with integration tests for random
+  intercept + slope fits, covariance extraction (`D`), `ranef`,
+  random-effects studies, and prediction behavior.
+- Updated `README.md` and vignettes with explicit multivariate
+  mixed-model mathematics, Laplace formula in matrix form, and
+  end-to-end model-selection examples.
+- Documentation references now use DOI-based validated links only
+  (`https://doi.org/...`) to keep CRAN URL checks robust.
+
+------------------------------------------------------------------------
+
+## betaregscale 2.6.3
+
+### Improvements
+
+- Revised and expanded all core vignettes (`brs-intro`,
+  `brs-analyst-tools`, `brs-mm`) with stronger mathematical exposition,
+  explicit likelihood pieces by censoring type, and clearer inferential
+  interpretation for analysts.
+- Updated vignettes and README to prioritize the package’s most
+  important analyst-facing functions:
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md),
+  [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md),
+  [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md),
+  [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md),
+  and
+  [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md).
+- Standardized vignette outputs with cleaner tabular presentation using
+  `knitr::kable(..., digits = 4)` for better readability and reporting
+  consistency.
+- Added and revised bibliographic references with validated DOI metadata
+  and dual online source verification links in vignettes/README.
+- Re-rendered all vignettes and rebuilt documentation website
+  (`pkgdown`) to keep articles and reference pages synchronized with the
+  current API.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.2
 
 ### Improvements

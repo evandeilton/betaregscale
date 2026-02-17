@@ -6,8 +6,9 @@
 #'
 #' @description
 #' Fits a beta interval-censored mixed model with Gaussian random
-#' intercepts using marginal maximum likelihood. The implementation supports
-#' \code{random = ~ 1 | group} and offers three integration methods for the
+#' intercepts/slopes using marginal maximum likelihood. The implementation supports
+#' random-effects formulas such as \code{~ 1 | group} and \code{~ 1 + x | group},
+#' and offers three integration methods for the
 #' random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
 #' (AGHQ), and Quasi-Monte Carlo (QMC).
 #'
@@ -22,8 +23,8 @@
 #'   \item \eqn{\delta=3}: interval contribution via CDF difference.
 #' }
 #'
-#' For group \eqn{i}, the random intercept \eqn{b_i \sim N(0, \sigma_b^2)} is
-#' integrated out numerically.
+#' For group \eqn{i}, the random-effects vector
+#' \eqn{\mathbf{b}_i \sim N(\mathbf{0}, D)} is integrated out numerically.
 #'
 #' \itemize{
 #'   \item \code{"laplace"}: Uses a second-order Laplace approximation at the
@@ -38,8 +39,8 @@
 #'
 #' @param formula Model formula. Supports one- or two-part formulas:
 #'   \code{y ~ x1 + x2} or \code{y ~ x1 + x2 | z1 + z2}.
-#' @param random Random-effects specification. The supported format is
-#'   \code{~ 1 | group}.
+#' @param random Random-effects specification of the form
+#'   \code{~ terms | group}, e.g. \code{~ 1 | id} or \code{~ 1 + x | id}.
 #' @param data Data frame.
 #' @param link Mean link function.
 #' @param link_phi Precision link function.
@@ -53,7 +54,7 @@
 #' @param qmc_points Number of QMC points for \code{int_method="qmc"}.
 #'   Default is 1024.
 #' @param start Optional numeric vector of starting values
-#'   (\code{beta}, \code{gamma}, \code{log_sigma_b}).
+#'   (\code{beta}, \code{gamma}, and packed lower-Cholesky random parameters).
 #' @param method Optimizer passed to \code{\link[stats]{optim}}.
 #' @param hessian_method \code{"numDeriv"} (default) or \code{"optim"}.
 #' @param control Control list for \code{\link[stats]{optim}}.
@@ -135,7 +136,8 @@ brsmm <- function(formula,
     stop("'qmc_points' must be >= 16.", call. = FALSE)
   }
 
-  group_var <- .brsmm_parse_random(random)
+  random_spec <- .brsmm_parse_random(random)
+  group_var <- random_spec$group_var
 
   formula_parsed <- Formula::as.Formula(formula)
   if (length(formula_parsed)[2L] < 2L) {
@@ -153,6 +155,9 @@ brsmm <- function(formula,
   Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
   delta <- as.integer(Y[, "delta"])
 
+  rows_idx <- .brsmm_row_index(mf = mf, data = data)
+  data_sub <- data[rows_idx, , drop = FALSE]
+
   group <- .brsmm_extract_group(mf = mf, data = data, group_var = group_var)
   group <- factor(group)
   if (nlevels(group) < 2L) {
@@ -162,8 +167,18 @@ brsmm <- function(formula,
 
   p <- ncol(X)
   q <- ncol(Z)
+  Xr <- stats::model.matrix(random_spec$re_terms, data_sub)
+  q_re <- ncol(Xr)
+  k_re <- q_re * (q_re + 1L) / 2L
   n <- nrow(X)
   g <- nlevels(group)
+
+  if (q_re > 1L && int_method != "laplace") {
+    stop(
+      "For random-effects dimension > 1, only int_method = 'laplace' is currently supported.",
+      call. = FALSE
+    )
+  }
 
   if (is.null(start)) {
     start_fix <- compute_start(
@@ -180,12 +195,20 @@ brsmm <- function(formula,
         call. = FALSE
       )
     }
-    start <- c(start_fix, log(0.3))
+    theta_re_start <- numeric(k_re)
+    k <- 1L
+    for (j in seq_len(q_re)) {
+      for (i in j:q_re) {
+        theta_re_start[k] <- if (i == j) log(0.3) else 0
+        k <- k + 1L
+      }
+    }
+    start <- c(start_fix, theta_re_start)
   } else {
     start <- as.numeric(start)
-    if (length(start) != (p + q + 1L)) {
+    if (length(start) != (p + q + k_re)) {
       stop(
-        "'start' must have length p + q + 1 (beta, gamma, log_sigma_b).",
+        "'start' must have length p + q + q_re * (q_re + 1) / 2.",
         call. = FALSE
       )
     }
@@ -206,6 +229,7 @@ brsmm <- function(formula,
       param = as.numeric(par),
       X = X,
       Z = Z,
+      Xr = Xr,
       y_left = as.numeric(Y[, "left"]),
       y_right = as.numeric(Y[, "right"]),
       yt = as.numeric(Y[, "yt"]),
@@ -238,34 +262,42 @@ brsmm <- function(formula,
   est <- as.numeric(opt$par)
   idx_beta <- seq_len(p)
   idx_gamma <- p + seq_len(q)
-  idx_sd <- p + q + 1L
+  idx_re <- p + q + seq_len(k_re)
 
   beta_hat <- est[idx_beta]
   gamma_hat <- est[idx_gamma]
-  sigma_b_hat <- exp(est[idx_sd])
+  theta_re_hat <- est[idx_re]
 
-  gm <- .brsmm_group_modes_cpp(
+  L <- matrix(0, nrow = q_re, ncol = q_re)
+  k <- 1L
+  for (j in seq_len(q_re)) {
+    for (i in j:q_re) {
+      L[i, j] <- if (i == j) exp(theta_re_hat[k]) else theta_re_hat[k]
+      k <- k + 1L
+    }
+  }
+  D <- L %*% t(L)
+  sd_b_terms <- sqrt(diag(D))
+
+  gm <- brsmm_group_modes_eigen(
     param = est,
     X = X,
     Z = Z,
+    Xr = Xr,
     y_left = as.numeric(Y[, "left"]),
     y_right = as.numeric(Y[, "right"]),
     yt = as.numeric(Y[, "yt"]),
     delta = delta,
     group = group_index,
-    link_mu_code = lc_mu,
-    link_phi_code = lc_phi,
+    link_mu = lc_mu,
+    link_phi = lc_phi,
     repar = repar
   )
-  mode_b <- as.numeric(gm[, 1L])
-  sd_b <- as.numeric(gm[, 2L])
-
-  b_obs <- mode_b[group_index]
-  eta_mu <- as.numeric(X %*% beta_hat + b_obs)
+  mode_b <- as.matrix(gm)
+  if (ncol(mode_b) != q_re) {
+    stop("Internal error while computing group modes.", call. = FALSE)
+  }
   eta_phi <- as.numeric(Z %*% gamma_hat)
-
-  hatmu <- apply_inv_link(eta_mu, link)
-  hatphi <- apply_inv_link(eta_phi, link_phi)
   y_mid <- as.numeric(Y[, "yt"])
 
   pseudo_r2 <- suppressWarnings(stats::cor(
@@ -278,19 +310,49 @@ brsmm <- function(formula,
 
   mean_names <- colnames(X)
   phi_names <- paste0("(phi)_", colnames(Z))
-  sd_name <- paste0("(sd)_", group_var)
-  par_names <- c(mean_names, phi_names, sd_name)
+  re_colnames <- colnames(Xr)
+  re_colnames[is.na(re_colnames) | re_colnames == ""] <- paste0("re", seq_len(q_re))
+  re_param_names <- character(k_re)
+  k <- 1L
+  for (j in seq_len(q_re)) {
+    for (i in j:q_re) {
+      re_param_names[k] <- if (i == j) {
+        paste0("(re_chol_logsd)_", re_colnames[i], "|", group_var)
+      } else {
+        paste0("(re_chol)_", re_colnames[i], ":", re_colnames[j], "|", group_var)
+      }
+      k <- k + 1L
+    }
+  }
+  par_names <- c(mean_names, phi_names, re_param_names)
   names(est) <- par_names
   rownames(hess) <- colnames(hess) <- par_names
 
   coefficients <- list(
     mean = est[idx_beta],
     precision = est[idx_gamma],
-    random = stats::setNames(est[idx_sd], sd_name)
+    random = stats::setNames(est[idx_re], re_param_names)
   )
   levels_group <- levels(group)
-  names(mode_b) <- levels_group
-  names(sd_b) <- levels_group
+  rownames(mode_b) <- levels_group
+  colnames(mode_b) <- re_colnames
+  names(sd_b_terms) <- re_colnames
+
+  if (q_re == 1L) {
+    mode_store <- as.numeric(mode_b[, 1L])
+    names(mode_store) <- levels_group
+    b_obs <- mode_store[group_index]
+    eta_mu <- as.numeric(X %*% beta_hat + Xr[, 1L] * b_obs)
+    sigma_b_hat <- as.numeric(sd_b_terms[1L])
+  } else {
+    mode_store <- mode_b
+    b_obs <- mode_b[group_index, , drop = FALSE]
+    eta_mu <- as.numeric(X %*% beta_hat + rowSums(Xr * b_obs))
+    sigma_b_hat <- NA_real_
+  }
+
+  hatmu <- apply_inv_link(eta_mu, link)
+  hatphi <- apply_inv_link(eta_phi, link_phi)
 
   out <- list(
     call = cl,
@@ -308,8 +370,12 @@ brsmm <- function(formula,
     random = list(
       group = group_var,
       levels = levels_group,
-      mode_b = mode_b,
-      sd_b = sd_b,
+      terms = re_colnames,
+      re_terms = random_spec$re_terms,
+      mode_b = mode_store,
+      sd_b = sd_b_terms,
+      D = D,
+      L = L,
       sigma_b = sigma_b_hat
     ),
     link = link,
@@ -317,7 +383,7 @@ brsmm <- function(formula,
     formula = formula_parsed,
     random_formula = random,
     terms = list(mean = mtX, precision = mtZ, full = mtX),
-    model_matrices = list(X = X, Z = Z),
+    model_matrices = list(X = X, Z = Z, Xr = Xr),
     Y = Y,
     delta = delta,
     group = group,
@@ -328,6 +394,8 @@ brsmm <- function(formula,
     npar = length(est),
     p = p,
     q = q,
+    q_re = q_re,
+    k_re = k_re,
     repar = repar,
     ncuts = ncuts,
     lim = lim,
@@ -353,7 +421,7 @@ brsmm <- function(formula,
 #' @noRd
 .brsmm_parse_random <- function(random) {
   if (!inherits(random, "formula")) {
-    stop("'random' must be a formula like ~ 1 | id.", call. = FALSE)
+    stop("'random' must be a formula like ~ 1 | id or ~ 1 + x | id.", call. = FALSE)
   }
   if (length(random) != 2L) {
     stop("'random' must be one-sided, e.g. ~ 1 | id.", call. = FALSE)
@@ -361,19 +429,36 @@ brsmm <- function(formula,
 
   rhs <- random[[2L]]
   if (!is.call(rhs) || !identical(rhs[[1L]], as.name("|")) || length(rhs) != 3L) {
-    stop("'random' must have the form ~ 1 | group.", call. = FALSE)
+    stop("'random' must have the form ~ terms | group.", call. = FALSE)
   }
 
   re_part <- rhs[[2L]]
-  if (!(identical(re_part, 1) || identical(re_part, 1L) || identical(as.character(re_part), "1"))) {
-    stop("Only random intercept is currently supported: use ~ 1 | group.", call. = FALSE)
-  }
-
   group_vars <- all.vars(rhs[[3L]])
   if (length(group_vars) != 1L) {
     stop("'random' must define exactly one grouping variable.", call. = FALSE)
   }
-  group_vars[[1L]]
+  re_formula <- stats::as.formula(paste("~", deparse(re_part)))
+  re_terms <- stats::terms(re_formula)
+  list(
+    group_var = group_vars[[1L]],
+    re_formula = re_formula,
+    re_terms = re_terms
+  )
+}
+
+#' Row index from model.frame to data
+#' @keywords internal
+#' @noRd
+.brsmm_row_index <- function(mf, data) {
+  rows_num <- suppressWarnings(as.integer(rownames(mf)))
+  if (all(!is.na(rows_num))) {
+    return(rows_num)
+  }
+  rows <- match(rownames(mf), rownames(data))
+  if (anyNA(rows)) {
+    stop("Could not map model.frame rows back to 'data'.", call. = FALSE)
+  }
+  rows
 }
 
 #' Extract grouping variable aligned with model.frame rows
@@ -383,13 +468,8 @@ brsmm <- function(formula,
   if (!(group_var %in% names(data))) {
     stop("Grouping variable '", group_var, "' not found in data.", call. = FALSE)
   }
-  rows_num <- suppressWarnings(as.integer(rownames(mf)))
-  if (all(!is.na(rows_num))) {
-    grp <- data[[group_var]][rows_num]
-  } else {
-    rows <- match(rownames(mf), rownames(data))
-    grp <- data[[group_var]][rows]
-  }
+  rows <- .brsmm_row_index(mf, data)
+  grp <- data[[group_var]][rows]
   if (anyNA(grp)) {
     stop("Grouping variable contains missing values after subsetting.", call. = FALSE)
   }

@@ -8,6 +8,7 @@ brsmm_loglik_eigen(
   param,
   X,
   Z,
+  Xr,
   y_left,
   y_right,
   yt,
@@ -21,13 +22,15 @@ brsmm_loglik_eigen(
 )
 }
 \arguments{
-\item{param}{[beta, gamma, log_sigma]}
+\item{param}{[beta, gamma, theta_re]}
 
-\item{X, }{Z Design matrices}
+\item{X}{Mean design matrix}
 
-\item{y_left, }{y_right, yt, delta Data}
+\item{Z}{Precision design matrix}
 
-\item{group}{Group indices}
+\item{Xr}{Random-effects design matrix}
+
+\item{y_left, y_right, yt, delta, group}{Data}
 
 \item{method}{0=Laplace, 1=AGHQ, 2=QMC}
 

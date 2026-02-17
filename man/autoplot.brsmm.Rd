@@ -6,7 +6,8 @@
 \usage{
 autoplot.brsmm(
   object,
-  type = c("calibration", "score_dist", "ranef_qq", "residuals_by_group"),
+  type = c("calibration", "score_dist", "ranef_qq", "residuals_by_group",
+    "ranef_caterpillar", "ranef_density", "ranef_pairs"),
   bins = 10L,
   scores = NULL,
   residual_type = c("response", "pearson"),
@@ -19,7 +20,8 @@ autoplot.brsmm(
 
 \item{type}{Plot type:
 \code{"calibration"}, \code{"score_dist"}, \code{"ranef_qq"}, or
-\code{"residuals_by_group"}.}
+\code{"residuals_by_group"}, \code{"ranef_caterpillar"},
+\code{"ranef_density"}, \code{"ranef_pairs"}.}
 
 \item{bins}{Number of bins used in calibration plots.}
 

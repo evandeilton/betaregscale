@@ -22,8 +22,8 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-`brsmm()` extends `brs()` to clustered data by adding a Gaussian random
-intercept in the mean submodel while preserving the interval-censored
+`brsmm()` extends `brs()` to clustered data by adding Gaussian random
+effects in the mean submodel while preserving the interval-censored
 beta likelihood for scale-derived outcomes.
 
 This vignette covers:
@@ -40,12 +40,13 @@ library(betaregscale)
 ## Mathematical model
 
 Assume observations \(i = 1, \dots, n_j\) within groups
-\(j = 1, \dots, G\), with random intercept \(b_j \sim \mathcal{N}(0,\sigma_b^2)\).
+\(j = 1, \dots, G\), with group-specific random-effects vector
+\(\mathbf{b}_j \in \mathbb{R}^{q_b}\).
 
 ### Linear predictors
 
 \[
-\eta_{\mu,ij} = x_{ij}^\top \beta + b_j,
+\eta_{\mu,ij} = x_{ij}^\top \beta + w_{ij}^\top \mathbf{b}_j,
 \qquad
 \eta_{\phi,ij} = z_{ij}^\top \gamma
 \]
@@ -57,6 +58,7 @@ Assume observations \(i = 1, \dots, n_j\) within groups
 \]
 
 with \(g(\cdot)\) and \(h(\cdot)\) chosen by `link` and `link_phi`.
+The random-effects design row \(w_{ij}\) is defined by `random = ~ terms | group`.
 
 ### Beta parameterization
 
@@ -80,12 +82,22 @@ F(u_{ij}; a_{ij}, b_{ij}) - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=3
 where \(l_{ij},u_{ij}\) are interval endpoints on \((0,1)\),
 \(f(\cdot)\) is beta density, and \(F(\cdot)\) is beta CDF.
 
+### Random-effects distribution
+
+\[
+\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D),
+\]
+
+where \(D\) is a symmetric positive-definite covariance matrix.
+Internally, `brsmm()` optimizes a packed lower-Cholesky parameterization
+\(D = LL^\top\) (diagonal entries on log-scale for positivity).
+
 ### Group marginal likelihood
 
 \[
-L_j(\theta)=\int_{\mathbb{R}}
+L_j(\theta)=\int_{\mathbb{R}^{q_b}}
 \prod_{i=1}^{n_j} L_{ij}(b_j;\theta)\,
-\varphi(b_j;0,\sigma_b^2)\,db_j
+\varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
 \]
 
 \[
@@ -96,19 +108,27 @@ L_j(\theta)=\int_{\mathbb{R}}
 
 Define
 \[
-Q_j(b)=\sum_{i=1}^{n_j}\log L_{ij}(b;\theta)+\log\varphi(b;0,\sigma_b^2)
+Q_j(\mathbf{b})=
+\sum_{i=1}^{n_j}\log L_{ij}(\mathbf{b};\theta)+
+\log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)
 \]
-and \(\hat b_j=\arg\max_b Q_j(b)\), with curvature
-\(H_j=-Q_j''(\hat b_j)\). Then
+and \(\hat{\mathbf{b}}_j=\arg\max_{\mathbf{b}} Q_j(\mathbf{b})\), with curvature
+\[
+H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j).
+\]
+Then
 
 \[
 \log L_j(\theta) \approx
-Q_j(\hat b_j) + \frac{1}{2}\log(2\pi) - \frac{1}{2}\log(H_j).
+Q_j(\hat{\mathbf{b}}_j) +
+\frac{q_b}{2}\log(2\pi) -
+\frac{1}{2}\log|H_j|.
 \]
 
 `brsmm()` maximizes the approximated \(\ell(\theta)\) with
 `stats::optim()`, and computes group-level posterior modes
-\(\hat b_j\) and local standard deviations from the local curvature.
+\(\hat{\mathbf{b}}_j\). For \(q_b = 1\), this reduces to the scalar
+random-intercept formula.
 
 ## Simulating clustered scale data
 
@@ -160,12 +180,71 @@ fit_mm <- brsmm(
 summary(fit_mm)
 ```
 
+## Random intercept + slope example
+
+The model below includes random intercept and random slope for `x1`:
+
+```{r fit-brsmm-random-slope}
+fit_mm_rs <- brsmm(
+  y ~ x1,
+  random = ~ 1 + x1 | id,
+  data = sim$data,
+  repar = 2,
+  int_method = "laplace",
+  method = "BFGS",
+  control = list(maxit = 1200)
+)
+
+summary(fit_mm_rs)
+```
+
+Covariance structure of random effects:
+
+```{r random-covariance}
+knitr::kable(fit_mm_rs$random$D, digits = 4)
+knitr::kable(
+  data.frame(term = names(fit_mm_rs$random$sd_b), sd = as.numeric(fit_mm_rs$random$sd_b)),
+  digits = 4
+)
+knitr::kable(head(ranef.brsmm(fit_mm_rs)), digits = 4)
+```
+
+## Estudos adicionais dos efeitos aleatórios (numéricos e visuais)
+
+Seguindo práticas de pacotes mistos consolidados, o pacote agora permite um
+estudo dedicado dos efeitos aleatórios com foco em:
+
+- estrutura \(D\) e correlação;
+- distribuição empírica dos modos por grupo;
+- intensidade de shrinkage empírico;
+- diagnósticos visuais específicos para os componentes aleatórios.
+
+```{r ranef-study}
+re_study <- brsmm_re_study(fit_mm_rs)
+print(re_study)
+knitr::kable(re_study$summary, digits = 4)
+knitr::kable(re_study$D, digits = 4)
+knitr::kable(re_study$Corr, digits = 4)
+```
+
+Visualizações sugeridas para efeitos aleatórios:
+
+```{r ranef-visuals}
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot.brsmm(fit_mm_rs, type = "ranef_caterpillar")
+  autoplot.brsmm(fit_mm_rs, type = "ranef_density")
+  autoplot.brsmm(fit_mm_rs, type = "ranef_pairs")
+  autoplot.brsmm(fit_mm_rs, type = "ranef_qq")
+}
+```
+
 ## Core methods
 
 ### Coefficients and random effects
 
-`coef(fit_mm, model = "random")` is on the optimizer scale
-(\(\log \sigma_b\)); use `exp()` to report \(\sigma_b\).
+`coef(fit_mm, model = "random")` returns packed random-effect covariance
+parameters on optimizer scale (lower-Cholesky, with log-diagonal).
+For random-intercept models this simplifies to \(\log \sigma_b\).
 
 ```{r methods-coef}
 knitr::kable(
@@ -179,6 +258,19 @@ knitr::kable(
   digits = 4
 )
 knitr::kable(head(ranef.brsmm(fit_mm)), digits = 4)
+```
+
+For random intercept + slope models:
+
+```{r methods-coef-rs}
+knitr::kable(
+  data.frame(
+    parameter = names(coef(fit_mm_rs, model = "random")),
+    estimate = as.numeric(coef(fit_mm_rs, model = "random"))
+  ),
+  digits = 4
+)
+knitr::kable(fit_mm_rs$random$D, digits = 4)
 ```
 
 ### Variance-covariance, summary and likelihood criteria
@@ -268,6 +360,19 @@ knitr::kable(
 )
 ```
 
+The same logic applies to random intercept + slope models:
+
+```{r methods-newdata-rs}
+knitr::kable(
+  data.frame(pred_rs_seen = as.numeric(predict(fit_mm_rs, newdata = nd, type = "response"))),
+  digits = 4
+)
+knitr::kable(
+  data.frame(pred_rs_unseen = as.numeric(predict(fit_mm_rs, newdata = nd_unseen, type = "response"))),
+  digits = 4
+)
+```
+
 ## Statistical tests and validation workflow
 
 ### Wald tests (from `summary`)
@@ -282,34 +387,45 @@ sm <- summary(fit_mm)
 knitr::kable(sm$coefficients, digits = 4)
 ```
 
-### Likelihood-ratio test for nested fixed effects
+### Esquema evolutivo e escolha por teste LR
 
-For nested models with the same random-effect structure, an LR test can be
-computed as:
-\[
-LR = 2\{\ell(\hat\theta_1)-\ell(\hat\theta_0)\},
-\]
-using a \(\chi^2\) reference with parameter-count difference.
+Um fluxo prático de complexidade crescente:
 
-```{r lr-test, eval = FALSE}
-fit_null <- brsmm(
-  y ~ 1,
-  random = ~ 1 | id,
+1. `brs()`: sem efeito aleatório (ignora agrupamento);
+2. `brsmm(..., random = ~ 1 | id)`: intercepto aleatório;
+3. `brsmm(..., random = ~ 1 + x1 | id)`: intercepto + inclinação aleatórios.
+
+No primeiro salto (`brs` \(\to\) `brsmm` com intercepto), a hipótese
+\(\sigma_b^2 = 0\) está na fronteira do espaço paramétrico. Assim, o
+referencial assintótico clássico \(\chi^2\) deve ser interpretado com cautela.
+No segundo salto (intercepto \(\to\) intercepto + inclinação), o LR com
+\(\chi^2\) costuma ser usado como diagnóstico prático de ganho de ajuste.
+
+```{r lr-evolution}
+# Modelo base sem efeito aleatório
+fit_brs <- brs(
+  y ~ x1,
   data = sim$data,
-  repar = 2,
-  int_method = "laplace",
-  method = "BFGS",
-  control = list(maxit = 1000)
+  repar = 2
 )
 
-ll0 <- logLik(fit_null)
-ll1 <- logLik(fit_mm)
-lr_stat <- 2 * (as.numeric(ll1) - as.numeric(ll0))
-df_diff <- attr(ll1, "df") - attr(ll0, "df")
-p_value <- stats::pchisq(lr_stat, df = df_diff, lower.tail = FALSE)
+# Reutiliza os ajustes mistos já estimados:
+# fit_mm    : random = ~ 1 | id
+# fit_mm_rs : random = ~ 1 + x1 | id
 
-c(LR = lr_stat, df = df_diff, p_value = p_value)
+tab_lr <- anova(fit_brs, fit_mm, fit_mm_rs, test = "Chisq")
+knitr::kable(
+  data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL),
+  digits = 4
+)
 ```
+
+Regra operacional de decisão (analítica):
+
+- Se o segundo salto (`RI -> RI+RS`) não melhora o ajuste (p alto), prefira o
+  modelo com intercepto aleatório por parcimônia.
+- Se houver ganho robusto, adote `RI+RS` e valide estabilidade dos parâmetros
+  (especialmente `sd_b` e matriz `D`) por sensibilidade e diagnóstico residual.
 
 ### Residual diagnostics (quick checks)
 
@@ -414,13 +530,17 @@ devtools::test(filter = "brsmm")
 Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for modelling
 rates and proportions. *Journal of Applied Statistics*, 31(7), 799-815.
 DOI: 10.1080/0266476042000214501. Validated online via:
-<https://doi.org/10.1080/0266476042000214501> and
-<https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+<https://doi.org/10.1080/0266476042000214501>.
 
 Lopes, J. E. (2024). *Beta Regression for Interval-Censored Scale-Derived
 Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 
 Pinheiro, J. C. and Bates, D. M. (2000). *Mixed-Effects Models in S and S-PLUS*.
 Springer. DOI: 10.1007/b98882. Validated online via:
-<https://doi.org/10.1007/b98882> and
-<https://books.google.com/books?id=N3WeyHFbHLQC>.
+<https://doi.org/10.1007/b98882>.
+
+Rue, H., Martino, S., and Chopin, N. (2009). Approximate Bayesian inference
+for latent Gaussian models by using integrated nested Laplace approximations.
+*Journal of the Royal Statistical Society: Series B*, 71(2), 319-392.
+DOI: 10.1111/j.1467-9868.2008.00700.x. Validated online via:
+<https://doi.org/10.1111/j.1467-9868.2008.00700.x>.

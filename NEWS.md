@@ -1,3 +1,22 @@
+# betaregscale 2.6.4
+
+## New features
+
+* Extended `brsmm()` to support multivariate random effects in the mean predictor, including random intercept + random slope specifications such as `random = ~ 1 + x | group`.
+* Added multivariate Laplace approximation in the Eigen C++ backend for group-specific latent vectors and covariance matrix handling via packed lower-Cholesky parameterization.
+* Added `brsmm_group_modes_eigen()` to compute posterior modes of group random effects for general random-effects dimension.
+* Added generic model-comparison methods `anova.brs()` and `anova.brsmm()` for likelihood-ratio workflow across `brs` and `brsmm` candidates.
+* Added `brsmm_re_study()` and `print.brsmm_re_study()` for numeric random-effects diagnostics (covariance/correlation, shrinkage, normality checks).
+
+## Improvements
+
+* Updated `predict.brsmm()`, `vcov.brsmm()`, and `print.brsmm()` to support both scalar (`q_b=1`) and vector (`q_b>1`) random-effects structures.
+* Expanded mixed-model test coverage with integration tests for random intercept + slope fits, covariance extraction (`D`), `ranef`, random-effects studies, and prediction behavior.
+* Updated `README.md` and vignettes with explicit multivariate mixed-model mathematics, Laplace formula in matrix form, and end-to-end model-selection examples.
+* Documentation references now use DOI-based validated links only (`https://doi.org/...`) to keep CRAN URL checks robust.
+
+---
+
 # betaregscale 2.6.3
 
 ## Improvements

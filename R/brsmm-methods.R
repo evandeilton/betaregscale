@@ -79,9 +79,10 @@ vcov.brsmm <- function(object,
 
   p <- object$p
   q <- object$q
+  k_re <- object$k_re
   idx_mean <- seq_len(p)
   idx_precision <- p + seq_len(q)
-  idx_random <- p + q + 1L
+  idx_random <- p + q + seq_len(k_re)
 
   switch(model,
     full = V,
@@ -208,8 +209,15 @@ predict.brsmm <- function(object,
   gamma <- object$par[p + seq_len(q)]
 
   if (is.null(newdata)) {
-    eta_mu <- as.numeric(object$model_matrices$X %*% beta) +
-      object$random$mode_b[object$group_index]
+    if (is.matrix(object$random$mode_b)) {
+      b_obs <- object$random$mode_b[object$group_index, , drop = FALSE]
+      eta_mu <- as.numeric(object$model_matrices$X %*% beta) +
+        rowSums(object$model_matrices$Xr * b_obs)
+    } else {
+      b_obs <- object$random$mode_b[object$group_index]
+      eta_mu <- as.numeric(object$model_matrices$X %*% beta) +
+        object$model_matrices$Xr[, 1L] * b_obs
+    }
     eta_phi <- as.numeric(object$model_matrices$Z %*% gamma)
   } else {
     if (!is.data.frame(newdata)) {
@@ -224,16 +232,36 @@ predict.brsmm <- function(object,
     mf_phi <- stats::model.frame(object$terms$precision, data = newdata, ...)
     Zn <- stats::model.matrix(object$terms$precision, mf_phi)
 
-    if (object$random$group %in% names(newdata)) {
-      gnew <- as.character(newdata[[object$random$group]])
-      map <- object$random$mode_b
-      bnew <- as.numeric(map[gnew])
-      bnew[is.na(bnew)] <- 0
-    } else {
-      bnew <- rep(0, nrow(Xn))
+    mf_r <- stats::model.frame(object$random$re_terms, data = newdata, ...)
+    Xrn <- stats::model.matrix(object$random$re_terms, mf_r)
+    if (nrow(Xrn) != nrow(Xn)) {
+      stop(
+        "Rows used by fixed and random design matrices in 'newdata' do not match.",
+        call. = FALSE
+      )
     }
 
-    eta_mu <- as.numeric(Xn %*% beta + bnew)
+    if (is.matrix(object$random$mode_b)) {
+      bnew <- matrix(0, nrow = nrow(Xrn), ncol = ncol(Xrn))
+      if (object$random$group %in% names(newdata)) {
+        gnew <- as.character(newdata[[object$random$group]])
+        idx <- match(gnew, rownames(object$random$mode_b))
+        ok <- !is.na(idx)
+        if (any(ok)) {
+          bnew[ok, ] <- object$random$mode_b[idx[ok], , drop = FALSE]
+        }
+      }
+      eta_mu <- as.numeric(Xn %*% beta + rowSums(Xrn * bnew))
+    } else {
+      bnew <- rep(0, nrow(Xrn))
+      if (object$random$group %in% names(newdata)) {
+        gnew <- as.character(newdata[[object$random$group]])
+        map <- object$random$mode_b
+        bnew <- as.numeric(map[gnew])
+        bnew[is.na(bnew)] <- 0
+      }
+      eta_mu <- as.numeric(Xn %*% beta + Xrn[, 1L] * bnew)
+    }
     eta_phi <- as.numeric(Zn %*% gamma)
   }
 
@@ -379,7 +407,13 @@ print.brsmm <- function(x,
   cat("\nMixed beta interval model (", method_name, ")\n", sep = "")
   cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
   cat("Log-likelihood:", formatC(x$value, digits = digits, format = "f"), "\n")
-  cat("Random SD:", formatC(x$random$sigma_b, digits = digits, format = "f"), "\n")
+  re_sd <- x$random$sd_b
+  if (length(re_sd) == 1L) {
+    cat("Random SD:", formatC(re_sd, digits = digits, format = "f"), "\n")
+  } else {
+    cat("Random SDs:\n")
+    print(round(re_sd, digits))
+  }
   cat("Convergence code:", x$convergence, "\n")
   invisible(x)
 }

@@ -387,7 +387,7 @@ For ggplot2 output (requires the **ggplot2** package):
 plot(fit_fixed, gg = TRUE)
 ```
 
-![](brs-intro_files/figure-html/plot-fixed-gg-1.png)![](brs-intro_files/figure-html/plot-fixed-gg-2.png)![](brs-intro_files/figure-html/plot-fixed-gg-3.png)![](brs-intro_files/figure-html/plot-fixed-gg-4.png)
+![](brs-intro_files/figure-html/plot-fixed-gg-1.png)
 
 ### Predictions
 
@@ -836,15 +836,13 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   **31**(7), 799–815. DOI: 10.1080/0266476042000214501. Validated online
-  via: <https://doi.org/10.1080/0266476042000214501> and
-  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+  via: <https://doi.org/10.1080/0266476042000214501>.
 
 - Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
   Maximum-likelihood regression with beta-distributed dependent
   variables. *Psychological Methods*, **11**(1), 54–71. DOI:
   10.1037/1082-989X.11.1.54. Validated online via:
-  <https://doi.org/10.1037/1082-989X.11.1.54> and
-  <https://pubmed.ncbi.nlm.nih.gov/16594767/>.
+  <https://doi.org/10.1037/1082-989X.11.1.54>.
 
 - Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
   Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
@@ -854,8 +852,7 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
   Measure of Intermittent and Constant Osteoarthritis Pain (ICOAP).
   *Arthritis Care and Research*, **63**(S11), S240–S252. DOI:
   10.1002/acr.20543. Validated online via:
-  <https://doi.org/10.1002/acr.20543> and
-  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+  <https://doi.org/10.1002/acr.20543>.
 
 - Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
   comparing numerical rating scales, verbal rating scales, and visual
@@ -863,5 +860,4 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
   systematic literature review. *Journal of Pain and Symptom
   Management*, **41**(6), 1073–1093. DOI:
   10.1016/j.jpainsymman.2010.08.016. Validated online via:
-  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
-  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016>.

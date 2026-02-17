@@ -9,6 +9,7 @@ brsmm_loglik_eigen(
   param,
   X,
   Z,
+  Xr,
   y_left,
   y_right,
   yt,
@@ -26,19 +27,23 @@ brsmm_loglik_eigen(
 
 - param:
 
-  \[beta, gamma, log_sigma\]
+  \[beta, gamma, theta_re\]
 
-- X, :
+- X:
 
-  Z Design matrices
+  Mean design matrix
 
-- y_left, :
+- Z:
 
-  y_right, yt, delta Data
+  Precision design matrix
 
-- group:
+- Xr:
 
-  Group indices
+  Random-effects design matrix
+
+- y_left, y_right, yt, delta, group:
+
+  Data
 
 - method:
 

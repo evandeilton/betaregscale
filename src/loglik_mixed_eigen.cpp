@@ -1,43 +1,48 @@
-
 // [[Rcpp::depends(RcppEigen)]]
 #include <RcppEigen.h>
 #include <Rmath.h>
 #include <cmath>
 #include <vector>
 
-// Numerical constants
 static const double EPS_SHAPE = 1.0e-12;
 static const double MAX_SHAPE = 1.0e8;
 static const double EPS_PROB = 1.0e-15;
 static const double LOG_PENALTY = -1.0e6;
 static const double EPS_BOUND = 1.0e-5;
 
-// Helper: Clamp
 inline double clamp(double x, double lo, double hi) {
   return (x < lo) ? lo : ((x > hi) ? hi : x);
 }
 
-// Helper: Inverse links (scalar)
 inline double inv_link(double eta, int code) {
   switch (code) {
-  case 0: return 1.0 / (1.0 + std::exp(-eta)); // logit
-  case 1: return R::pnorm(eta, 0.0, 1.0, 1, 0); // probit
-  case 2: return 0.5 + std::atan(eta) / M_PI; // cauchit
-  case 3: return 1.0 - std::exp(-std::exp(eta)); // cloglog
-  case 4: return std::exp(eta); // log
-  case 5: return eta * eta; // sqrt
+  case 0:
+    return 1.0 / (1.0 + std::exp(-eta));
+  case 1:
+    return R::pnorm(eta, 0.0, 1.0, 1, 0);
+  case 2:
+    return 0.5 + std::atan(eta) / M_PI;
+  case 3:
+    return 1.0 - std::exp(-std::exp(eta));
+  case 4:
+    return std::exp(eta);
+  case 5:
+    return eta * eta;
   case 6:
-    if (std::abs(eta) < EPS_PROB) return (eta >= 0.0) ? MAX_SHAPE : -MAX_SHAPE;
-    return 1.0 / eta; // inverse
+    if (std::abs(eta) < EPS_PROB)
+      return (eta >= 0.0) ? MAX_SHAPE : -MAX_SHAPE;
+    return 1.0 / eta;
   case 7:
-    if (eta <= EPS_PROB) return MAX_SHAPE;
-    return 1.0 / std::sqrt(eta); // 1/mu^2
-  case 8: return eta; // identity
-  default: return 1.0 / (1.0 + std::exp(-eta));
+    if (eta <= EPS_PROB)
+      return MAX_SHAPE;
+    return 1.0 / std::sqrt(eta);
+  case 8:
+    return eta;
+  default:
+    return 1.0 / (1.0 + std::exp(-eta));
   }
 }
 
-// Clamp phi in accordance with the selected parameterization.
 inline double clamp_phi_by_repar(double phi, int repar) {
   if (!std::isfinite(phi)) {
     return (repar == 2) ? (1.0 - EPS_BOUND) : MAX_SHAPE;
@@ -48,383 +53,424 @@ inline double clamp_phi_by_repar(double phi, int repar) {
   return clamp(phi, EPS_BOUND, MAX_SHAPE);
 }
 
-// Helper: Beta shapes
 inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) {
   switch (repar) {
-  case 0: a = mu; b = phi; break;
-  case 1: a = mu * phi; b = (1.0 - mu) * phi; break;
+  case 0:
+    a = mu;
+    b = phi;
+    break;
+  case 1:
+    a = mu * phi;
+    b = (1.0 - mu) * phi;
+    break;
   case 2: {
     double ratio = (1.0 - phi) / phi;
     a = mu * ratio;
     b = (1.0 - mu) * ratio;
     break;
   }
-  default: a = mu; b = phi;
+  default:
+    a = mu;
+    b = phi;
   }
   a = clamp(a, EPS_SHAPE, MAX_SHAPE);
   b = clamp(b, EPS_SHAPE, MAX_SHAPE);
 }
 
-// Helper: Obs loglik
-inline double obs_loglik(int delta_i, double left_i, double right_i,
-                         double yt_i, double a, double b) {
-  double contrib;
+inline double obs_loglik(int delta_i, double left_i, double right_i, double yt_i,
+                         double a, double b) {
   double lo = clamp(left_i, EPS_BOUND, 1.0 - EPS_BOUND);
   double hi = clamp(right_i, EPS_BOUND, 1.0 - EPS_BOUND);
-  double y  = clamp(yt_i, EPS_BOUND, 1.0 - EPS_BOUND);
+  double y = clamp(yt_i, EPS_BOUND, 1.0 - EPS_BOUND);
 
-  if (delta_i == 0) { // Exact
+  double contrib = LOG_PENALTY;
+  if (delta_i == 0) {
     contrib = R::dbeta(y, a, b, 1);
-  } else if (delta_i == 1) { // Left-censored
+  } else if (delta_i == 1) {
     double p = R::pbeta(hi, a, b, 1, 0);
     contrib = std::log(std::max(p, EPS_PROB));
-  } else if (delta_i == 2) { // Right-censored
-    double p = R::pbeta(lo, a, b, 0, 0); // upper tail
+  } else if (delta_i == 2) {
+    double p = R::pbeta(lo, a, b, 0, 0);
     contrib = std::log(std::max(p, EPS_PROB));
-  } else { // Interval-censored
+  } else {
     double p1 = R::pbeta(lo, a, b, 1, 0);
     double p2 = R::pbeta(hi, a, b, 1, 0);
-    double area = std::max(p2 - p1, EPS_PROB);
-    contrib = std::log(area);
+    contrib = std::log(std::max(p2 - p1, EPS_PROB));
   }
   return std::isfinite(contrib) ? contrib : LOG_PENALTY;
 }
 
-// Data structure for a group
 struct GroupData {
   Eigen::VectorXd delta;
   Eigen::VectorXd y_left;
   Eigen::VectorXd y_right;
   Eigen::VectorXd yt;
-  Eigen::VectorXd eta_mu_fixed; // X_i * beta
-  Eigen::VectorXd eta_phi;      // Z_i * gamma
-  // For q=1 random intercept, Z_random is just a vector of 1s (or implicit)
-  // Generalizing slightly:
-  // Eigen::MatrixXd Z_random;
+  Eigen::VectorXd eta_mu_fixed;
+  Eigen::VectorXd eta_phi;
+  Eigen::MatrixXd Zr;
 };
 
-// Function h(b) = sum log f(y|b) + log phi(b)
-// For q=1 b is scalar b_val.
-double h_func(double b_val, const GroupData &gd, double sigma_b,
-              int link_mu_code, int link_phi_code, int repar) {
+struct RandStruct {
+  Eigen::MatrixXd L;
+  double logdet_D;
+  int q_re;
+};
+
+inline RandStruct unpack_re(const Eigen::VectorXd &theta_re, int q_re) {
+  RandStruct rs;
+  rs.q_re = q_re;
+  rs.L = Eigen::MatrixXd::Zero(q_re, q_re);
+  int k = 0;
+  double logdet_half = 0.0;
+  for (int j = 0; j < q_re; ++j) {
+    for (int i = j; i < q_re; ++i) {
+      double v = theta_re(k++);
+      if (i == j) {
+        double d = std::exp(v);
+        rs.L(i, j) = d;
+        logdet_half += std::log(d);
+      } else {
+        rs.L(i, j) = v;
+      }
+    }
+  }
+  rs.logdet_D = 2.0 * logdet_half;
+  return rs;
+}
+
+inline double log_prior_b(const Eigen::VectorXd &b, const RandStruct &rs) {
+  Eigen::VectorXd z = rs.L.triangularView<Eigen::Lower>().solve(b);
+  double quad = z.squaredNorm();
+  double cst = rs.q_re * std::log(2.0 * M_PI);
+  return -0.5 * (cst + rs.logdet_D + quad);
+}
+
+inline double h_func_vec(const Eigen::VectorXd &b, const GroupData &gd,
+                         const RandStruct &rs, int link_mu_code,
+                         int link_phi_code, int repar) {
   double ll = 0.0;
   int n = gd.delta.size();
-  for (int i = 0; i < n; i++) {
-    double eta = gd.eta_mu_fixed(i) + b_val; // random intercept assumption for now
-    double mu = inv_link(eta, link_mu_code);
-    double phi = inv_link(gd.eta_phi(i), link_phi_code);
-    
-    mu = clamp(mu, EPS_BOUND, 1.0 - EPS_BOUND);
-    phi = clamp_phi_by_repar(phi, repar);
-    
+  for (int i = 0; i < n; ++i) {
+    double eta = gd.eta_mu_fixed(i) + gd.Zr.row(i).dot(b);
+    double mu = clamp(inv_link(eta, link_mu_code), EPS_BOUND, 1.0 - EPS_BOUND);
+    double phi = clamp_phi_by_repar(inv_link(gd.eta_phi(i), link_phi_code), repar);
     double a, bb;
     beta_shapes(mu, phi, repar, a, bb);
-    ll += obs_loglik((int)gd.delta(i), gd.y_left(i), gd.y_right(i), gd.yt(i), a, bb);
+    ll += obs_loglik((int)gd.delta(i), gd.y_left(i), gd.y_right(i), gd.yt(i), a,
+                     bb);
   }
-  // Prior: log N(0, sigma_b^2)
-  ll += R::dnorm(b_val, 0.0, sigma_b, 1);
-  return ll;
+  ll += log_prior_b(b, rs);
+  return std::isfinite(ll) ? ll : LOG_PENALTY;
 }
 
-// Numerical derivative for h'(b)
-double h_grad(double b_val, const GroupData &gd, double sigma_b,
-              int link_mu_code, int link_phi_code, int repar) {
-  double eps = 1e-5;
-  double f1 = h_func(b_val + eps, gd, sigma_b, link_mu_code, link_phi_code, repar);
-  double f2 = h_func(b_val - eps, gd, sigma_b, link_mu_code, link_phi_code, repar);
-  return (f1 - f2) / (2.0 * eps);
-}
+inline void numerical_grad_hess(const Eigen::VectorXd &b, const GroupData &gd,
+                                const RandStruct &rs, int link_mu_code,
+                                int link_phi_code, int repar,
+                                Eigen::VectorXd &grad, Eigen::MatrixXd &hess) {
+  int q = b.size();
+  grad = Eigen::VectorXd::Zero(q);
+  hess = Eigen::MatrixXd::Zero(q, q);
+  double f0 = h_func_vec(b, gd, rs, link_mu_code, link_phi_code, repar);
 
-// Numerical 2nd derivative for h''(b)
-double h_hess(double b_val, const GroupData &gd, double sigma_b,
-              int link_mu_code, int link_phi_code, int repar) {
-  double eps = 1e-4;
-  double f0 = h_func(b_val, gd, sigma_b, link_mu_code, link_phi_code, repar);
-  double f1 = h_func(b_val + eps, gd, sigma_b, link_mu_code, link_phi_code, repar);
-  double f2 = h_func(b_val - eps, gd, sigma_b, link_mu_code, link_phi_code, repar);
-  return (f1 - 2.0 * f0 + f2) / (eps * eps);
-}
-
-// Newton-Raphson to find mode
-// Returns pair {mode, curv}
-std::pair<double, double> find_mode(const GroupData &gd, double sigma_b,
-                                    int link_mu_code, int link_phi_code, int repar) {
-  double b = 0.0; // Start at 0
-  for (int iter = 0; iter < 20; iter++) {
-    double g = h_grad(b, gd, sigma_b, link_mu_code, link_phi_code, repar);
-    double H = h_hess(b, gd, sigma_b, link_mu_code, link_phi_code, repar);
-    if (std::abs(H) < 1e-8) break; // unsafe
-    double step = g / H;
-    // Simple damping or check
-    if (step > 1.0) step = 1.0;
-    if (step < -1.0) step = -1.0;
-    b -= step;
-    if (std::abs(step) < 1e-6) break;
+  std::vector<double> step(q, 0.0);
+  for (int j = 0; j < q; ++j) {
+    step[j] = std::max(1e-5, 1e-4 * std::max(1.0, std::abs(b(j))));
   }
-  double curv = -h_hess(b, gd, sigma_b, link_mu_code, link_phi_code, repar);
-  if (curv <= 1e-8) curv = 1.0 / (sigma_b * sigma_b); // fallback to prior precision
-  return {b, curv};
+
+  for (int j = 0; j < q; ++j) {
+    Eigen::VectorXd bp = b;
+    Eigen::VectorXd bm = b;
+    bp(j) += step[j];
+    bm(j) -= step[j];
+    double fp = h_func_vec(bp, gd, rs, link_mu_code, link_phi_code, repar);
+    double fm = h_func_vec(bm, gd, rs, link_mu_code, link_phi_code, repar);
+    grad(j) = (fp - fm) / (2.0 * step[j]);
+    hess(j, j) = (fp - 2.0 * f0 + fm) / (step[j] * step[j]);
+  }
+
+  for (int j = 0; j < q; ++j) {
+    for (int k = j + 1; k < q; ++k) {
+      Eigen::VectorXd bpp = b, bpm = b, bmp = b, bmm = b;
+      bpp(j) += step[j];
+      bpp(k) += step[k];
+      bpm(j) += step[j];
+      bpm(k) -= step[k];
+      bmp(j) -= step[j];
+      bmp(k) += step[k];
+      bmm(j) -= step[j];
+      bmm(k) -= step[k];
+
+      double fpp = h_func_vec(bpp, gd, rs, link_mu_code, link_phi_code, repar);
+      double fpm = h_func_vec(bpm, gd, rs, link_mu_code, link_phi_code, repar);
+      double fmp = h_func_vec(bmp, gd, rs, link_mu_code, link_phi_code, repar);
+      double fmm = h_func_vec(bmm, gd, rs, link_mu_code, link_phi_code, repar);
+      double hij = (fpp - fpm - fmp + fmm) / (4.0 * step[j] * step[k]);
+      hess(j, k) = hij;
+      hess(k, j) = hij;
+    }
+  }
 }
 
-// GH Weights/Nodes generator (Golub-Welsch)
-// n_points: number of points
-// Returns x (nodes) and w (weights)
+struct ModeResult {
+  Eigen::VectorXd mode;
+  Eigen::MatrixXd curvature;
+  double h_at_mode;
+};
+
+inline ModeResult find_mode_vec(const GroupData &gd, const RandStruct &rs,
+                                int link_mu_code, int link_phi_code, int repar) {
+  int q = rs.q_re;
+  Eigen::VectorXd b = Eigen::VectorXd::Zero(q);
+  double fcur = h_func_vec(b, gd, rs, link_mu_code, link_phi_code, repar);
+
+  for (int iter = 0; iter < 30; ++iter) {
+    Eigen::VectorXd g;
+    Eigen::MatrixXd H;
+    numerical_grad_hess(b, gd, rs, link_mu_code, link_phi_code, repar, g, H);
+
+    Eigen::FullPivLU<Eigen::MatrixXd> lu(H);
+    if (!lu.isInvertible()) {
+      H -= 1e-6 * Eigen::MatrixXd::Identity(q, q);
+      lu.compute(H);
+      if (!lu.isInvertible())
+        break;
+    }
+    Eigen::VectorXd step = lu.solve(g);
+    if (!step.allFinite())
+      break;
+
+    Eigen::VectorXd bnew = b - step;
+    double fnew = h_func_vec(bnew, gd, rs, link_mu_code, link_phi_code, repar);
+    double damp = 1.0;
+    while (fnew < fcur && damp > 1e-3) {
+      damp *= 0.5;
+      bnew = b - damp * step;
+      fnew = h_func_vec(bnew, gd, rs, link_mu_code, link_phi_code, repar);
+    }
+
+    if (std::abs(fnew - fcur) < 1e-8 && (damp * step).norm() < 1e-6) {
+      b = bnew;
+      fcur = fnew;
+      break;
+    }
+    b = bnew;
+    fcur = fnew;
+  }
+
+  Eigen::VectorXd g;
+  Eigen::MatrixXd H;
+  numerical_grad_hess(b, gd, rs, link_mu_code, link_phi_code, repar, g, H);
+  Eigen::MatrixXd curv = -H;
+  curv = 0.5 * (curv + curv.transpose());
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(curv);
+  Eigen::VectorXd ev = es.eigenvalues().cwiseMax(1e-8);
+  curv = es.eigenvectors() * ev.asDiagonal() * es.eigenvectors().transpose();
+
+  ModeResult out;
+  out.mode = b;
+  out.curvature = curv;
+  out.h_at_mode = fcur;
+  return out;
+}
+
 void compute_gh_rule(int n, std::vector<double> &x, std::vector<double> &w) {
-  // For small n, hardcoded might be faster, but let's do robust eigen method
-  // Construct symmetric tridiagonal matrix
-  // J_i,i = 0
-  // J_i,i+1 = sqrt((i+1)/2)
   Eigen::MatrixXd J = Eigen::MatrixXd::Zero(n, n);
-  for (int i = 0; i < n - 1; i++) {
+  for (int i = 0; i < n - 1; ++i) {
     double val = std::sqrt((double)(i + 1) / 2.0);
     J(i, i + 1) = val;
     J(i + 1, i) = val;
   }
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(J);
-  Eigen::VectorXd nodes = es.eigenvalues();
-  Eigen::MatrixXd vecs = es.eigenvectors();
-  
   x.resize(n);
   w.resize(n);
   double sqrt_pi = std::sqrt(M_PI);
-  for (int i = 0; i < n; i++) {
-    x[i] = nodes(i);
-    // w_i = v_0,i^2 * sqrt(pi) ??? 
-    // Standard Golub-Welsch: w_i = (v_1,i)^2 * integral_measure
-    // For Hermite, integral e^-x^2 dx is sqrt(pi).
-    // The eigenvector first component squared * total mass.
-    // However, typical implementations scale differently.
-    // Let's rely on standard source: w_j = v_{1,j}^2 * sqrt(pi) * 2^(n-1)? No.
-    // Actually w_i = v_{0,i}^2 * sqrt(pi).
-    // Let's verify standard GH weights sum to sqrt(pi).
-    w[i] = std::pow(vecs(0, i), 2) * sqrt_pi; 
+  for (int i = 0; i < n; ++i) {
+    x[i] = es.eigenvalues()(i);
+    w[i] = std::pow(es.eigenvectors()(0, i), 2) * sqrt_pi;
   }
-  // Weights usually for integral e^-x^2 f(x). 
-  // We need for N(0,1) density. N(x) = 1/sqrt(2pi) e^-x^2/2.
-  // Standard GH integrates e^-t^2. Change of variable x = t*sqrt(2).
 }
 
-// Precomputed rules cache could be added. 
-// For now, compute on fly or static local for fixed N.
-
-// -------------------------------------------------------------------------- //
-// Main Exported Function
-// -------------------------------------------------------------------------- //
-
-//' @title Mixed Model Log-Likelihood (Eigen)
-//' @description Computes marginal log-likelihood using Laplace, AGHQ, or QMC.
-//' @param param [beta, gamma, log_sigma]
-//' @param X, Z Design matrices
-//' @param y_left, y_right, yt, delta Data
-//' @param group Group indices
-//' @param method 0=Laplace, 1=AGHQ, 2=QMC
-//' @param n_points Number of quadrature/QMC points
-//' @keywords internal
-// [[Rcpp::export]]
-double brsmm_loglik_eigen(Eigen::VectorXd param, 
-                          Eigen::MatrixXd X, Eigen::MatrixXd Z,
-                          Eigen::VectorXd y_left, Eigen::VectorXd y_right, 
-                          Eigen::VectorXd yt, Eigen::VectorXi delta,
-                          Eigen::VectorXi group,
-                          int link_mu, int link_phi, int repar,
-                          int method, int n_points) {
-                          
-  int p = X.cols();
-  int q_phi = Z.cols();
-  
-  Eigen::VectorXd beta = param.head(p);
-  Eigen::VectorXd gamma = param.segment(p, q_phi);
-  double log_sigma = param(p + q_phi);
-  double sigma_b = std::exp(log_sigma);
-  
-  Eigen::VectorXd eta_mu = X * beta;
-  Eigen::VectorXd eta_phi = Z * gamma;
-  
-  // Identify groups
-  int max_g = group.maxCoeff();
-  std::vector<GroupData> groups(max_g);
-  
-  // Naive fill (could be optimized)
-  for (int i = 0; i < group.size(); i++) {
-    int g_idx = group(i) - 1; // 0-based
-    // Ideally push back, but Eigen resize is costly.
-    // Pre-count size logic omitted for brevity, using simplistic append or known structure.
-    // Re-impl: Just iterate and track indices.
+inline std::vector<GroupData>
+build_groups(const Eigen::VectorXd &eta_mu, const Eigen::VectorXd &eta_phi,
+             const Eigen::MatrixXd &Xr, const Eigen::VectorXd &y_left,
+             const Eigen::VectorXd &y_right, const Eigen::VectorXd &yt,
+             const Eigen::VectorXi &delta, const Eigen::VectorXi &group) {
+  int G = group.maxCoeff();
+  std::vector<int> counts(G, 0);
+  for (int i = 0; i < group.size(); ++i) {
+    counts[group(i) - 1]++;
   }
-  
-  // Better: count group sizes first
-  std::vector<int> counts(max_g, 0);
-  for(int i=0; i<group.size(); ++i) counts[group(i)-1]++;
-  
-  // Allocate
-  for(int g=0; g<max_g; ++g) {
-    groups[g].delta.resize(counts[g]);
-    groups[g].y_left.resize(counts[g]);
-    groups[g].y_right.resize(counts[g]);
-    groups[g].yt.resize(counts[g]);
-    groups[g].eta_mu_fixed.resize(counts[g]);
-    groups[g].eta_phi.resize(counts[g]);
+
+  std::vector<GroupData> groups(G);
+  for (int g = 0; g < G; ++g) {
+    int n = counts[g];
+    groups[g].delta.resize(n);
+    groups[g].y_left.resize(n);
+    groups[g].y_right.resize(n);
+    groups[g].yt.resize(n);
+    groups[g].eta_mu_fixed.resize(n);
+    groups[g].eta_phi.resize(n);
+    groups[g].Zr.resize(n, Xr.cols());
   }
-  
-  std::vector<int> cursors(max_g, 0);
-  for (int i = 0; i < group.size(); i++) {
+
+  std::vector<int> cur(G, 0);
+  for (int i = 0; i < group.size(); ++i) {
     int g = group(i) - 1;
-    int k = cursors[g]++;
+    int k = cur[g]++;
     groups[g].delta(k) = delta(i);
     groups[g].y_left(k) = y_left(i);
     groups[g].y_right(k) = y_right(i);
     groups[g].yt(k) = yt(i);
     groups[g].eta_mu_fixed(k) = eta_mu(i);
     groups[g].eta_phi(k) = eta_phi(i);
+    groups[g].Zr.row(k) = Xr.row(i);
   }
-  
-  double total_ll = 0.0;
-  
-  // Prepared Quadrature Rule for AGHQ
+  return groups;
+}
+
+//' @title Mixed Model Log-Likelihood (Eigen)
+//' @description Computes marginal log-likelihood using Laplace, AGHQ, or QMC.
+//' @param param [beta, gamma, theta_re]
+//' @param X Mean design matrix
+//' @param Z Precision design matrix
+//' @param Xr Random-effects design matrix
+//' @param y_left,y_right,yt,delta,group Data
+//' @param method 0=Laplace, 1=AGHQ, 2=QMC
+//' @param n_points Number of quadrature/QMC points
+//' @keywords internal
+// [[Rcpp::export]]
+double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X,
+                          Eigen::MatrixXd Z, Eigen::MatrixXd Xr,
+                          Eigen::VectorXd y_left, Eigen::VectorXd y_right,
+                          Eigen::VectorXd yt, Eigen::VectorXi delta,
+                          Eigen::VectorXi group, int link_mu, int link_phi,
+                          int repar, int method, int n_points) {
+  int p = X.cols();
+  int q_phi = Z.cols();
+  int q_re = Xr.cols();
+  int k_re = q_re * (q_re + 1) / 2;
+  if (param.size() != (p + q_phi + k_re)) {
+    return LOG_PENALTY;
+  }
+  if (q_re > 1 && method != 0) {
+    return LOG_PENALTY;
+  }
+
+  Eigen::VectorXd beta = param.head(p);
+  Eigen::VectorXd gamma = param.segment(p, q_phi);
+  Eigen::VectorXd theta_re = param.tail(k_re);
+  RandStruct rs = unpack_re(theta_re, q_re);
+
+  Eigen::VectorXd eta_mu = X * beta;
+  Eigen::VectorXd eta_phi = Z * gamma;
+  std::vector<GroupData> groups =
+      build_groups(eta_mu, eta_phi, Xr, y_left, y_right, yt, delta, group);
+
   std::vector<double> gh_x, gh_w;
-  if(method == 1) { // AGHQ
-    compute_gh_rule(n_points, gh_x, gh_w);
-  }
-
-  // Prepared QMC Rule
   Eigen::VectorXd qmc_pts;
-  if(method == 2) { // QMC (Halton base 2)
+  if (method == 1) {
+    compute_gh_rule(n_points, gh_x, gh_w);
+  } else if (method == 2) {
     qmc_pts.resize(n_points);
-    for(int k=0; k<n_points; ++k) {
-       // Simple Halton base 2 generator
-       double f = 1.0, r = 0.0;
-       int i = k + 1; // offset to avoid 0
-       while (i > 0) {
-           f /= 2.0;
-           r += f * (i % 2);
-           i /= 2;
-       }
-       // Transform Uniform(0,1) to Normal(0,1) via Inverse CDF
-       qmc_pts(k) = R::qnorm(r, 0.0, 1.0, 1, 0);
+    for (int k = 0; k < n_points; ++k) {
+      double f = 1.0, r = 0.0;
+      int i = k + 1;
+      while (i > 0) {
+        f /= 2.0;
+        r += f * (i % 2);
+        i /= 2;
+      }
+      qmc_pts(k) = R::qnorm(r, 0.0, 1.0, 1, 0);
     }
   }
 
-  // Loop Groups
-  for (int g = 0; g < max_g; g++) {
-    if(groups[g].delta.size() == 0) continue;
-    
-    // 1. Find Mode b_hat
-    std::pair<double, double> opt = find_mode(groups[g], sigma_b, link_mu, link_phi, repar);
-    double b_hat = opt.first;
-    double curv = opt.second; // approx -H
-    
-    if (method == 0) { // Laplace
-      // log L approx h(b_hat) - 0.5 * log(det(H)) + const
-      // Actually standard formula: 
-      // L approx exp(h(b_hat)) * sqrt(2pi) * H^-0.5
-      // log L = h(b_hat) + 0.5*log(2pi) - 0.5*log(H)
-      // Note h(b) included log prior density which has -0.5*log(2pi*sigma^2).
-      // Let's check:
-      // h(b) = log f(y|b) + log phi(b).
-      // Integral approx exp(h(b_hat)) * sqrt(2pi/H).
-      // log I approx h(b_hat) + 0.5*log(2pi) - 0.5*log(H).
-      
-      double val = h_func(b_hat, groups[g], sigma_b, link_mu, link_phi, repar);
-      total_ll += val + 0.5 * std::log(2.0 * M_PI) - 0.5 * std::log(curv);
-      
-    } else if (method == 1) { // AGHQ
-      // Change of variable: b = b_hat + z * s, where s = 1/sqrt(curv)
-      // I = int e^h(b) db
-      // approx sum w_k * e^h(b(x_k)) * Jacobian?
-      // Standard GH approx: int e^-x^2 f(x) dx approx sum w_k f(x_k).
-      // We want int e^(h(b) - (-b^2/2sigma^2? No, h(b) is full).
-      // Let's use the transformation z ~ N(0,1).
-      // b = b_hat + z / sqrt(curv).
-      // We just sum over standard normal nodes.
-      // E[g(z)] approx sum w_k g(x_k) / sqrt(pi)?
-      // Wait, standard GH integrates e^-x^2.
-      
-      // Let's use the "adaptive" formulation:
-      // L approx sqrt(2) / sqrt(H) * sum w_k exp( h(b_hat + sqrt(2)*x_k/sqrt(H)) + x_k^2 ) ?
-      // This removes the gaussian kernel from h and puts it back?
-      
-      // Simpler:
-      // Treat posterior as approx Normal(b_hat, 1/curv).
-      // Use nodes scaled by this normal.
-      // nodes_Transformed = b_hat + nodes_GH_Standard * sqrt(2) * sigma_approx ??
-      
-      // Let's stick to simple AGHQ logic from papers:
-      // z_k are nodes of H_k(x). x_k = z_k. w_k weights.
-      // These integrate exp(-x^2).
-      // We assume posteror approx P(b) ~ exp( - H/2 (b-b_hat)^2 ).
-      // Let's rewrite h(b) = h(b_hat) - H/2 (b-b_hat)^2 + R(b).
-      // Then integral is exp(h(b_hat)) * int exp(-u^2) ...
-      
-      // Practical implementation:
-      // nodes t_k, weights w_k from GH rule for weight e^{-t^2}.
-      // b_k = b_hat + t_k * sqrt(2) / sqrt(curv).
-      // log_term = h(b_k) + t_k^2. (adding back t^2 because we divide by e^-t^2 implicit in rule)
-      // Integral approx: sqrt(2)/sqrt(curv) * sum w_k * exp(log_term).
-      
-      double sd_proxy = 1.0 / std::sqrt(curv);
-      double sum_exp = 0.0;
-      // Use efficient log-sum-exp if needed but direct sum is likely fine for few nodes
-      
-      // Need log-sum-exp for stability:
-      std::vector<double> log_terms(n_points);
-      
-      for(int k=0; k<n_points; ++k) {
-         double t_k = gh_x[k];
-         // Transform
-         double b_k = b_hat + t_k * M_SQRT2 * sd_proxy;
-         double h_val = h_func(b_k, groups[g], sigma_b, link_mu, link_phi, repar);
-         // The weight w_k is for exp(-t^2).
-         // The integral is int f(t) e^-t^2 dt approx sum w_k f(t_k).
-         // Our integral is int exp(h(b)) db.
-         // Change var: b = b_hat + t * sqrt(2) * sd_proxy.
-         // db = sqrt(2) * sd_proxy dt.
-         // Int = sqrt(2)*sd * int exp(h(b(t))) dt.
-         //     = sqrt(2)*sd * int exp(h(b(t)) + t^2) * e^-t^2 dt.
-         // Approx = sqrt(2)*sd * sum w_k * exp(h(b(t_k)) + t_k^2).
-         
-         log_terms[k] = std::log(gh_w[k]) + h_val + t_k*t_k;
+  double total = 0.0;
+  for (size_t g = 0; g < groups.size(); ++g) {
+    if (groups[g].delta.size() == 0)
+      continue;
+    ModeResult mr = find_mode_vec(groups[g], rs, link_mu, link_phi, repar);
+
+    if (method == 0) {
+      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(mr.curvature);
+      Eigen::VectorXd ev = es.eigenvalues().cwiseMax(1e-8);
+      double logdet = ev.array().log().sum();
+      total += mr.h_at_mode + 0.5 * q_re * std::log(2.0 * M_PI) - 0.5 * logdet;
+    } else if (method == 1) {
+      double b_hat = mr.mode(0);
+      double curv = mr.curvature(0, 0);
+      double sd_proxy = 1.0 / std::sqrt(std::max(curv, 1e-8));
+      std::vector<double> lt(n_points);
+      for (int k = 0; k < n_points; ++k) {
+        Eigen::VectorXd bk(1);
+        bk(0) = b_hat + gh_x[k] * M_SQRT2 * sd_proxy;
+        double h = h_func_vec(bk, groups[g], rs, link_mu, link_phi, repar);
+        lt[k] = std::log(gh_w[k]) + h + gh_x[k] * gh_x[k];
       }
-      
-      // LogSumExp
-      double max_val = log_terms[0];
-      for(int k=1; k<n_points; ++k) if(log_terms[k]>max_val) max_val = log_terms[k];
-      double sum_s = 0;
-      for(int k=0; k<n_points; ++k) sum_s += std::exp(log_terms[k] - max_val);
-      
-      double log_I = std::log(sum_s) + max_val + std::log(M_SQRT2 * sd_proxy);
-      total_ll += log_I;
-      
-    } else if (method == 2) { // QMC (Importance Sampling via Shifted Normal)
-       // Proposal q(b) = N(b_hat, 1/curv).
-       // I = int e^h(b) db = int (e^h / q(b)) q(b) db
-       //   approx 1/M sum (e^h(b_k) / q(b_k)) where b_k ~ q(b).
-       // b_k generated via QMC inverse transform.
-       // b_k = b_hat + sd_proxy * Z_k (Z_k from QMC Normal).
-       
-       double sd_proxy = 1.0 / std::sqrt(curv);
-       
-       std::vector<double> log_ratios(n_points);
-       double max_lr = -1e9;
-       
-       for(int k=0; k<n_points; ++k) {
-          double z = qmc_pts(k);
-          double b_k = b_hat + z * sd_proxy;
-          
-          double h_val = h_func(b_k, groups[g], sigma_b, link_mu, link_phi, repar);
-          double log_q = R::dnorm(b_k, b_hat, sd_proxy, 1);
-          
-          double lr = h_val - log_q;
-          log_ratios[k] = lr;
-          if(lr > max_lr) max_lr = lr;
-       }
-       
-       double sum_r = 0.0;
-       for(int k=0; k<n_points; ++k) sum_r += std::exp(log_ratios[k] - max_lr);
-       
-       double log_I = std::log(sum_r) - std::log((double)n_points) + max_lr;
-       total_ll += log_I;
+      double m = lt[0];
+      for (int k = 1; k < n_points; ++k)
+        if (lt[k] > m)
+          m = lt[k];
+      double s = 0.0;
+      for (int k = 0; k < n_points; ++k)
+        s += std::exp(lt[k] - m);
+      total += std::log(s) + m + std::log(M_SQRT2 * sd_proxy);
+    } else {
+      double b_hat = mr.mode(0);
+      double curv = mr.curvature(0, 0);
+      double sd_proxy = 1.0 / std::sqrt(std::max(curv, 1e-8));
+      std::vector<double> lr(n_points);
+      double m = -1e12;
+      for (int k = 0; k < n_points; ++k) {
+        Eigen::VectorXd bk(1);
+        bk(0) = b_hat + qmc_pts(k) * sd_proxy;
+        double h = h_func_vec(bk, groups[g], rs, link_mu, link_phi, repar);
+        double lq = R::dnorm(bk(0), b_hat, sd_proxy, 1);
+        lr[k] = h - lq;
+        if (lr[k] > m)
+          m = lr[k];
+      }
+      double s = 0.0;
+      for (int k = 0; k < n_points; ++k)
+        s += std::exp(lr[k] - m);
+      total += std::log(s) - std::log((double)n_points) + m;
     }
   }
-  
-  return total_ll;
+  return total;
+}
+
+//' @title Group modes for mixed model (Eigen backend)
+//' @keywords internal
+// [[Rcpp::export]]
+Eigen::MatrixXd brsmm_group_modes_eigen(
+    Eigen::VectorXd param, Eigen::MatrixXd X, Eigen::MatrixXd Z, Eigen::MatrixXd Xr,
+    Eigen::VectorXd y_left, Eigen::VectorXd y_right, Eigen::VectorXd yt,
+    Eigen::VectorXi delta, Eigen::VectorXi group, int link_mu, int link_phi,
+    int repar) {
+  int p = X.cols();
+  int q_phi = Z.cols();
+  int q_re = Xr.cols();
+  int k_re = q_re * (q_re + 1) / 2;
+  Eigen::MatrixXd out;
+  if (param.size() != (p + q_phi + k_re)) {
+    return out;
+  }
+
+  Eigen::VectorXd beta = param.head(p);
+  Eigen::VectorXd gamma = param.segment(p, q_phi);
+  Eigen::VectorXd theta_re = param.tail(k_re);
+  RandStruct rs = unpack_re(theta_re, q_re);
+  Eigen::VectorXd eta_mu = X * beta;
+  Eigen::VectorXd eta_phi = Z * gamma;
+  std::vector<GroupData> groups =
+      build_groups(eta_mu, eta_phi, Xr, y_left, y_right, yt, delta, group);
+
+  int G = (int)groups.size();
+  out = Eigen::MatrixXd::Zero(G, q_re);
+  for (int g = 0; g < G; ++g) {
+    if (groups[g].delta.size() == 0)
+      continue;
+    ModeResult mr = find_mode_vec(groups[g], rs, link_mu, link_phi, repar);
+    out.row(g) = mr.mode.transpose();
+  }
+  return out;
 }

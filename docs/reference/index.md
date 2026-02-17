@@ -26,6 +26,8 @@ Data simulation for Monte Carlo studies.
 
 Standard methods for fitted model objects of class brs.
 
+- [`anova(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
+  : Model comparison by analysis of deviance (LR test) for \`brs\`
 - [`coef(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.brs.md)
   : Extract model coefficients
 - [`vcov(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md)
@@ -63,6 +65,8 @@ Standard methods for fitted model objects of class brs.
 
 Standard methods for fitted model objects of class brsmm.
 
+- [`anova(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md)
+  : Model comparison by analysis of deviance (LR test) for \`brsmm\`
 - [`coef(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.brsmm.md)
   : Extract coefficients from a brsmm fit
 - [`vcov(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.brsmm.md)
@@ -91,6 +95,10 @@ Standard methods for fitted model objects of class brsmm.
   : Extract random effects from a brsmm model
 - [`plot(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
   : Diagnostic plots for mixed beta interval regression
+- [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
+  : Random-effects study for brsmm models
+- [`print(`*`<brsmm_re_study>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.brsmm_re_study.md)
+  : Print method for random-effects study
 
 ## Diagnostics and Summaries
 

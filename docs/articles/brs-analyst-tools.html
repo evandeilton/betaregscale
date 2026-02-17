@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -368,7 +368,9 @@ definition shown above.</p>
 <span>  <span class="va">fit_var</span>,</span>
 <span>  model <span class="op">=</span> <span class="st">"precision"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"link"</span>,</span>
-<span>  interval <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_sim <span class="op">=</span> <span class="fl">120</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">2026</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">me_precision</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -395,9 +397,9 @@ definition shown above.</p>
 <tbody><tr class="odd">
 <td align="left">z1</td>
 <td align="right">-0.3361</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
+<td align="right">0.0835</td>
+<td align="right">-0.4781</td>
+<td align="right">-0.1413</td>
 <td align="left">precision</td>
 <td align="left">link</td>
 <td align="right">220</td>
@@ -1286,15 +1288,15 @@ Scale-Derived Outcomes</em>. MSc Dissertation, PPGMNE/UFPR.</li>
 <li>Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
 modelling rates and proportions. <em>Journal of Applied Statistics</em>,
 31(7), 799-815. DOI: 10.1080/0266476042000214501. Validated online via:
-<a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a> and <a href="https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815" class="external-link uri">https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815</a>.</li>
+<a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a>.</li>
 <li>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS, and
 ICOAP. <em>Arthritis Care and Research</em>, 63(S11), S240-S252. DOI:
-10.1002/acr.20543. Validated online via: <a href="https://doi.org/10.1002/acr.20543" class="external-link uri">https://doi.org/10.1002/acr.20543</a> and <a href="https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543" class="external-link uri">https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543</a>.</li>
+10.1002/acr.20543. Validated online via: <a href="https://doi.org/10.1002/acr.20543" class="external-link uri">https://doi.org/10.1002/acr.20543</a>.</li>
 <li>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 Comparing NRS, VRS, and VAS pain scales in adults: a systematic review.
 <em>Journal of Pain and Symptom Management</em>, 41(6), 1073-1093. DOI:
-10.1016/j.jpainsymman.2010.08.016. Validated online via: <a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link uri">https://doi.org/10.1016/j.jpainsymman.2010.08.016</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/21621130/" class="external-link uri">https://pubmed.ncbi.nlm.nih.gov/21621130/</a>.</li>
+10.1016/j.jpainsymman.2010.08.016. Validated online via: <a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link uri">https://doi.org/10.1016/j.jpainsymman.2010.08.016</a>.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
