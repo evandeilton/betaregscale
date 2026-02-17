@@ -24,18 +24,19 @@ score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 left-censored, right-censored, and interval-censored** within the same
 dataset.
 
-Mathematically, for each observation \(i\), the complete likelihood
-contribution is
-\[
+Mathematically, for each observation $i$, the likelihood contribution is
+
+$$
 L_i(\theta)=
 \begin{cases}
 f(y_i; a_i, b_i), & \delta_i=0,\\
 F(u_i; a_i, b_i), & \delta_i=1,\\
 1-F(l_i; a_i, b_i), & \delta_i=2,\\
-F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3,
+F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3.
 \end{cases}
-\]
-with \(f(\cdot)\) and \(F(\cdot)\) denoting beta density and CDF.
+$$
+
+where $f(\cdot)$ and $F(\cdot)$ denote the beta density and CDF.
 
 ## Key features
 
@@ -200,10 +201,14 @@ brs_cens(fit)
 ### Complete likelihood
 
 The complete log-likelihood for mixed censoring (Lopes, 2024, Eq. 2.24)
-combines four observation types:
+combines the four observation types:
 
 $$
-\ell(\boldsymbol{\theta}) = \sum_{i:\,\delta_i=0} \log f(y_i) + \sum_{i:\,\delta_i=1} \log F(u_i) + \sum_{i:\,\delta_i=2} \log [1 - F(l_i)] + \sum_{i:\,\delta_i=3} \log [F(u_i) - F(l_i)]
+\ell(\theta)=
+\sum_{i:\delta_i=0}\log f(y_i)+
+\sum_{i:\delta_i=1}\log F(u_i)+
+\sum_{i:\delta_i=2}\log\!\left[1-F(l_i)\right]+
+\sum_{i:\delta_i=3}\log\!\left[F(u_i)-F(l_i)\right].
 $$
 
 where $f(\cdot)$ and $F(\cdot)$ are the beta density and CDF,
@@ -222,7 +227,7 @@ censoring type.
 
 ```r
 # Parametric bootstrap CI
-boot_ci <- brs_bootstrap(fit, B = 100, level = 0.95)
+boot_ci <- brs_bootstrap(fit, R = 100, level = 0.95)
 knitr::kable(head(boot_ci), digits = 4)
 
 # Average marginal effects
