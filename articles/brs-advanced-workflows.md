@@ -151,7 +151,7 @@ kbl10(ame_mu)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   boot_tab_bca <- brs_bootstrap(
     fit_logit,
-    R = 80,
+    R = 120,
     level = 0.95,
     ci_type = "bca",
     keep_draws = TRUE
