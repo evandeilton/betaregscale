@@ -19,6 +19,7 @@ articles:
     navbar: ~
     contents:
       - brs-intro
+      - brs-advanced-workflows
       - brs-mm
       - brs-analyst-tools
 reference:
