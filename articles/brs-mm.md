@@ -137,10 +137,10 @@ summary(fit_mm)
 #> logLik =-1231.3848 | AIC =2470.7696 | BIC =2485.4215
 #> 
 #>                   Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)        0.01050    0.05382   0.195  0.84525    
-#> x1                 0.62965    0.08635   7.292 3.06e-13 ***
-#> (phi)_(Intercept) -0.13627    0.07643  -1.783  0.07462 .  
-#> (sd)_id           -0.84358    0.25984  -3.247  0.00117 ** 
+#> (Intercept)        0.01048    0.05320   0.197  0.84376    
+#> x1                 0.62966    0.08644   7.284 3.24e-13 ***
+#> (phi)_(Intercept) -0.13627    0.07642  -1.783  0.07457 .  
+#> (sd)_id           -0.84340    0.25945  -3.251  0.00115 ** 
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -166,7 +166,7 @@ knitr::kable(
 | (Intercept)        |   0.0105 |
 | x1                 |   0.6297 |
 | (phi)\_(Intercept) |  -0.1363 |
-| (sd)\_id           |  -0.8436 |
+| (sd)\_id           |  -0.8434 |
 
 ``` r
 knitr::kable(
@@ -178,7 +178,7 @@ knitr::kable(
 
 | log_sigma_b | sigma_b |
 |------------:|--------:|
-|     -0.8436 |  0.4302 |
+|     -0.8434 |  0.4302 |
 
 ``` r
 knitr::kable(head(ranef.brsmm(fit_mm)), digits = 4)
@@ -187,11 +187,11 @@ knitr::kable(head(ranef.brsmm(fit_mm)), digits = 4)
 |       x |
 |--------:|
 | -0.3707 |
-|  0.4554 |
+|  0.4555 |
 | -0.1742 |
-| -0.4593 |
+| -0.4594 |
 |  0.0248 |
-|  0.4295 |
+|  0.4296 |
 
 ### Variance-covariance, summary and likelihood criteria
 
@@ -206,10 +206,10 @@ knitr::kable(sm$coefficients, digits = 4)
 
 |                    | Estimate | Std. Error | z value | Pr(\>\|z\|) |
 |:-------------------|---------:|-----------:|--------:|------------:|
-| (Intercept)        |   0.0105 |     0.0538 |  0.1952 |      0.8452 |
-| x1                 |   0.6297 |     0.0864 |  7.2917 |      0.0000 |
-| (phi)\_(Intercept) |  -0.1363 |     0.0764 | -1.7828 |      0.0746 |
-| (sd)\_id           |  -0.8436 |     0.2598 | -3.2466 |      0.0012 |
+| (Intercept)        |   0.0105 |     0.0532 |  0.1971 |      0.8438 |
+| x1                 |   0.6297 |     0.0864 |  7.2843 |      0.0000 |
+| (phi)\_(Intercept) |  -0.1363 |     0.0764 | -1.7831 |      0.0746 |
+| (sd)\_id           |  -0.8434 |     0.2595 | -3.2507 |      0.0012 |
 
 ``` r
 
@@ -246,12 +246,12 @@ knitr::kable(
 
 | mu_hat | phi_hat | pred_mu | pred_eta | pred_phi | pred_var |
 |-------:|--------:|--------:|---------:|---------:|---------:|
-| 0.3562 |   0.466 |  0.3562 |  -0.5917 |    0.466 |   0.1069 |
-| 0.1647 |   0.466 |  0.1647 |  -1.6238 |    0.466 |   0.0641 |
-| 0.4038 |   0.466 |  0.4038 |  -0.3897 |    0.466 |   0.1122 |
+| 0.3562 |   0.466 |  0.3562 |  -0.5918 |    0.466 |   0.1069 |
+| 0.1647 |   0.466 |  0.1647 |  -1.6239 |    0.466 |   0.0641 |
+| 0.4038 |   0.466 |  0.4038 |  -0.3898 |    0.466 |   0.1122 |
 | 0.3739 |   0.466 |  0.3739 |  -0.5156 |    0.466 |   0.1091 |
-| 0.5301 |   0.466 |  0.5301 |   0.1205 |    0.466 |   0.1161 |
-| 0.3170 |   0.466 |  0.3170 |  -0.7677 |    0.466 |   0.1009 |
+| 0.5301 |   0.466 |  0.5301 |   0.1204 |    0.466 |   0.1161 |
+| 0.3170 |   0.466 |  0.3170 |  -0.7678 |    0.466 |   0.1009 |
 
 ``` r
 
@@ -267,8 +267,8 @@ knitr::kable(
 | res_response | res_pearson |
 |-------------:|------------:|
 |      -0.1762 |     -0.5391 |
-|       0.1253 |      0.4950 |
-|      -0.2838 |     -0.8473 |
+|       0.1253 |      0.4951 |
+|      -0.2838 |     -0.8472 |
 |       0.0561 |      0.1699 |
 |       0.0299 |      0.0878 |
 |       0.2330 |      0.7337 |
@@ -368,10 +368,10 @@ knitr::kable(sm$coefficients, digits = 4)
 
 |                    | Estimate | Std. Error | z value | Pr(\>\|z\|) |
 |:-------------------|---------:|-----------:|--------:|------------:|
-| (Intercept)        |   0.0105 |     0.0538 |  0.1952 |      0.8452 |
-| x1                 |   0.6297 |     0.0864 |  7.2917 |      0.0000 |
-| (phi)\_(Intercept) |  -0.1363 |     0.0764 | -1.7828 |      0.0746 |
-| (sd)\_id           |  -0.8436 |     0.2598 | -3.2466 |      0.0012 |
+| (Intercept)        |   0.0105 |     0.0532 |  0.1971 |      0.8438 |
+| x1                 |   0.6297 |     0.0864 |  7.2843 |      0.0000 |
+| (phi)\_(Intercept) |  -0.1363 |     0.0764 | -1.7831 |      0.0746 |
+| (sd)\_id           |  -0.8434 |     0.2595 | -3.2507 |      0.0012 |
 
 ### Likelihood-ratio test for nested fixed effects
 
@@ -426,9 +426,9 @@ fit:
 
 ``` r
 est <- c(
-  beta0 = coef(fit_mm, model = "mean")[1],
-  beta1 = coef(fit_mm, model = "mean")[2],
-  sigma_b = exp(coef(fit_mm, model = "random"))
+  beta0 = unname(coef(fit_mm, model = "mean")[1]),
+  beta1 = unname(coef(fit_mm, model = "mean")[2]),
+  sigma_b = unname(exp(coef(fit_mm, model = "random")))
 )
 
 true <- c(
@@ -446,11 +446,11 @@ recovery_table <- data.frame(
 knitr::kable(recovery_table, digits = 4)
 ```
 
-| parameter | true | estimate | bias |
-|:----------|-----:|---------:|-----:|
-| beta0     | 0.20 |       NA |   NA |
-| beta1     | 0.65 |       NA |   NA |
-| sigma_b   | 0.55 |       NA |   NA |
+| parameter | true | estimate |    bias |
+|:----------|-----:|---------:|--------:|
+| beta0     | 0.20 |   0.0105 | -0.1895 |
+| beta1     | 0.65 |   0.6297 | -0.0203 |
+| sigma_b   | 0.55 |   0.4302 | -0.1198 |
 
 For a Monte Carlo recovery study, repeat simulation and fitting across
 replicates:
@@ -473,9 +473,9 @@ mc_recovery <- function(R = 50L, seed = 7001L) {
     )
 
     out[[r]] <- c(
-      beta0 = coef(fit_r, model = "mean")[1],
-      beta1 = coef(fit_r, model = "mean")[2],
-      sigma_b = exp(coef(fit_r, model = "random"))
+      beta0 = unname(coef(fit_r, model = "mean")[1]),
+      beta1 = unname(coef(fit_r, model = "mean")[2]),
+      sigma_b = unname(exp(coef(fit_r, model = "random")))
     )
   }
 

@@ -65,7 +65,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Analyst Tools for betaregscale</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.3/vignettes/brs-analyst-tools.Rmd" class="external-link"><code>vignettes/brs-analyst-tools.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-analyst-tools.Rmd" class="external-link"><code>vignettes/brs-analyst-tools.Rmd</code></a></small>
       <div class="d-none name"><code>brs-analyst-tools.Rmd</code></div>
     </div>
 
@@ -343,9 +343,9 @@ definition shown above.</p>
 <tr class="odd">
 <td align="left">x1</td>
 <td align="right">-0.1035</td>
-<td align="right">0.0186</td>
-<td align="right">-0.1329</td>
-<td align="right">-0.0661</td>
+<td align="right">0.0193</td>
+<td align="right">-0.1398</td>
+<td align="right">-0.0614</td>
 <td align="left">mean</td>
 <td align="left">response</td>
 <td align="right">220</td>
@@ -353,9 +353,9 @@ definition shown above.</p>
 <tr class="even">
 <td align="left">x2</td>
 <td align="right">0.0734</td>
-<td align="right">0.0173</td>
-<td align="right">0.0475</td>
-<td align="right">0.1084</td>
+<td align="right">0.0155</td>
+<td align="right">0.0412</td>
+<td align="right">0.1059</td>
 <td align="left">mean</td>
 <td align="left">response</td>
 <td align="right">220</td>
@@ -368,7 +368,9 @@ definition shown above.</p>
 <span>  <span class="va">fit_var</span>,</span>
 <span>  model <span class="op">=</span> <span class="st">"precision"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"link"</span>,</span>
-<span>  interval <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_sim <span class="op">=</span> <span class="fl">120</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">2026</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">me_precision</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -395,9 +397,9 @@ definition shown above.</p>
 <tbody><tr class="odd">
 <td align="left">z1</td>
 <td align="right">-0.3361</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
+<td align="right">0.0907</td>
+<td align="right">-0.4909</td>
+<td align="right">-0.1541</td>
 <td align="left">precision</td>
 <td align="left">link</td>
 <td align="right">220</td>

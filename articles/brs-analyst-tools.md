@@ -151,8 +151,8 @@ knitr::kable(me_mean, digits = 4)
 
 | variable |     ame | std.error | ci.lower | ci.upper | model | type     |   n |
 |:---------|--------:|----------:|---------:|---------:|:------|:---------|----:|
-| x1       | -0.1035 |    0.0186 |  -0.1329 |  -0.0661 | mean  | response | 220 |
-| x2       |  0.0734 |    0.0173 |   0.0475 |   0.1084 | mean  | response | 220 |
+| x1       | -0.1035 |    0.0193 |  -0.1398 |  -0.0614 | mean  | response | 220 |
+| x2       |  0.0734 |    0.0155 |   0.0412 |   0.1059 | mean  | response | 220 |
 
 ``` r
 
@@ -160,14 +160,16 @@ me_precision <- brs_marginaleffects(
   fit_var,
   model = "precision",
   type = "link",
-  interval = FALSE
+  interval = TRUE,
+  n_sim = 120,
+  seed = 2026
 )
 knitr::kable(me_precision, digits = 4)
 ```
 
 | variable |     ame | std.error | ci.lower | ci.upper | model     | type |   n |
 |:---------|--------:|----------:|---------:|---------:|:----------|:-----|----:|
-| z1       | -0.3361 |        NA |       NA |       NA | precision | link | 220 |
+| z1       | -0.3361 |    0.0907 |  -0.4909 |  -0.1541 | precision | link | 220 |
 
 ### 4) Predict score probabilities
 
