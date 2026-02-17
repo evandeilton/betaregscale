@@ -332,9 +332,9 @@ A single-fit recovery table can be produced directly from the previous fit:
 
 ```{r recovery-single}
 est <- c(
-  beta0 = coef(fit_mm, model = "mean")[1],
-  beta1 = coef(fit_mm, model = "mean")[2],
-  sigma_b = exp(coef(fit_mm, model = "random"))
+  beta0 = unname(coef(fit_mm, model = "mean")[1]),
+  beta1 = unname(coef(fit_mm, model = "mean")[2]),
+  sigma_b = unname(exp(coef(fit_mm, model = "random")))
 )
 
 true <- c(
@@ -373,9 +373,9 @@ mc_recovery <- function(R = 50L, seed = 7001L) {
     )
 
     out[[r]] <- c(
-      beta0 = coef(fit_r, model = "mean")[1],
-      beta1 = coef(fit_r, model = "mean")[2],
-      sigma_b = exp(coef(fit_r, model = "random"))
+      beta0 = unname(coef(fit_r, model = "mean")[1]),
+      beta1 = unname(coef(fit_r, model = "mean")[2]),
+      sigma_b = unname(exp(coef(fit_r, model = "random")))
     )
   }
 

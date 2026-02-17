@@ -171,7 +171,9 @@ me_precision <- brs_marginaleffects(
   fit_var,
   model = "precision",
   type = "link",
-  interval = FALSE
+  interval = TRUE,
+  n_sim = 120,
+  seed = 2026
 )
 knitr::kable(me_precision, digits = 4)
 ```
