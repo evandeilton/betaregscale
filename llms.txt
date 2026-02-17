@@ -17,15 +17,16 @@ score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 left-censored, right-censored, and interval-censored** within the same
 dataset.
 
-Mathematically, for each observation (i), the complete likelihood
-contribution is \[ L_i()= $$\begin{cases}
+Mathematically, for each observation $i$, the likelihood contribution is
+
+$$L_{i}(\theta) = \begin{cases}
 {f\left( y_{i};a_{i},b_{i} \right),} & {\delta_{i} = 0,} \\
 {F\left( u_{i};a_{i},b_{i} \right),} & {\delta_{i} = 1,} \\
 {1 - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 2,} \\
-{F\left( u_{i};a_{i},b_{i} \right) - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 3,}
+{F\left( u_{i};a_{i},b_{i} \right) - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 3.}
 \end{cases}$$
 
-\] with (f()) and (F()) denoting beta density and CDF.
+where $f( \cdot )$ and $F( \cdot )$ denote the beta density and CDF.
 
 ## Key features
 
@@ -202,9 +203,9 @@ brs_cens(fit)
 ### Complete likelihood
 
 The complete log-likelihood for mixed censoring (Lopes, 2024, Eq. 2.24)
-combines four observation types:
+combines the four observation types:
 
-$$\ell({\mathbf{θ}}) = \sum\limits_{i:\,\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\,\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\,\delta_{i} = 2}\log\left\lbrack 1 - F\left( l_{i} \right) \right\rbrack + \sum\limits_{i:\,\delta_{i} = 3}\log\left\lbrack F\left( u_{i} \right) - F\left( l_{i} \right) \right\rbrack$$
+$$\ell(\theta) = \sum\limits_{i:\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\delta_{i} = 2}\log\!\left\lbrack 1 - F\left( l_{i} \right) \right\rbrack + \sum\limits_{i:\delta_{i} = 3}\log\!\left\lbrack F\left( u_{i} \right) - F\left( l_{i} \right) \right\rbrack.$$
 
 where $f( \cdot )$ and $F( \cdot )$ are the beta density and CDF,
 $\left\lbrack l_{i},u_{i} \right\rbrack$ are the interval endpoints, and
@@ -222,7 +223,7 @@ $\delta_{i}$ indicates the censoring type.
 
 ``` r
 # Parametric bootstrap CI
-boot_ci <- brs_bootstrap(fit, B = 100, level = 0.95)
+boot_ci <- brs_bootstrap(fit, R = 100, level = 0.95)
 knitr::kable(head(boot_ci), digits = 4)
 
 # Average marginal effects
