@@ -35,10 +35,14 @@
 #' @param level Confidence level for interval estimates.
 #' @param n_sim Number of parameter draws when \code{interval = TRUE}.
 #' @param seed Optional random seed for reproducibility.
+#' @param keep_draws Logical; if \code{TRUE} and \code{interval = TRUE},
+#'   stores AME simulation draws in attribute \code{"ame_draws"}.
 #'
 #' @return A data frame with one row per variable and columns:
 #'   \code{variable}, \code{ame}, \code{std.error}, \code{ci.lower},
 #'   \code{ci.upper}, \code{model}, \code{type}, and \code{n}.
+#'   The returned object has class \code{"brs_marginaleffects"} and
+#'   attributes with analysis metadata.
 #'
 #' @references
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
@@ -84,10 +88,13 @@ brs_marginaleffects <- function(object,
                                 interval = TRUE,
                                 level = 0.95,
                                 n_sim = 400L,
-                                seed = NULL) {
+                                seed = NULL,
+                                keep_draws = FALSE) {
   .check_class(object)
   model <- match.arg(model)
   type <- match.arg(type)
+  interval <- isTRUE(interval)
+  keep_draws <- isTRUE(keep_draws)
 
   if (!is.null(seed)) {
     set.seed(seed)
@@ -95,6 +102,10 @@ brs_marginaleffects <- function(object,
   h <- as.numeric(h)
   if (!is.finite(h) || h <= 0) {
     stop("'h' must be a positive number.", call. = FALSE)
+  }
+  level <- as.numeric(level)
+  if (length(level) != 1L || !is.finite(level) || level <= 0 || level >= 1) {
+    stop("'level' must be in (0, 1).", call. = FALSE)
   }
   n_sim <- as.integer(n_sim)
   if (interval && (!is.finite(n_sim) || n_sim < 50L)) {
@@ -126,7 +137,16 @@ brs_marginaleffects <- function(object,
   if (is.null(variables)) {
     variables <- vars_numeric
   } else {
-    variables <- intersect(as.character(variables), vars_numeric)
+    variables_in <- as.character(variables)
+    variables <- intersect(variables_in, vars_numeric)
+    dropped <- setdiff(variables_in, variables)
+    if (length(dropped) > 0L) {
+      warning(
+        "Ignoring variables not available as numeric covariates in '", model, "' model: ",
+        paste(dropped, collapse = ", "),
+        call. = FALSE
+      )
+    }
   }
   if (length(variables) == 0L) {
     stop("No numeric covariates available for marginal effects.", call. = FALSE)
@@ -134,13 +154,17 @@ brs_marginaleffects <- function(object,
 
   par_hat <- unname(object$par)
   V <- vcov(object, model = "full")
-  alpha <- 1 - as.numeric(level)
+  alpha <- 1 - level
 
   .ame_one <- function(par, var_name) {
     base <- .brs_me_predict(object, eval_data, par = par, model = model, type = type)
     x <- eval_data[[var_name]]
+    x_non_na <- stats::na.omit(x)
+    if (length(x_non_na) == 0L) {
+      return(NA_real_)
+    }
 
-    if (all(stats::na.omit(x) %in% c(0, 1))) {
+    if (all(x_non_na %in% c(0, 1))) {
       d0 <- eval_data
       d1 <- eval_data
       d0[[var_name]] <- 0
@@ -150,16 +174,29 @@ brs_marginaleffects <- function(object,
       return(mean(p1 - p0, na.rm = TRUE))
     }
 
+    # Scale the perturbation to improve numerical stability across covariates.
+    h_var <- h * max(stats::sd(x_non_na), 1)
     dp <- eval_data
-    dp[[var_name]] <- dp[[var_name]] + h
-    pert <- .brs_me_predict(object, dp, par = par, model = model, type = type)
-    mean((pert - base) / h, na.rm = TRUE)
+    dm <- eval_data
+    dp[[var_name]] <- dp[[var_name]] + h_var
+    dm[[var_name]] <- dm[[var_name]] - h_var
+    p_plus <- .brs_me_predict(object, dp, par = par, model = model, type = type)
+    p_minus <- .brs_me_predict(object, dm, par = par, model = model, type = type)
+    mean((p_plus - p_minus) / (2 * h_var), na.rm = TRUE)
+  }
+
+  draws <- NULL
+  if (interval) {
+    draws <- .brs_me_rmvnorm(n = n_sim, mu = par_hat, sigma = V)
   }
 
   out <- lapply(variables, function(v) {
-    ame_hat <- .ame_one(par_hat, v)
+    ame_hat <- tryCatch(
+      .ame_one(par_hat, v),
+      error = function(e) NA_real_
+    )
 
-    if (!isTRUE(interval)) {
+    if (!interval) {
       return(data.frame(
         variable = v,
         ame = ame_hat,
@@ -173,8 +210,9 @@ brs_marginaleffects <- function(object,
       ))
     }
 
-    draws <- .brs_me_rmvnorm(n = n_sim, mu = par_hat, sigma = V)
-    ame_draws <- apply(draws, 1L, function(th) .ame_one(th, v))
+    ame_draws <- apply(draws, 1L, function(th) {
+      tryCatch(.ame_one(th, v), error = function(e) NA_real_)
+    })
     se <- stats::sd(ame_draws, na.rm = TRUE)
 
     data.frame(
@@ -190,7 +228,29 @@ brs_marginaleffects <- function(object,
     )
   })
 
-  do.call(rbind, out)
+  res <- do.call(rbind, out)
+  attr(res, "level") <- level
+  attr(res, "interval") <- interval
+  attr(res, "n_sim") <- if (interval) n_sim else 0L
+  attr(res, "model") <- model
+  attr(res, "type") <- type
+  attr(res, "h") <- h
+  if (interval && keep_draws) {
+    ame_mat <- sapply(variables, function(v) {
+      apply(draws, 1L, function(th) {
+        tryCatch(.ame_one(th, v), error = function(e) NA_real_)
+      })
+    })
+    if (is.vector(ame_mat)) {
+      ame_mat <- matrix(ame_mat, ncol = 1L)
+      colnames(ame_mat) <- variables[1L]
+    } else {
+      colnames(ame_mat) <- variables
+    }
+    attr(res, "ame_draws") <- ame_mat
+  }
+  class(res) <- c("brs_marginaleffects", "data.frame")
+  res
 }
 
 

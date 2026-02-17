@@ -20,6 +20,10 @@
 #' @param sub.caption Optional subtitle; defaults to model call.
 #' @param ask Logical: prompt before each new page?
 #' @param gg Logical: use ggplot2 backend?
+#' @param title Optional global title for ggplot output. If \code{NULL},
+#'   panel captions are used.
+#' @param theme Optional ggplot2 theme object (e.g., \code{ggplot2::theme_bw()}).
+#'   If \code{NULL}, a minimal theme is used.
 #' @param ... Further arguments passed to base \code{plot()}.
 #'
 #' @return Invisibly returns \code{x}.
@@ -46,6 +50,8 @@ plot.brsmm <- function(x,
                        ask = prod(par("mfcol")) < length(which) &&
                          dev.interactive(),
                        gg = FALSE,
+                       title = NULL,
+                       theme = NULL,
                        ...) {
   .check_class_mm(x)
   type <- match.arg(type)
@@ -66,7 +72,9 @@ plot.brsmm <- function(x,
       nsim = nsim,
       level = level,
       caption = caption,
-      sub.caption = sub.caption
+      sub.caption = sub.caption,
+      title = title,
+      theme = theme
     )
   } else {
     .plot_base_brsmm(
@@ -175,7 +183,7 @@ plot.brsmm <- function(x,
 }
 
 #' @keywords internal
-.plot_gg_brsmm <- function(x, which, type, nsim, level, caption, sub.caption) {
+.plot_gg_brsmm <- function(x, which, type, nsim, level, caption, sub.caption, title, theme) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop(
       "Package 'ggplot2' is required for gg = TRUE. ",
@@ -183,6 +191,9 @@ plot.brsmm <- function(x,
       call. = FALSE
     )
   }
+
+  theme_obj <- .resolve_gg_theme(theme)
+  has_global_title <- !is.null(title) && nzchar(title)
 
   r <- residuals(x, type = type)
   mu_hat <- fitted(x, type = "mu")
@@ -212,49 +223,57 @@ plot.brsmm <- function(x,
   )
 
   plots <- list()
+  panel_title <- function(i) {
+    if (has_global_title && length(which) == 1L) title else caption[i]
+  }
+  panel_subtitle <- function() {
+    if (length(which) == 1L && !is.null(sub.caption) && nzchar(sub.caption)) sub.caption else NULL
+  }
 
   if (1L %in% which) {
     plots[[length(plots) + 1L]] <- ggplot2::ggplot(df, ggplot2::aes(x = .data$idx, y = .data$r)) +
       ggplot2::geom_point(color = "gray40", size = 1) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-      ggplot2::labs(title = caption[1L], x = "Index", y = "Residuals") +
-      ggplot2::theme_minimal()
+      ggplot2::labs(title = panel_title(1L), subtitle = panel_subtitle(), x = "Index", y = "Residuals") +
+      theme_obj
   }
 
   if (2L %in% which) {
     plots[[length(plots) + 1L]] <- ggplot2::ggplot(df, ggplot2::aes(x = .data$idx, y = .data$cooks)) +
       ggplot2::geom_segment(ggplot2::aes(xend = .data$idx, yend = 0), color = "gray40") +
       ggplot2::geom_hline(yintercept = 4 / n, linetype = "dashed", color = "red") +
-      ggplot2::labs(title = caption[2L], x = "Index", y = "Cook's distance") +
-      ggplot2::theme_minimal()
+      ggplot2::labs(title = panel_title(2L), subtitle = panel_subtitle(), x = "Index", y = "Cook's distance") +
+      theme_obj
   }
 
   if (3L %in% which) {
     plots[[length(plots) + 1L]] <- ggplot2::ggplot(df, ggplot2::aes(x = .data$eta, y = .data$r)) +
       ggplot2::geom_point(color = "gray40", size = 1) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-      ggplot2::labs(title = caption[3L], x = "Linear predictor", y = "Residuals") +
-      ggplot2::theme_minimal()
+      ggplot2::labs(title = panel_title(3L), subtitle = panel_subtitle(), x = "Linear predictor", y = "Residuals") +
+      theme_obj
   }
 
   if (4L %in% which) {
     plots[[length(plots) + 1L]] <- ggplot2::ggplot(df, ggplot2::aes(x = .data$mu, y = .data$r)) +
       ggplot2::geom_point(color = "gray40", size = 1) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-      ggplot2::labs(title = caption[4L], x = "Fitted values", y = "Residuals") +
-      ggplot2::theme_minimal()
+      ggplot2::labs(title = panel_title(4L), subtitle = panel_subtitle(), x = "Fitted values", y = "Residuals") +
+      theme_obj
   }
 
   if (5L %in% which) {
-    plots[[length(plots) + 1L]] <- .plot_halfnormal_gg(r, nsim, level, caption[5L])
+    plots[[length(plots) + 1L]] <- .plot_halfnormal_gg(
+      r, nsim, level, panel_title(5L), panel_subtitle(), theme_obj
+    )
   }
 
   if (6L %in% which) {
     plots[[length(plots) + 1L]] <- ggplot2::ggplot(df, ggplot2::aes(x = .data$mu, y = .data$y_obs)) +
       ggplot2::geom_point(color = "gray40", size = 1) +
       ggplot2::geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
-      ggplot2::labs(title = caption[6L], x = "Predicted", y = "Observed") +
-      ggplot2::theme_minimal()
+      ggplot2::labs(title = panel_title(6L), subtitle = panel_subtitle(), x = "Predicted", y = "Observed") +
+      theme_obj
   }
 
   np <- length(plots)
@@ -266,7 +285,7 @@ plot.brsmm <- function(x,
     if (requireNamespace("gridExtra", quietly = TRUE)) {
       gridExtra::grid.arrange(
         grobs = plots, ncol = ncol, nrow = nrow,
-        top = sub.caption
+        top = if (has_global_title) title else NULL
       )
     } else {
       for (p in plots) {

@@ -639,6 +639,39 @@ test_that("censoring_summary works with raw matrix", {
   expect_equal(sum(cs$count), 5L)
 })
 
+test_that("censoring_summary gg supports title and theme", {
+  y <- c(0, 0, 3, 5, 7, 10, 10, 6, 4)
+  Y <- brs_check(y, ncuts = 10)
+  pdf(nullfile())
+  on.exit(dev.off(), add = TRUE)
+  expect_silent(
+    brs_cens(
+      Y,
+      gg = TRUE,
+      title = "Censoring overview",
+      sub.caption = "Synthetic example",
+      theme = ggplot2::theme_bw()
+    )
+  )
+})
+
+test_that("censoring_summary supports which and caption", {
+  y <- c(0, 0, 3, 5, 7, 10, 10, 6, 4)
+  Y <- brs_check(y, ncuts = 10)
+  pdf(nullfile())
+  on.exit(dev.off(), add = TRUE)
+  expect_silent(
+    brs_cens(
+      Y,
+      gg = TRUE,
+      which = c(1, 4),
+      caption = list("Carga de censura", "unused", "unused", "Mapa de intervalos"),
+      title = "Resumo",
+      theme = ggplot2::theme_classic()
+    )
+  )
+})
+
 
 # ============================================================================ #
 # brs_prep() tests

@@ -15,9 +15,13 @@ This is a new CRAN submission. There are no downstream dependencies.
 
 ### Notes
 
-* This version (2.6.4) extends `brsmm()` to multivariate random effects in the mean predictor (random intercept + random slope), adds generic `anova()` model comparison methods (`anova.brs`, `anova.brsmm`), and introduces dedicated random-effects studies (`brsmm_re_study`) with new visual diagnostics.
-* Vignettes were updated and rebuilt with an explicit evolutionary model-selection workflow (`brs` -> `brsmm RI` -> `brsmm RI+RS`) based on likelihood-ratio comparisons.
-* Bibliographic entries in package documentation were revised to keep only DOI-based validated links (`https://doi.org/...`) for CRAN URL checks.
+* This version (2.6.5) improves analyst-facing uncertainty and interpretation workflows for `brs` models:
+  - `brs_bootstrap()` now supports BCa intervals (`ci_type = "bca"`), endpoint Monte Carlo diagnostics (`mcse_lower`, `mcse_upper`), and side-by-side Wald interval columns (`wald_lower`, `wald_upper`).
+  - `autoplot.brs_bootstrap()` now supports visual comparison of bootstrap vs Wald intervals in `type = "ci_forest"`.
+  - `brs_marginaleffects()` robustness was improved (central differences, adaptive step scaling, and reusable simulation draws), and `autoplot.brs_marginaleffects()` was added for forest/magnitude/distribution summaries.
+  - `brs_cens()` was refined with richer summaries and optional, domain-agnostic interpretation messages (`inform = TRUE`) suitable for any scale-censored context.
+* README and vignettes were updated to document the new bootstrap and marginal-effects workflows, including visual diagnostics and reproducible examples.
+* Bibliographic entries in package documentation continue to use DOI-based validated links (`https://doi.org/...`) for CRAN URL checks.
 * The package includes compiled C++ code via Rcpp and RcppArmadillo.
 * The only `R CMD check` note is the standard "New submission" incoming
   feasibility note.

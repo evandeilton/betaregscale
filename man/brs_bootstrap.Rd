@@ -5,7 +5,15 @@
 \alias{print.brs_bootstrap}
 \title{Parametric bootstrap confidence intervals for brs models}
 \usage{
-brs_bootstrap(object, R = 199L, level = 0.95, seed = NULL)
+brs_bootstrap(
+  object,
+  R = 199L,
+  level = 0.95,
+  seed = NULL,
+  ci_type = c("percentile", "basic", "normal", "bca"),
+  max_tries = NULL,
+  keep_draws = FALSE
+)
 
 \method{print}{brs_bootstrap}(x, ...)
 }
@@ -18,6 +26,16 @@ brs_bootstrap(object, R = 199L, level = 0.95, seed = NULL)
 
 \item{seed}{Optional integer: random seed for reproducibility.}
 
+\item{ci_type}{Character: type of confidence interval. One of
+\code{"percentile"} (default), \code{"basic"}, \code{"normal"},
+or \code{"bca"}.}
+
+\item{max_tries}{Optional integer: maximum number of bootstrap attempts
+to obtain converged replicates. If \code{NULL}, uses \code{max(3 * R, 50)}.}
+
+\item{keep_draws}{Logical: if \code{TRUE}, stores successful bootstrap
+parameter draws in attribute \code{"boot_draws"}.}
+
 \item{x}{Object returned by \code{brs_bootstrap}.}
 
 \item{...}{Ignored.}
@@ -25,8 +43,11 @@ brs_bootstrap(object, R = 199L, level = 0.95, seed = NULL)
 \value{
 A data frame with columns \code{parameter}, \code{estimate}
   (original point estimate), \code{se_boot} (bootstrap standard error),
-  \code{ci_lower}, \code{ci_upper}, and \code{level}. The attribute
+  \code{ci_lower}, \code{ci_upper}, \code{mcse_lower}, \code{mcse_upper},
+  \code{wald_lower}, \code{wald_upper}, and \code{level}. The attribute
   \code{"n_success"} gives the number of replicates that converged.
+  Additional attributes include \code{"R"}, \code{"n_attempted"},
+  \code{"ci_type"}, and optionally \code{"boot_draws"}.
 }
 \description{
 Computes bootstrap-based confidence intervals for the parameters of a

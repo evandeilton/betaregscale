@@ -15,6 +15,8 @@
   sub.caption = NULL,
   ask = prod(par("mfcol")) < length(which) && dev.interactive(),
   gg = FALSE,
+  title = NULL,
+  theme = NULL,
   ...
 )
 }
@@ -38,6 +40,12 @@
 \item{ask}{Logical: prompt before each new page?}
 
 \item{gg}{Logical: use ggplot2 backend?}
+
+\item{title}{Optional global title for ggplot output. If \code{NULL},
+panel captions are used.}
+
+\item{theme}{Optional ggplot2 theme object (e.g., \code{ggplot2::theme_bw()}).
+If \code{NULL}, a minimal theme is used.}
 
 \item{...}{Further arguments passed to base \code{plot()}.}
 }

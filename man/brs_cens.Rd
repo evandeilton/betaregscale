@@ -4,7 +4,19 @@
 \alias{brs_cens}
 \title{Graphical and tabular censoring summary}
 \usage{
-brs_cens(object, n_sample = 100L, gg = FALSE, ...)
+brs_cens(
+  object,
+  n_sample = 100L,
+  which = 1:4,
+  caption = NULL,
+  gg = FALSE,
+  title = "Censoring diagnostic overview",
+  sub.caption = NULL,
+  theme = NULL,
+  palette = NULL,
+  inform = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted \code{"brs"} object, a matrix
@@ -16,13 +28,33 @@ returned by \code{\link{brs_prep}} (must contain columns
 in the interval plot (default 100).  If the data has more
 observations, a random sample is drawn.}
 
+\item{which}{Integer vector selecting which panels to draw
+(default \code{1:4}).}
+
+\item{caption}{Optional panel captions. Accepts a character vector
+(or list coercible to character) with up to 4 labels, in the order:
+burden, midpoint-by-type, width-by-type, ordered interval map.}
+
 \item{gg}{Logical: use ggplot2? (default \code{FALSE}).}
+
+\item{title}{Optional global title for the plotting page.}
+
+\item{sub.caption}{Optional subtitle/caption for the plotting page.}
+
+\item{theme}{Optional ggplot2 theme object (e.g., \code{ggplot2::theme_bw()}).
+If \code{NULL}, a minimal theme is used when \code{gg = TRUE}.}
+
+\item{palette}{Optional named character vector with colors for censoring
+types \code{Exact}, \code{Left}, \code{Right}, and \code{Interval}.}
+
+\item{inform}{Logical; if \code{TRUE}, prints brief interpretation
+messages about boundary and interval censoring intensity.}
 
 \item{...}{Further arguments (currently ignored).}
 }
 \value{
 Invisibly returns a data frame with censoring counts and
-  proportions.
+  proportions, percentages, and interpretation flags.
 }
 \description{
 Produces a visual summary of the censoring structure in a fitted

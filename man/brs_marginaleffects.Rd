@@ -14,7 +14,8 @@ brs_marginaleffects(
   interval = TRUE,
   level = 0.95,
   n_sim = 400L,
-  seed = NULL
+  seed = NULL,
+  keep_draws = FALSE
 )
 }
 \arguments{
@@ -40,11 +41,16 @@ Defaults to all numeric covariates in the selected submodel.}
 \item{n_sim}{Number of parameter draws when \code{interval = TRUE}.}
 
 \item{seed}{Optional random seed for reproducibility.}
+
+\item{keep_draws}{Logical; if \code{TRUE} and \code{interval = TRUE},
+stores AME simulation draws in attribute \code{"ame_draws"}.}
 }
 \value{
 A data frame with one row per variable and columns:
   \code{variable}, \code{ame}, \code{std.error}, \code{ci.lower},
   \code{ci.upper}, \code{model}, \code{type}, and \code{n}.
+  The returned object has class \code{"brs_marginaleffects"} and
+  attributes with analysis metadata.
 }
 \description{
 Computes average marginal effects (AME) for numeric covariates in the

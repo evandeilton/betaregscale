@@ -65,7 +65,8 @@ where $f(\cdot)$ and $F(\cdot)$ denote the beta density and CDF.
 - **Diagnostic plots**: six residual diagnostic panels with both base
   R and ggplot2 backends, including a half-normal envelope plot.
 - **Censoring summary**: `brs_cens()` provides visual and
-  tabular summaries of the censoring structure.
+  tabular summaries of the censoring structure, with optional
+  interpretation flags/messages for scale-censored contexts.
 - **Simulation toolkit**: `brs_sim()` supports both fixed- and
   variable-dispersion Monte Carlo studies via one- or two-part formulas.
 - **Analyst toolkit**: `brs_bootstrap()`, `brs_marginaleffects()`,
@@ -228,7 +229,7 @@ plot(fit)
 plot(fit, gg = TRUE)
 
 # Censoring structure summary
-brs_cens(fit)
+brs_cens(fit, gg = TRUE, inform = TRUE)
 ```
 
 ## Model details
@@ -261,13 +262,38 @@ censoring type.
 ### Analyst-oriented outputs (clean tables)
 
 ```r
-# Parametric bootstrap CI
-boot_ci <- brs_bootstrap(fit, R = 100, level = 0.95)
+# Parametric bootstrap CI (BCa + MC diagnostics)
+boot_ci <- brs_bootstrap(
+  fit,
+  R = 100,
+  level = 0.95,
+  ci_type = "bca"
+)
 knitr::kable(head(boot_ci), digits = 4)
 
+# Visual comparison: bootstrap vs Wald intervals
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot.brs_bootstrap(
+    boot_ci,
+    type = "ci_forest",
+    title = "Bootstrap (BCa) vs Wald intervals"
+  )
+}
+
 # Average marginal effects
-ame <- brs_marginaleffects(fit, model = "mean", type = "response")
+ame <- brs_marginaleffects(
+  fit,
+  model = "mean",
+  type = "response",
+  interval = TRUE,
+  keep_draws = TRUE,
+  n_sim = 200
+)
 knitr::kable(ame, digits = 4)
+
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot.brs_marginaleffects(ame, type = "forest")
+}
 
 # Score-scale probabilities
 ps <- brs_predict_scoreprob(fit, scores = 0:10)

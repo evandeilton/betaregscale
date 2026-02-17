@@ -1,3 +1,24 @@
+# betaregscale 2.6.5
+
+## New features
+
+* Extended `brs_bootstrap()` with `ci_type = "bca"` (bias-corrected and accelerated intervals), plus Monte Carlo diagnostics for interval endpoints (`mcse_lower`, `mcse_upper`).
+* Added Wald interval columns (`wald_lower`, `wald_upper`) to bootstrap output for direct asymptotic vs resampling comparison.
+* Added `autoplot.brs_bootstrap()` support to visually compare bootstrap and Wald intervals in `type = "ci_forest"`.
+* Added `autoplot.brs_marginaleffects()` with three views: `forest`, `magnitude`, and `dist`.
+
+## Improvements
+
+* Improved robustness and efficiency in `brs_marginaleffects()`:
+  - central-difference AME approximation for numeric covariates,
+  - scale-adaptive perturbation step,
+  - one-time simulation draw generation reused across variables,
+  - optional storage of AME draws via `keep_draws = TRUE`.
+* Refined `brs_cens()` output to include richer summary fields (`percentage`, `severity`, `interpretation`) and optional domain-agnostic interpretation messages via `inform = TRUE`.
+* Updated README and vignettes with examples for BCa bootstrap intervals, bootstrap visual diagnostics, and enhanced marginal-effects visualization workflow.
+
+---
+
 # betaregscale 2.6.4
 
 ## New features

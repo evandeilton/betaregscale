@@ -69,6 +69,48 @@ test_that("brs_marginaleffects supports precision effects", {
   expect_true(all(is.na(me$std.error)))
 })
 
+test_that("brs_marginaleffects returns class and stores draws when requested", {
+  sim <- .sim_for_tools(seed = 1919)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  me <- brs_marginaleffects(
+    fit,
+    model = "mean",
+    type = "response",
+    interval = TRUE,
+    n_sim = 80,
+    keep_draws = TRUE
+  )
+
+  expect_s3_class(me, "brs_marginaleffects")
+  expect_true(is.matrix(attr(me, "ame_draws")))
+  expect_equal(ncol(attr(me, "ame_draws")), nrow(me))
+  expect_equal(attr(me, "n_sim"), 80L)
+})
+
+test_that("autoplot.brs_marginaleffects supports forest/magnitude/dist", {
+  skip_if_not_installed("ggplot2")
+  sim <- .sim_for_tools(seed = 2101)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  me <- brs_marginaleffects(
+    fit,
+    model = "mean",
+    type = "response",
+    interval = TRUE,
+    n_sim = 80,
+    keep_draws = TRUE
+  )
+
+  p1 <- autoplot.brs_marginaleffects(me, type = "forest")
+  p2 <- autoplot.brs_marginaleffects(me, type = "magnitude")
+  p3 <- autoplot.brs_marginaleffects(me, type = "dist", variable = me$variable[1L])
+
+  expect_s3_class(p1, "ggplot")
+  expect_s3_class(p2, "ggplot")
+  expect_s3_class(p3, "ggplot")
+})
+
 test_that("autoplot.brs supports calibration and score_dist", {
   skip_if_not_installed("ggplot2")
   sim <- .sim_for_tools(seed = 1201)
