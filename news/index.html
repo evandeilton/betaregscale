@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,24 @@
       <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.4" id="betaregscale-264">betaregscale 2.6.4<a class="anchor" aria-label="anchor" href="#betaregscale-264"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-6-4">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-4"></a></h3>
+<ul><li>Extended <code><a href="../reference/brsmm.html">brsmm()</a></code> to support multivariate random effects in the mean predictor, including random intercept + random slope specifications such as <code>random = ~ 1 + x | group</code>.</li>
+<li>Added multivariate Laplace approximation in the Eigen C++ backend for group-specific latent vectors and covariance matrix handling via packed lower-Cholesky parameterization.</li>
+<li>Added <code><a href="../reference/brsmm_group_modes_eigen.html">brsmm_group_modes_eigen()</a></code> to compute posterior modes of group random effects for general random-effects dimension.</li>
+<li>Added generic model-comparison methods <code><a href="../reference/anova.brs.html">anova.brs()</a></code> and <code><a href="../reference/anova.brsmm.html">anova.brsmm()</a></code> for likelihood-ratio workflow across <code>brs</code> and <code>brsmm</code> candidates.</li>
+<li>Added <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> and <code><a href="../reference/print.brsmm_re_study.html">print.brsmm_re_study()</a></code> for numeric random-effects diagnostics (covariance/correlation, shrinkage, normality checks).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-6-4">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-4"></a></h3>
+<ul><li>Updated <code><a href="../reference/predict.brsmm.html">predict.brsmm()</a></code>, <code><a href="../reference/vcov.brsmm.html">vcov.brsmm()</a></code>, and <code><a href="../reference/print.brsmm.html">print.brsmm()</a></code> to support both scalar (<code>q_b=1</code>) and vector (<code>q_b&gt;1</code>) random-effects structures.</li>
+<li>Expanded mixed-model test coverage with integration tests for random intercept + slope fits, covariance extraction (<code>D</code>), <code>ranef</code>, random-effects studies, and prediction behavior.</li>
+<li>Updated <code>README.md</code> and vignettes with explicit multivariate mixed-model mathematics, Laplace formula in matrix form, and end-to-end model-selection examples.</li>
+<li>Documentation references now use DOI-based validated links only (<code>https://doi.org/...</code>) to keep CRAN URL checks robust.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.3" id="betaregscale-263">betaregscale 2.6.3<a class="anchor" aria-label="anchor" href="#betaregscale-263"></a></h2>
 <div class="section level3">

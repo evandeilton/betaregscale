@@ -7,7 +7,8 @@ Produces ggplot2 diagnostics tailored to mixed beta interval models.
 ``` r
 autoplot.brsmm(
   object,
-  type = c("calibration", "score_dist", "ranef_qq", "residuals_by_group"),
+  type = c("calibration", "score_dist", "ranef_qq", "residuals_by_group",
+    "ranef_caterpillar", "ranef_density", "ranef_pairs"),
   bins = 10L,
   scores = NULL,
   residual_type = c("response", "pearson"),
@@ -25,7 +26,8 @@ autoplot.brsmm(
 - type:
 
   Plot type: `"calibration"`, `"score_dist"`, `"ranef_qq"`, or
-  `"residuals_by_group"`.
+  `"residuals_by_group"`, `"ranef_caterpillar"`, `"ranef_density"`,
+  `"ranef_pairs"`.
 
 - bins:
 

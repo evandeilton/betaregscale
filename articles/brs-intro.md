@@ -299,7 +299,7 @@ summary(fit_fixed)
 #> ---
 #> Log-likelihood: -4035.2262 on 4 Df
 #> Pseudo R-squared: 0.2393 
-#> Number of iterations: 40 (BFGS) 
+#> Number of iterations: 39 (BFGS) 
 #> Censoring: 809 interval | 65 left | 126 right
 ```
 
@@ -562,7 +562,7 @@ summary(fit_var)
 #> ---
 #> Log-likelihood: -3922.2430 on 5 Df
 #> Pseudo R-squared: 0.1159 
-#> Number of iterations: 44 (BFGS) 
+#> Number of iterations: 42 (BFGS) 
 #> Censoring: 744 interval | 105 left | 151 right
 ```
 
@@ -702,8 +702,8 @@ knitr::kable(ame, digits = 4)
 
 | variable |     ame | std.error | ci.lower | ci.upper | model | type     |    n |
 |:---------|--------:|----------:|---------:|---------:|:------|:---------|-----:|
-| x1       | -0.1321 |    0.0091 |  -0.1485 |  -0.1132 | mean  | response | 1000 |
-| x2       |  0.0966 |    0.0093 |   0.0797 |   0.1123 | mean  | response | 1000 |
+| x1       | -0.1321 |    0.0088 |  -0.1473 |  -0.1123 | mean  | response | 1000 |
+| x2       |  0.0966 |    0.0096 |   0.0759 |   0.1130 | mean  | response | 1000 |
 
 ### Score probabilities on the original scale
 
@@ -836,15 +836,13 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   **31**(7), 799–815. DOI: 10.1080/0266476042000214501. Validated online
-  via: <https://doi.org/10.1080/0266476042000214501> and
-  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+  via: <https://doi.org/10.1080/0266476042000214501>.
 
 - Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
   Maximum-likelihood regression with beta-distributed dependent
   variables. *Psychological Methods*, **11**(1), 54–71. DOI:
   10.1037/1082-989X.11.1.54. Validated online via:
-  <https://doi.org/10.1037/1082-989X.11.1.54> and
-  <https://pubmed.ncbi.nlm.nih.gov/16594767/>.
+  <https://doi.org/10.1037/1082-989X.11.1.54>.
 
 - Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
   Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
@@ -854,8 +852,7 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
   Measure of Intermittent and Constant Osteoarthritis Pain (ICOAP).
   *Arthritis Care and Research*, **63**(S11), S240–S252. DOI:
   10.1002/acr.20543. Validated online via:
-  <https://doi.org/10.1002/acr.20543> and
-  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+  <https://doi.org/10.1002/acr.20543>.
 
 - Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
   comparing numerical rating scales, verbal rating scales, and visual
@@ -863,5 +860,4 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
   systematic literature review. *Journal of Pain and Symptom
   Management*, **41**(6), 1073–1093. DOI:
   10.1016/j.jpainsymman.2010.08.016. Validated online via:
-  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
-  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016>.

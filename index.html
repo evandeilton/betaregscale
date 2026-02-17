@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@ F(u_i; a_i, b_i)-F(l_i; a_i, b_i), &amp; \delta_i=3.
 <li>
 <strong>Fixed and variable dispersion</strong>: model a scalar <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> or let it depend on covariates via a second linear predictor (<code>y ~ x1 + x2 | z1</code>).</li>
 <li>
-<strong>Mixed-effects support</strong>: <code><a href="reference/brsmm.html">brsmm()</a></code> fits Gaussian random-intercept models (<code>random = ~ 1 | group</code>) via Laplace-approximated marginal likelihood.</li>
+<strong>Mixed-effects support</strong>: <code><a href="reference/brsmm.html">brsmm()</a></code> fits Gaussian mixed beta interval models with random effects in the mean predictor (e.g. <code>random = ~ 1 | group</code> and <code>random = ~ 1 + x | group</code>) via Laplace-approximated marginal likelihood.</li>
 <li>
 <strong>High-performance C++ backend</strong>: the log-likelihood and numerical gradient are compiled via Rcpp/RcppArmadillo for fast, numerically stable estimation.</li>
 <li>
@@ -202,9 +202,43 @@ F(u_i; a_i, b_i)-F(l_i; a_i, b_i), &amp; \delta_i=3.
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_mm</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="s3-methods">S3 methods<a class="anchor" aria-label="anchor" href="#s3-methods"></a>
+<h3 id="mixed-model-random-intercept--random-slope">Mixed model (random intercept + random slope)<a class="anchor" aria-label="anchor" href="#mixed-model-random-intercept--random-slope"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_mm_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm.html">brsmm</a></span><span class="op">(</span></span>
+<span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>,</span>
+<span>  random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">x1</span> <span class="op">|</span> <span class="va">id</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">dmm</span>,</span>
+<span>  repar <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  int_method <span class="op">=</span> <span class="st">"laplace"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">$</span><span class="va">random</span><span class="op">$</span><span class="va">D</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="reference/ranef.brsmm.html">ranef.brsmm</a></span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="evolutionary-model-selection-anova">Evolutionary model selection (<code>anova</code>)<a class="anchor" aria-label="anchor" href="#evolutionary-model-selection-anova"></a>
+</h3>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_brs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">dmm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">fit_mm_ri</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">dmm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">fit_mm_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">x1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">dmm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_brs</span>, <span class="va">fit_mm_ri</span>, <span class="va">fit_mm_rs</span>, test <span class="op">=</span> <span class="st">"Chisq"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="random-effects-numerical-study">Random-effects numerical study<a class="anchor" aria-label="anchor" href="#random-effects-numerical-study"></a>
+</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">re_study</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm_re_study.html">brsmm_re_study</a></span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">re_study</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">re_study</span><span class="op">$</span><span class="va">summary</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="s3-methods">S3 methods<a class="anchor" aria-label="anchor" href="#s3-methods"></a>
+</h3>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Coefficients by submodel</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>                          <span class="co"># full parameter vector</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>         <span class="co"># mean submodel only</span></span>
@@ -288,7 +322,7 @@ F(u_i; a_i, b_i)-F(l_i; a_i, b_i), &amp; \delta_i=3.
 <div class="section level3">
 <h3 id="analyst-oriented-outputs-clean-tables">Analyst-oriented outputs (clean tables)<a class="anchor" aria-label="anchor" href="#analyst-oriented-outputs-clean-tables"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Parametric bootstrap CI</span></span>
 <span><span class="va">boot_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span><span class="va">fit</span>, R <span class="op">=</span> <span class="fl">100</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">boot_ci</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
@@ -314,15 +348,41 @@ y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
 </annotation></semantics></math></p>
 <p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math> is the number of scale categories (<code>ncuts</code>) and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math> is the half-width (<code>lim</code>, default <code>0.5</code>).</p>
 </div>
+<div class="section level3">
+<h3 id="mixed-model-likelihood-brsmm">Mixed-model likelihood (<code>brsmm</code>)<a class="anchor" aria-label="anchor" href="#mixed-model-likelihood-brsmm"></a>
+</h3>
+<p>For group <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math> with random-effects vector <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐛</mi><mi>j</mi></msub><mo>∈</mo><msup><mi>ℝ</mi><msub><mi>q</mi><mi>b</mi></msub></msup></mrow><annotation encoding="application/x-tex">\mathbf{b}_j \in \mathbb{R}^{q_b}</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>η</mi><mrow><mi>μ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msubsup><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow><mi>⊤</mi></msubsup><mi>β</mi><mo>+</mo><msubsup><mi>w</mi><mrow><mi>i</mi><mi>j</mi></mrow><mi>⊤</mi></msubsup><msub><mi>𝐛</mi><mi>j</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>η</mi><mrow><mi>ϕ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msubsup><mi>z</mi><mrow><mi>i</mi><mi>j</mi></mrow><mi>⊤</mi></msubsup><mi>γ</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">
+\eta_{\mu,ij} = x_{ij}^\top\beta + w_{ij}^\top\mathbf{b}_j,
+\qquad
+\eta_{\phi,ij} = z_{ij}^\top\gamma,
+</annotation></semantics></math></p>
+<p>with</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐛</mi><mi>j</mi></msub><mo>∼</mo><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D).
+</annotation></semantics></math></p>
+<p>The marginal group likelihood is</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mo>∫</mo><msup><mi>ℝ</mi><msub><mi>q</mi><mi>b</mi></msub></msup></msub><mrow><mo stretchy="true" form="prefix">{</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>n</mi><mi>j</mi></msub></munderover><msub><mi>L</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐛</mi><mi>j</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">}</mo></mrow><msub><mi>φ</mi><msub><mi>q</mi><mi>b</mi></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐛</mi><mi>j</mi></msub><mo>;</mo><mn>𝟎</mn><mo>,</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi>d</mi><msub><mi>𝐛</mi><mi>j</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
+L_j(\theta)=\int_{\mathbb{R}^{q_b}}
+\left\{\prod_{i=1}^{n_j} L_{ij}(\mathbf{b}_j;\theta)\right\}
+\varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j,
+</annotation></semantics></math></p>
+<p>and the log-likelihood is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>G</mi></msubsup><mo>log</mo><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)</annotation></semantics></math>. <code><a href="reference/brsmm.html">brsmm()</a></code> uses a multivariate Laplace approximation:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mfrac><msub><mi>q</mi><mi>b</mi></msub><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>π</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>H</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+\log L_j(\theta)\approx
+Q_j(\hat{\mathbf{b}}_j)+\frac{q_b}{2}\log(2\pi)-\frac{1}{2}\log|H_j|,
+</annotation></semantics></math></p>
+<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐛</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mo>∑</mo><mi>i</mi></msub><mo>log</mo><msub><mi>L</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐛</mi><mo>;</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mo>log</mo><msub><mi>φ</mi><msub><mi>q</mi><mi>b</mi></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐛</mi><mo>;</mo><mn>𝟎</mn><mo>,</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Q_j(\mathbf{b})=\sum_i \log L_{ij}(\mathbf{b};\theta)+\log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>j</mi></msub><mo>=</mo><mo>−</mo><msup><mi>∇</mi><mn>2</mn></msup><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_j=-\nabla^2Q_j(\hat{\mathbf{b}}_j)</annotation></semantics></math>.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ul>
 <li><p>Lopes, J. E. (2024). <em>Beta Regression for Interval-Censored Scale-Derived Outcomes</em>. MSc Dissertation, PPGMNE/UFPR.</p></li>
-<li><p>Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for modelling rates and proportions. <em>Journal of Applied Statistics</em>, 31(7), 799–815. DOI: 10.1080/0266476042000214501. Validated online via: <a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a> and <a href="https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815" class="external-link uri">https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815</a>.</p></li>
-<li><p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS, and ICOAP. <em>Arthritis Care and Research</em>, 63(S11), S240–S252. DOI: 10.1002/acr.20543. Validated online via: <a href="https://doi.org/10.1002/acr.20543" class="external-link uri">https://doi.org/10.1002/acr.20543</a> and <a href="https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543" class="external-link uri">https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543</a>.</p></li>
-<li><p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies comparing numerical rating scales, verbal rating scales, and visual analogue scales for assessment of pain intensity in adults. <em>Journal of Pain and Symptom Management</em>, 41(6), 1073–1093. DOI: 10.1016/j.jpainsymman.2010.08.016. Validated online via: <a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link uri">https://doi.org/10.1016/j.jpainsymman.2010.08.016</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/21621130/" class="external-link uri">https://pubmed.ncbi.nlm.nih.gov/21621130/</a>.</p></li>
+<li><p>Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for modelling rates and proportions. <em>Journal of Applied Statistics</em>, 31(7), 799–815. DOI: 10.1080/0266476042000214501. DOI validated via: <a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a>.</p></li>
+<li><p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS, and ICOAP. <em>Arthritis Care and Research</em>, 63(S11), S240–S252. DOI: 10.1002/acr.20543. Validated online via: <a href="https://doi.org/10.1002/acr.20543" class="external-link uri">https://doi.org/10.1002/acr.20543</a>.</p></li>
+<li><p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies comparing numerical rating scales, verbal rating scales, and visual analogue scales for assessment of pain intensity in adults. <em>Journal of Pain and Symptom Management</em>, 41(6), 1073–1093. DOI: 10.1016/j.jpainsymman.2010.08.016. Validated online via: <a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link uri">https://doi.org/10.1016/j.jpainsymman.2010.08.016</a>.</p></li>
 </ul>
 </div>
 <div class="section level2">

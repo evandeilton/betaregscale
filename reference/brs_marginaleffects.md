@@ -114,10 +114,10 @@ fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
 
 brs_marginaleffects(fit, model = "mean", type = "response")
 #>   variable         ame  std.error     ci.lower    ci.upper model     type   n
-#> 1       x1 -0.09214703 0.02428345 -0.139173112 -0.04268193  mean response 150
-#> 2       x2  0.04192221 0.02385441 -0.003212256  0.08492252  mean response 150
+#> 1       x1 -0.09214702 0.02300201 -0.138337967 -0.04605006  mean response 150
+#> 2       x2  0.04192221 0.02433643 -0.005902896  0.08775782  mean response 150
 brs_marginaleffects(fit, model = "precision", type = "link")
-#>   variable        ame  std.error   ci.lower   ci.upper     model type   n
-#> 1       z1 -0.4099968 0.09480721 -0.5960576 -0.2481366 precision link 150
+#>   variable        ame std.error   ci.lower   ci.upper     model type   n
+#> 1       z1 -0.4099968 0.1035667 -0.6102699 -0.2172345 precision link 150
 # }
 ```

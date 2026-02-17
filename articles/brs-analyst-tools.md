@@ -151,8 +151,8 @@ knitr::kable(me_mean, digits = 4)
 
 | variable |     ame | std.error | ci.lower | ci.upper | model | type     |   n |
 |:---------|--------:|----------:|---------:|---------:|:------|:---------|----:|
-| x1       | -0.1035 |    0.0193 |  -0.1398 |  -0.0614 | mean  | response | 220 |
-| x2       |  0.0734 |    0.0155 |   0.0412 |   0.1059 | mean  | response | 220 |
+| x1       | -0.1035 |    0.0186 |  -0.1329 |  -0.0661 | mean  | response | 220 |
+| x2       |  0.0734 |    0.0173 |   0.0475 |   0.1084 | mean  | response | 220 |
 
 ``` r
 
@@ -169,7 +169,7 @@ knitr::kable(me_precision, digits = 4)
 
 | variable |     ame | std.error | ci.lower | ci.upper | model     | type |   n |
 |:---------|--------:|----------:|---------:|---------:|:----------|:-----|----:|
-| z1       | -0.3361 |    0.0907 |  -0.4909 |  -0.1541 | precision | link | 220 |
+| z1       | -0.3361 |    0.0835 |  -0.4781 |  -0.1413 | precision | link | 220 |
 
 ### 4) Predict score probabilities
 
@@ -501,17 +501,14 @@ knitr::kable(
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   31(7), 799-815. DOI: 10.1080/0266476042000214501. Validated online
-  via: <https://doi.org/10.1080/0266476042000214501> and
-  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+  via: <https://doi.org/10.1080/0266476042000214501>.
 - Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
   Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS, and
   ICOAP. *Arthritis Care and Research*, 63(S11), S240-S252. DOI:
   10.1002/acr.20543. Validated online via:
-  <https://doi.org/10.1002/acr.20543> and
-  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+  <https://doi.org/10.1002/acr.20543>.
 - Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
   Comparing NRS, VRS, and VAS pain scales in adults: a systematic
   review. *Journal of Pain and Symptom Management*, 41(6), 1073-1093.
   DOI: 10.1016/j.jpainsymman.2010.08.016. Validated online via:
-  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
-  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016>.
