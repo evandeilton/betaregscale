@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -483,7 +483,7 @@ skipped:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.9434 -0.5715  0.2788  0.6560  1.3786 </span></span>
+<span><span class="co">#&gt; -3.6892 -0.5626  0.3367  0.7101  2.4038 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error  z value Pr(&gt;|z|)    </span></span>
@@ -640,7 +640,7 @@ with interval
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.4331 -0.6619  0.0070  0.7339  3.0637 </span></span>
+<span><span class="co">#&gt; -3.0753 -0.6600  0.0058  0.7071  3.3708 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
@@ -892,7 +892,7 @@ can compare them using information criteria:</p>
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">gof_table</span>, dogits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">gof_table</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
@@ -907,28 +907,28 @@ can compare them using information criteria:</p>
 <td align="right">-4035.226</td>
 <td align="right">8078.452</td>
 <td align="right">8098.083</td>
-<td align="right">0.2393150</td>
+<td align="right">0.2393</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
 <td align="right">-4035.685</td>
 <td align="right">8079.370</td>
 <td align="right">8099.001</td>
-<td align="right">0.2382638</td>
+<td align="right">0.2383</td>
 </tr>
 <tr class="odd">
 <td align="left">cauchit</td>
 <td align="right">-4035.500</td>
 <td align="right">8079.000</td>
 <td align="right">8098.631</td>
-<td align="right">0.1918217</td>
+<td align="right">0.1918</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
 <td align="right">-4037.563</td>
 <td align="right">8083.126</td>
 <td align="right">8102.757</td>
-<td align="right">0.1823572</td>
+<td align="right">0.1824</td>
 </tr>
 </tbody>
 </table>
@@ -952,13 +952,69 @@ package):</p>
 </h3>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fitted means</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.3222 0.6343 0.5825 0.5148 0.5031 0.4115</span></span>
-<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>mu_hat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">mu_hat</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.3222</td>
+</tr>
+<tr class="even">
+<td align="right">0.6343</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5825</td>
+</tr>
+<tr class="even">
+<td align="right">0.5148</td>
+</tr>
+<tr class="odd">
+<td align="right">0.5031</td>
+</tr>
+<tr class="even">
+<td align="right">0.4115</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Conditional variance</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.1152 0.1224 0.1283 0.1317 0.1319 0.1277</span></span>
-<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>var_hat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">var_hat</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.1152</td>
+</tr>
+<tr class="even">
+<td align="right">0.1224</td>
+</tr>
+<tr class="odd">
+<td align="right">0.1283</td>
+</tr>
+<tr class="even">
+<td align="right">0.1317</td>
+</tr>
+<tr class="odd">
+<td align="right">0.1319</td>
+</tr>
+<tr class="even">
+<td align="right">0.1277</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
 <span><span class="co"># Quantile predictions</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -1006,7 +1062,7 @@ package):</p>
 </h3>
 <p>Wald confidence intervals based on the asymptotic normal
 approximation:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1037,7 +1093,7 @@ approximation:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1069,7 +1125,7 @@ approximation:</p>
 </h3>
 <p>The <code><a href="../reference/brs_cens.html">brs_cens()</a></code> function provides a visual and tabular
 overview of the censoring types in the fitted model:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_cens.html">brs_cens</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
@@ -1090,7 +1146,7 @@ simulation.</p>
 <div class="section level3">
 <h3 id="simulating-data-1">Simulating data<a class="anchor" aria-label="anchor" href="#simulating-data-1"></a>
 </h3>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2222</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">dat_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -1205,7 +1261,7 @@ simulation.</p>
 <div class="section level3">
 <h3 id="fitting-the-model-1">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model-1"></a>
 </h3>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>  data     <span class="op">=</span> <span class="va">sim_var</span>,</span>
@@ -1221,7 +1277,7 @@ simulation.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -4.4614 -0.6362  0.0056  0.6578  3.4202 </span></span>
+<span><span class="co">#&gt; -3.6111 -0.6344  0.0131  0.6654  3.2463 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
@@ -1248,7 +1304,7 @@ names, following the <code>betareg</code> convention.</p>
 <div class="section level3">
 <h3 id="accessing-coefficients-by-submodel">Accessing coefficients by submodel<a class="anchor" aria-label="anchor" href="#accessing-coefficients-by-submodel"></a>
 </h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Full parameter vector</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       (Intercept)                x1                x2 (phi)_(Intercept) </span></span>
@@ -1300,7 +1356,7 @@ names, following the <code>betareg</code> convention.</p>
 <div class="section level3">
 <h3 id="comparing-link-functions-variable-dispersion">Comparing link functions (variable dispersion)<a class="anchor" aria-label="anchor" href="#comparing-link-functions-variable-dispersion"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"probit"</span>, <span class="st">"cauchit"</span>, <span class="st">"cloglog"</span><span class="op">)</span></span>
 <span><span class="va">fits_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">links</span>, <span class="va">links</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim_var</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -1537,11 +1593,11 @@ names, following the <code>betareg</code> convention.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits_var</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">gof_var</span>, digit <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">gof_var</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
@@ -1585,9 +1641,332 @@ names, following the <code>betareg</code> convention.</p>
 <div class="section level3">
 <h3 id="diagnostics-for-variable-dispersion">Diagnostics for variable dispersion<a class="anchor" aria-label="anchor" href="#diagnostics-for-variable-dispersion"></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/plot-variable-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="advanced-analyst-functions">Advanced analyst functions<a class="anchor" aria-label="anchor" href="#advanced-analyst-functions"></a>
+</h2>
+<p>The package includes analyst-facing helpers for uncertainty
+quantification, effect interpretation, score-scale communication, and
+predictive validation.</p>
+<div class="section level3">
+<h3 id="parametric-bootstrap-confidence-intervals">Parametric bootstrap confidence intervals<a class="anchor" aria-label="anchor" href="#parametric-bootstrap-confidence-intervals"></a>
+</h3>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span>
+<span><span class="va">boot_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_fixed</span>,</span>
+<span>  R <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">boot_ci</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">parameter</th>
+<th align="right">estimate</th>
+<th align="right">se_boot</th>
+<th align="right">ci_lower</th>
+<th align="right">ci_upper</th>
+<th align="right">level</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">0.3060</td>
+<td align="right">0.0402</td>
+<td align="right">0.2411</td>
+<td align="right">0.4103</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">x1</td>
+<td align="right">-0.6033</td>
+<td align="right">0.0412</td>
+<td align="right">-0.6861</td>
+<td align="right">-0.5395</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="left">x2</td>
+<td align="right">0.4413</td>
+<td align="right">0.0423</td>
+<td align="right">0.3398</td>
+<td align="right">0.4996</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">(phi)</td>
+<td align="right">0.1099</td>
+<td align="right">0.0402</td>
+<td align="right">0.0279</td>
+<td align="right">0.1716</td>
+<td align="right">0.95</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="average-marginal-effects-ame">Average marginal effects (AME)<a class="anchor" aria-label="anchor" href="#average-marginal-effects-ame"></a>
+</h3>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">202</span><span class="op">)</span></span>
+<span><span class="va">ame</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_fixed</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"response"</span>,</span>
+<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_sim <span class="op">=</span> <span class="fl">120</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">ame</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="13%">
+<col width="12%">
+<col width="15%">
+<col width="13%">
+<col width="13%">
+<col width="9%">
+<col width="13%">
+<col width="7%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">variable</th>
+<th align="right">ame</th>
+<th align="right">std.error</th>
+<th align="right">ci.lower</th>
+<th align="right">ci.upper</th>
+<th align="left">model</th>
+<th align="left">type</th>
+<th align="right">n</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">x1</td>
+<td align="right">-0.1321</td>
+<td align="right">0.0088</td>
+<td align="right">-0.1473</td>
+<td align="right">-0.1123</td>
+<td align="left">mean</td>
+<td align="left">response</td>
+<td align="right">1000</td>
+</tr>
+<tr class="even">
+<td align="left">x2</td>
+<td align="right">0.0966</td>
+<td align="right">0.0096</td>
+<td align="right">0.0759</td>
+<td align="right">0.1130</td>
+<td align="left">mean</td>
+<td align="left">response</td>
+<td align="right">1000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="score-probabilities-on-the-original-scale">Score probabilities on the original scale<a class="anchor" aria-label="anchor" href="#score-probabilities-on-the-original-scale"></a>
+</h3>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">prob_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_fixed</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">prob_scores</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">score_0</th>
+<th align="right">score_1</th>
+<th align="right">score_2</th>
+<th align="right">score_3</th>
+<th align="right">score_4</th>
+<th align="right">score_5</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.1754</td>
+<td align="right">0.0657</td>
+<td align="right">0.0386</td>
+<td align="right">0.0288</td>
+<td align="right">0.0235</td>
+<td align="right">0.0201</td>
+</tr>
+<tr class="even">
+<td align="right">0.0218</td>
+<td align="right">0.0190</td>
+<td align="right">0.0139</td>
+<td align="right">0.0117</td>
+<td align="right">0.0104</td>
+<td align="right">0.0095</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0320</td>
+<td align="right">0.0249</td>
+<td align="right">0.0176</td>
+<td align="right">0.0145</td>
+<td align="right">0.0127</td>
+<td align="right">0.0115</td>
+</tr>
+<tr class="even">
+<td align="right">0.0516</td>
+<td align="right">0.0342</td>
+<td align="right">0.0230</td>
+<td align="right">0.0185</td>
+<td align="right">0.0159</td>
+<td align="right">0.0142</td>
+</tr>
+<tr class="odd">
+<td align="right">0.0559</td>
+<td align="right">0.0360</td>
+<td align="right">0.0240</td>
+<td align="right">0.0192</td>
+<td align="right">0.0165</td>
+<td align="right">0.0146</td>
+</tr>
+<tr class="even">
+<td align="right">0.1016</td>
+<td align="right">0.0509</td>
+<td align="right">0.0318</td>
+<td align="right">0.0246</td>
+<td align="right">0.0206</td>
+<td align="right">0.0180</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>row_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">prob_scores</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">row_sum</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.4263</td>
+</tr>
+<tr class="even">
+<td align="right">0.1260</td>
+</tr>
+<tr class="odd">
+<td align="right">0.1605</td>
+</tr>
+<tr class="even">
+<td align="right">0.2141</td>
+</tr>
+<tr class="odd">
+<td align="right">0.2245</td>
+</tr>
+<tr class="even">
+<td align="right">0.3163</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="repeated-k-fold-cross-validation">Repeated k-fold cross-validation<a class="anchor" aria-label="anchor" href="#repeated-k-fold-cross-validation"></a>
+</h3>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
+<span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">sim_fixed</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  repeats <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  repar <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">303</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cv_res</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="10%">
+<col width="7%">
+<col width="11%">
+<col width="10%">
+<col width="14%">
+<col width="11%">
+<col width="10%">
+<col width="14%">
+<col width="8%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">repeat</th>
+<th align="right">fold</th>
+<th align="right">n_train</th>
+<th align="right">n_test</th>
+<th align="right">log_score</th>
+<th align="right">rmse_yt</th>
+<th align="right">mae_yt</th>
+<th align="left">converged</th>
+<th align="left">error</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">666</td>
+<td align="right">334</td>
+<td align="right">-4.0044</td>
+<td align="right">0.3447</td>
+<td align="right">0.3034</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">667</td>
+<td align="right">333</td>
+<td align="right">-4.0302</td>
+<td align="right">0.3369</td>
+<td align="right">0.2919</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">3</td>
+<td align="right">667</td>
+<td align="right">333</td>
+<td align="right">-4.0772</td>
+<td align="right">0.3403</td>
+<td align="right">0.2956</td>
+<td align="left">TRUE</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rmse_yt"</span>, <span class="st">"mae_yt"</span><span class="op">)</span>,</span>
+<span>    mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">$</span><span class="va">log_score</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">$</span><span class="va">rmse_yt</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">$</span><span class="va">mae_yt</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">metric</th>
+<th align="right">mean</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">log_score</td>
+<td align="right">-4.0373</td>
+</tr>
+<tr class="even">
+<td align="left">rmse_yt</td>
+<td align="right">0.3406</td>
+</tr>
+<tr class="odd">
+<td align="left">mae_yt</td>
+<td align="right">0.2970</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section level2">
@@ -1705,7 +2084,7 @@ Here
 acts as a coefficient of variation: smaller
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 means less variability.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Precision parameterization: mu = 0.5, phi = 10 (high precision)</span></span>
 <span><span class="fu"><a href="../reference/brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">0.5</span>, phi <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   shape1 shape2</span></span>
@@ -1722,9 +2101,28 @@ means less variability.</p>
 <ul>
 <li><p>Lopes, J. E. (2024). <em>Beta Regression for Interval-Censored
 Scale-Derived Outcomes</em>. MSc Dissertation, PPGMNE/UFPR.</p></li>
-<li><p>Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for
-modelling rates and proportions. <em>Journal of Applied Statistics</em>,
-<strong>31</strong>(7), 799–815.</p></li>
+<li><p>Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression
+for modelling rates and proportions. <em>Journal of Applied
+Statistics</em>, <strong>31</strong>(7), 799–815. DOI:
+10.1080/0266476042000214501. Validated online via: <a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a> and <a href="https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815" class="external-link uri">https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815</a>.</p></li>
+<li><p>Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
+Maximum-likelihood regression with beta-distributed dependent variables.
+<em>Psychological Methods</em>, <strong>11</strong>(1), 54–71. DOI:
+10.1037/1082-989X.11.1.54. Validated online via: <a href="https://doi.org/10.1037/1082-989X.11.1.54" class="external-link uri">https://doi.org/10.1037/1082-989X.11.1.54</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/16594767/" class="external-link uri">https://pubmed.ncbi.nlm.nih.gov/16594767/</a>.</p></li>
+<li><p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+Measures of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric
+Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
+Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
+(CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
+Intermittent and Constant Osteoarthritis Pain (ICOAP). <em>Arthritis
+Care and Research</em>, <strong>63</strong>(S11), S240–S252. DOI:
+10.1002/acr.20543. Validated online via: <a href="https://doi.org/10.1002/acr.20543" class="external-link uri">https://doi.org/10.1002/acr.20543</a> and <a href="https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543" class="external-link uri">https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543</a>.</p></li>
+<li><p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+Studies comparing numerical rating scales, verbal rating scales, and
+visual analogue scales for assessment of pain intensity in adults: a
+systematic literature review. <em>Journal of Pain and Symptom
+Management</em>, <strong>41</strong>(6), 1073–1093. DOI:
+10.1016/j.jpainsymman.2010.08.016. Validated online via: <a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link uri">https://doi.org/10.1016/j.jpainsymman.2010.08.016</a> and <a href="https://pubmed.ncbi.nlm.nih.gov/21621130/" class="external-link uri">https://pubmed.ncbi.nlm.nih.gov/21621130/</a>.</p></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

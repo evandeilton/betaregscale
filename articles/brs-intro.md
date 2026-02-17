@@ -200,7 +200,7 @@ summary(fit_prep, digits = 4)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -3.9434 -0.5715  0.2788  0.6560  1.3786 
+#> -3.6892 -0.5626  0.3367  0.7101  2.4038 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error  z value Pr(>|z|)    
@@ -281,7 +281,7 @@ summary(fit_fixed)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -3.4331 -0.6619  0.0070  0.7339  3.0637 
+#> -3.0753 -0.6600  0.0058  0.7071  3.3708 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
@@ -360,15 +360,15 @@ knitr::kable(est_table, digits = 4)
 
 # Goodness of fit
 gof_table <- do.call(rbind, lapply(fits, brs_gof))
-knitr::kable(gof_table, dogits = 4)
+knitr::kable(gof_table, digits = 4)
 ```
 
 |         |    logLik |      AIC |      BIC | pseudo_r2 |
 |:--------|----------:|---------:|---------:|----------:|
-| logit   | -4035.226 | 8078.452 | 8098.083 | 0.2393150 |
-| probit  | -4035.685 | 8079.370 | 8099.001 | 0.2382638 |
-| cauchit | -4035.500 | 8079.000 | 8098.631 | 0.1918217 |
-| cloglog | -4037.563 | 8083.126 | 8102.757 | 0.1823572 |
+| logit   | -4035.226 | 8078.452 | 8098.083 |    0.2393 |
+| probit  | -4035.685 | 8079.370 | 8099.001 |    0.2383 |
+| cauchit | -4035.500 | 8079.000 | 8098.631 |    0.1918 |
+| cloglog | -4037.563 | 8083.126 | 8102.757 |    0.1824 |
 
 ### Residual diagnostics
 
@@ -393,12 +393,40 @@ plot(fit_fixed, gg = TRUE)
 
 ``` r
 # Fitted means
-round(head(predict(fit_fixed, type = "response")), 4)
-#> [1] 0.3222 0.6343 0.5825 0.5148 0.5031 0.4115
+knitr::kable(
+  data.frame(mu_hat = head(predict(fit_fixed, type = "response"))),
+  digits = 4
+)
+```
+
+| mu_hat |
+|-------:|
+| 0.3222 |
+| 0.6343 |
+| 0.5825 |
+| 0.5148 |
+| 0.5031 |
+| 0.4115 |
+
+``` r
 
 # Conditional variance
-round(head(predict(fit_fixed, type = "variance")), 4)
-#> [1] 0.1152 0.1224 0.1283 0.1317 0.1319 0.1277
+knitr::kable(
+  data.frame(var_hat = head(predict(fit_fixed, type = "variance"))),
+  digits = 4
+)
+```
+
+| var_hat |
+|--------:|
+|  0.1152 |
+|  0.1224 |
+|  0.1283 |
+|  0.1317 |
+|  0.1319 |
+|  0.1277 |
+
+``` r
 
 # Quantile predictions
 knitr::kable(head(predict(fit_fixed, type = "quantile", at = c(0.25, 0.5, 0.75))), digits = 4)
@@ -515,7 +543,7 @@ summary(fit_var)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -4.4614 -0.6362  0.0056  0.6578  3.4202 
+#> -3.6111 -0.6344  0.0131  0.6654  3.2463 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
@@ -615,7 +643,7 @@ knitr::kable(est_var, digits = 4)
 
 # Goodness of fit
 gof_var <- do.call(rbind, lapply(fits_var, brs_gof))
-knitr::kable(gof_var, digit = 4)
+knitr::kable(gof_var, digits = 4)
 ```
 
 |         |    logLik |      AIC |      BIC | pseudo_r2 |
@@ -632,6 +660,122 @@ plot(fit_var)
 ```
 
 ![](brs-intro_files/figure-html/plot-variable-1.png)
+
+## Advanced analyst functions
+
+The package includes analyst-facing helpers for uncertainty
+quantification, effect interpretation, score-scale communication, and
+predictive validation.
+
+### Parametric bootstrap confidence intervals
+
+``` r
+set.seed(101)
+boot_ci <- brs_bootstrap(
+  fit_fixed,
+  R = 80,
+  level = 0.95
+)
+knitr::kable(head(boot_ci), digits = 4)
+```
+
+| parameter   | estimate | se_boot | ci_lower | ci_upper | level |
+|:------------|---------:|--------:|---------:|---------:|------:|
+| (Intercept) |   0.3060 |  0.0402 |   0.2411 |   0.4103 |  0.95 |
+| x1          |  -0.6033 |  0.0412 |  -0.6861 |  -0.5395 |  0.95 |
+| x2          |   0.4413 |  0.0423 |   0.3398 |   0.4996 |  0.95 |
+| (phi)       |   0.1099 |  0.0402 |   0.0279 |   0.1716 |  0.95 |
+
+### Average marginal effects (AME)
+
+``` r
+set.seed(202)
+ame <- brs_marginaleffects(
+  fit_fixed,
+  model = "mean",
+  type = "response",
+  interval = TRUE,
+  n_sim = 120
+)
+knitr::kable(ame, digits = 4)
+```
+
+| variable |     ame | std.error | ci.lower | ci.upper | model | type     |    n |
+|:---------|--------:|----------:|---------:|---------:|:------|:---------|-----:|
+| x1       | -0.1321 |    0.0088 |  -0.1473 |  -0.1123 | mean  | response | 1000 |
+| x2       |  0.0966 |    0.0096 |   0.0759 |   0.1130 | mean  | response | 1000 |
+
+### Score probabilities on the original scale
+
+``` r
+prob_scores <- brs_predict_scoreprob(fit_fixed, scores = 0:10)
+knitr::kable(prob_scores[1:6, 1:6], digits = 4)
+```
+
+| score_0 | score_1 | score_2 | score_3 | score_4 | score_5 |
+|--------:|--------:|--------:|--------:|--------:|--------:|
+|  0.1754 |  0.0657 |  0.0386 |  0.0288 |  0.0235 |  0.0201 |
+|  0.0218 |  0.0190 |  0.0139 |  0.0117 |  0.0104 |  0.0095 |
+|  0.0320 |  0.0249 |  0.0176 |  0.0145 |  0.0127 |  0.0115 |
+|  0.0516 |  0.0342 |  0.0230 |  0.0185 |  0.0159 |  0.0142 |
+|  0.0559 |  0.0360 |  0.0240 |  0.0192 |  0.0165 |  0.0146 |
+|  0.1016 |  0.0509 |  0.0318 |  0.0246 |  0.0206 |  0.0180 |
+
+``` r
+knitr::kable(
+  data.frame(row_sum = rowSums(prob_scores)[1:6]),
+  digits = 4
+)
+```
+
+| row_sum |
+|--------:|
+|  0.4263 |
+|  0.1260 |
+|  0.1605 |
+|  0.2141 |
+|  0.2245 |
+|  0.3163 |
+
+### Repeated k-fold cross-validation
+
+``` r
+cv_res <- brs_cv(
+  y ~ x1 + x2,
+  data = sim_fixed,
+  k = 3,
+  repeats = 1,
+  repar = 2,
+  seed = 303
+)
+knitr::kable(cv_res, digits = 4)
+```
+
+| repeat | fold | n_train | n_test | log_score | rmse_yt | mae_yt | converged | error |
+|-------:|-----:|--------:|-------:|----------:|--------:|-------:|:----------|:------|
+|      1 |    1 |     666 |    334 |   -4.0044 |  0.3447 | 0.3034 | TRUE      | NA    |
+|      1 |    2 |     667 |    333 |   -4.0302 |  0.3369 | 0.2919 | TRUE      | NA    |
+|      1 |    3 |     667 |    333 |   -4.0772 |  0.3403 | 0.2956 | TRUE      | NA    |
+
+``` r
+knitr::kable(
+  data.frame(
+    metric = c("log_score", "rmse_yt", "mae_yt"),
+    mean = c(
+      mean(cv_res$log_score, na.rm = TRUE),
+      mean(cv_res$rmse_yt, na.rm = TRUE),
+      mean(cv_res$mae_yt, na.rm = TRUE)
+    )
+  ),
+  digits = 4
+)
+```
+
+| metric    |    mean |
+|:----------|--------:|
+| log_score | -4.0373 |
+| rmse_yt   |  0.3406 |
+| mae_yt    |  0.2970 |
 
 ## S3 methods reference
 
@@ -689,6 +833,35 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 - Lopes, J. E. (2024). *Beta Regression for Interval-Censored
   Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 
-- Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
-  rates and proportions. *Journal of Applied Statistics*, **31**(7),
-  799–815.
+- Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
+  modelling rates and proportions. *Journal of Applied Statistics*,
+  **31**(7), 799–815. DOI: 10.1080/0266476042000214501. Validated online
+  via: <https://doi.org/10.1080/0266476042000214501> and
+  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+
+- Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
+  Maximum-likelihood regression with beta-distributed dependent
+  variables. *Psychological Methods*, **11**(1), 54–71. DOI:
+  10.1037/1082-989X.11.1.54. Validated online via:
+  <https://doi.org/10.1037/1082-989X.11.1.54> and
+  <https://pubmed.ncbi.nlm.nih.gov/16594767/>.
+
+- Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+  Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
+  Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire
+  (MPQ), Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain
+  Grade Scale (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and
+  Measure of Intermittent and Constant Osteoarthritis Pain (ICOAP).
+  *Arthritis Care and Research*, **63**(S11), S240–S252. DOI:
+  10.1002/acr.20543. Validated online via:
+  <https://doi.org/10.1002/acr.20543> and
+  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+
+- Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
+  comparing numerical rating scales, verbal rating scales, and visual
+  analogue scales for assessment of pain intensity in adults: a
+  systematic literature review. *Journal of Pain and Symptom
+  Management*, **41**(6), 1073–1093. DOI:
+  10.1016/j.jpainsymman.2010.08.016. Validated online via:
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
+  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.
