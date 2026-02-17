@@ -1,3 +1,15 @@
+# betaregscale 2.6.3
+
+## Improvements
+
+* Revised and expanded all core vignettes (`brs-intro`, `brs-analyst-tools`, `brs-mm`) with stronger mathematical exposition, explicit likelihood pieces by censoring type, and clearer inferential interpretation for analysts.
+* Updated vignettes and README to prioritize the package's most important analyst-facing functions: `brs_bootstrap()`, `brs_marginaleffects()`, `brs_predict_scoreprob()`, `brs_cv()`, and `brs_table()`.
+* Standardized vignette outputs with cleaner tabular presentation using `knitr::kable(..., digits = 4)` for better readability and reporting consistency.
+* Added and revised bibliographic references with validated DOI metadata and dual online source verification links in vignettes/README.
+* Re-rendered all vignettes and rebuilt documentation website (`pkgdown`) to keep articles and reference pages synchronized with the current API.
+
+---
+
 # betaregscale 2.6.2
 
 ## Improvements

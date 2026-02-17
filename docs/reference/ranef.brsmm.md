@@ -16,7 +16,7 @@ ranef.brsmm(object, ...)
 
 - ...:
 
-  Ignored.
+  Currently ignored.
 
 ## Value
 

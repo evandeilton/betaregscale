@@ -36,7 +36,6 @@ case and expected behavior.
 ## Development setup
 
 ``` r
-
 # Install development dependencies
 install.packages(c("devtools", "testthat", "roxygen2", "knitr", "rmarkdown"))
 

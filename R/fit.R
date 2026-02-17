@@ -2,6 +2,24 @@
 # Model-fitting functions
 # ============================================================================ #
 
+.validate_brs_common_args <- function(data, ncuts, lim, repar) {
+  if (!is.data.frame(data)) {
+    stop("`data` must be a data.frame.", call. = FALSE)
+  }
+  ncuts <- as.integer(ncuts)
+  if (!is.finite(ncuts) || ncuts < 2L) {
+    stop("`ncuts` must be an integer >= 2.", call. = FALSE)
+  }
+  if (!is.numeric(lim) || length(lim) != 1L || !is.finite(lim) || lim <= 0) {
+    stop("`lim` must be a positive finite scalar.", call. = FALSE)
+  }
+  repar <- as.integer(repar)
+  if (!(repar %in% 0:2)) {
+    stop("`repar` must be one of 0, 1, or 2.", call. = FALSE)
+  }
+  list(ncuts = ncuts, lim = as.numeric(lim), repar = repar)
+}
+
 #' Fit a fixed-dispersion beta interval regression model
 #'
 #' @description
@@ -76,7 +94,10 @@ brs_fit_fixed <- function(formula, data,
   hessian_method <- match.arg(hessian_method)
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)
-  repar <- as.integer(repar)
+  validated <- .validate_brs_common_args(data, ncuts, lim, repar)
+  ncuts <- validated$ncuts
+  lim <- validated$lim
+  repar <- validated$repar
 
   # Build matrices
   mf <- stats::model.frame(formula, data = data)
@@ -287,7 +308,10 @@ brs_fit_var <- function(formula, data,
   hessian_method <- match.arg(hessian_method)
   link <- match.arg(link, .mu_links)
   link_phi <- match.arg(link_phi, .phi_links)
-  repar <- as.integer(repar)
+  validated <- .validate_brs_common_args(data, ncuts, lim, repar)
+  ncuts <- validated$ncuts
+  lim <- validated$lim
+  repar <- validated$repar
 
   # Parse multi-part formula
   formula_orig <- formula

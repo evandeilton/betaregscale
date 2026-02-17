@@ -35,6 +35,10 @@ numerically stable, high-performance log-likelihood evaluation.
   Simulate interval-censored data from fixed or variable-dispersion beta
   models.
 
+- [`brs_bootstrap`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md):
+
+  Parametric bootstrap confidence intervals for `brs` model parameters.
+
 - [`brs_cens`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md):
 
   Visual and tabular summary of censoring structure.

@@ -17,20 +17,30 @@ score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 left-censored, right-censored, and interval-censored** within the same
 dataset.
 
+Mathematically, for each observation (i), the complete likelihood
+contribution is \[ L_i()= $$\begin{cases}
+{f\left( y_{i};a_{i},b_{i} \right),} & {\delta_{i} = 0,} \\
+{F\left( u_{i};a_{i},b_{i} \right),} & {\delta_{i} = 1,} \\
+{1 - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 2,} \\
+{F\left( u_{i};a_{i},b_{i} \right) - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 3,}
+\end{cases}$$
+
+\] with (f()) and (F()) denoting beta density and CDF.
+
 ## Key features
 
 - **Mixed censoring support**: the complete likelihood handles four
-  censoring types simultaneously: exact observations ($`\delta=0`$),
-  left-censored ($`\delta=1`$), right-censored ($`\delta=2`$), and
-  interval-censored ($`\delta=3`$).
-- **Fixed and variable dispersion**: model a scalar $`\phi`$ or let it
+  censoring types simultaneously: exact observations ($\delta = 0$),
+  left-censored ($\delta = 1$), right-censored ($\delta = 2$), and
+  interval-censored ($\delta = 3$).
+- **Fixed and variable dispersion**: model a scalar $\phi$ or let it
   depend on covariates via a second linear predictor
   (`y ~ x1 + x2 | z1`).
 - **Mixed-effects support**:
   [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
   fits Gaussian random-intercept models (`random = ~ 1 | group`) via
   Laplace-approximated marginal likelihood.
-- **High-performance C++ backend**: the log-likelihood and analytical
+- **High-performance C++ backend**: the log-likelihood and numerical
   gradient are compiled via Rcpp/RcppArmadillo for fast, numerically
   stable estimation.
 - **Flexible link functions**: logit, probit, cauchit, cloglog for the
@@ -53,11 +63,18 @@ dataset.
   [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
   supports both fixed- and variable-dispersion Monte Carlo studies via
   one- or two-part formulas.
+- **Analyst toolkit**:
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md),
+  [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md),
+  [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md),
+  [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md),
+  and
+  [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)
+  for uncertainty quantification, interpretation, and model validation.
 
 ## Installation
 
 ``` r
-
 # Development version from GitHub:
 # install.packages("remotes")
 remotes::install_github("evandeilton/betaregscale")
@@ -68,7 +85,6 @@ remotes::install_github("evandeilton/betaregscale")
 ### Fixed dispersion model
 
 ``` r
-
 library(betaregscale)
 
 # Simulate interval-censored data from a fixed-dispersion model
@@ -91,7 +107,6 @@ summary(fit)
 ### Variable dispersion model
 
 ``` r
-
 # Simulate data with covariate-dependent dispersion
 set.seed(2222)
 n <- 200
@@ -116,7 +131,6 @@ summary(fit_z)
 ### Comparing link functions
 
 ``` r
-
 links <- c("logit", "probit", "cauchit", "cloglog")
 fits <- lapply(setNames(links, links), function(lnk) {
   brs(y ~ x1 + x2, data = sim, link = lnk, repar = 2)
@@ -124,12 +138,14 @@ fits <- lapply(setNames(links, links), function(lnk) {
 
 # Goodness-of-fit comparison
 do.call(rbind, lapply(fits, brs_gof))
+
+# Analyst-friendly table
+knitr::kable(do.call(rbind, lapply(fits, brs_gof)), digits = 4)
 ```
 
 ### Mixed model (random intercept)
 
 ``` r
-
 set.seed(123)
 g <- 12
 ni <- 8
@@ -150,7 +166,6 @@ summary(fit_mm)
 ### S3 methods
 
 ``` r
-
 # Coefficients by submodel
 coef(fit)                          # full parameter vector
 coef(fit, model = "mean")         # mean submodel only
@@ -189,41 +204,75 @@ brs_cens(fit)
 The complete log-likelihood for mixed censoring (Lopes, 2024, Eq. 2.24)
 combines four observation types:
 
-``` math
-\ell(\boldsymbol{\theta}) = \sum_{i:\,\delta_i=0} \log f(y_i) + \sum_{i:\,\delta_i=1} \log F(u_i) + \sum_{i:\,\delta_i=2} \log [1 - F(l_i)] + \sum_{i:\,\delta_i=3} \log [F(u_i) - F(l_i)]
-```
+$$\ell({\mathbf{θ}}) = \sum\limits_{i:\,\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\,\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\,\delta_{i} = 2}\log\left\lbrack 1 - F\left( l_{i} \right) \right\rbrack + \sum\limits_{i:\,\delta_{i} = 3}\log\left\lbrack F\left( u_{i} \right) - F\left( l_{i} \right) \right\rbrack$$
 
-where $`f(\cdot)`$ and $`F(\cdot)`$ are the beta density and CDF,
-$`[l_i, u_i]`$ are the interval endpoints, and $`\delta_i`$ indicates
-the censoring type.
+where $f( \cdot )$ and $F( \cdot )$ are the beta density and CDF,
+$\left\lbrack l_{i},u_{i} \right\rbrack$ are the interval endpoints, and
+$\delta_{i}$ indicates the censoring type.
 
 ### Reparameterizations
 
-| Code | Name | Shape parameters |
-|----|----|----|
-| 0 | Direct | $`a = \mu,\; b = \phi`$ |
-| 1 | Precision (Ferrari & Cribari-Neto) | $`a = \mu\phi,\; b = (1-\mu)\phi`$ |
-| 2 | Mean–variance (Bayer) | $`a = \mu(1-\phi)/\phi,\; b = (1-\mu)(1-\phi)/\phi`$ |
+| Code | Name                               | Shape parameters                                         |
+|------|------------------------------------|----------------------------------------------------------|
+| 0    | Direct                             | $a = \mu,\; b = \phi$                                    |
+| 1    | Precision (Ferrari & Cribari-Neto) | $a = \mu\phi,\; b = (1 - \mu)\phi$                       |
+| 2    | Mean–variance                      | $a = \mu(1 - \phi)/\phi,\; b = (1 - \mu)(1 - \phi)/\phi$ |
+
+### Analyst-oriented outputs (clean tables)
+
+``` r
+# Parametric bootstrap CI
+boot_ci <- brs_bootstrap(fit, B = 100, level = 0.95)
+knitr::kable(head(boot_ci), digits = 4)
+
+# Average marginal effects
+ame <- brs_marginaleffects(fit, model = "mean", type = "response")
+knitr::kable(ame, digits = 4)
+
+# Score-scale probabilities
+ps <- brs_predict_scoreprob(fit, scores = 0:10)
+knitr::kable(ps[1:6, 1:6], digits = 4)
+
+# Cross-validation summary
+cv <- brs_cv(y ~ x1 + x2, data = sim, k = 5, repeats = 1, seed = 123)
+knitr::kable(cv, digits = 4)
+```
 
 ### Interval construction
 
 Scale observations are mapped to (0, 1) with midpoint uncertainty
 intervals:
 
-``` math
-y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
-```
+$$y_{t} = y/K,\quad{\text{interval}\mspace{6mu}}\left\lbrack y_{t} - h/K,\; y_{t} + h/K \right\rbrack$$
 
-where $`K`$ is the number of scale categories (`ncuts`) and $`h`$ is the
+where $K$ is the number of scale categories (`ncuts`) and $h$ is the
 half-width (`lim`, default `0.5`).
 
 ## References
 
 - Lopes, J. E. (2024). *Beta Regression for Interval-Censored
   Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
-- Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
-  rates and proportions. *Journal of Applied Statistics*, 31(7),
-  799–815.
+
+- Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
+  modelling rates and proportions. *Journal of Applied Statistics*,
+  31(7), 799–815. DOI: 10.1080/0266476042000214501. Validated online
+  via: <https://doi.org/10.1080/0266476042000214501> and
+  <https://econpapers.repec.org/RePEc:taf:japsta:v:31:y:2004:i:7:p:799-815>.
+
+- Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+  Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS, and
+  ICOAP. *Arthritis Care and Research*, 63(S11), S240–S252. DOI:
+  10.1002/acr.20543. Validated online via:
+  <https://doi.org/10.1002/acr.20543> and
+  <https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/acr.20543>.
+
+- Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
+  comparing numerical rating scales, verbal rating scales, and visual
+  analogue scales for assessment of pain intensity in adults. *Journal
+  of Pain and Symptom Management*, 41(6), 1073–1093. DOI:
+  10.1016/j.jpainsymman.2010.08.016. Validated online via:
+  <https://doi.org/10.1016/j.jpainsymman.2010.08.016> and
+  <https://pubmed.ncbi.nlm.nih.gov/21621130/>.
 
 ## License
 

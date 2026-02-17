@@ -22,6 +22,8 @@
 #'     with Gaussian random intercepts.}
 #'   \item{\code{\link{brs_sim}}}{Simulate interval-censored
 #'     data from fixed or variable-dispersion beta models.}
+#'   \item{\code{\link{brs_bootstrap}}}{Parametric bootstrap confidence
+#'     intervals for \code{brs} model parameters.}
 #'   \item{\code{\link{brs_cens}}}{Visual and tabular summary of
 #'     censoring structure.}
 #'   \item{\code{\link{brs_prep}}}{Pre-process analyst data (validate,

@@ -10,5 +10,6 @@ doc/
 Meta/
 **/Rplots.pdf
 .claude/
+.cursor/
 /doc/
 /Meta/

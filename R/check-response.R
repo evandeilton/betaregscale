@@ -362,8 +362,9 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL) {
 #'     (set by \code{\link{brs_prep}} or by
 #'     \code{\link{brs_sim}} with forced \code{delta}),
 #'     the pre-computed columns are extracted directly. Row subsetting
-#'     uses \code{as.integer(rownames(mf))} to honour any subsetting
-#'     performed by \code{model.frame()}.
+#'     first tries numeric row indices from \code{rownames(mf)} and
+#'     then falls back to name matching against \code{rownames(data)}
+#'     when non-numeric row names are used.
 #'   \item Otherwise, the raw response is extracted via
 #'     \code{model.response(mf)} and passed to
 #'     \code{\link{brs_check}} for automatic classification.
@@ -396,7 +397,22 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL) {
 .extract_response <- function(mf, data, ncuts, lim) {
   if (isTRUE(attr(data, "is_prepared")) &&
     all(c("left", "right", "yt", "delta") %in% names(data))) {
-    rows <- as.integer(rownames(mf))
+    rn_mf <- rownames(mf)
+    rows <- suppressWarnings(as.integer(rn_mf))
+    if (anyNA(rows)) {
+      rn_data <- rownames(data)
+      if (!is.null(rn_data) && length(rn_data) > 0L) {
+        rows <- match(rn_mf, rn_data)
+      } else {
+        rows <- seq_len(nrow(mf))
+      }
+    }
+    if (anyNA(rows)) {
+      stop(
+        "Unable to align prepared rows between `model.frame` and `data`.",
+        call. = FALSE
+      )
+    }
     cbind(
       left  = data[["left"]][rows],
       right = data[["right"]][rows],
