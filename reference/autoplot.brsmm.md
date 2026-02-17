@@ -5,7 +5,8 @@ Produces ggplot2 diagnostics tailored to mixed beta interval models.
 ## Usage
 
 ``` r
-autoplot.brsmm(
+# S3 method for class 'brsmm'
+autoplot(
   object,
   type = c("calibration", "score_dist", "ranef_qq", "residuals_by_group",
     "ranef_caterpillar", "ranef_density", "ranef_pairs"),

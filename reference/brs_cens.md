@@ -16,7 +16,19 @@ The summary includes:
 ## Usage
 
 ``` r
-brs_cens(object, n_sample = 100L, gg = FALSE, ...)
+brs_cens(
+  object,
+  n_sample = 100L,
+  which = 1:4,
+  caption = NULL,
+  gg = FALSE,
+  title = "Censoring diagnostic overview",
+  sub.caption = NULL,
+  theme = NULL,
+  palette = NULL,
+  inform = FALSE,
+  ...
+)
 ```
 
 ## Arguments
@@ -35,9 +47,43 @@ brs_cens(object, n_sample = 100L, gg = FALSE, ...)
   (default 100). If the data has more observations, a random sample is
   drawn.
 
+- which:
+
+  Integer vector selecting which panels to draw (default `1:4`).
+
+- caption:
+
+  Optional panel captions. Accepts a character vector (or list coercible
+  to character) with up to 4 labels, in the order: burden,
+  midpoint-by-type, width-by-type, ordered interval map.
+
 - gg:
 
   Logical: use ggplot2? (default `FALSE`).
+
+- title:
+
+  Optional global title for the plotting page.
+
+- sub.caption:
+
+  Optional subtitle/caption for the plotting page.
+
+- theme:
+
+  Optional ggplot2 theme object (e.g.,
+  [`ggplot2::theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)).
+  If `NULL`, a minimal theme is used when `gg = TRUE`.
+
+- palette:
+
+  Optional named character vector with colors for censoring types
+  `Exact`, `Left`, `Right`, and `Interval`.
+
+- inform:
+
+  Logical; if `TRUE`, prints brief interpretation messages about
+  boundary and interval censoring intensity.
 
 - ...:
 
@@ -45,7 +91,8 @@ brs_cens(object, n_sample = 100L, gg = FALSE, ...)
 
 ## Value
 
-Invisibly returns a data frame with censoring counts and proportions.
+Invisibly returns a data frame with censoring counts and proportions,
+percentages, and interpretation flags.
 
 ## References
 
@@ -74,4 +121,5 @@ brs_cens(Y)
 prep <- brs_prep(data.frame(y = y), ncuts = 10)
 #> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3
 brs_cens(prep)
+
 ```

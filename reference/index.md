@@ -107,6 +107,8 @@ Functions for model diagnostics and censoring summaries.
 - [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
   [`print(`*`<brs_bootstrap>`*`)`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
   : Parametric bootstrap confidence intervals for brs models
+- [`autoplot(`*`<brs_bootstrap>`*`)`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs_bootstrap.md)
+  : ggplot2 autoplot for bootstrap results
 - [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
   : Graphical and tabular censoring summary
 - [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
@@ -115,9 +117,9 @@ Functions for model diagnostics and censoring summaries.
   : Goodness-of-fit measures
 - [`brs_hessian()`](https://evandeilton.github.io/betaregscale/reference/brs_hessian.md)
   : Extract the Hessian matrix
-- [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+- [`autoplot(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
   : ggplot2 autoplot for brs models
-- [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+- [`autoplot(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
   : ggplot2 autoplot for brsmm models
 
 ## Analyst Tools
@@ -128,6 +130,8 @@ Post-estimation tables, effects, score probabilities, and validation.
   : Compare fitted brs models in a single table
 - [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)
   : Marginal effects for brs models
+- [`autoplot(`*`<brs_marginaleffects>`*`)`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs_marginaleffects.md)
+  : ggplot2 autoplot for marginal effects
 - [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
   : Predict score probabilities from a fitted brs model
 - [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)

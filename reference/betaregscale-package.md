@@ -1,4 +1,18 @@
-# betaregscale: Beta Regression for Interval-Censored Scale-Derived Outcomes
+# Register S3 methods for ggplot2::autoplot
+
+Maximum-likelihood estimation of beta regression models for responses
+derived from bounded rating scales. Observations are treated as
+interval-censored on (0, 1) after a scale-to-unit transformation, and
+the likelihood is built from the difference of the beta CDF at the
+interval endpoints. The complete likelihood supports mixed censoring
+types: uncensored, left-censored, right-censored, and interval-censored
+observations (Lopes, 2024). Both fixed- and variable-dispersion
+submodels are supported, with flexible link functions for the mean and
+precision components. A compiled C++ backend (via 'Rcpp' and
+'RcppArmadillo') provides numerically stable, high-performance
+log-likelihood evaluation. Standard S3 methods (print, summary, coef,
+fitted, residuals, predict, plot, confint, vcov, logLik, AIC, BIC) are
+available for fitted objects.
 
 Maximum-likelihood estimation of beta regression models for responses
 derived from bounded rating scales. Observations are treated as
@@ -98,6 +112,19 @@ Useful links:
 
 - Report bugs at <https://github.com/evandeilton/betaregscale/issues>
 
+Useful links:
+
+- <https://evandeilton.github.io/betaregscale/>
+
+- Report bugs at <https://github.com/evandeilton/betaregscale/issues>
+
 ## Author
+
+**Maintainer**: José Evandeilton Lopes <evandeilton@gmail.com>
+([ORCID](https://orcid.org/0009-0007-5887-4084))
+
+Authors:
+
+- Wagner Hugo Bonat ([ORCID](https://orcid.org/0000-0002-0349-7054))
 
 José Evandeilton Lopes <evandeilton@gmail.com>

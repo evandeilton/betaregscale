@@ -16,7 +16,8 @@ brs_marginaleffects(
   interval = TRUE,
   level = 0.95,
   n_sim = 400L,
-  seed = NULL
+  seed = NULL,
+  keep_draws = FALSE
 )
 ```
 
@@ -64,10 +65,17 @@ brs_marginaleffects(
 
   Optional random seed for reproducibility.
 
+- keep_draws:
+
+  Logical; if `TRUE` and `interval = TRUE`, stores AME simulation draws
+  in attribute `"ame_draws"`.
+
 ## Value
 
 A data frame with one row per variable and columns: `variable`, `ame`,
-`std.error`, `ci.lower`, `ci.upper`, `model`, `type`, and `n`.
+`std.error`, `ci.lower`, `ci.upper`, `model`, `type`, and `n`. The
+returned object has class `"brs_marginaleffects"` and attributes with
+analysis metadata.
 
 ## Details
 
@@ -114,10 +122,10 @@ fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
 
 brs_marginaleffects(fit, model = "mean", type = "response")
 #>   variable         ame  std.error     ci.lower    ci.upper model     type   n
-#> 1       x1 -0.09214702 0.02300201 -0.138337967 -0.04605006  mean response 150
-#> 2       x2  0.04192221 0.02433643 -0.005902896  0.08775782  mean response 150
+#> 1       x1 -0.09214699 0.02300199 -0.138337898 -0.04605006  mean response 150
+#> 2       x2  0.04192221 0.02492928 -0.006648427  0.08970841  mean response 150
 brs_marginaleffects(fit, model = "precision", type = "link")
-#>   variable        ame std.error   ci.lower   ci.upper     model type   n
-#> 1       z1 -0.4099968 0.1035667 -0.6102699 -0.2172345 precision link 150
+#>   variable        ame  std.error   ci.lower   ci.upper     model type   n
+#> 1       z1 -0.4099968 0.09462978 -0.5998432 -0.2286651 precision link 150
 # }
 ```
