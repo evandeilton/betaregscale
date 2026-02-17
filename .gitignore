@@ -11,6 +11,7 @@ Meta/
 **/Rplots.pdf
 .claude/
 .cursor/
+/betaregscale.Rproj
 /doc/
 /Meta/
 *.tar.gz

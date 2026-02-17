@@ -19,6 +19,10 @@ knitr::opts_chunk$set(
   digits = 4
 )
 set.seed(2026)
+
+kbl10 <- function(x, digits = 4, ...) {
+  knitr::kable(utils::head(as.data.frame(x), 10), digits = digits, align = "c", ...)
+}
 ```
 
 ## Audience and scope
@@ -56,8 +60,8 @@ sim <- brs_sim(
   repar = 2
 )
 
-knitr::kable(head(sim), digits = 4)
-knitr::kable(
+kbl10(head(sim, 10))
+kbl10(
   data.frame(
     n = nrow(sim),
     exact = sum(sim$delta == 0),
@@ -81,17 +85,17 @@ tab_rank <- brs_table(
   probit = fit_probit,
   cauchit = fit_cauchit
 )
-knitr::kable(tab_rank, digits = 4)
+kbl10(tab_rank)
 ```
 
 ## 3) Inference stack: Wald + bootstrap + AME
 
 ```{r inference-stack}
-knitr::kable(brs_est(fit_logit), digits = 4)
-knitr::kable(confint(fit_logit), digits = 4)
+kbl10(brs_est(fit_logit))
+kbl10(confint(fit_logit))
 
 boot_tab <- brs_bootstrap(fit_logit, R = 80, level = 0.95)
-knitr::kable(head(boot_tab), digits = 4)
+kbl10(head(boot_tab, 10))
 
 ame_mu <- brs_marginaleffects(
   fit_logit,
@@ -101,7 +105,7 @@ ame_mu <- brs_marginaleffects(
   n_sim = 120,
   seed = 2026
 )
-knitr::kable(ame_mu, digits = 4)
+kbl10(ame_mu)
 ```
 
 ```{r inference-visual}
@@ -136,7 +140,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 ```{r prediction-layer}
 score_prob <- brs_predict_scoreprob(fit_logit, scores = 0:10)
-knitr::kable(score_prob[1:8, 1:7], digits = 4)
+kbl10(score_prob[1:8, 1:7])
 ```
 
 ## 5) Out-of-sample validation
@@ -150,7 +154,7 @@ cv_tab <- brs_cv(
   seed = 2026,
   repar = 2
 )
-knitr::kable(head(cv_tab, 10), digits = 4)
+kbl10(head(cv_tab, 10))
 ```
 
 ## 6) Escalation to mixed models
@@ -177,7 +181,7 @@ shp <- brs_repar(mu = mu, phi = phi, repar = 2)
 y <- round(stats::rbeta(n_mm, shp$shape1, shp$shape2) * 100)
 
 dmm <- data.frame(y = y, id = id, x1 = x1, x2 = x2)
-knitr::kable(head(dmm, 10), digits = 4)
+kbl10(head(dmm, 10))
 ```
 
 ### 6.2 Fit evolutionary sequence
@@ -188,7 +192,7 @@ fit_ri <- brsmm(y ~ x1 + x2, random = ~ 1 | id, data = dmm, repar = 2)
 fit_rs <- brsmm(y ~ x1 + x2, random = ~ 1 + x1 | id, data = dmm, repar = 2)
 
 tab_lr <- anova(fit_brs, fit_ri, fit_rs, test = "Chisq")
-knitr::kable(data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL), digits = 4)
+kbl10(data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL))
 ```
 
 ### 6.3 Model choice by LLR/LRT (ANOVA)
@@ -200,12 +204,12 @@ The `anova()` methods provide a practical LLR workflow:
 - `M2 = brsmm` with random intercept + slope (`~ 1 + x1 | id`).
 
 In nested comparisons, the statistic is:
-\[
+$$
 LR = 2\{\ell(\hat\theta_{\text{complex}}) - \ell(\hat\theta_{\text{simple}})\}.
-\]
+$$
 
 For the first step (`M0 -> M1`), the null involves variance components at the
-boundary (\(\sigma_b^2 = 0\)); p-values should be interpreted with caution.
+boundary ($\sigma_b^2 = 0$); p-values should be interpreted with caution.
 For `M1 -> M2`, the chi-square approximation is often used as a practical
 decision aid.
 
@@ -218,7 +222,7 @@ tab_lr_df$decision <- c(
   ifelse(is.na(tab_lr_df$`Pr(>Chisq)`[3]), "inspect AIC/BIC + diagnostics",
          ifelse(tab_lr_df$`Pr(>Chisq)`[3] < 0.05, "prefer M2 over M1", "prefer M1 (parsimony)"))
 )
-knitr::kable(tab_lr_df, digits = 4)
+kbl10(tab_lr_df)
 ```
 
 ## 7) Random-effects study (numeric + visual)
@@ -226,9 +230,9 @@ knitr::kable(tab_lr_df, digits = 4)
 ```{r ranef-study}
 rs <- brsmm_re_study(fit_rs)
 print(rs)
-knitr::kable(rs$summary, digits = 4)
-knitr::kable(rs$D, digits = 4)
-knitr::kable(rs$Corr, digits = 4)
+kbl10(rs$summary)
+kbl10(rs$D)
+kbl10(rs$Corr)
 ```
 
 ```{r ranef-plots}

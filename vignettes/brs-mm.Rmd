@@ -18,6 +18,10 @@ knitr::opts_chunk$set(
   message = FALSE,
   digits = 4
 )
+
+kbl10 <- function(x, digits = 4, ...) {
+  knitr::kable(utils::head(as.data.frame(x), 10), digits = digits, align = "c", ...)
+}
 ```
 
 ## Overview
@@ -39,37 +43,37 @@ library(betaregscale)
 
 ## Mathematical model
 
-Assume observations \(i = 1, \dots, n_j\) within groups
-\(j = 1, \dots, G\), with group-specific random-effects vector
-\(\mathbf{b}_j \in \mathbb{R}^{q_b}\).
+Assume observations $i = 1, \dots, n_j$ within groups
+$j = 1, \dots, G$, with group-specific random-effects vector
+$\mathbf{b}_j \in \mathbb{R}^{q_b}$.
 
 ### Linear predictors
 
-\[
+$$
 \eta_{\mu,ij} = x_{ij}^\top \beta + w_{ij}^\top \mathbf{b}_j,
 \qquad
 \eta_{\phi,ij} = z_{ij}^\top \gamma
-\]
+$$
 
-\[
+$$
 \mu_{ij} = g^{-1}(\eta_{\mu,ij}),
 \qquad
 \phi_{ij} = h^{-1}(\eta_{\phi,ij})
-\]
+$$
 
-with \(g(\cdot)\) and \(h(\cdot)\) chosen by `link` and `link_phi`.
-The random-effects design row \(w_{ij}\) is defined by `random = ~ terms | group`.
+with $g(\cdot)$ and $h(\cdot)$ chosen by `link` and `link_phi`.
+The random-effects design row $w_{ij}$ is defined by `random = ~ terms | group`.
 
 ### Beta parameterization
 
-For each \((\mu_{ij}, \phi_{ij})\), `repar` maps to beta shape parameters
-\((a_{ij}, b_{ij})\) via `brs_repar()`.
+For each $(\mu_{ij}, \phi_{ij})$, `repar` maps to beta shape parameters
+$(a_{ij}, b_{ij})$ via `brs_repar()`.
 
 ### Conditional contribution by censoring type
 
 Each observation contributes:
 
-\[
+$$
 L_{ij}(b_j;\theta)=
 \begin{cases}
 f(y_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=0\\
@@ -77,57 +81,57 @@ F(u_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=1\\
 1 - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=2\\
 F(u_{ij}; a_{ij}, b_{ij}) - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=3
 \end{cases}
-\]
+$$
 
-where \(l_{ij},u_{ij}\) are interval endpoints on \((0,1)\),
-\(f(\cdot)\) is beta density, and \(F(\cdot)\) is beta CDF.
+where $l_{ij},u_{ij}$ are interval endpoints on $(0,1)$,
+$f(\cdot)$ is beta density, and $F(\cdot)$ is beta CDF.
 
 ### Random-effects distribution
 
-\[
+$$
 \mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D),
-\]
+$$
 
-where \(D\) is a symmetric positive-definite covariance matrix.
+where $D$ is a symmetric positive-definite covariance matrix.
 Internally, `brsmm()` optimizes a packed lower-Cholesky parameterization
-\(D = LL^\top\) (diagonal entries on log-scale for positivity).
+$D = LL^\top$ (diagonal entries on log-scale for positivity).
 
 ### Group marginal likelihood
 
-\[
+$$
 L_j(\theta)=\int_{\mathbb{R}^{q_b}}
 \prod_{i=1}^{n_j} L_{ij}(b_j;\theta)\,
 \varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
-\]
+$$
 
-\[
+$$
 \ell(\theta)=\sum_{j=1}^G \log L_j(\theta)
-\]
+$$
 
 ### Laplace approximation used by `brsmm()`
 
 Define
-\[
+$$
 Q_j(\mathbf{b})=
 \sum_{i=1}^{n_j}\log L_{ij}(\mathbf{b};\theta)+
 \log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)
-\]
-and \(\hat{\mathbf{b}}_j=\arg\max_{\mathbf{b}} Q_j(\mathbf{b})\), with curvature
-\[
+$$
+and $\hat{\mathbf{b}}_j=\arg\max_{\mathbf{b}} Q_j(\mathbf{b})$, with curvature
+$$
 H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j).
-\]
+$$
 Then
 
-\[
+$$
 \log L_j(\theta) \approx
 Q_j(\hat{\mathbf{b}}_j) +
 \frac{q_b}{2}\log(2\pi) -
 \frac{1}{2}\log|H_j|.
-\]
+$$
 
-`brsmm()` maximizes the approximated \(\ell(\theta)\) with
+`brsmm()` maximizes the approximated $\ell(\theta)$ with
 `stats::optim()`, and computes group-level posterior modes
-\(\hat{\mathbf{b}}_j\). For \(q_b = 1\), this reduces to the scalar
+$\hat{\mathbf{b}}_j$. For $q_b = 1$, this reduces to the scalar
 random-intercept formula.
 
 ## Simulating clustered scale data
@@ -201,12 +205,12 @@ summary(fit_mm_rs)
 Covariance structure of random effects:
 
 ```{r random-covariance}
-knitr::kable(fit_mm_rs$random$D, digits = 4)
-knitr::kable(
+kbl10(fit_mm_rs$random$D)
+kbl10(
   data.frame(term = names(fit_mm_rs$random$sd_b), sd = as.numeric(fit_mm_rs$random$sd_b)),
   digits = 4
 )
-knitr::kable(head(ranef.brsmm(fit_mm_rs)), digits = 4)
+kbl10(head(ranef.brsmm(fit_mm_rs), 10))
 ```
 
 ## Estudos adicionais dos efeitos aleatórios (numéricos e visuais)
@@ -214,7 +218,7 @@ knitr::kable(head(ranef.brsmm(fit_mm_rs)), digits = 4)
 Seguindo práticas de pacotes mistos consolidados, o pacote agora permite um
 estudo dedicado dos efeitos aleatórios com foco em:
 
-- estrutura \(D\) e correlação;
+- estrutura $D$ e correlação;
 - distribuição empírica dos modos por grupo;
 - intensidade de shrinkage empírico;
 - diagnósticos visuais específicos para os componentes aleatórios.
@@ -222,9 +226,9 @@ estudo dedicado dos efeitos aleatórios com foco em:
 ```{r ranef-study}
 re_study <- brsmm_re_study(fit_mm_rs)
 print(re_study)
-knitr::kable(re_study$summary, digits = 4)
-knitr::kable(re_study$D, digits = 4)
-knitr::kable(re_study$Corr, digits = 4)
+kbl10(re_study$summary)
+kbl10(re_study$D)
+kbl10(re_study$Corr)
 ```
 
 Visualizações sugeridas para efeitos aleatórios:
@@ -244,33 +248,33 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 `coef(fit_mm, model = "random")` returns packed random-effect covariance
 parameters on optimizer scale (lower-Cholesky, with log-diagonal).
-For random-intercept models this simplifies to \(\log \sigma_b\).
+For random-intercept models this simplifies to $\log \sigma_b$.
 
 ```{r methods-coef}
-knitr::kable(
+kbl10(
   data.frame(parameter = names(coef(fit_mm, model = "full")),
              estimate = as.numeric(coef(fit_mm, model = "full"))),
   digits = 4
 )
-knitr::kable(
+kbl10(
   data.frame(log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
              sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))),
   digits = 4
 )
-knitr::kable(head(ranef.brsmm(fit_mm)), digits = 4)
+kbl10(head(ranef.brsmm(fit_mm), 10))
 ```
 
 For random intercept + slope models:
 
 ```{r methods-coef-rs}
-knitr::kable(
+kbl10(
   data.frame(
     parameter = names(coef(fit_mm_rs, model = "random")),
     estimate = as.numeric(coef(fit_mm_rs, model = "random"))
   ),
   digits = 4
 )
-knitr::kable(fit_mm_rs$random$D, digits = 4)
+kbl10(fit_mm_rs$random$D)
 ```
 
 ### Variance-covariance, summary and likelihood criteria
@@ -280,9 +284,9 @@ vc <- vcov(fit_mm)
 dim(vc)
 
 sm <- summary(fit_mm)
-knitr::kable(sm$coefficients, digits = 4)
+kbl10(sm$coefficients)
 
-knitr::kable(
+kbl10(
   data.frame(
     logLik = as.numeric(logLik(fit_mm)),
     AIC = AIC(fit_mm),
@@ -296,7 +300,7 @@ knitr::kable(
 ### Fitted values, prediction and residuals
 
 ```{r methods-predict}
-knitr::kable(
+kbl10(
   data.frame(
     mu_hat = head(fitted(fit_mm, type = "mu")),
     phi_hat = head(fitted(fit_mm, type = "phi")),
@@ -308,7 +312,7 @@ knitr::kable(
   digits = 4
 )
 
-knitr::kable(
+kbl10(
   data.frame(
     res_response = head(residuals(fit_mm, type = "response")),
     res_pearson = head(residuals(fit_mm, type = "pearson"))
@@ -347,14 +351,14 @@ equal to zero for those levels.
 
 ```{r methods-newdata}
 nd <- sim$data[1:8, c("x1", "id")]
-knitr::kable(
+kbl10(
   data.frame(pred_seen = as.numeric(predict(fit_mm, newdata = nd, type = "response"))),
   digits = 4
 )
 
 nd_unseen <- nd
 nd_unseen$id <- factor(rep("new_cluster", nrow(nd_unseen)))
-knitr::kable(
+kbl10(
   data.frame(pred_unseen = as.numeric(predict(fit_mm, newdata = nd_unseen, type = "response"))),
   digits = 4
 )
@@ -363,11 +367,11 @@ knitr::kable(
 The same logic applies to random intercept + slope models:
 
 ```{r methods-newdata-rs}
-knitr::kable(
+kbl10(
   data.frame(pred_rs_seen = as.numeric(predict(fit_mm_rs, newdata = nd, type = "response"))),
   digits = 4
 )
-knitr::kable(
+kbl10(
   data.frame(pred_rs_unseen = as.numeric(predict(fit_mm_rs, newdata = nd_unseen, type = "response"))),
   digits = 4
 )
@@ -377,14 +381,14 @@ knitr::kable(
 
 ### Wald tests (from `summary`)
 
-`summary.brsmm()` reports Wald \(z\)-tests for each parameter:
-\[
+`summary.brsmm()` reports Wald $z$-tests for each parameter:
+$$
 z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
-\]
+$$
 
 ```{r wald-tests}
 sm <- summary(fit_mm)
-knitr::kable(sm$coefficients, digits = 4)
+kbl10(sm$coefficients)
 ```
 
 ### Esquema evolutivo e escolha por teste LR
@@ -395,11 +399,11 @@ Um fluxo prático de complexidade crescente:
 2. `brsmm(..., random = ~ 1 | id)`: intercepto aleatório;
 3. `brsmm(..., random = ~ 1 + x1 | id)`: intercepto + inclinação aleatórios.
 
-No primeiro salto (`brs` \(\to\) `brsmm` com intercepto), a hipótese
-\(\sigma_b^2 = 0\) está na fronteira do espaço paramétrico. Assim, o
-referencial assintótico clássico \(\chi^2\) deve ser interpretado com cautela.
-No segundo salto (intercepto \(\to\) intercepto + inclinação), o LR com
-\(\chi^2\) costuma ser usado como diagnóstico prático de ganho de ajuste.
+No primeiro salto (`brs` $\to$ `brsmm` com intercepto), a hipótese
+$\sigma_b^2 = 0$ está na fronteira do espaço paramétrico. Assim, o
+referencial assintótico clássico $\chi^2$ deve ser interpretado com cautela.
+No segundo salto (intercepto $\to$ intercepto + inclinação), o LR com
+$\chi^2$ costuma ser usado como diagnóstico prático de ganho de ajuste.
 
 ```{r lr-evolution}
 # Modelo base sem efeito aleatório
@@ -414,7 +418,7 @@ fit_brs <- brs(
 # fit_mm_rs : random = ~ 1 + x1 | id
 
 tab_lr <- anova(fit_brs, fit_mm, fit_mm_rs, test = "Chisq")
-knitr::kable(
+kbl10(
   data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL),
   digits = 4
 )
@@ -431,7 +435,7 @@ Regra operacional de decisão (analítica):
 
 ```{r quick-diagnostics}
 r <- residuals(fit_mm, type = "pearson")
-knitr::kable(
+kbl10(
   data.frame(
     mean = mean(r),
     sd = stats::sd(r),
@@ -465,7 +469,7 @@ recovery_table <- data.frame(
   estimate = as.numeric(est[names(true)]),
   bias = as.numeric(est[names(true)] - true)
 )
-knitr::kable(recovery_table, digits = 4)
+kbl10(recovery_table)
 ```
 
 For a Monte Carlo recovery study, repeat simulation and fitting across

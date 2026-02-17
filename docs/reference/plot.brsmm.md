@@ -19,6 +19,8 @@ plot(
   sub.caption = NULL,
   ask = prod(par("mfcol")) < length(which) && dev.interactive(),
   gg = FALSE,
+  title = NULL,
+  theme = NULL,
   ...
 )
 ```
@@ -62,6 +64,17 @@ plot(
 - gg:
 
   Logical: use ggplot2 backend?
+
+- title:
+
+  Optional global title for ggplot output. If `NULL`, panel captions are
+  used.
+
+- theme:
+
+  Optional ggplot2 theme object (e.g.,
+  [`ggplot2::theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)).
+  If `NULL`, a minimal theme is used.
 
 - ...:
 

@@ -4,7 +4,7 @@
 \alias{autoplot.brs_bootstrap}
 \title{ggplot2 autoplot for bootstrap results}
 \usage{
-autoplot.brs_bootstrap(
+\method{autoplot}{brs_bootstrap}(
   object,
   type = c("ci_forest", "dist", "qq", "stability"),
   parameter = NULL,

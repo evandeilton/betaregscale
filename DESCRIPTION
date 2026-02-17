@@ -32,12 +32,12 @@ Depends:
     R (>= 4.1.0)
 Imports:
     Formula,
+    ggplot2,
     numDeriv,
     Rcpp (>= 1.0.12),
     stats
 Suggests:
     betareg,
-    ggplot2,
     gridExtra,
     knitr,
     MASS,

@@ -141,7 +141,7 @@ fits <- lapply(setNames(links, links), function(lnk) {
 do.call(rbind, lapply(fits, brs_gof))
 
 # Analyst-friendly table
-knitr::kable(do.call(rbind, lapply(fits, brs_gof)), digits = 4)
+knitr::kable(head(do.call(rbind, lapply(fits, brs_gof)), 10), digits = 4, align = "c")
 ```
 
 ### Mixed model (random intercept)
@@ -176,8 +176,8 @@ fit_mm_rs <- brsmm(
 )
 
 summary(fit_mm_rs)
-knitr::kable(fit_mm_rs$random$D, digits = 4)
-knitr::kable(head(ranef.brsmm(fit_mm_rs)), digits = 4)
+knitr::kable(head(fit_mm_rs$random$D, 10), digits = 4, align = "c")
+knitr::kable(head(ranef.brsmm(fit_mm_rs), 10), digits = 4, align = "c")
 ```
 
 ### Evolutionary model selection (`anova`)
@@ -195,7 +195,7 @@ anova(fit_brs, fit_mm_ri, fit_mm_rs, test = "Chisq")
 ```r
 re_study <- brsmm_re_study(fit_mm_rs)
 print(re_study)
-knitr::kable(re_study$summary, digits = 4)
+knitr::kable(head(re_study$summary, 10), digits = 4, align = "c")
 ```
 
 ### S3 methods
@@ -269,7 +269,7 @@ boot_ci <- brs_bootstrap(
   level = 0.95,
   ci_type = "bca"
 )
-knitr::kable(head(boot_ci), digits = 4)
+knitr::kable(head(boot_ci, 10), digits = 4, align = "c")
 
 # Visual comparison: bootstrap vs Wald intervals
 if (requireNamespace("ggplot2", quietly = TRUE)) {
@@ -289,7 +289,7 @@ ame <- brs_marginaleffects(
   keep_draws = TRUE,
   n_sim = 200
 )
-knitr::kable(ame, digits = 4)
+knitr::kable(head(ame, 10), digits = 4, align = "c")
 
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot.brs_marginaleffects(ame, type = "forest")
@@ -297,11 +297,11 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 # Score-scale probabilities
 ps <- brs_predict_scoreprob(fit, scores = 0:10)
-knitr::kable(ps[1:6, 1:6], digits = 4)
+knitr::kable(head(ps[1:6, 1:6], 10), digits = 4, align = "c")
 
 # Cross-validation summary
 cv <- brs_cv(y ~ x1 + x2, data = sim, k = 5, repeats = 1, seed = 123)
-knitr::kable(cv, digits = 4)
+knitr::kable(head(cv, 10), digits = 4, align = "c")
 ```
 
 ### Interval construction

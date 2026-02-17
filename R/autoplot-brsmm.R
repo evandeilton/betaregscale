@@ -47,7 +47,8 @@
 #' }
 #' }
 #'
-#' @export
+#' @method autoplot brsmm
+#' @export autoplot.brsmm
 autoplot.brsmm <- function(object,
                            type = c(
                              "calibration",

@@ -4,7 +4,7 @@
 \alias{autoplot.brs_marginaleffects}
 \title{ggplot2 autoplot for marginal effects}
 \usage{
-autoplot.brs_marginaleffects(
+\method{autoplot}{brs_marginaleffects}(
   object,
   type = c("forest", "magnitude", "dist"),
   variable = NULL,

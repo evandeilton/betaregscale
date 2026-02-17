@@ -4,6 +4,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/CONTRIBUTING.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/LICENSE-text.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/LICENSE.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/articles/brs-intro.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/articles/brs-mm.html</loc></url>
@@ -19,8 +20,11 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/anova.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/apply_inv_link.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brs.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brs_bootstrap.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brs_marginaleffects.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale-package.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/betaregscale.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_cens.html</loc></url>

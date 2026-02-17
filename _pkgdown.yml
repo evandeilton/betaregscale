@@ -79,6 +79,7 @@ reference:
     desc: "Functions for model diagnostics and censoring summaries."
     contents:
       - brs_bootstrap
+      - autoplot.brs_bootstrap
       - brs_cens
       - brs_est
       - brs_gof
@@ -90,6 +91,7 @@ reference:
     contents:
       - brs_table
       - brs_marginaleffects
+      - autoplot.brs_marginaleffects
       - brs_predict_scoreprob
       - brs_cv
   - title: "Data Preparation"

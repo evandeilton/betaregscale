@@ -61,7 +61,8 @@ where $f( \cdot )$ and $F( \cdot )$ denote the beta density and CDF.
   and ggplot2 backends, including a half-normal envelope plot.
 - **Censoring summary**:
   [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
-  provides visual and tabular summaries of the censoring structure.
+  provides visual and tabular summaries of the censoring structure, with
+  optional interpretation flags/messages for scale-censored contexts.
 - **Simulation toolkit**:
   [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
   supports both fixed- and variable-dispersion Monte Carlo studies via
@@ -143,7 +144,7 @@ fits <- lapply(setNames(links, links), function(lnk) {
 do.call(rbind, lapply(fits, brs_gof))
 
 # Analyst-friendly table
-knitr::kable(do.call(rbind, lapply(fits, brs_gof)), digits = 4)
+knitr::kable(head(do.call(rbind, lapply(fits, brs_gof)), 10), digits = 4, align = "c")
 ```
 
 ### Mixed model (random intercept)
@@ -178,8 +179,8 @@ fit_mm_rs <- brsmm(
 )
 
 summary(fit_mm_rs)
-knitr::kable(fit_mm_rs$random$D, digits = 4)
-knitr::kable(head(ranef.brsmm(fit_mm_rs)), digits = 4)
+knitr::kable(head(fit_mm_rs$random$D, 10), digits = 4, align = "c")
+knitr::kable(head(ranef.brsmm(fit_mm_rs), 10), digits = 4, align = "c")
 ```
 
 ### Evolutionary model selection (`anova`)
@@ -197,7 +198,7 @@ anova(fit_brs, fit_mm_ri, fit_mm_rs, test = "Chisq")
 ``` r
 re_study <- brsmm_re_study(fit_mm_rs)
 print(re_study)
-knitr::kable(re_study$summary, digits = 4)
+knitr::kable(head(re_study$summary, 10), digits = 4, align = "c")
 ```
 
 ### S3 methods
@@ -231,7 +232,7 @@ plot(fit)
 plot(fit, gg = TRUE)
 
 # Censoring structure summary
-brs_cens(fit)
+brs_cens(fit, gg = TRUE, inform = TRUE)
 ```
 
 ## Model details
@@ -258,21 +259,46 @@ $\delta_{i}$ indicates the censoring type.
 ### Analyst-oriented outputs (clean tables)
 
 ``` r
-# Parametric bootstrap CI
-boot_ci <- brs_bootstrap(fit, R = 100, level = 0.95)
-knitr::kable(head(boot_ci), digits = 4)
+# Parametric bootstrap CI (BCa + MC diagnostics)
+boot_ci <- brs_bootstrap(
+  fit,
+  R = 100,
+  level = 0.95,
+  ci_type = "bca"
+)
+knitr::kable(head(boot_ci, 10), digits = 4, align = "c")
+
+# Visual comparison: bootstrap vs Wald intervals
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot.brs_bootstrap(
+    boot_ci,
+    type = "ci_forest",
+    title = "Bootstrap (BCa) vs Wald intervals"
+  )
+}
 
 # Average marginal effects
-ame <- brs_marginaleffects(fit, model = "mean", type = "response")
-knitr::kable(ame, digits = 4)
+ame <- brs_marginaleffects(
+  fit,
+  model = "mean",
+  type = "response",
+  interval = TRUE,
+  keep_draws = TRUE,
+  n_sim = 200
+)
+knitr::kable(head(ame, 10), digits = 4, align = "c")
+
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  autoplot.brs_marginaleffects(ame, type = "forest")
+}
 
 # Score-scale probabilities
 ps <- brs_predict_scoreprob(fit, scores = 0:10)
-knitr::kable(ps[1:6, 1:6], digits = 4)
+knitr::kable(head(ps[1:6, 1:6], 10), digits = 4, align = "c")
 
 # Cross-validation summary
 cv <- brs_cv(y ~ x1 + x2, data = sim, k = 5, repeats = 1, seed = 123)
-knitr::kable(cv, digits = 4)
+knitr::kable(head(cv, 10), digits = 4, align = "c")
 ```
 
 ### Interval construction

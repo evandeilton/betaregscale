@@ -2,6 +2,15 @@
 # ggplot2 autoplot methods
 # ============================================================================ #
 
+#' Register S3 methods for ggplot2::autoplot
+#'
+#' @rawNamespace S3method(autoplot, brs)
+#' @rawNamespace S3method(autoplot, brs_bootstrap)
+#' @rawNamespace S3method(autoplot, brs_marginaleffects)
+#' @rawNamespace S3method(autoplot, brsmm)
+#' @keywords internal
+"_PACKAGE"
+
 #' ggplot2 autoplot for brs models
 #'
 #' @description
@@ -65,7 +74,9 @@
 #' }
 #' }
 #'
-#' @export
+#' @importFrom ggplot2 autoplot
+#' @method autoplot brs
+#' @export autoplot.brs
 autoplot.brs <- function(object,
                          type = c(
                            "calibration",
@@ -326,7 +337,8 @@ autoplot.brs <- function(object,
 #' bootstrap draws must be present in \code{attr(object, "boot_draws")},
 #' obtained by fitting with \code{brs_bootstrap(..., keep_draws = TRUE)}.
 #'
-#' @export
+#' @method autoplot brs_bootstrap
+#' @export autoplot.brs_bootstrap
 autoplot.brs_bootstrap <- function(object,
                                    type = c("ci_forest", "dist", "qq", "stability"),
                                    parameter = NULL,
@@ -645,7 +657,8 @@ autoplot.brs_bootstrap <- function(object,
 #' \code{attr(object, "ame_draws")}, which are available when marginal
 #' effects are computed with \code{keep_draws = TRUE} and \code{interval = TRUE}.
 #'
-#' @export
+#' @method autoplot brs_marginaleffects
+#' @export autoplot.brs_marginaleffects
 autoplot.brs_marginaleffects <- function(object,
                                          type = c("forest", "magnitude", "dist"),
                                          variable = NULL,

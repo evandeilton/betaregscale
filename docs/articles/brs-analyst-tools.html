@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
     <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
     <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
   </ul>
@@ -232,18 +233,18 @@ definition shown above.</p>
 <span>  variable <span class="op">=</span> <span class="va">fit_var</span>,</span>
 <span>  sort_by <span class="op">=</span> <span class="st">"AIC"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">tab</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">tab</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="6%">
-<col width="3%">
-<col width="3%">
+<col width="4%">
+<col width="4%">
 <col width="7%">
 <col width="6%">
 <col width="6%">
 <col width="7%">
 <col width="4%">
-<col width="3%">
+<col width="4%">
 <col width="4%">
 <col width="6%">
 <col width="8%">
@@ -252,56 +253,56 @@ definition shown above.</p>
 <col width="10%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">model</th>
-<th align="right">nobs</th>
-<th align="right">npar</th>
-<th align="right">logLik</th>
-<th align="right">AIC</th>
-<th align="right">BIC</th>
-<th align="right">pseudo_r2</th>
-<th align="right">exact</th>
-<th align="right">left</th>
-<th align="right">right</th>
-<th align="right">interval</th>
-<th align="right">prop_exact</th>
-<th align="right">prop_left</th>
-<th align="right">prop_right</th>
-<th align="right">prop_interval</th>
+<th align="center">model</th>
+<th align="center">nobs</th>
+<th align="center">npar</th>
+<th align="center">logLik</th>
+<th align="center">AIC</th>
+<th align="center">BIC</th>
+<th align="center">pseudo_r2</th>
+<th align="center">exact</th>
+<th align="center">left</th>
+<th align="center">right</th>
+<th align="center">interval</th>
+<th align="center">prop_exact</th>
+<th align="center">prop_left</th>
+<th align="center">prop_right</th>
+<th align="center">prop_interval</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">variable</td>
-<td align="right">220</td>
-<td align="right">5</td>
-<td align="right">-931.8646</td>
-<td align="right">1873.729</td>
-<td align="right">1890.697</td>
-<td align="right">0.1381</td>
-<td align="right">0</td>
-<td align="right">8</td>
-<td align="right">22</td>
-<td align="right">190</td>
-<td align="right">0</td>
-<td align="right">0.0364</td>
-<td align="right">0.1</td>
-<td align="right">0.8636</td>
+<td align="center">variable</td>
+<td align="center">220</td>
+<td align="center">5</td>
+<td align="center">-931.8646</td>
+<td align="center">1873.729</td>
+<td align="center">1890.697</td>
+<td align="center">0.1381</td>
+<td align="center">0</td>
+<td align="center">8</td>
+<td align="center">22</td>
+<td align="center">190</td>
+<td align="center">0</td>
+<td align="center">0.0364</td>
+<td align="center">0.1</td>
+<td align="center">0.8636</td>
 </tr>
 <tr class="even">
-<td align="left">fixed</td>
-<td align="right">220</td>
-<td align="right">4</td>
-<td align="right">-939.3243</td>
-<td align="right">1886.649</td>
-<td align="right">1900.223</td>
-<td align="right">0.1381</td>
-<td align="right">0</td>
-<td align="right">8</td>
-<td align="right">22</td>
-<td align="right">190</td>
-<td align="right">0</td>
-<td align="right">0.0364</td>
-<td align="right">0.1</td>
-<td align="right">0.8636</td>
+<td align="center">fixed</td>
+<td align="center">220</td>
+<td align="center">4</td>
+<td align="center">-939.3243</td>
+<td align="center">1886.649</td>
+<td align="center">1900.223</td>
+<td align="center">0.1381</td>
+<td align="center">0</td>
+<td align="center">8</td>
+<td align="center">22</td>
+<td align="center">190</td>
+<td align="center">0</td>
+<td align="center">0.0364</td>
+<td align="center">0.1</td>
+<td align="center">0.8636</td>
 </tr>
 </tbody>
 </table>
@@ -317,48 +318,48 @@ definition shown above.</p>
 <span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_sim <span class="op">=</span> <span class="fl">120</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">me_mean</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">me_mean</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="14%">
+<col width="13%">
 <col width="12%">
 <col width="15%">
-<col width="14%">
-<col width="14%">
+<col width="13%">
+<col width="13%">
 <col width="9%">
-<col width="14%">
+<col width="13%">
 <col width="6%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">variable</th>
-<th align="right">ame</th>
-<th align="right">std.error</th>
-<th align="right">ci.lower</th>
-<th align="right">ci.upper</th>
-<th align="left">model</th>
-<th align="left">type</th>
-<th align="right">n</th>
+<th align="center">variable</th>
+<th align="center">ame</th>
+<th align="center">std.error</th>
+<th align="center">ci.lower</th>
+<th align="center">ci.upper</th>
+<th align="center">model</th>
+<th align="center">type</th>
+<th align="center">n</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">x1</td>
-<td align="right">-0.1035</td>
-<td align="right">0.0186</td>
-<td align="right">-0.1329</td>
-<td align="right">-0.0661</td>
-<td align="left">mean</td>
-<td align="left">response</td>
-<td align="right">220</td>
+<td align="center">x1</td>
+<td align="center">-0.1035</td>
+<td align="center">0.0186</td>
+<td align="center">-0.1329</td>
+<td align="center">-0.0661</td>
+<td align="center">mean</td>
+<td align="center">response</td>
+<td align="center">220</td>
 </tr>
 <tr class="even">
-<td align="left">x2</td>
-<td align="right">0.0734</td>
-<td align="right">0.0173</td>
-<td align="right">0.0475</td>
-<td align="right">0.1084</td>
-<td align="left">mean</td>
-<td align="left">response</td>
-<td align="right">220</td>
+<td align="center">x2</td>
+<td align="center">0.0734</td>
+<td align="center">0.0196</td>
+<td align="center">0.0369</td>
+<td align="center">0.1117</td>
+<td align="center">mean</td>
+<td align="center">response</td>
+<td align="center">220</td>
 </tr>
 </tbody>
 </table>
@@ -372,37 +373,37 @@ definition shown above.</p>
 <span>  n_sim <span class="op">=</span> <span class="fl">120</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">2026</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">me_precision</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">me_precision</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="14%">
+<col width="13%">
 <col width="12%">
 <col width="15%">
-<col width="14%">
-<col width="14%">
+<col width="13%">
+<col width="13%">
 <col width="15%">
-<col width="7%">
+<col width="8%">
 <col width="6%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">variable</th>
-<th align="right">ame</th>
-<th align="right">std.error</th>
-<th align="right">ci.lower</th>
-<th align="right">ci.upper</th>
-<th align="left">model</th>
-<th align="left">type</th>
-<th align="right">n</th>
+<th align="center">variable</th>
+<th align="center">ame</th>
+<th align="center">std.error</th>
+<th align="center">ci.lower</th>
+<th align="center">ci.upper</th>
+<th align="center">model</th>
+<th align="center">type</th>
+<th align="center">n</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="left">z1</td>
-<td align="right">-0.3361</td>
-<td align="right">0.0835</td>
-<td align="right">-0.4781</td>
-<td align="right">-0.1413</td>
-<td align="left">precision</td>
-<td align="left">link</td>
-<td align="right">220</td>
+<td align="center">z1</td>
+<td align="center">-0.3361</td>
+<td align="center">0.0835</td>
+<td align="center">-0.4781</td>
+<td align="center">-0.1413</td>
+<td align="center">precision</td>
+<td align="center">link</td>
+<td align="center">220</td>
 </tr></tbody>
 </table>
 </div>
@@ -413,729 +414,99 @@ definition shown above.</p>
 <code class="sourceCode R"><span><span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_var</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">P</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 220  11</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th align="right">score_0</th>
-<th align="right">score_1</th>
-<th align="right">score_2</th>
-<th align="right">score_3</th>
-<th align="right">score_4</th>
+<th align="center">score_0</th>
+<th align="center">score_1</th>
+<th align="center">score_2</th>
+<th align="center">score_3</th>
+<th align="center">score_4</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.0146</td>
-<td align="right">0.0178</td>
-<td align="right">0.0146</td>
-<td align="right">0.0130</td>
-<td align="right">0.0121</td>
+<td align="center">0.0146</td>
+<td align="center">0.0178</td>
+<td align="center">0.0146</td>
+<td align="center">0.0130</td>
+<td align="center">0.0121</td>
 </tr>
 <tr class="even">
-<td align="right">0.0215</td>
-<td align="right">0.0228</td>
-<td align="right">0.0178</td>
-<td align="right">0.0155</td>
-<td align="right">0.0141</td>
+<td align="center">0.0215</td>
+<td align="center">0.0228</td>
+<td align="center">0.0178</td>
+<td align="center">0.0155</td>
+<td align="center">0.0141</td>
 </tr>
 <tr class="odd">
-<td align="right">0.0465</td>
-<td align="right">0.0318</td>
-<td align="right">0.0216</td>
-<td align="right">0.0175</td>
-<td align="right">0.0151</td>
+<td align="center">0.0465</td>
+<td align="center">0.0318</td>
+<td align="center">0.0216</td>
+<td align="center">0.0175</td>
+<td align="center">0.0151</td>
 </tr>
 <tr class="even">
-<td align="right">0.0731</td>
-<td align="right">0.0371</td>
-<td align="right">0.0233</td>
-<td align="right">0.0181</td>
-<td align="right">0.0152</td>
+<td align="center">0.0731</td>
+<td align="center">0.0371</td>
+<td align="center">0.0233</td>
+<td align="center">0.0181</td>
+<td align="center">0.0152</td>
 </tr>
 <tr class="odd">
-<td align="right">0.0076</td>
-<td align="right">0.0105</td>
-<td align="right">0.0090</td>
-<td align="right">0.0083</td>
-<td align="right">0.0078</td>
+<td align="center">0.0076</td>
+<td align="center">0.0105</td>
+<td align="center">0.0090</td>
+<td align="center">0.0083</td>
+<td align="center">0.0078</td>
 </tr>
 <tr class="even">
-<td align="right">0.0050</td>
-<td align="right">0.0050</td>
-<td align="right">0.0039</td>
-<td align="right">0.0034</td>
-<td align="right">0.0030</td>
+<td align="center">0.0050</td>
+<td align="center">0.0050</td>
+<td align="center">0.0039</td>
+<td align="center">0.0034</td>
+<td align="center">0.0030</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>row_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">P</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th align="right">row_sum</th>
+<th align="center">row_sum</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.1344</td>
+<td align="center">0.1344</td>
 </tr>
 <tr class="even">
-<td align="right">0.1614</td>
+<td align="center">0.1614</td>
 </tr>
 <tr class="odd">
-<td align="right">0.2001</td>
+<td align="center">0.2001</td>
 </tr>
 <tr class="even">
-<td align="right">0.2313</td>
+<td align="center">0.2313</td>
 </tr>
 <tr class="odd">
-<td align="right">0.0856</td>
+<td align="center">0.0856</td>
 </tr>
 <tr class="even">
-<td align="right">0.0354</td>
+<td align="center">0.0354</td>
 </tr>
 <tr class="odd">
-<td align="right">0.0295</td>
+<td align="center">0.0295</td>
 </tr>
 <tr class="even">
-<td align="right">0.0994</td>
+<td align="center">0.0994</td>
 </tr>
 <tr class="odd">
-<td align="right">0.1024</td>
+<td align="center">0.1024</td>
 </tr>
 <tr class="even">
-<td align="right">0.1312</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0942</td>
-</tr>
-<tr class="even">
-<td align="right">0.0408</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0839</td>
-</tr>
-<tr class="even">
-<td align="right">0.0982</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0130</td>
-</tr>
-<tr class="even">
-<td align="right">0.1635</td>
-</tr>
-<tr class="odd">
-<td align="right">0.3313</td>
-</tr>
-<tr class="even">
-<td align="right">0.0743</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0605</td>
-</tr>
-<tr class="even">
-<td align="right">0.0098</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0855</td>
-</tr>
-<tr class="even">
-<td align="right">0.0728</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0204</td>
-</tr>
-<tr class="even">
-<td align="right">0.1751</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0895</td>
-</tr>
-<tr class="even">
-<td align="right">0.3079</td>
-</tr>
-<tr class="odd">
-<td align="right">0.3931</td>
-</tr>
-<tr class="even">
-<td align="right">0.2427</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0343</td>
-</tr>
-<tr class="even">
-<td align="right">0.2381</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1147</td>
-</tr>
-<tr class="even">
-<td align="right">0.2127</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1679</td>
-</tr>
-<tr class="even">
-<td align="right">0.2361</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1389</td>
-</tr>
-<tr class="even">
-<td align="right">0.2343</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1882</td>
-</tr>
-<tr class="even">
-<td align="right">0.0166</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2695</td>
-</tr>
-<tr class="even">
-<td align="right">0.1441</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0441</td>
-</tr>
-<tr class="even">
-<td align="right">0.1038</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0931</td>
-</tr>
-<tr class="even">
-<td align="right">0.2102</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0312</td>
-</tr>
-<tr class="even">
-<td align="right">0.2516</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1353</td>
-</tr>
-<tr class="even">
-<td align="right">0.0334</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1999</td>
-</tr>
-<tr class="even">
-<td align="right">0.3167</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0141</td>
-</tr>
-<tr class="even">
-<td align="right">0.1161</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1130</td>
-</tr>
-<tr class="even">
-<td align="right">0.0605</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0919</td>
-</tr>
-<tr class="even">
-<td align="right">0.0958</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0428</td>
-</tr>
-<tr class="even">
-<td align="right">0.1630</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1951</td>
-</tr>
-<tr class="even">
-<td align="right">0.1681</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0545</td>
-</tr>
-<tr class="even">
-<td align="right">0.0727</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2298</td>
-</tr>
-<tr class="even">
-<td align="right">0.0594</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0405</td>
-</tr>
-<tr class="even">
-<td align="right">0.1326</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0621</td>
-</tr>
-<tr class="even">
-<td align="right">0.3574</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0428</td>
-</tr>
-<tr class="even">
-<td align="right">0.1107</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1019</td>
-</tr>
-<tr class="even">
-<td align="right">0.0917</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1948</td>
-</tr>
-<tr class="even">
-<td align="right">0.0750</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1015</td>
-</tr>
-<tr class="even">
-<td align="right">0.0784</td>
-</tr>
-<tr class="odd">
-<td align="right">0.4628</td>
-</tr>
-<tr class="even">
-<td align="right">0.1790</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1258</td>
-</tr>
-<tr class="even">
-<td align="right">0.2560</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1038</td>
-</tr>
-<tr class="even">
-<td align="right">0.2463</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1239</td>
-</tr>
-<tr class="even">
-<td align="right">0.0374</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2142</td>
-</tr>
-<tr class="even">
-<td align="right">0.2376</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2144</td>
-</tr>
-<tr class="even">
-<td align="right">0.0338</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2259</td>
-</tr>
-<tr class="even">
-<td align="right">0.2264</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0813</td>
-</tr>
-<tr class="even">
-<td align="right">0.4033</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0285</td>
-</tr>
-<tr class="even">
-<td align="right">0.1344</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0965</td>
-</tr>
-<tr class="even">
-<td align="right">0.1843</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1143</td>
-</tr>
-<tr class="even">
-<td align="right">0.0566</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0671</td>
-</tr>
-<tr class="even">
-<td align="right">0.1190</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1077</td>
-</tr>
-<tr class="even">
-<td align="right">0.0646</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0966</td>
-</tr>
-<tr class="even">
-<td align="right">0.0260</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2274</td>
-</tr>
-<tr class="even">
-<td align="right">0.1548</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0334</td>
-</tr>
-<tr class="even">
-<td align="right">0.3192</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0497</td>
-</tr>
-<tr class="even">
-<td align="right">0.0667</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0874</td>
-</tr>
-<tr class="even">
-<td align="right">0.0603</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1261</td>
-</tr>
-<tr class="even">
-<td align="right">0.2500</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1499</td>
-</tr>
-<tr class="even">
-<td align="right">0.0507</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1498</td>
-</tr>
-<tr class="even">
-<td align="right">0.3776</td>
-</tr>
-<tr class="odd">
-<td align="right">0.3597</td>
-</tr>
-<tr class="even">
-<td align="right">0.0185</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2898</td>
-</tr>
-<tr class="even">
-<td align="right">0.2567</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1318</td>
-</tr>
-<tr class="even">
-<td align="right">0.2843</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0671</td>
-</tr>
-<tr class="even">
-<td align="right">0.0994</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0863</td>
-</tr>
-<tr class="even">
-<td align="right">0.0550</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1709</td>
-</tr>
-<tr class="even">
-<td align="right">0.1714</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0235</td>
-</tr>
-<tr class="even">
-<td align="right">0.5262</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0575</td>
-</tr>
-<tr class="even">
-<td align="right">0.1045</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1909</td>
-</tr>
-<tr class="even">
-<td align="right">0.1163</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0578</td>
-</tr>
-<tr class="even">
-<td align="right">0.2098</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2547</td>
-</tr>
-<tr class="even">
-<td align="right">0.1726</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1152</td>
-</tr>
-<tr class="even">
-<td align="right">0.2419</td>
-</tr>
-<tr class="odd">
-<td align="right">0.3481</td>
-</tr>
-<tr class="even">
-<td align="right">0.0801</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0445</td>
-</tr>
-<tr class="even">
-<td align="right">0.0474</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2398</td>
-</tr>
-<tr class="even">
-<td align="right">0.1716</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1287</td>
-</tr>
-<tr class="even">
-<td align="right">0.0632</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1236</td>
-</tr>
-<tr class="even">
-<td align="right">0.1408</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1446</td>
-</tr>
-<tr class="even">
-<td align="right">0.2577</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1070</td>
-</tr>
-<tr class="even">
-<td align="right">0.2578</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1244</td>
-</tr>
-<tr class="even">
-<td align="right">0.1680</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2124</td>
-</tr>
-<tr class="even">
-<td align="right">0.1777</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1981</td>
-</tr>
-<tr class="even">
-<td align="right">0.0784</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1351</td>
-</tr>
-<tr class="even">
-<td align="right">0.1398</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1490</td>
-</tr>
-<tr class="even">
-<td align="right">0.2269</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1703</td>
-</tr>
-<tr class="even">
-<td align="right">0.1061</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1626</td>
-</tr>
-<tr class="even">
-<td align="right">0.0728</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1785</td>
-</tr>
-<tr class="even">
-<td align="right">0.0556</td>
-</tr>
-<tr class="odd">
-<td align="right">0.3079</td>
-</tr>
-<tr class="even">
-<td align="right">0.0973</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1629</td>
-</tr>
-<tr class="even">
-<td align="right">0.2948</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0390</td>
-</tr>
-<tr class="even">
-<td align="right">0.2298</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1471</td>
-</tr>
-<tr class="even">
-<td align="right">0.1858</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0300</td>
-</tr>
-<tr class="even">
-<td align="right">0.2468</td>
-</tr>
-<tr class="odd">
-<td align="right">0.3067</td>
-</tr>
-<tr class="even">
-<td align="right">0.2137</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1817</td>
-</tr>
-<tr class="even">
-<td align="right">0.2667</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1456</td>
-</tr>
-<tr class="even">
-<td align="right">0.0831</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1306</td>
-</tr>
-<tr class="even">
-<td align="right">0.1801</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2205</td>
-</tr>
-<tr class="even">
-<td align="right">0.1863</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2984</td>
-</tr>
-<tr class="even">
-<td align="right">0.1075</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1261</td>
-</tr>
-<tr class="even">
-<td align="right">0.3039</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1014</td>
-</tr>
-<tr class="even">
-<td align="right">0.0215</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0591</td>
-</tr>
-<tr class="even">
-<td align="right">0.1642</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0524</td>
-</tr>
-<tr class="even">
-<td align="right">0.1975</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0338</td>
-</tr>
-<tr class="even">
-<td align="right">0.1037</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1926</td>
-</tr>
-<tr class="even">
-<td align="right">0.2667</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1510</td>
-</tr>
-<tr class="even">
-<td align="right">0.1925</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1298</td>
-</tr>
-<tr class="even">
-<td align="right">0.3700</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0879</td>
-</tr>
-<tr class="even">
-<td align="right">0.1370</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0369</td>
-</tr>
-<tr class="even">
-<td align="right">0.1456</td>
-</tr>
-<tr class="odd">
-<td align="right">0.0669</td>
-</tr>
-<tr class="even">
-<td align="right">0.2938</td>
-</tr>
-<tr class="odd">
-<td align="right">0.2158</td>
-</tr>
-<tr class="even">
-<td align="right">0.2653</td>
-</tr>
-<tr class="odd">
-<td align="right">0.3241</td>
-</tr>
-<tr class="even">
-<td align="right">0.3042</td>
+<td align="center">0.1312</td>
 </tr>
 </tbody>
 </table>
@@ -1171,7 +542,7 @@ tolerance and score subset selection).</p>
 <span>  seed <span class="op">=</span> <span class="fl">2026</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">cv_res</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">cv_res</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="10%">
@@ -1182,57 +553,57 @@ tolerance and score subset selection).</p>
 <col width="11%">
 <col width="10%">
 <col width="14%">
-<col width="8%">
+<col width="9%">
 </colgroup>
 <thead><tr class="header">
-<th align="right">repeat</th>
-<th align="right">fold</th>
-<th align="right">n_train</th>
-<th align="right">n_test</th>
-<th align="right">log_score</th>
-<th align="right">rmse_yt</th>
-<th align="right">mae_yt</th>
-<th align="left">converged</th>
-<th align="left">error</th>
+<th align="center">repeat</th>
+<th align="center">fold</th>
+<th align="center">n_train</th>
+<th align="center">n_test</th>
+<th align="center">log_score</th>
+<th align="center">rmse_yt</th>
+<th align="center">mae_yt</th>
+<th align="center">converged</th>
+<th align="center">error</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">146</td>
-<td align="right">74</td>
-<td align="right">-4.3077</td>
-<td align="right">0.3215</td>
-<td align="right">0.2862</td>
-<td align="left">TRUE</td>
-<td align="left">NA</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">146</td>
+<td align="center">74</td>
+<td align="center">-4.3077</td>
+<td align="center">0.3215</td>
+<td align="center">0.2862</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
 </tr>
 <tr class="even">
-<td align="right">1</td>
-<td align="right">2</td>
-<td align="right">147</td>
-<td align="right">73</td>
-<td align="right">-4.3171</td>
-<td align="right">0.3449</td>
-<td align="right">0.3032</td>
-<td align="left">TRUE</td>
-<td align="left">NA</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">147</td>
+<td align="center">73</td>
+<td align="center">-4.3171</td>
+<td align="center">0.3449</td>
+<td align="center">0.3032</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
 </tr>
 <tr class="odd">
-<td align="right">1</td>
-<td align="right">3</td>
-<td align="right">147</td>
-<td align="right">73</td>
-<td align="right">-4.1676</td>
-<td align="right">0.3454</td>
-<td align="right">0.3022</td>
-<td align="left">TRUE</td>
-<td align="left">NA</td>
+<td align="center">1</td>
+<td align="center">3</td>
+<td align="center">147</td>
+<td align="center">73</td>
+<td align="center">-4.1676</td>
+<td align="center">0.3454</td>
+<td align="center">0.3022</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rmse_yt"</span>, <span class="st">"mae_yt"</span><span class="op">)</span>,</span>
 <span>    mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rmse_yt"</span>, <span class="st">"mae_yt"</span><span class="op">)</span><span class="op">]</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -1242,24 +613,24 @@ tolerance and score subset selection).</p>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
-<th align="left">metric</th>
-<th align="right">mean</th>
+<th align="center">metric</th>
+<th align="center">mean</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">log_score</td>
-<td align="left">log_score</td>
-<td align="right">-4.2641</td>
+<td align="center">log_score</td>
+<td align="center">-4.2641</td>
 </tr>
 <tr class="even">
 <td align="left">rmse_yt</td>
-<td align="left">rmse_yt</td>
-<td align="right">0.3373</td>
+<td align="center">rmse_yt</td>
+<td align="center">0.3373</td>
 </tr>
 <tr class="odd">
 <td align="left">mae_yt</td>
-<td align="left">mae_yt</td>
-<td align="right">0.2972</td>
+<td align="center">mae_yt</td>
+<td align="center">0.2972</td>
 </tr>
 </tbody>
 </table>

@@ -1,5 +1,43 @@
 # Changelog
 
+## betaregscale 2.6.5
+
+### New features
+
+- Extended
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+  with `ci_type = "bca"` (bias-corrected and accelerated intervals),
+  plus Monte Carlo diagnostics for interval endpoints (`mcse_lower`,
+  `mcse_upper`).
+- Added Wald interval columns (`wald_lower`, `wald_upper`) to bootstrap
+  output for direct asymptotic vs resampling comparison.
+- Added
+  [`autoplot.brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs_bootstrap.md)
+  support to visually compare bootstrap and Wald intervals in
+  `type = "ci_forest"`.
+- Added
+  [`autoplot.brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs_marginaleffects.md)
+  with three views: `forest`, `magnitude`, and `dist`.
+
+### Improvements
+
+- Improved robustness and efficiency in
+  [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md):
+  - central-difference AME approximation for numeric covariates,
+  - scale-adaptive perturbation step,
+  - one-time simulation draw generation reused across variables,
+  - optional storage of AME draws via `keep_draws = TRUE`.
+- Refined
+  [`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
+  output to include richer summary fields (`percentage`, `severity`,
+  `interpretation`) and optional domain-agnostic interpretation messages
+  via `inform = TRUE`.
+- Updated README and vignettes with examples for BCa bootstrap
+  intervals, bootstrap visual diagnostics, and enhanced marginal-effects
+  visualization workflow.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.4
 
 ### New features
@@ -192,8 +230,7 @@
 
 - **API Overhaul**: All exported functions have been renamed to use the
   compact `brs_` prefix for consistency and ease of typing.
-  - [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md)
-    -\>
+  - `betaregscale()` -\>
     [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
   - `betaregscale_fit()` -\>
     [`brs_fit_fixed()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_fixed.md)
@@ -232,9 +269,8 @@
 
 - **`type` argument removed**: The deprecated `type` argument has been
   completely removed from all functions: `check_response()`,
-  `prepare_data()`,
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
-  `betaregscale_fit()`, `betaregscale_fit_z()`, `betaregscale_loglik()`,
+  `prepare_data()`, `betaregscale()`, `betaregscale_fit()`,
+  `betaregscale_fit_z()`, `betaregscale_loglik()`,
   `betaregscale_loglik_z()`, `betaregscale_simulate()`,
   `betaregscale_simulate_z()`, and internal helpers
   [`compute_start()`](https://evandeilton.github.io/betaregscale/reference/compute_start.md),
@@ -270,12 +306,11 @@
   covariate-driven variation with observation-specific endpoints.
 
   The returned data frame carries `attr(, "bs_prepared") = TRUE` so that
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
-  `betaregscale_loglik()`, and all fitting functions use the
-  pre-computed `left`, `right`, `yt`, and `delta` columns directly,
-  bypassing the automatic boundary classification. Without this
-  attribute, the fitting pipeline would re-classify the response from
-  the `y` column alone, which would ignore the forced delta.
+  `betaregscale()`, `betaregscale_loglik()`, and all fitting functions
+  use the pre-computed `left`, `right`, `yt`, and `delta` columns
+  directly, bypassing the automatic boundary classification. Without
+  this attribute, the fitting pipeline would re-classify the response
+  from the `y` column alone, which would ignore the forced delta.
 
 - **`delta` argument in `check_response()`**: accepts an integer vector
   of pre-specified censoring indicators, overriding the automatic
@@ -321,8 +356,7 @@
 
 - **Missing `"bs_prepared"` attribute on simulation output**: when
   `delta` was forced, the simulation functions did not mark the output
-  with `attr(, "bs_prepared") = TRUE`. As a result,
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md)
+  with `attr(, "bs_prepared") = TRUE`. As a result, `betaregscale()`
   would re-classify the response via `check_response()`, silently
   overwriting the forced delta with automatic boundary rules. The
   attribute is now set correctly.
@@ -330,9 +364,8 @@
 ### Deprecations
 
 - The `type` parameter (`"m"`, `"l"`, `"r"`) is deprecated across all
-  functions:
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
-  `betaregscale_fit()`, `betaregscale_fit_z()`, `betaregscale_loglik()`,
+  functions: `betaregscale()`, `betaregscale_fit()`,
+  `betaregscale_fit_z()`, `betaregscale_loglik()`,
   `betaregscale_loglik_z()`, `betaregscale_simulate()`,
   `betaregscale_simulate_z()`, `check_response()`, and `prepare_data()`.
   Use `prepare_data()` to control interval geometry instead. The
@@ -348,8 +381,7 @@
   model fitting. Supports four flexible input modes: score-only, score +
   explicit delta, interval endpoints with NA patterns, and
   analyst-supplied left/right bounds. Prepared data is automatically
-  detected by
-  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md).
+  detected by `betaregscale()`.
 - Internal helper `.extract_response()` enables transparent detection of
   `bs_prepare()`-processed data across all fitting, log-likelihood, and
   starting-value functions.

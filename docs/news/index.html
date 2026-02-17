@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -20,6 +20,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
     <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
     <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
   </ul></li>
@@ -37,6 +38,27 @@
       <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.5" id="betaregscale-265">betaregscale 2.6.5<a class="anchor" aria-label="anchor" href="#betaregscale-265"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-6-5">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-5"></a></h3>
+<ul><li>Extended <code><a href="../reference/brs_bootstrap.html">brs_bootstrap()</a></code> with <code>ci_type = "bca"</code> (bias-corrected and accelerated intervals), plus Monte Carlo diagnostics for interval endpoints (<code>mcse_lower</code>, <code>mcse_upper</code>).</li>
+<li>Added Wald interval columns (<code>wald_lower</code>, <code>wald_upper</code>) to bootstrap output for direct asymptotic vs resampling comparison.</li>
+<li>Added <code><a href="../reference/autoplot.brs_bootstrap.html">autoplot.brs_bootstrap()</a></code> support to visually compare bootstrap and Wald intervals in <code>type = "ci_forest"</code>.</li>
+<li>Added <code><a href="../reference/autoplot.brs_marginaleffects.html">autoplot.brs_marginaleffects()</a></code> with three views: <code>forest</code>, <code>magnitude</code>, and <code>dist</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-6-5">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-5"></a></h3>
+<ul><li>Improved robustness and efficiency in <code><a href="../reference/brs_marginaleffects.html">brs_marginaleffects()</a></code>:
+<ul><li>central-difference AME approximation for numeric covariates,</li>
+<li>scale-adaptive perturbation step,</li>
+<li>one-time simulation draw generation reused across variables,</li>
+<li>optional storage of AME draws via <code>keep_draws = TRUE</code>.</li>
+</ul></li>
+<li>Refined <code><a href="../reference/brs_cens.html">brs_cens()</a></code> output to include richer summary fields (<code>percentage</code>, <code>severity</code>, <code>interpretation</code>) and optional domain-agnostic interpretation messages via <code>inform = TRUE</code>.</li>
+<li>Updated README and vignettes with examples for BCa bootstrap intervals, bootstrap visual diagnostics, and enhanced marginal-effects visualization workflow.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.4" id="betaregscale-264">betaregscale 2.6.4<a class="anchor" aria-label="anchor" href="#betaregscale-264"></a></h2>
 <div class="section level3">
@@ -141,7 +163,7 @@
 <ul><li>
 <strong>API Overhaul</strong>: All exported functions have been renamed to use the compact <code>brs_</code> prefix for consistency and ease of typing.
 <ul><li>
-<code><a href="../reference/betaregscale-package.html">betaregscale()</a></code> -&gt; <code><a href="../reference/brs.html">brs()</a></code>
+<code>betaregscale()</code> -&gt; <code><a href="../reference/brs.html">brs()</a></code>
 </li>
 <li>
 <code>betaregscale_fit()</code> -&gt; <code><a href="../reference/brs_fit_fixed.html">brs_fit_fixed()</a></code>
@@ -194,7 +216,7 @@
 <h2 class="pkg-version" data-toc-text="2.2.0" id="betaregscale-220">betaregscale 2.2.0<a class="anchor" aria-label="anchor" href="#betaregscale-220"></a></h2>
 <div class="section level3">
 <h3 id="breaking-changes-2-2-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-2-0"></a></h3>
-<ul><li><p><strong><code>type</code> argument removed</strong>: The deprecated <code>type</code> argument has been completely removed from all functions: <code>check_response()</code>, <code>prepare_data()</code>, <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, and internal helpers <code><a href="../reference/compute_start.html">compute_start()</a></code>, <code>.extract_response()</code>, <code>.build_simulated_response()</code>, and <code>.compute_endpoints()</code>. The midpoint interval geometry (<code>type = "m"</code>) is now the only option and is hardcoded internally. Users who previously relied on <code>type = "l"</code> or <code>type = "r"</code> should use <code>prepare_data()</code> to supply custom left/right endpoints instead.</p></li>
+<ul><li><p><strong><code>type</code> argument removed</strong>: The deprecated <code>type</code> argument has been completely removed from all functions: <code>check_response()</code>, <code>prepare_data()</code>, <code>betaregscale()</code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, and internal helpers <code><a href="../reference/compute_start.html">compute_start()</a></code>, <code>.extract_response()</code>, <code>.build_simulated_response()</code>, and <code>.compute_endpoints()</code>. The midpoint interval geometry (<code>type = "m"</code>) is now the only option and is hardcoded internally. Users who previously relied on <code>type = "l"</code> or <code>type = "r"</code> should use <code>prepare_data()</code> to supply custom left/right endpoints instead.</p></li>
 <li><p><strong>Renamed <code>bs_prepare()</code> to <code>prepare_data()</code></strong>: The data preparation function has been renamed to <code>prepare_data()</code> to be more descriptive and consistent with the package’s verb-based API. The returned data frame now carries the <code>is_prepared</code> attribute instead of <code>bs_prepared</code>.</p></li>
 </ul><hr></div>
 </div>
@@ -205,7 +227,7 @@
 <ul><li>
 <p><strong><code>delta</code> argument in simulation functions</strong>: <code>betaregscale_simulate()</code> and <code>betaregscale_simulate_z()</code> gain a <code>delta</code> argument (default <code>NULL</code>) that forces all simulated observations to a specific censoring type: 0 (exact), 1 (left), 2 (right), or 3 (interval). This enables targeted Monte Carlo studies where the analyst controls the censoring structure.</p>
 <p>When <code>delta</code> is non-NULL, the actual simulated values (<code>y_raw = rbeta(n, a, b)</code>) are preserved on the scale grid, and the forced censoring indicator is passed to <code>check_response()</code> as a vector. This ensures that each observation retains its covariate-driven variation with observation-specific endpoints.</p>
-<p>The returned data frame carries <code>attr(, "bs_prepared") = TRUE</code> so that <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>, <code>betaregscale_loglik()</code>, and all fitting functions use the pre-computed <code>left</code>, <code>right</code>, <code>yt</code>, and <code>delta</code> columns directly, bypassing the automatic boundary classification. Without this attribute, the fitting pipeline would re-classify the response from the <code>y</code> column alone, which would ignore the forced delta.</p>
+<p>The returned data frame carries <code>attr(, "bs_prepared") = TRUE</code> so that <code>betaregscale()</code>, <code>betaregscale_loglik()</code>, and all fitting functions use the pre-computed <code>left</code>, <code>right</code>, <code>yt</code>, and <code>delta</code> columns directly, bypassing the automatic boundary classification. Without this attribute, the fitting pipeline would re-classify the response from the <code>y</code> column alone, which would ignore the forced delta.</p>
 </li>
 <li>
 <p><strong><code>delta</code> argument in <code>check_response()</code></strong>: accepts an integer vector of pre-specified censoring indicators, overriding the automatic boundary-based classification on a per-observation basis. The endpoint formulas adapt to non-boundary observations:</p>
@@ -247,11 +269,11 @@
 <p><strong>Simulation with forced <code>delta = 1</code> or <code>delta = 2</code></strong>: the internal <code>.build_simulated_response()</code> helper previously replaced all y values with boundary values (<code>y_grid = rep(0, n)</code> for delta = 1, <code>y_grid = rep(ncuts, n)</code> for delta = 2). This produced degenerate data where every observation had identical endpoints (e.g., all <code>left = 0.995, right = 0.99999</code> for delta = 2), destroying all covariate-driven variation and making regression fitting impossible.</p>
 <p>The fix preserves the actual simulated grid values (<code>y_grid = round(y_raw * ncuts)</code>) and passes a forced delta vector to <code>check_response()</code>, which computes observation-specific endpoints using the actual y values.</p>
 </li>
-<li><p><strong>Missing <code>"bs_prepared"</code> attribute on simulation output</strong>: when <code>delta</code> was forced, the simulation functions did not mark the output with <code>attr(, "bs_prepared") = TRUE</code>. As a result, <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code> would re-classify the response via <code>check_response()</code>, silently overwriting the forced delta with automatic boundary rules. The attribute is now set correctly.</p></li>
+<li><p><strong>Missing <code>"bs_prepared"</code> attribute on simulation output</strong>: when <code>delta</code> was forced, the simulation functions did not mark the output with <code>attr(, "bs_prepared") = TRUE</code>. As a result, <code>betaregscale()</code> would re-classify the response via <code>check_response()</code>, silently overwriting the forced delta with automatic boundary rules. The attribute is now set correctly.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="deprecations-2-1-1">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-2-1-1"></a></h3>
-<ul><li>The <code>type</code> parameter (<code>"m"</code>, <code>"l"</code>, <code>"r"</code>) is deprecated across all functions: <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, <code>check_response()</code>, and <code>prepare_data()</code>. Use <code>prepare_data()</code> to control interval geometry instead. The parameter still works but emits a deprecation warning when passed explicitly.</li>
+<ul><li>The <code>type</code> parameter (<code>"m"</code>, <code>"l"</code>, <code>"r"</code>) is deprecated across all functions: <code>betaregscale()</code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, <code>check_response()</code>, and <code>prepare_data()</code>. Use <code>prepare_data()</code> to control interval geometry instead. The parameter still works but emits a deprecation warning when passed explicitly.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -259,7 +281,7 @@
 <div class="section level3">
 <h3 id="new-features-2-0-1">New features<a class="anchor" aria-label="anchor" href="#new-features-2-0-1"></a></h3>
 <ul><li>
-<strong><code>bs_prepare()</code> data preprocessing</strong>: new analyst-facing function that validates, classifies censoring, and rescales raw data before model fitting. Supports four flexible input modes: score-only, score + explicit delta, interval endpoints with NA patterns, and analyst-supplied left/right bounds. Prepared data is automatically detected by <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>.</li>
+<strong><code>bs_prepare()</code> data preprocessing</strong>: new analyst-facing function that validates, classifies censoring, and rescales raw data before model fitting. Supports four flexible input modes: score-only, score + explicit delta, interval endpoints with NA patterns, and analyst-supplied left/right bounds. Prepared data is automatically detected by <code>betaregscale()</code>.</li>
 <li>Internal helper <code>.extract_response()</code> enables transparent detection of <code>bs_prepare()</code>-processed data across all fitting, log-likelihood, and starting-value functions.</li>
 <li>
 <code>censoring_summary()</code> now also accepts data frames from <code>bs_prepare()</code>.</li>

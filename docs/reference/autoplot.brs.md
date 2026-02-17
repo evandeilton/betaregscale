@@ -5,7 +5,8 @@ Produces ggplot2 diagnostics tailored to interval-censored scale models.
 ## Usage
 
 ``` r
-autoplot.brs(
+# S3 method for class 'brs'
+autoplot(
   object,
   type = c("calibration", "score_dist", "cdf", "residuals_by_delta"),
   bins = 10L,

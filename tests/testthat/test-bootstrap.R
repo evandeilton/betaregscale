@@ -136,6 +136,19 @@ test_that("autoplot.brs_bootstrap supports title, caption and theme", {
   expect_s3_class(p, "ggplot")
 })
 
+test_that("ggplot2::autoplot dispatches for brs_bootstrap", {
+  skip_if_not_installed("ggplot2")
+
+  set.seed(1206)
+  dat <- data.frame(x1 = rnorm(60), x2 = rnorm(60))
+  sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.2, -0.1, 0.35), phi = 1 / 5)
+  fit <- brs(y ~ x1 + x2, data = sim)
+  boot <- brs_bootstrap(fit, R = 15L, seed = 10, keep_draws = TRUE)
+
+  p <- ggplot2::autoplot(boot, type = "ci_forest")
+  expect_s3_class(p, "ggplot")
+})
+
 test_that("autoplot.brs_bootstrap checks draws and parameter validity", {
   skip_if_not_installed("ggplot2")
 

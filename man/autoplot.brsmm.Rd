@@ -4,7 +4,7 @@
 \alias{autoplot.brsmm}
 \title{ggplot2 autoplot for brsmm models}
 \usage{
-autoplot.brsmm(
+\method{autoplot}{brsmm}(
   object,
   type = c("calibration", "score_dist", "ranef_qq", "residuals_by_group",
     "ranef_caterpillar", "ranef_density", "ranef_pairs"),

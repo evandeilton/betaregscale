@@ -7,7 +7,7 @@
 
 ### R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 2 notes
 
 ### Downstream dependencies
 
@@ -23,5 +23,7 @@ This is a new CRAN submission. There are no downstream dependencies.
 * README and vignettes were updated to document the new bootstrap and marginal-effects workflows, including visual diagnostics and reproducible examples.
 * Bibliographic entries in package documentation continue to use DOI-based validated links (`https://doi.org/...`) for CRAN URL checks.
 * The package includes compiled C++ code via Rcpp and RcppArmadillo.
-* The only `R CMD check` note is the standard "New submission" incoming
-  feasibility note.
+* `R CMD check` notes are:
+  - standard "New submission" incoming feasibility note;
+  - "unable to verify current time" in `checking for future file timestamps`,
+    observed in this local environment.

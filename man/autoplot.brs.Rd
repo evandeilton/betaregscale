@@ -4,7 +4,7 @@
 \alias{autoplot.brs}
 \title{ggplot2 autoplot for brs models}
 \usage{
-autoplot.brs(
+\method{autoplot}{brs}(
   object,
   type = c("calibration", "score_dist", "cdf", "residuals_by_delta"),
   bins = 10L,

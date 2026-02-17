@@ -135,6 +135,26 @@ test_that("autoplot.brs supports cdf and residuals_by_delta", {
   expect_s3_class(p2, "ggplot")
 })
 
+test_that("ggplot2::autoplot dispatches for brs and brs_marginaleffects", {
+  skip_if_not_installed("ggplot2")
+  sim <- .sim_for_tools(seed = 3030)
+  fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+
+  p_brs <- ggplot2::autoplot(fit, type = "calibration")
+  expect_s3_class(p_brs, "ggplot")
+
+  me <- brs_marginaleffects(
+    fit,
+    model = "mean",
+    type = "response",
+    interval = TRUE,
+    n_sim = 80,
+    keep_draws = TRUE
+  )
+  p_me <- ggplot2::autoplot(me, type = "forest")
+  expect_s3_class(p_me, "ggplot")
+})
+
 test_that("brs_predict_scoreprob returns coherent probability matrices", {
   sim <- .sim_for_tools(seed = 404)
   fit <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)

@@ -18,6 +18,10 @@ knitr::opts_chunk$set(
   message = FALSE,
   digits = 4
 )
+
+kbl10 <- function(x, digits = 4, ...) {
+  knitr::kable(utils::head(as.data.frame(x), 10), digits = digits, align = "c", ...)
+}
 ```
 
 ## Overview
@@ -78,7 +82,7 @@ half-width (`lim`, default 0.5).
 # Illustrate brs_check with a 0-10 NRS scale
 y_example <- c(0, 3, 5, 7, 10)
 cr <- brs_check(y_example, ncuts = 10)
-knitr::kable(cr, digits = 4)
+kbl10(cr)
 ```
 
 The `delta` column shows that $y = 0$ is left-censored ($\delta = 1$),
@@ -99,7 +103,7 @@ It supports four input modes:
 ```{r bs-prepare-mode1}
 # Equivalent to brs_check - delta inferred from y
 d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
-knitr::kable(brs_prep(d1, ncuts = 10), digits = 4)
+kbl10(brs_prep(d1, ncuts = 10))
 ```
 
 ### Mode 2: Score + explicit censoring indicator
@@ -111,7 +115,7 @@ d2 <- data.frame(
   delta = c(0, 1, 2, 3),
   x1    = rnorm(4)
 )
-knitr::kable(brs_prep(d2, ncuts = 100), digits = 4)
+kbl10(brs_prep(d2, ncuts = 100))
 ```
 
 ### Mode 3: Interval endpoints with NA patterns
@@ -126,7 +130,7 @@ d3 <- data.frame(
   y     = c(NA, NA, NA, 50),
   x1    = rnorm(4)
 )
-knitr::kable(brs_prep(d3, ncuts = 100), digits = 4)
+kbl10(brs_prep(d3, ncuts = 100))
 ```
 
 ### Mode 4: Analyst-supplied intervals
@@ -141,7 +145,7 @@ d4 <- data.frame(
   right = c(52, 77),
   x1    = rnorm(2)
 )
-knitr::kable(brs_prep(d4, ncuts = 100), digits = 4)
+kbl10(brs_prep(d4, ncuts = 100))
 ```
 
 ### Using brs_prep with `brs()`
@@ -191,7 +195,7 @@ sim_fixed <- brs_sim(
   repar    = 2
 )
 
-knitr::kable(head(sim_fixed, 8), digits = 4)
+kbl10(head(sim_fixed, 8))
 ```
 
 Each observation is centered in its interval. For example, a score of 67
@@ -217,7 +221,7 @@ z-tests and $p$-values based on the standard normal distribution.
 ### Goodness of fit
 
 ```{r gof-fixed}
-knitr::kable(brs_gof(fit_fixed), digits = 4)
+kbl10(brs_gof(fit_fixed))
 ```
 
 ### Comparing link functions
@@ -237,11 +241,11 @@ est_table <- do.call(rbind, lapply(names(fits), function(lnk) {
   e$link <- lnk
   e
 }))
-knitr::kable(est_table, digits = 4)
+kbl10(est_table)
 
 # Goodness of fit
 gof_table <- do.call(rbind, lapply(fits, brs_gof))
-knitr::kable(gof_table, digits = 4)
+kbl10(gof_table)
 ```
 
 ### Residual diagnostics
@@ -263,19 +267,19 @@ plot(fit_fixed, gg = TRUE)
 
 ```{r predict-fixed}
 # Fitted means
-knitr::kable(
+kbl10(
   data.frame(mu_hat = head(predict(fit_fixed, type = "response"))),
   digits = 4
 )
 
 # Conditional variance
-knitr::kable(
+kbl10(
   data.frame(var_hat = head(predict(fit_fixed, type = "variance"))),
   digits = 4
 )
 
 # Quantile predictions
-knitr::kable(head(predict(fit_fixed, type = "quantile", at = c(0.10, 0.25, 0.5, 0.75, 0.90))), digits = 4)
+kbl10(head(predict(fit_fixed, type = "quantile", at = c(0.10, 0.25, 0.5, 0.75, 0.90)), 10))
 ```
 
 ### Confidence intervals
@@ -283,8 +287,8 @@ knitr::kable(head(predict(fit_fixed, type = "quantile", at = c(0.10, 0.25, 0.5, 
 Wald confidence intervals based on the asymptotic normal approximation:
 
 ```{r confint-fixed}
-knitr::kable(confint(fit_fixed), digits = 4)
-knitr::kable(confint(fit_fixed, model = "mean"), digits = 4)
+kbl10(confint(fit_fixed))
+kbl10(confint(fit_fixed, model = "mean"))
 ```
 
 ### Censoring structure
@@ -329,7 +333,7 @@ sim_var <- brs_sim(
   repar = 2
 )
 
-knitr::kable(head(sim_var), digits = 4)
+kbl10(head(sim_var, 10))
 ```
 
 ### Fitting the model
@@ -361,7 +365,7 @@ round(coef(fit_var, model = "mean"), 4)
 round(coef(fit_var, model = "precision"), 4)
 
 # Variance-covariance matrix for the mean submodel
-knitr::kable(vcov(fit_var, model = "mean"), digits = 4)
+kbl10(vcov(fit_var, model = "mean"))
 ```
 
 ### Comparing link functions (variable dispersion)
@@ -378,11 +382,11 @@ est_var <- do.call(rbind, lapply(names(fits_var), function(lnk) {
   e$link <- lnk
   e
 }))
-knitr::kable(est_var, digits = 4)
+kbl10(est_var)
 
 # Goodness of fit
 gof_var <- do.call(rbind, lapply(fits_var, brs_gof))
-knitr::kable(gof_var, digits = 4)
+kbl10(gof_var)
 ```
 
 ### Diagnostics for variable dispersion
@@ -407,7 +411,7 @@ boot_ci <- brs_bootstrap(
   ci_type = "bca",
   keep_draws = TRUE
 )
-knitr::kable(head(boot_ci), digits = 4)
+kbl10(head(boot_ci, 10))
 ```
 
 ```{r bootstrap-forest, eval = requireNamespace("ggplot2", quietly = TRUE)}
@@ -430,7 +434,7 @@ ame <- brs_marginaleffects(
   n_sim = 120,
   keep_draws = TRUE
 )
-knitr::kable(ame, digits = 4)
+kbl10(ame)
 ```
 
 ```{r marginaleffects-plot, eval = requireNamespace("ggplot2", quietly = TRUE)}
@@ -441,8 +445,8 @@ autoplot.brs_marginaleffects(ame, type = "forest")
 
 ```{r scoreprob-fixed}
 prob_scores <- brs_predict_scoreprob(fit_fixed, scores = 0:10)
-knitr::kable(prob_scores[1:6, 1:6], digits = 4)
-knitr::kable(
+kbl10(prob_scores[1:6, 1:6])
+kbl10(
   data.frame(row_sum = rowSums(prob_scores)[1:6]),
   digits = 4
 )
@@ -459,8 +463,8 @@ cv_res <- brs_cv(
   repar = 2,
   seed = 303
 )
-knitr::kable(cv_res, digits = 4)
-knitr::kable(
+kbl10(cv_res)
+kbl10(
   data.frame(
     metric = c("log_score", "rmse_yt", "mae_yt"),
     mean = c(

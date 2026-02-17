@@ -199,38 +199,42 @@ summary(fit_mm_rs)
 Covariance structure of random effects:
 
 ``` r
-knitr::kable(fit_mm_rs$random$D, digits = 4)
+kbl10(fit_mm_rs$random$D)
 ```
 
-|        |        |
-|-------:|-------:|
+|   V1   |   V2   |
+|:------:|:------:|
 | 0.1640 | 0.0129 |
 | 0.0129 | 0.0833 |
 
 ``` r
-knitr::kable(
+kbl10(
   data.frame(term = names(fit_mm_rs$random$sd_b), sd = as.numeric(fit_mm_rs$random$sd_b)),
   digits = 4
 )
 ```
 
-| term        |     sd |
-|:------------|-------:|
+|    term     |   sd   |
+|:-----------:|:------:|
 | (Intercept) | 0.4049 |
-| x1          | 0.2886 |
+|     x1      | 0.2886 |
 
 ``` r
-knitr::kable(head(ranef.brsmm(fit_mm_rs)), digits = 4)
+kbl10(head(ranef.brsmm(fit_mm_rs), 10))
 ```
 
-| (Intercept) |      x1 |
-|------------:|--------:|
-|     -0.3977 | -0.2520 |
-|      0.4303 | -0.0387 |
-|     -0.1598 |  0.0259 |
-|     -0.3099 |  0.3768 |
-|      0.0120 | -0.1438 |
-|      0.3996 | -0.1521 |
+| (Intercept) |   x1    |
+|:-----------:|:-------:|
+|   -0.3977   | -0.2520 |
+|   0.4303    | -0.0387 |
+|   -0.1598   | 0.0259  |
+|   -0.3099   | 0.3768  |
+|   0.0120    | -0.1438 |
+|   0.3996    | -0.1521 |
+|   0.0998    | -0.0703 |
+|   0.0276    | -0.0476 |
+|   -0.0353   | 0.1578  |
+|   0.2500    | -0.0127 |
 
 ## Estudos adicionais dos efeitos aleatórios (numéricos e visuais)
 
@@ -263,29 +267,29 @@ print(re_study)
 #>        [,1]   [,2]
 #> [1,] 1.0000 0.1102
 #> [2,] 0.1102 1.0000
-knitr::kable(re_study$summary, digits = 4)
+kbl10(re_study$summary)
 ```
 
-| term        | sd_model | mean_mode | sd_mode | shrinkage_ratio | shapiro_p |
-|:------------|---------:|----------:|--------:|----------------:|----------:|
-| (Intercept) |   0.4049 |   -0.0012 |  0.3044 |          0.5653 |    0.0543 |
-| x1          |   0.2886 |   -0.0081 |  0.1686 |          0.3412 |    0.0199 |
+|    term     | sd_model | mean_mode | sd_mode | shrinkage_ratio | shapiro_p |
+|:-----------:|:--------:|:---------:|:-------:|:---------------:|:---------:|
+| (Intercept) |  0.4049  |  -0.0012  | 0.3044  |     0.5653      |  0.0543   |
+|     x1      |  0.2886  |  -0.0081  | 0.1686  |     0.3412      |  0.0199   |
 
 ``` r
-knitr::kable(re_study$D, digits = 4)
+kbl10(re_study$D)
 ```
 
-|        |        |
-|-------:|-------:|
+|   V1   |   V2   |
+|:------:|:------:|
 | 0.1640 | 0.0129 |
 | 0.0129 | 0.0833 |
 
 ``` r
-knitr::kable(re_study$Corr, digits = 4)
+kbl10(re_study$Corr)
 ```
 
-|        |        |
-|-------:|-------:|
+|   V1   |   V2   |
+|:------:|:------:|
 | 1.0000 | 0.1102 |
 | 0.1102 | 1.0000 |
 
@@ -311,22 +315,22 @@ parameters on optimizer scale (lower-Cholesky, with log-diagonal). For
 random-intercept models this simplifies to $\log\sigma_{b}$.
 
 ``` r
-knitr::kable(
+kbl10(
   data.frame(parameter = names(coef(fit_mm, model = "full")),
              estimate = as.numeric(coef(fit_mm, model = "full"))),
   digits = 4
 )
 ```
 
-| parameter                        | estimate |
-|:---------------------------------|---------:|
-| (Intercept)                      |   0.0105 |
-| x1                               |   0.6296 |
-| (phi)\_(Intercept)               |  -0.1363 |
-| (re_chol_logsd)\_(Intercept)\|id |  -0.8434 |
+|            parameter             | estimate |
+|:--------------------------------:|:--------:|
+|           (Intercept)            |  0.0105  |
+|                x1                |  0.6296  |
+|        (phi)\_(Intercept)        | -0.1363  |
+| (re_chol_logsd)\_(Intercept)\|id | -0.8434  |
 
 ``` r
-knitr::kable(
+kbl10(
   data.frame(log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
              sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))),
   digits = 4
@@ -334,26 +338,30 @@ knitr::kable(
 ```
 
 | log_sigma_b | sigma_b |
-|------------:|--------:|
-|     -0.8434 |  0.4303 |
+|:-----------:|:-------:|
+|   -0.8434   | 0.4303  |
 
 ``` r
-knitr::kable(head(ranef.brsmm(fit_mm)), digits = 4)
+kbl10(head(ranef.brsmm(fit_mm), 10))
 ```
 
-|       x |
-|--------:|
+|    x    |
+|:-------:|
 | -0.3708 |
-|  0.4555 |
+| 0.4555  |
 | -0.1742 |
 | -0.4594 |
-|  0.0248 |
-|  0.4296 |
+| 0.0248  |
+| 0.4296  |
+| 0.1134  |
+| 0.0083  |
+| -0.0197 |
+| 0.2624  |
 
 For random intercept + slope models:
 
 ``` r
-knitr::kable(
+kbl10(
   data.frame(
     parameter = names(coef(fit_mm_rs, model = "random")),
     estimate = as.numeric(coef(fit_mm_rs, model = "random"))
@@ -362,18 +370,18 @@ knitr::kable(
 )
 ```
 
-| parameter                        | estimate |
-|:---------------------------------|---------:|
-| (re_chol_logsd)\_(Intercept)\|id |  -0.9040 |
-| (re_chol)\_x1:(Intercept)\|id    |   0.0318 |
-| (re_chol_logsd)\_x1\|id          |  -1.2488 |
+|            parameter             | estimate |
+|:--------------------------------:|:--------:|
+| (re_chol_logsd)\_(Intercept)\|id | -0.9040  |
+|  (re_chol)\_x1:(Intercept)\|id   |  0.0318  |
+|     (re_chol_logsd)\_x1\|id      | -1.2488  |
 
 ``` r
-knitr::kable(fit_mm_rs$random$D, digits = 4)
+kbl10(fit_mm_rs$random$D)
 ```
 
-|        |        |
-|-------:|-------:|
+|   V1   |   V2   |
+|:------:|:------:|
 | 0.1640 | 0.0129 |
 | 0.0129 | 0.0833 |
 
@@ -385,19 +393,19 @@ dim(vc)
 #> [1] 4 4
 
 sm <- summary(fit_mm)
-knitr::kable(sm$coefficients, digits = 4)
+kbl10(sm$coefficients)
 ```
 
 |                                  | Estimate | Std. Error | z value | Pr(\>\|z\|) |
-|:---------------------------------|---------:|-----------:|--------:|------------:|
-| (Intercept)                      |   0.0105 |     0.0746 |  0.1408 |      0.8880 |
-| x1                               |   0.6296 |     0.0865 |  7.2777 |      0.0000 |
-| (phi)\_(Intercept)               |  -0.1363 |     0.0774 | -1.7613 |      0.0782 |
-| (re_chol_logsd)\_(Intercept)\|id |  -0.8434 |     0.2611 | -3.2303 |      0.0012 |
+|:---------------------------------|:--------:|:----------:|:-------:|:-----------:|
+| (Intercept)                      |  0.0105  |   0.0746   | 0.1408  |   0.8880    |
+| x1                               |  0.6296  |   0.0865   | 7.2777  |   0.0000    |
+| (phi)\_(Intercept)               | -0.1363  |   0.0774   | -1.7613 |   0.0782    |
+| (re_chol_logsd)\_(Intercept)\|id | -0.8434  |   0.2611   | -3.2303 |   0.0012    |
 
 ``` r
 
-knitr::kable(
+kbl10(
   data.frame(
     logLik = as.numeric(logLik(fit_mm)),
     AIC = AIC(fit_mm),
@@ -408,14 +416,14 @@ knitr::kable(
 )
 ```
 
-|    logLik |     AIC |      BIC | nobs |
-|----------:|--------:|---------:|-----:|
-| -1231.385 | 2470.77 | 2485.421 |  288 |
+|  logLik   |   AIC   |   BIC    | nobs |
+|:---------:|:-------:|:--------:|:----:|
+| -1231.385 | 2470.77 | 2485.421 | 288  |
 
 ### Fitted values, prediction and residuals
 
 ``` r
-knitr::kable(
+kbl10(
   data.frame(
     mu_hat = head(fitted(fit_mm, type = "mu")),
     phi_hat = head(fitted(fit_mm, type = "phi")),
@@ -429,17 +437,17 @@ knitr::kable(
 ```
 
 | mu_hat | phi_hat | pred_mu | pred_eta | pred_phi | pred_var |
-|-------:|--------:|--------:|---------:|---------:|---------:|
-| 0.3562 |   0.466 |  0.3562 |  -0.5918 |    0.466 |   0.1069 |
-| 0.1647 |   0.466 |  0.1647 |  -1.6239 |    0.466 |   0.0641 |
-| 0.4038 |   0.466 |  0.4038 |  -0.3898 |    0.466 |   0.1122 |
-| 0.3739 |   0.466 |  0.3739 |  -0.5157 |    0.466 |   0.1091 |
-| 0.5301 |   0.466 |  0.5301 |   0.1204 |    0.466 |   0.1161 |
-| 0.3170 |   0.466 |  0.3170 |  -0.7678 |    0.466 |   0.1009 |
+|:------:|:-------:|:-------:|:--------:|:--------:|:--------:|
+| 0.3562 |  0.466  | 0.3562  | -0.5918  |  0.466   |  0.1069  |
+| 0.1647 |  0.466  | 0.1647  | -1.6239  |  0.466   |  0.0641  |
+| 0.4038 |  0.466  | 0.4038  | -0.3898  |  0.466   |  0.1122  |
+| 0.3739 |  0.466  | 0.3739  | -0.5157  |  0.466   |  0.1091  |
+| 0.5301 |  0.466  | 0.5301  |  0.1204  |  0.466   |  0.1161  |
+| 0.3170 |  0.466  | 0.3170  | -0.7678  |  0.466   |  0.1009  |
 
 ``` r
 
-knitr::kable(
+kbl10(
   data.frame(
     res_response = head(residuals(fit_mm, type = "response")),
     res_pearson = head(residuals(fit_mm, type = "pearson"))
@@ -449,13 +457,13 @@ knitr::kable(
 ```
 
 | res_response | res_pearson |
-|-------------:|------------:|
-|      -0.1762 |     -0.5391 |
-|       0.1253 |      0.4950 |
-|      -0.2838 |     -0.8472 |
-|       0.0561 |      0.1700 |
-|       0.0299 |      0.0879 |
-|       0.2330 |      0.7337 |
+|:------------:|:-----------:|
+|   -0.1762    |   -0.5391   |
+|    0.1253    |   0.4950    |
+|   -0.2838    |   -0.8472   |
+|    0.0561    |   0.1700    |
+|    0.0299    |   0.0879    |
+|    0.2330    |   0.7337    |
 
 ### Diagnostic plotting methods
 
@@ -499,81 +507,81 @@ uses random effect equal to zero for those levels.
 
 ``` r
 nd <- sim$data[1:8, c("x1", "id")]
-knitr::kable(
+kbl10(
   data.frame(pred_seen = as.numeric(predict(fit_mm, newdata = nd, type = "response"))),
   digits = 4
 )
 ```
 
 | pred_seen |
-|----------:|
-|    0.3562 |
-|    0.1647 |
-|    0.4038 |
-|    0.3739 |
-|    0.5301 |
-|    0.3170 |
-|    0.4348 |
-|    0.3064 |
+|:---------:|
+|  0.3562   |
+|  0.1647   |
+|  0.4038   |
+|  0.3739   |
+|  0.5301   |
+|  0.3170   |
+|  0.4348   |
+|  0.3064   |
 
 ``` r
 
 nd_unseen <- nd
 nd_unseen$id <- factor(rep("new_cluster", nrow(nd_unseen)))
-knitr::kable(
+kbl10(
   data.frame(pred_unseen = as.numeric(predict(fit_mm, newdata = nd_unseen, type = "response"))),
   digits = 4
 )
 ```
 
 | pred_unseen |
-|------------:|
-|      0.4450 |
-|      0.2222 |
-|      0.4952 |
-|      0.4638 |
-|      0.6204 |
-|      0.4020 |
-|      0.5271 |
-|      0.3902 |
+|:-----------:|
+|   0.4450    |
+|   0.2222    |
+|   0.4952    |
+|   0.4638    |
+|   0.6204    |
+|   0.4020    |
+|   0.5271    |
+|   0.3902    |
 
 The same logic applies to random intercept + slope models:
 
 ``` r
-knitr::kable(
+kbl10(
   data.frame(pred_rs_seen = as.numeric(predict(fit_mm_rs, newdata = nd, type = "response"))),
   digits = 4
 )
 ```
 
 | pred_rs_seen |
-|-------------:|
-|       0.3699 |
-|       0.2391 |
-|       0.3989 |
-|       0.3808 |
-|       0.4747 |
-|       0.3455 |
-|       0.4175 |
-|       0.3388 |
+|:------------:|
+|    0.3699    |
+|    0.2391    |
+|    0.3989    |
+|    0.3808    |
+|    0.4747    |
+|    0.3455    |
+|    0.4175    |
+|    0.3388    |
 
 ``` r
-knitr::kable(
+kbl10(
   data.frame(pred_rs_unseen = as.numeric(predict(fit_mm_rs, newdata = nd_unseen, type = "response"))),
   digits = 4
 )
 ```
 
 | pred_rs_unseen |
-|---------------:|
-|         0.4434 |
-|         0.2200 |
-|         0.4939 |
-|         0.4624 |
-|         0.6198 |
-|         0.4003 |
-|         0.5260 |
-|         0.3884 |
+|:--------------:|
+|     0.4434     |
+|     0.2200     |
+|     0.4939     |
+|     0.4624     |
+|     0.6198     |
+|     0.4003     |
+|     0.5260     |
+|     0.3884     |
 
 ## Statistical tests and validation workflow
 
@@ -585,15 +593,15 @@ $$z_{k} = {\widehat{\theta}}_{k}/{SE}\left( {\widehat{\theta}}_{k} \right).$$
 
 ``` r
 sm <- summary(fit_mm)
-knitr::kable(sm$coefficients, digits = 4)
+kbl10(sm$coefficients)
 ```
 
 |                                  | Estimate | Std. Error | z value | Pr(\>\|z\|) |
-|:---------------------------------|---------:|-----------:|--------:|------------:|
-| (Intercept)                      |   0.0105 |     0.0746 |  0.1408 |      0.8880 |
-| x1                               |   0.6296 |     0.0865 |  7.2777 |      0.0000 |
-| (phi)\_(Intercept)               |  -0.1363 |     0.0774 | -1.7613 |      0.0782 |
-| (re_chol_logsd)\_(Intercept)\|id |  -0.8434 |     0.2611 | -3.2303 |      0.0012 |
+|:---------------------------------|:--------:|:----------:|:-------:|:-----------:|
+| (Intercept)                      |  0.0105  |   0.0746   | 0.1408  |   0.8880    |
+| x1                               |  0.6296  |   0.0865   | 7.2777  |   0.0000    |
+| (phi)\_(Intercept)               | -0.1363  |   0.0774   | -1.7613 |   0.0782    |
+| (re_chol_logsd)\_(Intercept)\|id | -0.8434  |   0.2611   | -3.2303 |   0.0012    |
 
 ### Esquema evolutivo e escolha por teste LR
 
@@ -625,17 +633,17 @@ fit_brs <- brs(
 # fit_mm_rs : random = ~ 1 + x1 | id
 
 tab_lr <- anova(fit_brs, fit_mm, fit_mm_rs, test = "Chisq")
-knitr::kable(
+kbl10(
   data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL),
   digits = 4
 )
 ```
 
-| model      |  Df |    logLik |      AIC |      BIC |   Chisq | Chi.Df | Pr..Chisq. |
-|:-----------|----:|----------:|---------:|---------:|--------:|-------:|-----------:|
-| M1 (brs)   |   3 | -1236.836 | 2479.672 | 2490.661 |      NA |     NA |         NA |
-| M2 (brsmm) |   4 | -1231.385 | 2470.770 | 2485.421 | 10.9028 |      1 |     0.0010 |
-| M3 (brsmm) |   6 | -1229.957 | 2471.913 | 2493.891 |  2.8567 |      2 |     0.2397 |
+|   model    | Df  |  logLik   |   AIC    |   BIC    |  Chisq  | Chi.Df | Pr..Chisq. |
+|:----------:|:---:|:---------:|:--------:|:--------:|:-------:|:------:|:----------:|
+|  M1 (brs)  |  3  | -1236.836 | 2479.672 | 2490.661 |   NA    |   NA   |     NA     |
+| M2 (brsmm) |  4  | -1231.385 | 2470.770 | 2485.421 | 10.9028 |   1    |   0.0010   |
+| M3 (brsmm) |  6  | -1229.957 | 2471.913 | 2493.891 | 2.8567  |   2    |   0.2397   |
 
 Regra operacional de decisão (analítica):
 
@@ -649,7 +657,7 @@ Regra operacional de decisão (analítica):
 
 ``` r
 r <- residuals(fit_mm, type = "pearson")
-knitr::kable(
+kbl10(
   data.frame(
     mean = mean(r),
     sd = stats::sd(r),
@@ -660,8 +668,8 @@ knitr::kable(
 )
 ```
 
-|  mean |     sd |    q025 |   q975 |
-|------:|-------:|--------:|-------:|
+| mean  |   sd   |  q025   |  q975  |
+|:-----:|:------:|:-------:|:------:|
 | 0.038 | 0.9611 | -1.5667 | 1.6286 |
 
 ## Parameter recovery experiment
@@ -688,14 +696,14 @@ recovery_table <- data.frame(
   estimate = as.numeric(est[names(true)]),
   bias = as.numeric(est[names(true)] - true)
 )
-knitr::kable(recovery_table, digits = 4)
+kbl10(recovery_table)
 ```
 
-| parameter | true | estimate |    bias |
-|:----------|-----:|---------:|--------:|
-| beta0     | 0.20 |   0.0105 | -0.1895 |
-| beta1     | 0.65 |   0.6296 | -0.0204 |
-| sigma_b   | 0.55 |   0.4303 | -0.1197 |
+| parameter | true | estimate |  bias   |
+|:---------:|:----:|:--------:|:-------:|
+|   beta0   | 0.20 |  0.0105  | -0.1895 |
+|   beta1   | 0.65 |  0.6296  | -0.0204 |
+|  sigma_b  | 0.55 |  0.4303  | -0.1197 |
 
 For a Monte Carlo recovery study, repeat simulation and fitting across
 replicates:

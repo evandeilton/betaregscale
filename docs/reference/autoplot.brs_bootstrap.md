@@ -1,0 +1,80 @@
+# ggplot2 autoplot for bootstrap results
+
+Produces visual summaries for objects returned by
+[`brs_bootstrap`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md).
+
+## Usage
+
+``` r
+# S3 method for class 'brs_bootstrap'
+autoplot(
+  object,
+  type = c("ci_forest", "dist", "qq", "stability"),
+  parameter = NULL,
+  title = NULL,
+  caption = NULL,
+  max_parameters = 12L,
+  ci_level = NULL,
+  theme = NULL,
+  ...
+)
+```
+
+## Arguments
+
+- object:
+
+  An object of class `"brs_bootstrap"`.
+
+- type:
+
+  Plot type: `"ci_forest"`, `"dist"`, `"qq"`, or `"stability"`.
+
+- parameter:
+
+  Optional parameter name used by `type = "dist"`, `"qq"`, and
+  `"stability"`. If `NULL`, the first parameter is used.
+
+- title:
+
+  Optional plot title override.
+
+- caption:
+
+  Optional subtitles/titles for plot types. Accepts:
+
+  - a single string (used for the selected `type`);
+
+  - a character vector/list with up to four entries in the order
+    `ci_forest`, `dist`, `qq`, `stability`.
+
+- max_parameters:
+
+  Maximum number of parameters shown in `type = "ci_forest"`.
+
+- ci_level:
+
+  Confidence level used in `type = "stability"`. Defaults to the level
+  stored in `object`.
+
+- theme:
+
+  Optional ggplot2 theme object (e.g.,
+  [`ggplot2::theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)).
+  If `NULL`,
+  [`ggplot2::theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)
+  is used.
+
+- ...:
+
+  Currently ignored.
+
+## Value
+
+A `ggplot2` object.
+
+## Details
+
+For `type = "dist"`, `"qq"`, and `"stability"`, bootstrap draws must be
+present in `attr(object, "boot_draws")`, obtained by fitting with
+`brs_bootstrap(..., keep_draws = TRUE)`.
