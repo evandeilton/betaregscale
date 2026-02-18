@@ -5,7 +5,7 @@
 #   - coef(), vcov() accept  model = c("full", "mean", "precision")
 #   - summary() produces separate tables for mean and precision
 #   - print() shows the call + compact coefficient vectors
-#   - Wald z-tests use pnorm (not pt) per Lopes (2024, Eq. 2.34--2.35)
+#   - Wald z-tests use pnorm (not pt)
 # ============================================================================ #
 
 # -- Class validation helper ------------------------------------------------ #
@@ -590,7 +590,7 @@ residuals.brs <- function(object,
 #'
 #' @description
 #' Computes Wald confidence intervals for model parameters using the
-#' normal approximation (Lopes, 2024, Eq. 2.30--2.31).
+#' normal approximation.
 #'
 #' @param object A fitted \code{"betaregscale"} object.
 #' @param parm   Character or integer: which parameters. If missing,

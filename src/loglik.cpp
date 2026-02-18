@@ -10,7 +10,7 @@
 // RcppArmadillo for linear-algebra primitives and R's C-level
 // pbeta / dbeta for distribution-function evaluation.
 //
-// Complete Likelihood (Lopes, 2024, Eq. 2.24):
+// Complete likelihood:
 //
 //   L(theta) = prod_{delta=0} f(y_i|theta)           [uncensored]
 //            * prod_{delta=1} F(u_i|theta)            [left-censored]
@@ -103,7 +103,7 @@ inline double clamp_phi_by_repar(double phi, int repar) {
   return clamp(phi, EPS_BOUND, MAX_SHAPE);
 }
 
-// Beta reparameterization (Lopes, 2024, Section 2.8).
+// Beta reparameterization.
 // repar = 0 : shape1 = mu,               shape2 = phi
 // repar = 1 : shape1 = mu * phi,         shape2 = (1 - mu) * phi [Eq. 2.9]
 // repar = 2 : shape1 = mu*(1-phi)/phi,   shape2 = (1-mu)*(1-phi)/phi [Eq. 2.11]
@@ -176,7 +176,7 @@ inline double log_survival(double y, double a, double b) {
 // Compute the per-observation log-likelihood contribution given shape
 // parameters (a, b), interval endpoints, midpoint, and censoring type.
 //
-// delta_i interpretation (Lopes, 2024, Eq. 2.24, Table 2):
+// delta_i interpretation:
 //   0 = exact / uncensored   : log f(yt_i | a, b)
 //   1 = left-censored        : log F(right_i | a, b)
 //   2 = right-censored       : log(1 - F(left_i | a, b))
@@ -209,7 +209,7 @@ inline double obs_loglik(int delta_i, double left_i, double right_i,
 //'   with mixed censoring
 //' @description Computes the total log-likelihood for a beta regression model
 //'   with interval-censored responses and a single (scalar) dispersion
-//'   parameter, supporting all four censoring types (Lopes, 2024, Eq. 2.24).
+//'   parameter, supporting all four censoring types.
 //' @param param  Numeric vector: first \code{ncol(X)} elements are beta
 //'   coefficients, the last element is the scalar dispersion parameter.
 //' @param X      Design matrix (n x p).
@@ -259,7 +259,7 @@ double betaregscale_loglik_fixed_cpp(const arma::vec &param, const arma::mat &X,
 //'   with mixed censoring
 //' @description Computes the total log-likelihood for a beta regression model
 //'   with interval-censored responses and observation-specific dispersion,
-//'   supporting all four censoring types (Lopes, 2024, Eq. 2.24).
+//'   supporting all four censoring types.
 //' @param param Numeric vector: first \code{ncol(X)} elements are beta
 //'   coefficients, next \code{ncol(Z)} elements are gamma (phi) coefficients.
 //' @param X      Design matrix for the mean submodel (n x p).

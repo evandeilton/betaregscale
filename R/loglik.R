@@ -11,7 +11,7 @@
 #'
 #' @details
 #' The complete likelihood for observation \eqn{i} with censoring
-#' indicator \eqn{\delta_i} is (Lopes, 2024, Eq. 2.24):
+#' indicator \eqn{\delta_i} is:
 #'
 #' \describe{
 #'   \item{\eqn{\delta = 0} (uncensored)}{\eqn{\ell_i = \log f(y_i | a_i, b_i)}}

@@ -3,8 +3,7 @@
 #
 # brs_prep() is the bridge between raw analyst data and betaregscale().
 # It validates, classifies, and rescales observations into the (0, 1) interval
-# with censoring indicators compatible with the complete likelihood
-# (Lopes, 2024, Eq. 2.24).
+# with censoring indicators compatible with the complete likelihood.
 # ============================================================================ #
 
 #' Pre-process analyst data for beta interval regression

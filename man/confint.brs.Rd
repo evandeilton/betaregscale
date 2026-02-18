@@ -30,5 +30,5 @@ Matrix with columns for lower and upper confidence bounds.
 }
 \description{
 Computes Wald confidence intervals for model parameters using the
-normal approximation (Lopes, 2024, Eq. 2.30--2.31).
+normal approximation.
 }

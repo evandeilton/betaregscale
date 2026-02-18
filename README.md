@@ -19,8 +19,8 @@ endpoints.
 The package is designed for situations where the recorded score carries
 measurement uncertainty inherent to the instrument. For example, a pain
 score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
-[5.5, 6.5] after rescaling to (0, 1). The complete likelihood (Lopes,
-2024, Eq. 2.24) supports mixed censoring types: **uncensored,
+[5.5, 6.5] after rescaling to (0, 1). The complete likelihood used in
+the package supports mixed censoring types: **uncensored,
 left-censored, right-censored, and interval-censored** within the same
 dataset.
 
@@ -236,8 +236,8 @@ brs_cens(fit, gg = TRUE, inform = TRUE)
 
 ### Complete likelihood
 
-The complete log-likelihood for mixed censoring (Lopes, 2024, Eq. 2.24)
-combines the four observation types:
+The complete log-likelihood for mixed censoring combines the four
+observation types:
 
 $$
 \ell(\theta)=
@@ -352,9 +352,11 @@ $Q_j(\mathbf{b})=\sum_i \log L_{ij}(\mathbf{b};\theta)+\log\varphi_{q_b}(\mathbf
 and $H_j=-\nabla^2Q_j(\hat{\mathbf{b}}_j)$.
 
 ## References
+- LOPES, Jose Evandeilton. *Modelos de regressao beta para dados de escala*.
+  2023. Dissertacao (Mestrado em Metodos Numericos em Engenharia) -
+  Universidade Federal do Parana, Curitiba, 2023.
+  Disponivel em: <https://hdl.handle.net/1884/86624>.
 
-- Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-  Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 - Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   31(7), 799--815. DOI: 10.1080/0266476042000214501.

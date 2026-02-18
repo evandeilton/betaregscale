@@ -83,10 +83,6 @@ print(boot)
 }
 
 }
-\references{
-Lopes, J. E. (2024). \emph{Beta Regression for Interval-Censored
-Scale-Derived Outcomes}. MSc Dissertation, PPGMNE/UFPR.
-}
 \seealso{
 \code{\link{confint.brs}} for Wald intervals;
   \code{\link{brs_sim}} for simulation; \code{\link{brs}} for fitting.

@@ -107,9 +107,8 @@ dataset.</p>
 <div class="section level2">
 <h2 id="censoring-types">Censoring types<a class="anchor" aria-label="anchor" href="#censoring-types"></a>
 </h2>
-<p>The complete likelihood (Lopes, 2024, Eq. 2.24) supports four
-censoring types, automatically classified by
-<code><a href="../reference/brs_check.html">brs_check()</a></code>:</p>
+<p>The complete likelihood supports four censoring types, automatically
+classified by <code><a href="../reference/brs_check.html">brs_check()</a></code>:</p>
 <table class="table">
 <thead><tr class="header">
 <th align="center"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math></th>
@@ -881,7 +880,7 @@ can compare them using information criteria:</p>
 <p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method provides six diagnostic panels. By
 default, the first four are shown:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span>, caption <span class="op">=</span> <span class="cn">NULL</span>, gg <span class="op">=</span> <span class="cn">TRUE</span>, title <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span>, caption <span class="op">=</span> <span class="cn">NULL</span>, gg <span class="op">=</span> <span class="cn">TRUE</span>, title <span class="op">=</span> <span class="cn">NULL</span>, theme <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/plot-fixed-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <p>For ggplot2 output (requires the <strong>ggplot2</strong>
 package):</p>
@@ -958,7 +957,7 @@ package):</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Quantile predictions</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.90</span><span class="op">)</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.90</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="center">q_0.1</th>
@@ -1603,7 +1602,7 @@ predictive validation.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span>
 <span><span class="va">boot_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span></span>
 <span>  <span class="va">fit_fixed</span>,</span>
-<span>  R <span class="op">=</span> <span class="fl">80</span>,</span>
+<span>  R <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  ci_type <span class="op">=</span> <span class="st">"bca"</span>,</span>
 <span>  keep_draws <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -1638,11 +1637,11 @@ predictive validation.</p>
 <tr class="odd">
 <td align="center">(Intercept)</td>
 <td align="center">0.3060</td>
-<td align="center">0.0402</td>
-<td align="center">0.2346</td>
-<td align="center">0.3947</td>
-<td align="center">0.0076</td>
-<td align="center">0.0148</td>
+<td align="center">0.0410</td>
+<td align="center">0.2420</td>
+<td align="center">0.4106</td>
+<td align="center">0.0058</td>
+<td align="center">0.0137</td>
 <td align="center">0.2215</td>
 <td align="center">0.3906</td>
 <td align="center">0.95</td>
@@ -1650,11 +1649,11 @@ predictive validation.</p>
 <tr class="even">
 <td align="center">x1</td>
 <td align="center">-0.6033</td>
-<td align="center">0.0412</td>
-<td align="center">-0.6862</td>
-<td align="center">-0.5406</td>
-<td align="center">0.0065</td>
-<td align="center">0.0053</td>
+<td align="center">0.0424</td>
+<td align="center">-0.6863</td>
+<td align="center">-0.5387</td>
+<td align="center">0.0059</td>
+<td align="center">0.0045</td>
 <td align="center">-0.6921</td>
 <td align="center">-0.5145</td>
 <td align="center">0.95</td>
@@ -1663,10 +1662,10 @@ predictive validation.</p>
 <td align="center">x2</td>
 <td align="center">0.4413</td>
 <td align="center">0.0423</td>
-<td align="center">0.3646</td>
-<td align="center">0.5032</td>
-<td align="center">0.0122</td>
-<td align="center">0.0030</td>
+<td align="center">0.3641</td>
+<td align="center">0.5088</td>
+<td align="center">0.0100</td>
+<td align="center">0.0034</td>
 <td align="center">0.3554</td>
 <td align="center">0.5273</td>
 <td align="center">0.95</td>
@@ -1674,11 +1673,11 @@ predictive validation.</p>
 <tr class="even">
 <td align="center">(phi)</td>
 <td align="center">0.1099</td>
-<td align="center">0.0402</td>
-<td align="center">0.0313</td>
-<td align="center">0.1740</td>
-<td align="center">0.0105</td>
-<td align="center">0.0052</td>
+<td align="center">0.0396</td>
+<td align="center">0.0307</td>
+<td align="center">0.1714</td>
+<td align="center">0.0093</td>
+<td align="center">0.0039</td>
 <td align="center">0.0304</td>
 <td align="center">0.1894</td>
 <td align="center">0.95</td>
@@ -1859,8 +1858,8 @@ predictive validation.</p>
 <code class="sourceCode R"><span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">sim_fixed</span>,</span>
-<span>  k <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  repeats <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  repeats <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">303</span></span>
 <span><span class="op">)</span></span>
@@ -1892,33 +1891,110 @@ predictive validation.</p>
 <tr class="odd">
 <td align="center">1</td>
 <td align="center">1</td>
-<td align="center">666</td>
-<td align="center">334</td>
-<td align="center">-4.0044</td>
-<td align="center">0.3447</td>
-<td align="center">0.3034</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-4.0713</td>
+<td align="center">0.3472</td>
+<td align="center">0.3019</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">1</td>
 <td align="center">2</td>
-<td align="center">667</td>
-<td align="center">333</td>
-<td align="center">-4.0302</td>
-<td align="center">0.3369</td>
-<td align="center">0.2919</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-3.9984</td>
+<td align="center">0.3451</td>
+<td align="center">0.3019</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="odd">
 <td align="center">1</td>
 <td align="center">3</td>
-<td align="center">667</td>
-<td align="center">333</td>
-<td align="center">-4.0772</td>
-<td align="center">0.3403</td>
-<td align="center">0.2956</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-3.9235</td>
+<td align="center">0.3395</td>
+<td align="center">0.2997</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">1</td>
+<td align="center">4</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-4.0902</td>
+<td align="center">0.3311</td>
+<td align="center">0.2874</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="center">1</td>
+<td align="center">5</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-4.1125</td>
+<td align="center">0.3420</td>
+<td align="center">0.2958</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">2</td>
+<td align="center">1</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-4.0795</td>
+<td align="center">0.3270</td>
+<td align="center">0.2892</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="center">2</td>
+<td align="center">2</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-4.2062</td>
+<td align="center">0.3504</td>
+<td align="center">0.2972</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">2</td>
+<td align="center">3</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-4.1858</td>
+<td align="center">0.3248</td>
+<td align="center">0.2818</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="center">2</td>
+<td align="center">4</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-3.8729</td>
+<td align="center">0.3457</td>
+<td align="center">0.3036</td>
+<td align="center">TRUE</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">2</td>
+<td align="center">5</td>
+<td align="center">800</td>
+<td align="center">200</td>
+<td align="center">-3.8752</td>
+<td align="center">0.3578</td>
+<td align="center">0.3159</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
@@ -1944,15 +2020,15 @@ predictive validation.</p>
 <tbody>
 <tr class="odd">
 <td align="center">log_score</td>
-<td align="center">-4.0373</td>
+<td align="center">-4.0404</td>
 </tr>
 <tr class="even">
 <td align="center">rmse_yt</td>
-<td align="center">0.3406</td>
+<td align="center">0.3409</td>
 </tr>
 <tr class="odd">
 <td align="center">mae_yt</td>
-<td align="center">0.2970</td>
+<td align="center">0.2974</td>
 </tr>
 </tbody>
 </table>
@@ -2088,8 +2164,6 @@ means less variability.</p>
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ul>
-<li><p>Lopes, J. E. (2024). <em>Beta Regression for Interval-Censored
-Scale-Derived Outcomes</em>. MSc Dissertation, PPGMNE/UFPR.</p></li>
 <li><p>Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression
 for modelling rates and proportions. <em>Journal of Applied
 Statistics</em>, <strong>31</strong>(7), 799–815. DOI:

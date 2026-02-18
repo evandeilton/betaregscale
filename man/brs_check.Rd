@@ -52,8 +52,7 @@ Takes a discrete (or continuous) response on the scale
 \eqn{0, 1, \ldots, K} (where \eqn{K =} \code{ncuts}) and converts
 it to a pair of interval endpoints on the open unit interval
 \eqn{(0, 1)}.  Each observation is classified into one of four
-censoring types following the complete likelihood of Lopes (2024,
-Eq. 2.24):
+censoring types following the complete likelihood used in this package:
 
 \describe{
   \item{\eqn{\delta = 0}}{Uncensored (exact): the observation is a

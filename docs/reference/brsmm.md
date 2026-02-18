@@ -135,9 +135,6 @@ N(\mathbf{0}, D)\\ is integrated out numerically.
 
 ## References
 
-Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
-
 Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
 rates and proportions. *Journal of Applied Statistics*, **31**(7),
 799–815.

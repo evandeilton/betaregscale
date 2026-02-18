@@ -44,8 +44,7 @@ An object of class \code{"brs"}.
 Estimates the parameters of a beta regression model with
 observation-specific dispersion governed by a second linear
 predictor.  Both submodels are estimated jointly via maximum
-likelihood, using the complete likelihood with mixed censoring
-(Lopes, 2024, Eq. 2.24).
+likelihood, using the complete likelihood with mixed censoring.
 }
 \examples{
 set.seed(42)

@@ -17,4 +17,5 @@ Meta/
 *.tar.gz
 *.Rcheck/
 ..Rcheck/
+check-logs/
 src/symbols.rds

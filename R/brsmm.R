@@ -84,9 +84,6 @@
 #' }
 #'
 #' @references
-#' Lopes, J. E. (2024). \emph{Beta Regression for Interval-Censored
-#' Scale-Derived Outcomes}. MSc Dissertation, PPGMNE/UFPR.
-#'
 #' Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
 #' rates and proportions. \emph{Journal of Applied Statistics},
 #' \bold{31}(7), 799--815.

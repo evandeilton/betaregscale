@@ -5,7 +5,7 @@
 #'   with mixed censoring
 #' @description Computes the total log-likelihood for a beta regression model
 #'   with interval-censored responses and a single (scalar) dispersion
-#'   parameter, supporting all four censoring types (Lopes, 2024, Eq. 2.24).
+#'   parameter, supporting all four censoring types.
 #' @param param  Numeric vector: first \code{ncol(X)} elements are beta
 #'   coefficients, the last element is the scalar dispersion parameter.
 #' @param X      Design matrix (n x p).
@@ -26,7 +26,7 @@
 #'   with mixed censoring
 #' @description Computes the total log-likelihood for a beta regression model
 #'   with interval-censored responses and observation-specific dispersion,
-#'   supporting all four censoring types (Lopes, 2024, Eq. 2.24).
+#'   supporting all four censoring types.
 #' @param param Numeric vector: first \code{ncol(X)} elements are beta
 #'   coefficients, next \code{ncol(Z)} elements are gamma (phi) coefficients.
 #' @param X      Design matrix for the mean submodel (n x p).

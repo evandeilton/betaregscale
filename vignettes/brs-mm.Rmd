@@ -540,9 +540,6 @@ rates and proportions. *Journal of Applied Statistics*, 31(7), 799-815.
 DOI: 10.1080/0266476042000214501. Validated online via:
 <https://doi.org/10.1080/0266476042000214501>.
 
-Lopes, J. E. (2024). *Beta Regression for Interval-Censored Scale-Derived
-Outcomes*. MSc Dissertation, PPGMNE/UFPR.
-
 Pinheiro, J. C. and Bates, D. M. (2000). *Mixed-Effects Models in S and S-PLUS*.
 Springer. DOI: 10.1007/b98882. Validated online via:
 <https://doi.org/10.1007/b98882>.

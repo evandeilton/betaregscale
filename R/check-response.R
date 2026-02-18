@@ -1,8 +1,8 @@
 # ============================================================================ #
 # Response checking, interval construction, and censoring classification
 #
-# Implements the scale-to-unit interval transformation described in
-# Lopes (2024, Sections 2.5--2.7).  Each observation is classified into
+# Implements the scale-to-unit interval transformation for interval-censored
+# beta modeling. Each observation is classified into
 # one of four censoring types following the complete likelihood framework
 # of Equation 2.24:
 #
@@ -54,8 +54,7 @@
 #' \eqn{0, 1, \ldots, K} (where \eqn{K =} \code{ncuts}) and converts
 #' it to a pair of interval endpoints on the open unit interval
 #' \eqn{(0, 1)}.  Each observation is classified into one of four
-#' censoring types following the complete likelihood of Lopes (2024,
-#' Eq. 2.24):
+#' censoring types following the complete likelihood used in this package:
 #'
 #' \describe{
 #'   \item{\eqn{\delta = 0}}{Uncensored (exact): the observation is a

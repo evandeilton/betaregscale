@@ -31,8 +31,8 @@ library(betaregscale)
 
 ## Censoring types
 
-The complete likelihood (Lopes, 2024, Eq. 2.24) supports four censoring
-types, automatically classified by
+The complete likelihood supports four censoring types, automatically
+classified by
 [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
 | $\delta$ | Type                     | Likelihood contribution                                                       |
@@ -371,7 +371,7 @@ The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
 provides six diagnostic panels. By default, the first four are shown:
 
 ``` r
-plot(fit_fixed, caption = NULL, gg = TRUE, title = NULL)
+plot(fit_fixed, caption = NULL, gg = TRUE, title = NULL, theme = ggplot2::theme_bw())
 ```
 
 ![](brs-intro_files/figure-html/plot-fixed-1.png)
@@ -424,7 +424,7 @@ kbl10(
 ``` r
 
 # Quantile predictions
-kbl10(head(predict(fit_fixed, type = "quantile", at = c(0.10, 0.25, 0.5, 0.75, 0.90)), 10))
+kbl10(predict(fit_fixed, type = "quantile", at = c(0.10, 0.25, 0.5, 0.75, 0.90)))
 ```
 
 | q_0.1  | q_0.25 | q_0.5  | q_0.75 | q_0.9  |
@@ -666,7 +666,7 @@ predictive validation.
 set.seed(101)
 boot_ci <- brs_bootstrap(
   fit_fixed,
-  R = 80,
+  R = 100,
   level = 0.95,
   ci_type = "bca",
   keep_draws = TRUE
@@ -676,10 +676,10 @@ kbl10(head(boot_ci, 10))
 
 |  parameter  | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
 |:-----------:|:--------:|:-------:|:--------:|:--------:|:----------:|:----------:|:----------:|:----------:|:-----:|
-| (Intercept) |  0.3060  | 0.0402  |  0.2346  |  0.3947  |   0.0076   |   0.0148   |   0.2215   |   0.3906   | 0.95  |
-|     x1      | -0.6033  | 0.0412  | -0.6862  | -0.5406  |   0.0065   |   0.0053   |  -0.6921   |  -0.5145   | 0.95  |
-|     x2      |  0.4413  | 0.0423  |  0.3646  |  0.5032  |   0.0122   |   0.0030   |   0.3554   |   0.5273   | 0.95  |
-|    (phi)    |  0.1099  | 0.0402  |  0.0313  |  0.1740  |   0.0105   |   0.0052   |   0.0304   |   0.1894   | 0.95  |
+| (Intercept) |  0.3060  | 0.0410  |  0.2420  |  0.4106  |   0.0058   |   0.0137   |   0.2215   |   0.3906   | 0.95  |
+|     x1      | -0.6033  | 0.0424  | -0.6863  | -0.5387  |   0.0059   |   0.0045   |  -0.6921   |  -0.5145   | 0.95  |
+|     x2      |  0.4413  | 0.0423  |  0.3641  |  0.5088  |   0.0100   |   0.0034   |   0.3554   |   0.5273   | 0.95  |
+|    (phi)    |  0.1099  | 0.0396  |  0.0307  |  0.1714  |   0.0093   |   0.0039   |   0.0304   |   0.1894   | 0.95  |
 
 ``` r
 autoplot.brs_bootstrap(
@@ -755,8 +755,8 @@ kbl10(
 cv_res <- brs_cv(
   y ~ x1 + x2,
   data = sim_fixed,
-  k = 3,
-  repeats = 1,
+  k = 5,
+  repeats = 5,
   repar = 2,
   seed = 303
 )
@@ -765,9 +765,16 @@ kbl10(cv_res)
 
 | repeat | fold | n_train | n_test | log_score | rmse_yt | mae_yt | converged | error |
 |:------:|:----:|:-------:|:------:|:---------:|:-------:|:------:|:---------:|:-----:|
-|   1    |  1   |   666   |  334   |  -4.0044  | 0.3447  | 0.3034 |   TRUE    |  NA   |
-|   1    |  2   |   667   |  333   |  -4.0302  | 0.3369  | 0.2919 |   TRUE    |  NA   |
-|   1    |  3   |   667   |  333   |  -4.0772  | 0.3403  | 0.2956 |   TRUE    |  NA   |
+|   1    |  1   |   800   |  200   |  -4.0713  | 0.3472  | 0.3019 |   TRUE    |  NA   |
+|   1    |  2   |   800   |  200   |  -3.9984  | 0.3451  | 0.3019 |   TRUE    |  NA   |
+|   1    |  3   |   800   |  200   |  -3.9235  | 0.3395  | 0.2997 |   TRUE    |  NA   |
+|   1    |  4   |   800   |  200   |  -4.0902  | 0.3311  | 0.2874 |   TRUE    |  NA   |
+|   1    |  5   |   800   |  200   |  -4.1125  | 0.3420  | 0.2958 |   TRUE    |  NA   |
+|   2    |  1   |   800   |  200   |  -4.0795  | 0.3270  | 0.2892 |   TRUE    |  NA   |
+|   2    |  2   |   800   |  200   |  -4.2062  | 0.3504  | 0.2972 |   TRUE    |  NA   |
+|   2    |  3   |   800   |  200   |  -4.1858  | 0.3248  | 0.2818 |   TRUE    |  NA   |
+|   2    |  4   |   800   |  200   |  -3.8729  | 0.3457  | 0.3036 |   TRUE    |  NA   |
+|   2    |  5   |   800   |  200   |  -3.8752  | 0.3578  | 0.3159 |   TRUE    |  NA   |
 
 ``` r
 kbl10(
@@ -785,9 +792,9 @@ kbl10(
 
 |  metric   |  mean   |
 |:---------:|:-------:|
-| log_score | -4.0373 |
-|  rmse_yt  | 0.3406  |
-|  mae_yt   | 0.2970  |
+| log_score | -4.0404 |
+|  rmse_yt  | 0.3409  |
+|  mae_yt   | 0.2974  |
 
 ## S3 methods reference
 
@@ -841,9 +848,6 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 ```
 
 ## References
-
-- Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-  Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,

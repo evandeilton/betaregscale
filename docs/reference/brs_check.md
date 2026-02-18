@@ -4,7 +4,7 @@ Takes a discrete (or continuous) response on the scale \\0, 1, \ldots,
 K\\ (where \\K =\\ `ncuts`) and converts it to a pair of interval
 endpoints on the open unit interval \\(0, 1)\\. Each observation is
 classified into one of four censoring types following the complete
-likelihood of Lopes (2024, Eq. 2.24):
+likelihood used in this package:
 
 - \\\delta = 0\\:
 

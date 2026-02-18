@@ -7,14 +7,14 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Maximum-likelihood estimation of beta regression models for responses derived from bounded rating scales. Observations are treated as interval-censored on (0, 1) after a scale-to-unit transformation, and the likelihood is built from the difference of the beta CDF at the interval endpoints. The complete likelihood supports mixed censoring types: uncensored, left-censored, right-censored, and interval-censored observations (Lopes, 2024). Both fixed- and variable-dispersion submodels are supported, with flexible link functions for the mean and precision components. A compiled C++ backend (via 'Rcpp' and 'RcppArmadillo') provides numerically stable, high-performance log-likelihood evaluation. Standard S3 methods (print, summary, coef, fitted, residuals, predict, plot, confint, vcov, logLik, AIC, BIC) are available for fitted objects.
+Maximum-likelihood estimation of beta regression models for responses derived from bounded rating scales. Observations are treated as interval-censored on (0, 1) after a scale-to-unit transformation, and the likelihood is built from the difference of the beta CDF at the interval endpoints. The complete likelihood supports mixed censoring types: uncensored, left-censored, right-censored, and interval-censored observations. Both fixed- and variable-dispersion submodels are supported, with flexible link functions for the mean and precision components. A compiled C++ backend (via 'Rcpp' and 'RcppArmadillo') provides numerically stable, high-performance log-likelihood evaluation. Standard S3 methods (print, summary, coef, fitted, residuals, predict, plot, confint, vcov, logLik, AIC, BIC) are available for fitted objects.
 
 Maximum-likelihood estimation of beta regression models for responses
 derived from bounded rating scales. Observations are treated as
 interval-censored on (0, 1) after a scale-to-unit transformation.
 The complete likelihood supports mixed censoring types: uncensored
 (exact), left-censored, right-censored, and interval-censored
-observations (Lopes, 2024, Eq. 2.24). Both fixed- and
+observations. Both fixed- and
 variable-dispersion submodels are supported, with flexible link
 functions for the mean and precision components. A compiled C++
 backend (via Rcpp and RcppArmadillo) provides numerically stable,
@@ -55,7 +55,7 @@ the \pkg{betareg} package convention.
 
 \section{Censoring types}{
 
-The complete likelihood (Lopes, 2024, Eq. 2.24) supports four
+The complete likelihood supports four
 censoring types, classified automatically by
 \code{\link{brs_check}}:
 \describe{
@@ -70,9 +70,6 @@ censoring types, classified automatically by
 }
 
 \references{
-Lopes, J. E. (2024). \emph{Beta Regression for Interval-Censored
-Scale-Derived Outcomes}. MSc Dissertation, PPGMNE/UFPR.
-
 Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
 rates and proportions. \emph{Journal of Applied Statistics},
 \bold{31}(7), 799--815.

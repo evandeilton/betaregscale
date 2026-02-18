@@ -27,7 +27,7 @@
 #' (scalar) dispersion parameter using maximum likelihood.  The
 #' log-likelihood and its gradient are evaluated by the compiled C++
 #' backend supporting the complete likelihood with mixed censoring
-#' types (Lopes, 2024, Eq. 2.24).
+#' types.
 #'
 #' @param formula Two-sided formula \code{y ~ x1 + x2 + ...}.
 #' @param data   Data frame.
@@ -237,8 +237,7 @@ brs_fit_fixed <- function(formula, data,
 #' Estimates the parameters of a beta regression model with
 #' observation-specific dispersion governed by a second linear
 #' predictor.  Both submodels are estimated jointly via maximum
-#' likelihood, using the complete likelihood with mixed censoring
-#' (Lopes, 2024, Eq. 2.24).
+#' likelihood, using the complete likelihood with mixed censoring.
 #'
 #' @param formula A \code{\link[Formula]{Formula}}-style formula with
 #'   two parts: \code{y ~ x1 + x2 | z1 + z2}.
