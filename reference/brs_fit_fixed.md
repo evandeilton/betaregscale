@@ -3,8 +3,7 @@
 Estimates the parameters of a beta regression model with a single
 (scalar) dispersion parameter using maximum likelihood. The
 log-likelihood and its gradient are evaluated by the compiled C++
-backend supporting the complete likelihood with mixed censoring types
-(Lopes, 2024, Eq. 2.24).
+backend supporting the complete likelihood with mixed censoring types.
 
 ## Usage
 

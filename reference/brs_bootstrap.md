@@ -87,11 +87,6 @@ empirical quantiles of the bootstrap distribution of each parameter.
 
 - `print(brs_bootstrap)`: Print method for bootstrap results
 
-## References
-
-Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
-
 ## See also
 
 [`confint.brs`](https://evandeilton.github.io/betaregscale/reference/confint.brs.md)

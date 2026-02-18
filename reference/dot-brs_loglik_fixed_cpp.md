@@ -2,7 +2,7 @@
 
 Computes the total log-likelihood for a beta regression model with
 interval-censored responses and a single (scalar) dispersion parameter,
-supporting all four censoring types (Lopes, 2024, Eq. 2.24).
+supporting all four censoring types.
 
 ## Usage
 

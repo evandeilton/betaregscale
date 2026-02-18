@@ -31,8 +31,8 @@ library(betaregscale)
 
 ## Censoring types
 
-The complete likelihood (Lopes, 2024, Eq. 2.24) supports four censoring
-types, automatically classified by
+The complete likelihood supports four censoring types, automatically
+classified by
 [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
 | $\delta$ | Type                     | Likelihood contribution                                                       |
@@ -848,9 +848,6 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 ```
 
 ## References
-
-- Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-  Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,

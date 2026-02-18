@@ -17,7 +17,7 @@ for post-estimation workflows:
   repeated k-fold cross-validation.
 
 The examples use bounded scale data under the interval-censored beta
-regression framework of Lopes (2024).
+regression framework implemented in the package.
 
 ``` r
 library(betaregscale)
@@ -286,8 +286,6 @@ kbl10(
 
 ## References
 
-- Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-  Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   31(7), 799-815. DOI: 10.1080/0266476042000214501. Validated online

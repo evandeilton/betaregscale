@@ -6,23 +6,22 @@ interval-censored on (0, 1) after a scale-to-unit transformation, and
 the likelihood is built from the difference of the beta CDF at the
 interval endpoints. The complete likelihood supports mixed censoring
 types: uncensored, left-censored, right-censored, and interval-censored
-observations (Lopes, 2024). Both fixed- and variable-dispersion
-submodels are supported, with flexible link functions for the mean and
-precision components. A compiled C++ backend (via 'Rcpp' and
-'RcppArmadillo') provides numerically stable, high-performance
-log-likelihood evaluation. Standard S3 methods (print, summary, coef,
-fitted, residuals, predict, plot, confint, vcov, logLik, AIC, BIC) are
-available for fitted objects.
+observations. Both fixed- and variable-dispersion submodels are
+supported, with flexible link functions for the mean and precision
+components. A compiled C++ backend (via 'Rcpp' and 'RcppArmadillo')
+provides numerically stable, high-performance log-likelihood evaluation.
+Standard S3 methods (print, summary, coef, fitted, residuals, predict,
+plot, confint, vcov, logLik, AIC, BIC) are available for fitted objects.
 
 Maximum-likelihood estimation of beta regression models for responses
 derived from bounded rating scales. Observations are treated as
 interval-censored on (0, 1) after a scale-to-unit transformation. The
 complete likelihood supports mixed censoring types: uncensored (exact),
-left-censored, right-censored, and interval-censored observations
-(Lopes, 2024, Eq. 2.24). Both fixed- and variable-dispersion submodels
-are supported, with flexible link functions for the mean and precision
-components. A compiled C++ backend (via Rcpp and RcppArmadillo) provides
-numerically stable, high-performance log-likelihood evaluation.
+left-censored, right-censored, and interval-censored observations. Both
+fixed- and variable-dispersion submodels are supported, with flexible
+link functions for the mean and precision components. A compiled C++
+backend (via Rcpp and RcppArmadillo) provides numerically stable,
+high-performance log-likelihood evaluation.
 
 ## Main functions
 
@@ -75,8 +74,8 @@ package convention.
 
 ## Censoring types
 
-The complete likelihood (Lopes, 2024, Eq. 2.24) supports four censoring
-types, classified automatically by
+The complete likelihood supports four censoring types, classified
+automatically by
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
 - \\\delta = 0\\ (exact):
@@ -96,9 +95,6 @@ types, classified automatically by
   Standard scale observations between the boundaries.
 
 ## References
-
-Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
 
 Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
 rates and proportions. *Journal of Applied Statistics*, **31**(7),

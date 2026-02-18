@@ -12,10 +12,9 @@ endpoints.
 The package is designed for situations where the recorded score carries
 measurement uncertainty inherent to the instrument. For example, a pain
 score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
-\[5.5, 6.5\] after rescaling to (0, 1). The complete likelihood (Lopes,
-2024, Eq. 2.24) supports mixed censoring types: **uncensored,
-left-censored, right-censored, and interval-censored** within the same
-dataset.
+\[5.5, 6.5\] after rescaling to (0, 1). The complete likelihood used in
+the package supports mixed censoring types: **uncensored, left-censored,
+right-censored, and interval-censored** within the same dataset.
 
 Mathematically, for each observation $i$, the likelihood contribution is
 
@@ -239,8 +238,8 @@ brs_cens(fit, gg = TRUE, inform = TRUE)
 
 ### Complete likelihood
 
-The complete log-likelihood for mixed censoring (Lopes, 2024, Eq. 2.24)
-combines the four observation types:
+The complete log-likelihood for mixed censoring combines the four
+observation types:
 
 $$\ell(\theta) = \sum\limits_{i:\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\delta_{i} = 2}\log\!\left\lbrack 1 - F\left( l_{i} \right) \right\rbrack + \sum\limits_{i:\delta_{i} = 3}\log\!\left\lbrack F\left( u_{i} \right) - F\left( l_{i} \right) \right\rbrack.$$
 
@@ -340,8 +339,12 @@ $H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right)$.
 
 ## References
 
-- Lopes, J. E. (2024). *Beta Regression for Interval-Censored
-  Scale-Derived Outcomes*. MSc Dissertation, PPGMNE/UFPR.
+- LOPES, Jose Evandeilton. *Modelos de regressao beta para dados de
+  escala*.
+
+  2023. Dissertacao (Mestrado em Metodos Numericos em Engenharia) -
+        Universidade Federal do Parana, Curitiba, 2023. Disponivel em:
+        <https://hdl.handle.net/1884/86624>.
 
 - Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
