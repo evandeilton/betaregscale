@@ -10,8 +10,9 @@ observations. Both fixed- and variable-dispersion submodels are
 supported, with flexible link functions for the mean and precision
 components. A compiled C++ backend (via 'Rcpp' and 'RcppArmadillo')
 provides numerically stable, high-performance log-likelihood evaluation.
-Standard S3 methods (print, summary, coef, fitted, residuals, predict,
-plot, confint, vcov, logLik, AIC, BIC) are available for fitted objects.
+Standard S3 methods (print(), summary(), coef(), fitted(), residuals(),
+predict(), plot(), confint(), vcov(), logLik(), AIC(), BIC()) are
+available for fitted objects.
 
 Maximum-likelihood estimation of beta regression models for responses
 derived from bounded rating scales. Observations are treated as
@@ -21,7 +22,10 @@ left-censored, right-censored, and interval-censored observations. Both
 fixed- and variable-dispersion submodels are supported, with flexible
 link functions for the mean and precision components. A compiled C++
 backend (via Rcpp and RcppArmadillo) provides numerically stable,
-high-performance log-likelihood evaluation.
+high-performance log-likelihood evaluation. Standard S3 methods
+(print(), summary(), coef(), fitted(), residuals(), predict(), plot(),
+confint(), vcov(), logLik(), AIC(), BIC()) are available for fitted
+objects.
 
 ## Main functions
 
@@ -63,9 +67,22 @@ high-performance log-likelihood evaluation.
 
 ## S3 methods
 
-Objects of class `"brs"` support: `print`, `summary`, `coef`, `vcov`,
-`logLik`, `AIC`, `BIC`, `nobs`, `formula`, `model.matrix`, `fitted`,
-`residuals`, `predict`, `confint`, and `plot`.
+Objects of class `"brs"` support:
+[`print()`](https://rdrr.io/r/base/print.html),
+[`summary()`](https://rdrr.io/r/base/summary.html),
+[`coef()`](https://rdrr.io/r/stats/coef.html),
+[`vcov()`](https://rdrr.io/r/stats/vcov.html),
+[`logLik()`](https://rdrr.io/r/stats/logLik.html),
+[`AIC()`](https://rdrr.io/r/stats/AIC.html),
+[`BIC()`](https://rdrr.io/r/stats/AIC.html),
+[`nobs()`](https://rdrr.io/r/stats/nobs.html),
+[`formula()`](https://rdrr.io/r/stats/formula.html),
+[`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html),
+[`fitted()`](https://rdrr.io/r/stats/fitted.values.html),
+[`residuals()`](https://rdrr.io/r/stats/residuals.html),
+[`predict()`](https://rdrr.io/r/stats/predict.html),
+[`confint()`](https://rdrr.io/r/stats/confint.html), and
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html).
 
 The [`coef()`](https://rdrr.io/r/stats/coef.html) and
 [`vcov()`](https://rdrr.io/r/stats/vcov.html) methods accept a
@@ -104,13 +121,7 @@ rates and proportions. *Journal of Applied Statistics*, **31**(7),
 
 Useful links:
 
-- <https://evandeilton.github.io/betaregscale/>
-
-- Report bugs at <https://github.com/evandeilton/betaregscale/issues>
-
-Useful links:
-
-- <https://evandeilton.github.io/betaregscale/>
+- Package source: <https://github.com/evandeilton/betaregscale>
 
 - Report bugs at <https://github.com/evandeilton/betaregscale/issues>
 
