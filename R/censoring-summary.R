@@ -112,7 +112,7 @@ brs_cens <- function(object,
     "0" = "#009E73", # Exact
     "1" = "#D55E00", # Left
     "2" = "#0072B2", # Right
-    "3" = "#CC79A7"  # Interval
+    "3" = "#CC79A7" # Interval
   )
   if (!is.null(palette)) {
     expected <- c("Exact", "Left", "Right", "Interval")
@@ -461,7 +461,11 @@ brs_cens <- function(object,
 }
 
 .brs_cens_resolve_theme <- function(theme) {
-  if (is.null(theme)) return(ggplot2::theme_minimal())
-  if (is.function(theme)) return(theme())
+  if (is.null(theme)) {
+    return(ggplot2::theme_minimal())
+  }
+  if (is.function(theme)) {
+    return(theme())
+  }
   theme
 }

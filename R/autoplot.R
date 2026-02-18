@@ -435,8 +435,12 @@ autoplot.brs_bootstrap <- function(object,
 
 #' @keywords internal
 .boot_resolve_theme <- function(theme) {
-  if (is.null(theme)) return(ggplot2::theme_minimal())
-  if (is.function(theme)) return(theme())
+  if (is.null(theme)) {
+    return(ggplot2::theme_minimal())
+  }
+  if (is.function(theme)) {
+    return(theme())
+  }
   theme
 }
 
@@ -688,8 +692,12 @@ autoplot.brs_marginaleffects <- function(object,
 
 #' @keywords internal
 .me_resolve_theme <- function(theme) {
-  if (is.null(theme)) return(ggplot2::theme_minimal())
-  if (is.function(theme)) return(theme())
+  if (is.null(theme)) {
+    return(ggplot2::theme_minimal())
+  }
+  if (is.function(theme)) {
+    return(theme())
+  }
   theme
 }
 

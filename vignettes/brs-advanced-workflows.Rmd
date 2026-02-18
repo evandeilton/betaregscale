@@ -168,12 +168,12 @@ ni <- 120
 id <- factor(rep(seq_len(g), each = ni))
 n_mm <- length(id)
 x1 <- rnorm(n_mm)
-x2 <- rbinom(n_mm, size = 1, prob = 1/2)
+x2 <- rbinom(n_mm, size = 1, prob = 1 / 2)
 
 b0 <- rnorm(g, sd = 0.40)
 b1 <- rnorm(g, sd = 0.22)
 
-eta_mu <- 0.20 + 0.65 * x1 -0.30 * x2 + b0[id] + b1[id] * x1
+eta_mu <- 0.20 + 0.65 * x1 - 0.30 * x2 + b0[id] + b1[id] * x1
 eta_phi <- rep(-0.20, n_mm)
 
 mu <- plogis(eta_mu)
@@ -188,7 +188,7 @@ kbl10(head(dmm, 10))
 ### 6.2 Fit evolutionary sequence
 
 ```{r mixed-fit}
-fit_brs <- brs(y ~  x1 + x2, data = dmm, repar = 2)
+fit_brs <- brs(y ~ x1 + x2, data = dmm, repar = 2)
 fit_ri <- brsmm(y ~ x1 + x2, random = ~ 1 | id, data = dmm, repar = 2)
 fit_rs <- brsmm(y ~ x1 + x2, random = ~ 1 + x1 | id, data = dmm, repar = 2)
 
@@ -219,9 +219,11 @@ tab_lr_df <- data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL)
 tab_lr_df$decision <- c(
   "baseline",
   ifelse(is.na(tab_lr_df$`Pr(>Chisq)`[2]), "inspect AIC/BIC + diagnostics",
-         ifelse(tab_lr_df$`Pr(>Chisq)`[2] < 0.05, "prefer M1 over M0", "prefer M0 (parsimony)")),
+    ifelse(tab_lr_df$`Pr(>Chisq)`[2] < 0.05, "prefer M1 over M0", "prefer M0 (parsimony)")
+  ),
   ifelse(is.na(tab_lr_df$`Pr(>Chisq)`[3]), "inspect AIC/BIC + diagnostics",
-         ifelse(tab_lr_df$`Pr(>Chisq)`[3] < 0.05, "prefer M2 over M1", "prefer M1 (parsimony)"))
+    ifelse(tab_lr_df$`Pr(>Chisq)`[3] < 0.05, "prefer M2 over M1", "prefer M1 (parsimony)")
+  )
 )
 kbl10(tab_lr_df)
 ```

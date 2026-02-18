@@ -61,12 +61,12 @@
 #' @rdname brs_bootstrap
 #' @export
 brs_bootstrap <- function(object,
-                         R = 199L,
-                         level = 0.95,
-                         seed = NULL,
-                         ci_type = c("percentile", "basic", "normal", "bca"),
-                         max_tries = NULL,
-                         keep_draws = FALSE) {
+                          R = 199L,
+                          level = 0.95,
+                          seed = NULL,
+                          ci_type = c("percentile", "basic", "normal", "bca"),
+                          max_tries = NULL,
+                          keep_draws = FALSE) {
   if (!inherits(object, "brs")) {
     stop("'object' must be a fitted 'brs' object.", call. = FALSE)
   }
@@ -96,13 +96,16 @@ brs_bootstrap <- function(object,
     if (has_seed) {
       old_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
     }
-    on.exit({
-      if (has_seed) {
-        assign(".Random.seed", old_seed, envir = .GlobalEnv)
-      } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
-        rm(".Random.seed", envir = .GlobalEnv)
-      }
-    }, add = TRUE)
+    on.exit(
+      {
+        if (has_seed) {
+          assign(".Random.seed", old_seed, envir = .GlobalEnv)
+        } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+          rm(".Random.seed", envir = .GlobalEnv)
+        }
+      },
+      add = TRUE
+    )
     set.seed(as.integer(seed))
   }
 
@@ -226,15 +229,15 @@ brs_bootstrap <- function(object,
 
   out <- data.frame(
     parameter = par_names,
-    estimate  = unname(par_orig),
-    se_boot   = unname(se_boot),
-    ci_lower  = unname(ci[1L, ]),
-    ci_upper  = unname(ci[2L, ]),
+    estimate = unname(par_orig),
+    se_boot = unname(se_boot),
+    ci_lower = unname(ci[1L, ]),
+    ci_upper = unname(ci[2L, ]),
     mcse_lower = unname(mcse[1L, ]),
     mcse_upper = unname(mcse[2L, ]),
     wald_lower = unname(wald_ci[1L, ]),
     wald_upper = unname(wald_ci[2L, ]),
-    level     = level,
+    level = level,
     row.names = NULL
   )
 
@@ -281,7 +284,9 @@ print.brs_bootstrap <- function(x, ...) {
 # Column variances (no external dependency)
 .colVars <- function(x) {
   n <- nrow(x)
-  if (n < 2L) return(rep(NA_real_, ncol(x)))
+  if (n < 2L) {
+    return(rep(NA_real_, ncol(x)))
+  }
   cent <- x - rep(colMeans(x), each = n)
   colSums(cent^2) / (n - 1L)
 }
@@ -291,7 +296,9 @@ print.brs_bootstrap <- function(x, ...) {
   x <- as.numeric(x)
   x <- x[is.finite(x)]
   n <- length(x)
-  if (n < 30L) return(c(NA_real_, NA_real_))
+  if (n < 30L) {
+    return(c(NA_real_, NA_real_))
+  }
   dens <- stats::density(x, na.rm = TRUE, n = 512)
   out <- rep(NA_real_, length(probs))
   for (k in seq_along(probs)) {

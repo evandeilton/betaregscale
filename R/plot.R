@@ -367,7 +367,11 @@ plot.brs <- function(x,
 }
 
 .resolve_gg_theme <- function(theme) {
-  if (is.null(theme)) return(ggplot2::theme_minimal())
-  if (is.function(theme)) return(theme())
+  if (is.null(theme)) {
+    return(ggplot2::theme_minimal())
+  }
+  if (is.function(theme)) {
+    return(theme())
+  }
   theme
 }

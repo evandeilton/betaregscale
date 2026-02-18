@@ -80,9 +80,13 @@ rates and proportions. \emph{Journal of Applied Statistics},
 \seealso{
 Useful links:
 \itemize{
-  \item Package source: \url{https://github.com/evandeilton/betaregscale}
+  \item \url{https://github.com/evandeilton/betaregscale}
   \item Report bugs at \url{https://github.com/evandeilton/betaregscale/issues}
 }
+
+
+Useful links: Package source \url{https://github.com/evandeilton/betaregscale};
+report bugs at \url{https://github.com/evandeilton/betaregscale/issues}.
 }
 \author{
 \strong{Maintainer}: José Evandeilton Lopes \email{evandeilton@gmail.com} (\href{https://orcid.org/0009-0007-5887-4084}{ORCID})

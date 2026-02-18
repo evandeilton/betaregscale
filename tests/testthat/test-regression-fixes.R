@@ -66,7 +66,7 @@ testthat::test_that("residuals rqr funciona com observacoes censuradas", {
   n <- 60
   dat <- data.frame(x1 = stats::rnorm(n))
   sim <- brs_sim(
-    formula = ~ x1,
+    formula = ~x1,
     data = dat,
     beta = c(0.1, 0.2),
     phi = 0.2,
