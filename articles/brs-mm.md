@@ -120,11 +120,13 @@ sim_brsmm_data <- function(seed = 3501L, g = 24L, ni = 12L,
   )
 }
 
-sim <- sim_brsmm_data(g = 5,
-                      ni = 200,
-                      beta = c(0.20, 0.65),
-                      gamma = c(-0.15),
-                      sigma_b = 0.55)
+sim <- sim_brsmm_data(
+  g = 5,
+  ni = 200,
+  beta = c(0.20, 0.65),
+  gamma = c(-0.15),
+  sigma_b = 0.55
+)
 str(sim$data)
 #> 'data.frame':    1000 obs. of  3 variables:
 #>  $ y : num  92 0 71 59 21 5 34 1 19 0 ...
@@ -315,8 +317,10 @@ random-intercept models this simplifies to $\log\sigma_{b}$.
 
 ``` r
 kbl10(
-  data.frame(parameter = names(coef(fit_mm, model = "full")),
-             estimate = as.numeric(coef(fit_mm, model = "full"))),
+  data.frame(
+    parameter = names(coef(fit_mm, model = "full")),
+    estimate = as.numeric(coef(fit_mm, model = "full"))
+  ),
   digits = 4
 )
 ```
@@ -330,8 +334,10 @@ kbl10(
 
 ``` r
 kbl10(
-  data.frame(log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
-             sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))),
+  data.frame(
+    log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
+    sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))
+  ),
   digits = 4
 )
 ```

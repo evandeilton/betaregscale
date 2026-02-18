@@ -121,9 +121,13 @@ rates and proportions. *Journal of Applied Statistics*, **31**(7),
 
 Useful links:
 
-- Package source: <https://github.com/evandeilton/betaregscale>
+- <https://github.com/evandeilton/betaregscale>
 
 - Report bugs at <https://github.com/evandeilton/betaregscale/issues>
+
+Useful links: Package source
+<https://github.com/evandeilton/betaregscale>; report bugs at
+<https://github.com/evandeilton/betaregscale/issues>.
 
 ## Author
 
