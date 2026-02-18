@@ -1,7 +1,7 @@
 Package: betaregscale
 Type: Package
 Title: Beta Regression for Interval-Censored Scale-Derived Outcomes
-Version: 2.6.5
+Version: 2.6.6
 Authors@R: c(person(given = "José Evandeilton",
                     family = "Lopes",
                     role = c("aut", "cre"),
@@ -23,10 +23,11 @@ Description: Maximum-likelihood estimation of beta regression models for
     functions for the mean and precision components. A compiled C++ backend
     (via 'Rcpp' and 'RcppArmadillo') provides numerically stable,
     high-performance log-likelihood evaluation. Standard S3 methods
-    (print, summary, coef, fitted, residuals, predict, plot, confint,
-    vcov, logLik, AIC, BIC) are available for fitted objects.
+    (print(), summary(), coef(), fitted(), residuals(), predict(),
+    plot(), confint(), vcov(), logLik(), AIC(), BIC()) are available
+    for fitted objects.
 License: MIT + file LICENSE
-URL: https://evandeilton.github.io/betaregscale/
+URL: https://github.com/evandeilton/betaregscale
 BugReports: https://github.com/evandeilton/betaregscale/issues
 Depends:
     R (>= 4.1.0)

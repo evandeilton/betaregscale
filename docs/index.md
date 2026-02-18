@@ -339,6 +339,13 @@ $H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right)$.
 
 ## References
 
+- LOPES, Jose Evandeilton. *Modelos de regressao beta para dados de
+  escala*.
+
+  2023. Dissertacao (Mestrado em Metodos Numericos em Engenharia) -
+        Universidade Federal do Parana, Curitiba, 2023. Disponivel em:
+        <https://hdl.handle.net/1884/86624>.
+
 - Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   31(7), 799–815. DOI: 10.1080/0266476042000214501. DOI validated via:

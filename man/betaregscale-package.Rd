@@ -7,7 +7,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Maximum-likelihood estimation of beta regression models for responses derived from bounded rating scales. Observations are treated as interval-censored on (0, 1) after a scale-to-unit transformation, and the likelihood is built from the difference of the beta CDF at the interval endpoints. The complete likelihood supports mixed censoring types: uncensored, left-censored, right-censored, and interval-censored observations. Both fixed- and variable-dispersion submodels are supported, with flexible link functions for the mean and precision components. A compiled C++ backend (via 'Rcpp' and 'RcppArmadillo') provides numerically stable, high-performance log-likelihood evaluation. Standard S3 methods (print, summary, coef, fitted, residuals, predict, plot, confint, vcov, logLik, AIC, BIC) are available for fitted objects.
+Maximum-likelihood estimation of beta regression models for responses derived from bounded rating scales. Observations are treated as interval-censored on (0, 1) after a scale-to-unit transformation, and the likelihood is built from the difference of the beta CDF at the interval endpoints. The complete likelihood supports mixed censoring types: uncensored, left-censored, right-censored, and interval-censored observations. Both fixed- and variable-dispersion submodels are supported, with flexible link functions for the mean and precision components. A compiled C++ backend (via 'Rcpp' and 'RcppArmadillo') provides numerically stable, high-performance log-likelihood evaluation. Standard S3 methods (print(), summary(), coef(), fitted(), residuals(), predict(), plot(), confint(), vcov(), logLik(), AIC(), BIC()) are available for fitted objects.
 
 Maximum-likelihood estimation of beta regression models for responses
 derived from bounded rating scales. Observations are treated as
@@ -18,7 +18,10 @@ observations. Both fixed- and
 variable-dispersion submodels are supported, with flexible link
 functions for the mean and precision components. A compiled C++
 backend (via Rcpp and RcppArmadillo) provides numerically stable,
-high-performance log-likelihood evaluation.
+high-performance log-likelihood evaluation. Standard S3 methods
+(print(), summary(), coef(), fitted(), residuals(), predict(),
+plot(), confint(), vcov(), logLik(), AIC(), BIC()) are available
+for fitted objects.
 }
 \section{Main functions}{
 
@@ -42,11 +45,11 @@ high-performance log-likelihood evaluation.
 
 \section{S3 methods}{
 
-Objects of class \code{"brs"} support: \code{print},
-\code{summary}, \code{coef}, \code{vcov}, \code{logLik}, \code{AIC},
-\code{BIC}, \code{nobs}, \code{formula}, \code{model.matrix},
-\code{fitted}, \code{residuals}, \code{predict}, \code{confint},
-and \code{plot}.
+Objects of class \code{"brs"} support: \code{print()},
+\code{summary()}, \code{coef()}, \code{vcov()}, \code{logLik()}, \code{AIC()},
+\code{BIC()}, \code{nobs()}, \code{formula()}, \code{model.matrix()},
+\code{fitted()}, \code{residuals()}, \code{predict()}, \code{confint()},
+and \code{plot()}.
 
 The \code{coef()} and \code{vcov()} methods accept a
 \code{model = c("full", "mean", "precision")} argument following
@@ -77,17 +80,9 @@ rates and proportions. \emph{Journal of Applied Statistics},
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://evandeilton.github.io/betaregscale/}
+  \item Package source: \url{https://github.com/evandeilton/betaregscale}
   \item Report bugs at \url{https://github.com/evandeilton/betaregscale/issues}
 }
-
-
-Useful links:
-\itemize{
-  \item \url{https://evandeilton.github.io/betaregscale/}
-  \item Report bugs at \url{https://github.com/evandeilton/betaregscale/issues}
-}
-
 }
 \author{
 \strong{Maintainer}: José Evandeilton Lopes \email{evandeilton@gmail.com} (\href{https://orcid.org/0009-0007-5887-4084}{ORCID})

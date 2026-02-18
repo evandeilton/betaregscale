@@ -1,5 +1,18 @@
 # Changelog
 
+## betaregscale 2.6.6
+
+### CRAN resubmission
+
+- DESCRIPTION: function names in Title/Description now use parentheses
+  (e.g. [`logLik()`](https://rdrr.io/r/stats/logLik.html),
+  [`coef()`](https://rdrr.io/r/stats/coef.html)) per CRAN policy.
+- URL updated to GitHub repository
+  (<https://github.com/evandeilton/betaregscale>) while pkgdown site is
+  deployed.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.5
 
 ### New features

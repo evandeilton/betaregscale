@@ -17,6 +17,7 @@
 ^CODE_OF_CONDUCT\.md$
 ^cran-comments\.md$
 ^CONTRIBUTING\.md$
+^PAGES-SETUP\.md$
 ^docs$
 ^\.local-lib$
 ^\.git$

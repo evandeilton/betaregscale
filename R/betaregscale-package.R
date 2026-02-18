@@ -10,7 +10,10 @@
 #' variable-dispersion submodels are supported, with flexible link
 #' functions for the mean and precision components. A compiled C++
 #' backend (via Rcpp and RcppArmadillo) provides numerically stable,
-#' high-performance log-likelihood evaluation.
+#' high-performance log-likelihood evaluation. Standard S3 methods
+#' (print(), summary(), coef(), fitted(), residuals(), predict(),
+#' plot(), confint(), vcov(), logLik(), AIC(), BIC()) are available
+#' for fitted objects.
 #'
 #' @section Main functions:
 #' \describe{
@@ -31,11 +34,11 @@
 #' }
 #'
 #' @section S3 methods:
-#' Objects of class \code{"brs"} support: \code{print},
-#' \code{summary}, \code{coef}, \code{vcov}, \code{logLik}, \code{AIC},
-#' \code{BIC}, \code{nobs}, \code{formula}, \code{model.matrix},
-#' \code{fitted}, \code{residuals}, \code{predict}, \code{confint},
-#' and \code{plot}.
+#' Objects of class \code{"brs"} support: \code{print()},
+#' \code{summary()}, \code{coef()}, \code{vcov()}, \code{logLik()}, \code{AIC()},
+#' \code{BIC()}, \code{nobs()}, \code{formula()}, \code{model.matrix()},
+#' \code{fitted()}, \code{residuals()}, \code{predict()}, \code{confint()},
+#' and \code{plot()}.
 #'
 #' The \code{coef()} and \code{vcov()} methods accept a
 #' \code{model = c("full", "mean", "precision")} argument following
@@ -54,6 +57,10 @@
 #'   \item{\eqn{\delta = 3} (interval-censored)}{Standard scale
 #'     observations between the boundaries.}
 #' }
+#'
+#' @seealso
+#' Useful links: Package source \url{https://github.com/evandeilton/betaregscale};
+#' report bugs at \url{https://github.com/evandeilton/betaregscale/issues}.
 #'
 #' @author José Evandeilton Lopes \email{evandeilton@@gmail.com}
 #' @references
