@@ -11,7 +11,6 @@
 #' @param data Data frame.
 #' @param k Number of folds.
 #' @param repeats Number of repeated k-fold runs.
-#' @param seed Optional random seed for reproducibility.
 #' @param ... Additional arguments forwarded to \code{\link{brs}}
 #'   (e.g., \code{repar}, \code{link}, \code{method}).
 #'
@@ -51,6 +50,7 @@
 #'   beta = c(0.2, -0.5, 0.3), phi = 0.2, ncuts = 100, repar = 2
 #' )
 #'
+#' set.seed(123) # Set seed before CV for reproducibility
 #' cv <- brs_cv(y ~ x1 + x2, data = sim, k = 3, repeats = 1, repar = 2)
 #' cv
 #' }
@@ -61,7 +61,6 @@ brs_cv <- function(formula,
                    data,
                    k = 5L,
                    repeats = 1L,
-                   seed = NULL,
                    ...) {
   if (!is.data.frame(data)) {
     stop("'data' must be a data.frame.", call. = FALSE)
@@ -77,10 +76,6 @@ brs_cv <- function(formula,
   n <- nrow(data)
   if (k > n) {
     stop("'k' cannot exceed nrow(data).", call. = FALSE)
-  }
-
-  if (!is.null(seed)) {
-    set.seed(seed)
   }
 
   rows <- list()

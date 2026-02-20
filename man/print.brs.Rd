@@ -14,6 +14,12 @@
 \item{...}{Included for consistency with generic methods. Currently
 passed to internal methods where applicable.}
 }
+\value{
+Invisibly returns the input object \code{x}. The function is called
+  for its side effect of printing a formatted summary of the fitted model
+  to the console, including the model call, mean coefficients (with link
+  function), and precision coefficients (with link function).
+}
 \description{
 Print a fitted model (brief betareg style)
 }

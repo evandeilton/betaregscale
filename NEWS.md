@@ -1,6 +1,20 @@
+# betaregscale 2.6.7
+
+## CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)
+
+### Bug fixes and CRAN policy compliance
+
+* Added `\value` documentation to `print.brs()` and `print.summary.brs()` methods.
+* Replaced `\dontrun{}` with `\donttest{}` in `brs_gof()` example and created complete executable example.
+* Removed `.GlobalEnv` modification from `brs_bootstrap()` (CRAN policy violation).
+* Removed `set.seed()` calls from exported functions: `brs_bootstrap()`, `brs_marginaleffects()`, `brsmm()`, and `brs_cv()`. Users must now call `set.seed()` externally before these functions for reproducibility.
+* Removed `seed` parameter from all four functions listed above. Documentation updated with recommended usage pattern.
+
+---
+
 # betaregscale 2.6.6
 
-## CRAN resubmission
+## CRAN resubmission (Uwe Ligges review, 18 Feb 2026)
 
 * DESCRIPTION: function names in Title/Description now use parentheses (e.g. `logLik()`, `coef()`) per CRAN policy.
 * URL updated to GitHub repository (https://github.com/evandeilton/betaregscale) while pkgdown site is deployed.

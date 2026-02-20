@@ -324,6 +324,13 @@ summary.brs <- function(object, ...) {
 #' @param digits Number of digits.
 #' @param ... Passed to \code{printCoefmat}.
 #'
+#' @return Invisibly returns the input object \code{x}. The function is called
+#'   for its side effect of printing a comprehensive summary to the console,
+#'   including the model call, quantile residuals, coefficient tables for mean
+#'   and precision submodels with significance stars, goodness-of-fit statistics
+#'   (log-likelihood, pseudo R-squared), optimization details, and censoring
+#'   information.
+#'
 #' @method print summary.brs
 #' @importFrom stats quantile printCoefmat
 #' @export
@@ -406,6 +413,11 @@ print.summary.brs <- function(x,
 #' @param digits Number of significant digits.
 #' @param ... Included for consistency with generic methods. Currently
 #'   passed to internal methods where applicable.
+#'
+#' @return Invisibly returns the input object \code{x}. The function is called
+#'   for its side effect of printing a formatted summary of the fitted model
+#'   to the console, including the model call, mean coefficients (with link
+#'   function), and precision coefficients (with link function).
 #'
 #' @method print brs
 #' @export
@@ -737,7 +749,12 @@ predict.brs <- function(object, newdata = NULL,
 #' @return Data frame with logLik, AIC, BIC, and pseudo-R-squared.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' set.seed(42)
+#' n <- 100
+#' dat <- data.frame(x1 = rnorm(n))
+#' sim <- brs_sim(formula = ~x1, data = dat, beta = c(0.2, 0.5), phi = 0.3, ncuts = 10)
+#' fit <- brs(y ~ x1, data = sim)
 #' brs_gof(fit)
 #' }
 #' @references

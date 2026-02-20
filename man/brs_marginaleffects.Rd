@@ -14,7 +14,6 @@ brs_marginaleffects(
   interval = TRUE,
   level = 0.95,
   n_sim = 400L,
-  seed = NULL,
   keep_draws = FALSE
 )
 }
@@ -39,8 +38,6 @@ Defaults to all numeric covariates in the selected submodel.}
 \item{level}{Confidence level for interval estimates.}
 
 \item{n_sim}{Number of parameter draws when \code{interval = TRUE}.}
-
-\item{seed}{Optional random seed for reproducibility.}
 
 \item{keep_draws}{Logical; if \code{TRUE} and \code{interval = TRUE},
 stores AME simulation draws in attribute \code{"ame_draws"}.}

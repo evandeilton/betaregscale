@@ -34,7 +34,6 @@
 #' @param interval Logical; compute interval estimates via simulation.
 #' @param level Confidence level for interval estimates.
 #' @param n_sim Number of parameter draws when \code{interval = TRUE}.
-#' @param seed Optional random seed for reproducibility.
 #' @param keep_draws Logical; if \code{TRUE} and \code{interval = TRUE},
 #'   stores AME simulation draws in attribute \code{"ame_draws"}.
 #'
@@ -88,7 +87,6 @@ brs_marginaleffects <- function(object,
                                 interval = TRUE,
                                 level = 0.95,
                                 n_sim = 400L,
-                                seed = NULL,
                                 keep_draws = FALSE) {
   .check_class(object)
   model <- match.arg(model)
@@ -96,9 +94,6 @@ brs_marginaleffects <- function(object,
   interval <- isTRUE(interval)
   keep_draws <- isTRUE(keep_draws)
 
-  if (!is.null(seed)) {
-    set.seed(seed)
-  }
   h <- as.numeric(h)
   if (!is.finite(h) || h <= 0) {
     stop("'h' must be a positive number.", call. = FALSE)

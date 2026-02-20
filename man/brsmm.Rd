@@ -19,8 +19,7 @@ brsmm(
   start = NULL,
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("numDeriv", "optim"),
-  control = list(maxit = 2000L),
-  seed = NULL
+  control = list(maxit = 2000L)
 )
 }
 \arguments{
@@ -59,9 +58,6 @@ Default is 1024.}
 \item{hessian_method}{\code{"numDeriv"} (default) or \code{"optim"}.}
 
 \item{control}{Control list for \code{\link[stats]{optim}}.}
-
-\item{seed}{Optional seed used by integration methods that depend on
-randomized points (reserved for future use).}
 }
 \value{
 An object of class \code{"brsmm"}.

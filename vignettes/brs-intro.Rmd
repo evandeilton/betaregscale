@@ -455,13 +455,13 @@ kbl10(
 ### Repeated k-fold cross-validation
 
 ```{r cv-fixed}
+set.seed(303) # For cross-validation reproducibility
 cv_res <- brs_cv(
   y ~ x1 + x2,
   data = sim_fixed,
   k = 5,
   repeats = 5,
   repar = 2,
-  seed = 303
 )
 kbl10(cv_res)
 kbl10(

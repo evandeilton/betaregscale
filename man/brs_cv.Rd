@@ -4,7 +4,7 @@
 \alias{brs_cv}
 \title{K-fold cross-validation for brs models}
 \usage{
-brs_cv(formula, data, k = 5L, repeats = 1L, seed = NULL, ...)
+brs_cv(formula, data, k = 5L, repeats = 1L, ...)
 }
 \arguments{
 \item{formula}{Model formula passed to \code{\link{brs}}.}
@@ -14,8 +14,6 @@ brs_cv(formula, data, k = 5L, repeats = 1L, seed = NULL, ...)
 \item{k}{Number of folds.}
 
 \item{repeats}{Number of repeated k-fold runs.}
-
-\item{seed}{Optional random seed for reproducibility.}
 
 \item{...}{Additional arguments forwarded to \code{\link{brs}}
 (e.g., \code{repar}, \code{link}, \code{method}).}
@@ -43,6 +41,7 @@ sim <- brs_sim(
   beta = c(0.2, -0.5, 0.3), phi = 0.2, ncuts = 100, repar = 2
 )
 
+set.seed(123)  # Set seed before CV for reproducibility
 cv <- brs_cv(y ~ x1 + x2, data = sim, k = 3, repeats = 1, repar = 2)
 cv
 }

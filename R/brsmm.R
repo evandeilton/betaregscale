@@ -58,8 +58,6 @@
 #' @param method Optimizer passed to \code{\link[stats]{optim}}.
 #' @param hessian_method \code{"numDeriv"} (default) or \code{"optim"}.
 #' @param control Control list for \code{\link[stats]{optim}}.
-#' @param seed Optional seed used by integration methods that depend on
-#'   randomized points (reserved for future use).
 #'
 #' @return An object of class \code{"brsmm"}.
 #'
@@ -107,8 +105,7 @@ brsmm <- function(formula,
                   start = NULL,
                   method = c("BFGS", "L-BFGS-B"),
                   hessian_method = c("numDeriv", "optim"),
-                  control = list(maxit = 2000L),
-                  seed = NULL) {
+                  control = list(maxit = 2000L)) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
@@ -119,9 +116,6 @@ brsmm <- function(formula,
   n_points <- as.integer(n_points)
   qmc_points <- as.integer(qmc_points)
 
-  if (!is.null(seed)) {
-    set.seed(seed)
-  }
   if (!is.data.frame(data)) {
     stop("'data' must be a data.frame.", call. = FALSE)
   }

@@ -16,7 +16,12 @@ Data frame with logLik, AIC, BIC, and pseudo-R-squared.
 Goodness-of-fit measures
 }
 \examples{
-\dontrun{
+\donttest{
+set.seed(42)
+n <- 100
+dat <- data.frame(x1 = rnorm(n))
+sim <- brs_sim(formula = ~ x1, data = dat, beta = c(0.2, 0.5), phi = 0.3, ncuts = 10)
+fit <- brs(y ~ x1, data = sim)
 brs_gof(fit)
 }
 }

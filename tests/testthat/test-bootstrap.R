@@ -11,7 +11,7 @@ test_that("brs_bootstrap returns correct structure for fixed dispersion", {
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5, ncuts = 50
   )
   fit <- brs(y ~ x1 + x2, data = sim)
-  boot <- brs_bootstrap(fit, R = 25L, level = 0.95, seed = 1)
+  boot <- brs_bootstrap(fit, R = 25L, level = 0.95)
 
   expect_s3_class(boot, "brs_bootstrap")
   expect_true(is.data.frame(boot))
@@ -39,7 +39,7 @@ test_that("brs_bootstrap print method runs without error", {
   dat <- data.frame(x1 = rnorm(50), x2 = rnorm(50))
   sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.2, -0.5, 0.3), phi = 1 / 5)
   fit <- brs(y ~ x1 + x2, data = sim)
-  boot <- brs_bootstrap(fit, R = 15L, seed = 2)
+  boot <- brs_bootstrap(fit, R = 15L)
   expect_output(print(boot), "Bootstrap confidence intervals")
   expect_output(print(boot), "Successful replicates")
   expect_output(print(boot), "CI:")
@@ -73,8 +73,8 @@ test_that("brs_bootstrap supports ci_type and keep_draws", {
   sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.1, -0.2, 0.3), phi = 1 / 5)
   fit <- brs(y ~ x1 + x2, data = sim)
 
-  boot_basic <- brs_bootstrap(fit, R = 20L, ci_type = "basic", seed = 10)
-  boot_norm <- brs_bootstrap(fit, R = 20L, ci_type = "normal", seed = 10, keep_draws = TRUE)
+  boot_basic <- brs_bootstrap(fit, R = 20L, ci_type = "basic")
+  boot_norm <- brs_bootstrap(fit, R = 20L, ci_type = "normal", keep_draws = TRUE)
 
   expect_equal(attr(boot_basic, "ci_type"), "basic")
   expect_equal(attr(boot_norm, "ci_type"), "normal")
@@ -89,7 +89,7 @@ test_that("brs_bootstrap supports bca and Monte Carlo diagnostics", {
   sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.2, -0.3, 0.4), phi = 1 / 5)
   fit <- brs(y ~ x1 + x2, data = sim)
 
-  boot_bca <- brs_bootstrap(fit, R = 12L, ci_type = "bca", seed = 7)
+  boot_bca <- brs_bootstrap(fit, R = 12L, ci_type = "bca")
 
   expect_equal(attr(boot_bca, "ci_type"), "bca")
   expect_true(all(c("mcse_lower", "mcse_upper", "wald_lower", "wald_upper") %in% names(boot_bca)))
@@ -104,7 +104,7 @@ test_that("autoplot.brs_bootstrap returns ggplot objects", {
   dat <- data.frame(x1 = rnorm(70), x2 = rnorm(70))
   sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.2, -0.1, 0.4), phi = 1 / 5)
   fit <- brs(y ~ x1 + x2, data = sim)
-  boot <- brs_bootstrap(fit, R = 20L, seed = 9, keep_draws = TRUE)
+  boot <- brs_bootstrap(fit, R = 20L, keep_draws = TRUE)
 
   p1 <- autoplot.brs_bootstrap(boot, type = "ci_forest")
   p2 <- autoplot.brs_bootstrap(boot, type = "dist", parameter = boot$parameter[1L])
@@ -124,7 +124,7 @@ test_that("autoplot.brs_bootstrap supports title, caption and theme", {
   dat <- data.frame(x1 = rnorm(65), x2 = rnorm(65))
   sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.2, -0.1, 0.35), phi = 1 / 5)
   fit <- brs(y ~ x1 + x2, data = sim)
-  boot <- brs_bootstrap(fit, R = 20L, seed = 8, keep_draws = TRUE)
+  boot <- brs_bootstrap(fit, R = 20L, keep_draws = TRUE)
 
   p <- autoplot.brs_bootstrap(
     boot,
@@ -143,7 +143,7 @@ test_that("ggplot2::autoplot dispatches for brs_bootstrap", {
   dat <- data.frame(x1 = rnorm(60), x2 = rnorm(60))
   sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.2, -0.1, 0.35), phi = 1 / 5)
   fit <- brs(y ~ x1 + x2, data = sim)
-  boot <- brs_bootstrap(fit, R = 15L, seed = 10, keep_draws = TRUE)
+  boot <- brs_bootstrap(fit, R = 15L, keep_draws = TRUE)
 
   p <- ggplot2::autoplot(boot, type = "ci_forest")
   expect_s3_class(p, "ggplot")
@@ -156,14 +156,14 @@ test_that("autoplot.brs_bootstrap checks draws and parameter validity", {
   dat <- data.frame(x1 = rnorm(55), x2 = rnorm(55))
   sim <- brs_sim(formula = ~ x1 + x2, data = dat, beta = c(0.2, -0.2, 0.3), phi = 1 / 5)
   fit <- brs(y ~ x1 + x2, data = sim)
-  boot_nodraw <- brs_bootstrap(fit, R = 15L, seed = 3, keep_draws = FALSE)
+  boot_nodraw <- brs_bootstrap(fit, R = 15L, keep_draws = FALSE)
 
   expect_error(
     autoplot.brs_bootstrap(boot_nodraw, type = "dist"),
     "keep_draws = TRUE"
   )
 
-  boot_draw <- brs_bootstrap(fit, R = 15L, seed = 3, keep_draws = TRUE)
+  boot_draw <- brs_bootstrap(fit, R = 15L, keep_draws = TRUE)
   expect_error(
     autoplot.brs_bootstrap(boot_draw, type = "dist", parameter = "invalid_parameter"),
     "must be one of"

@@ -13,6 +13,14 @@
 
 \item{...}{Passed to \code{printCoefmat}.}
 }
+\value{
+Invisibly returns the input object \code{x}. The function is called
+  for its side effect of printing a comprehensive summary to the console,
+  including the model call, quantile residuals, coefficient tables for mean
+  and precision submodels with significance stars, goodness-of-fit statistics
+  (log-likelihood, pseudo R-squared), optimization details, and censoring
+  information.
+}
 \description{
 Print a model summary (betareg style)
 }

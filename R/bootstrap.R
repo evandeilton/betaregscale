@@ -24,7 +24,6 @@
 #' @param object A fitted \code{"brs"} object (fixed or variable dispersion).
 #' @param R Integer: number of bootstrap replicates (default 199).
 #' @param level Numeric: confidence level (default 0.95).
-#' @param seed Optional integer: random seed for reproducibility.
 #' @param ci_type Character: type of confidence interval. One of
 #'   \code{"percentile"} (default), \code{"basic"}, \code{"normal"},
 #'   or \code{"bca"}.
@@ -51,7 +50,8 @@
 #' )
 #' fit <- brs(y ~ x1 + x2, data = sim)
 #' \donttest{
-#' boot <- brs_bootstrap(fit, R = 99, level = 0.95, seed = 1)
+#' set.seed(1) # Set seed before calling bootstrap for reproducibility
+#' boot <- brs_bootstrap(fit, R = 99, level = 0.95)
 #' print(boot)
 #' }
 #'
@@ -63,7 +63,6 @@
 brs_bootstrap <- function(object,
                           R = 199L,
                           level = 0.95,
-                          seed = NULL,
                           ci_type = c("percentile", "basic", "normal", "bca"),
                           max_tries = NULL,
                           keep_draws = FALSE) {
@@ -89,24 +88,6 @@ brs_bootstrap <- function(object,
   max_tries <- as.integer(max_tries)
   if (length(max_tries) != 1L || is.na(max_tries) || max_tries < R) {
     stop("'max_tries' must be a single integer >= R.", call. = FALSE)
-  }
-
-  if (!is.null(seed)) {
-    has_seed <- exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-    if (has_seed) {
-      old_seed <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-    }
-    on.exit(
-      {
-        if (has_seed) {
-          assign(".Random.seed", old_seed, envir = .GlobalEnv)
-        } else if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
-          rm(".Random.seed", envir = .GlobalEnv)
-        }
-      },
-      add = TRUE
-    )
-    set.seed(as.integer(seed))
   }
 
   p <- object$p

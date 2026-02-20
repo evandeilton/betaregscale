@@ -2,7 +2,7 @@
 # Tests for new analyst-oriented utilities
 # ============================================================================ #
 
-.sim_for_tools <- function(n = 120L, seed = 123) {
+.sim_for_tools <- function(n = 120L, seed = 42L) {
   set.seed(seed)
   d <- data.frame(x1 = rnorm(n), x2 = rnorm(n), z1 = rnorm(n))
   brs_sim(

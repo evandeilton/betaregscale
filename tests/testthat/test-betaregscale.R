@@ -5,7 +5,7 @@
 # -- Helpers ----------------------------------------------------------------- #
 
 # Shared simulation fixture (fixed dispersion)
-sim_fixed <- function(n = 200, seed = 42) {
+sim_fixed <- function(n = 200, seed = 42L) {
   set.seed(seed)
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
   brs_sim(
@@ -17,7 +17,7 @@ sim_fixed <- function(n = 200, seed = 42) {
 }
 
 # Shared simulation fixture (variable dispersion)
-sim_variable <- function(n = 200, seed = 42) {
+sim_variable <- function(n = 200, seed = 42L) {
   set.seed(seed)
   dat <- data.frame(
     x1 = rnorm(n), x2 = rnorm(n),
@@ -434,7 +434,7 @@ test_that("residuals method returns correct types", {
 })
 
 test_that("RQR residuals are approximately normal for correct model", {
-  sim <- sim_fixed(n = 500, seed = 123)
+  sim <- sim_fixed(n = 500)
   fit <- brs_fit_fixed(y ~ x1 + x2, data = sim)
   r <- residuals(fit, type = "rqr")
   # Shapiro-Wilk should not reject at 1% level for n <= 5000
@@ -909,7 +909,7 @@ test_that("censoring_summary works with brs_prep output", {
 # -- End-to-end: brs_prep -> betaregscale ---------------------------------- #
 
 test_that("brs_prep -> betaregscale produces identical fit to raw data", {
-  sim <- sim_fixed(n = 200, seed = 42)
+  sim <- sim_fixed(n = 200)
 
   # Fit 1: standard workflow
   fit1 <- brs(y ~ x1 + x2, data = sim, link = "logit", repar = 2L)
@@ -924,7 +924,7 @@ test_that("brs_prep -> betaregscale produces identical fit to raw data", {
 })
 
 test_that("brs_prep -> brs_fit_var converges", {
-  sim <- sim_variable(n = 200, seed = 42)
+  sim <- sim_variable(n = 200)
   sim_raw <- sim[, c("y", "x1", "x2", "z1")]
   prep <- brs_prep(sim_raw, ncuts = 100)
   fit <- brs(y ~ x1 + x2 | z1, data = prep, link = "logit", repar = 2L)
