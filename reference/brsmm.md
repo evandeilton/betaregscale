@@ -25,8 +25,7 @@ brsmm(
   start = NULL,
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("numDeriv", "optim"),
-  control = list(maxit = 2000L),
-  seed = NULL
+  control = list(maxit = 2000L)
 )
 ```
 
@@ -95,11 +94,6 @@ brsmm(
 - control:
 
   Control list for [`optim`](https://rdrr.io/r/stats/optim.html).
-
-- seed:
-
-  Optional seed used by integration methods that depend on randomized
-  points (reserved for future use).
 
 ## Value
 

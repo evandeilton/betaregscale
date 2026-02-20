@@ -7,7 +7,7 @@ models.
 ## Usage
 
 ``` r
-brs_cv(formula, data, k = 5L, repeats = 1L, seed = NULL, ...)
+brs_cv(formula, data, k = 5L, repeats = 1L, ...)
 ```
 
 ## Arguments
@@ -28,10 +28,6 @@ brs_cv(formula, data, k = 5L, repeats = 1L, seed = NULL, ...)
 - repeats:
 
   Number of repeated k-fold runs.
-
-- seed:
-
-  Optional random seed for reproducibility.
 
 - ...:
 
@@ -78,11 +74,12 @@ sim <- brs_sim(
   beta = c(0.2, -0.5, 0.3), phi = 0.2, ncuts = 100, repar = 2
 )
 
+set.seed(123)  # Set seed before CV for reproducibility
 cv <- brs_cv(y ~ x1 + x2, data = sim, k = 3, repeats = 1, repar = 2)
 cv
 #>   repeat fold n_train n_test log_score   rmse_yt    mae_yt converged error
-#> 1      1    1     100     50 -4.102422 0.3993795 0.3618229      TRUE  <NA>
-#> 2      1    2     100     50 -4.436561 0.3532272 0.3135323      TRUE  <NA>
-#> 3      1    3     100     50 -4.011085 0.3558378 0.3308460      TRUE  <NA>
+#> 1      1    1     100     50 -4.019683 0.3736636 0.3388336      TRUE  <NA>
+#> 2      1    2     100     50 -4.482230 0.3347334 0.3053862      TRUE  <NA>
+#> 3      1    3     100     50 -4.034476 0.3914191 0.3556908      TRUE  <NA>
 # }
 ```

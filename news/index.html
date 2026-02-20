@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,13 +35,27 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.6/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.7" id="betaregscale-267">betaregscale 2.6.7<a class="anchor" aria-label="anchor" href="#betaregscale-267"></a></h2>
+<div class="section level3">
+<h3 id="cran-resubmission-konstanze-lauseker-review-feb-2-6-7">CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)<a class="anchor" aria-label="anchor" href="#cran-resubmission-konstanze-lauseker-review-feb-2-6-7"></a></h3>
+<div class="section level4">
+<h4 id="bug-fixes-and-cran-policy-compliance-2-6-7">Bug fixes and CRAN policy compliance<a class="anchor" aria-label="anchor" href="#bug-fixes-and-cran-policy-compliance-2-6-7"></a></h4>
+<ul><li>Added <code>\value</code> documentation to <code><a href="../reference/print.brs.html">print.brs()</a></code> and <code><a href="../reference/print.summary.brs.html">print.summary.brs()</a></code> methods.</li>
+<li>Replaced <code>\dontrun{}</code> with <code>\donttest{}</code> in <code><a href="../reference/brs_gof.html">brs_gof()</a></code> example and created complete executable example.</li>
+<li>Removed <code>.GlobalEnv</code> modification from <code><a href="../reference/brs_bootstrap.html">brs_bootstrap()</a></code> (CRAN policy violation).</li>
+<li>Removed <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> calls from exported functions: <code><a href="../reference/brs_bootstrap.html">brs_bootstrap()</a></code>, <code><a href="../reference/brs_marginaleffects.html">brs_marginaleffects()</a></code>, <code><a href="../reference/brsmm.html">brsmm()</a></code>, and <code><a href="../reference/brs_cv.html">brs_cv()</a></code>. Users must now call <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> externally before these functions for reproducibility.</li>
+<li>Removed <code>seed</code> parameter from all four functions listed above. Documentation updated with recommended usage pattern.</li>
+</ul><hr></div>
+</div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.6" id="betaregscale-266">betaregscale 2.6.6<a class="anchor" aria-label="anchor" href="#betaregscale-266"></a></h2>
 <div class="section level3">
-<h3 id="cran-resubmission-2-6-6">CRAN resubmission<a class="anchor" aria-label="anchor" href="#cran-resubmission-2-6-6"></a></h3>
+<h3 id="cran-resubmission-uwe-ligges-review-feb-2-6-6">CRAN resubmission (Uwe Ligges review, 18 Feb 2026)<a class="anchor" aria-label="anchor" href="#cran-resubmission-uwe-ligges-review-feb-2-6-6"></a></h3>
 <ul><li>DESCRIPTION: function names in Title/Description now use parentheses (e.g. <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>) per CRAN policy.</li>
 <li>URL updated to GitHub repository (<a href="https://github.com/evandeilton/betaregscale" class="external-link uri">https://github.com/evandeilton/betaregscale</a>) while pkgdown site is deployed.</li>
 </ul><hr></div>

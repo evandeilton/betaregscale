@@ -131,13 +131,13 @@ kbl10(head(boot_tab, 10))
 
 ``` r
 
+set.seed(2026) # For marginal effects simulation
 ame_mu <- brs_marginaleffects(
   fit_logit,
   model = "mean",
   type = "response",
   interval = TRUE,
-  n_sim = 120,
-  seed = 2026
+  n_sim = 120
 )
 kbl10(ame_mu)
 ```
@@ -162,6 +162,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     title = "Bootstrap (BCa) vs Wald intervals"
   )
 
+  set.seed(2026) # For marginal effects simulation
   ame_mu_draws <- brs_marginaleffects(
     fit_logit,
     model = "mean",
@@ -169,7 +170,6 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     interval = TRUE,
     n_sim = 160,
     keep_draws = TRUE,
-    seed = 2026
   )
   autoplot.brs_marginaleffects(ame_mu_draws, type = "forest")
 }
@@ -198,12 +198,12 @@ kbl10(score_prob[1:8, 1:7])
 ## 5) Out-of-sample validation
 
 ``` r
+set.seed(2026) # For cross-validation reproducibility
 cv_tab <- brs_cv(
   y ~ x1 + x2 | z1,
   data = sim,
   k = 5,
   repeats = 5,
-  seed = 2026,
   repar = 2
 )
 kbl10(head(cv_tab, 10))

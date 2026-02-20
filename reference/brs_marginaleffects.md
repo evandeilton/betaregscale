@@ -16,7 +16,6 @@ brs_marginaleffects(
   interval = TRUE,
   level = 0.95,
   n_sim = 400L,
-  seed = NULL,
   keep_draws = FALSE
 )
 ```
@@ -60,10 +59,6 @@ brs_marginaleffects(
 - n_sim:
 
   Number of parameter draws when `interval = TRUE`.
-
-- seed:
-
-  Optional random seed for reproducibility.
 
 - keep_draws:
 

@@ -9,7 +9,7 @@ mean or precision submodel of a fitted "brs" object.'><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@ mean or precision submodel of a fitted "brs" object.'><meta property="og:image" 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Marginal effects for brs models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.6/R/marginaleffects.R" class="external-link"><code>R/marginaleffects.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/marginaleffects.R" class="external-link"><code>R/marginaleffects.R</code></a></small>
       <div class="d-none name"><code>brs_marginaleffects.Rd</code></div>
     </div>
 
@@ -58,7 +58,6 @@ mean or precision submodel of a fitted <code>"brs"</code> object.</p>
 <span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  n_sim <span class="op">=</span> <span class="fl">400L</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  keep_draws <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -104,10 +103,6 @@ Defaults to all numeric covariates in the selected submodel.</p></dd>
 
 <dt id="arg-n-sim">n_sim<a class="anchor" aria-label="anchor" href="#arg-n-sim"></a></dt>
 <dd><p>Number of parameter draws when <code>interval = TRUE</code>.</p></dd>
-
-
-<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional random seed for reproducibility.</p></dd>
 
 
 <dt id="arg-keep-draws">keep_draws<a class="anchor" aria-label="anchor" href="#arg-keep-draws"></a></dt>

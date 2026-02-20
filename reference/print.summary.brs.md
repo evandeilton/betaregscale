@@ -22,3 +22,12 @@ print(x, digits = max(3, getOption("digits") - 3), ...)
 - ...:
 
   Passed to `printCoefmat`.
+
+## Value
+
+Invisibly returns the input object `x`. The function is called for its
+side effect of printing a comprehensive summary to the console,
+including the model call, quantile residuals, coefficient tables for
+mean and precision submodels with significance stars, goodness-of-fit
+statistics (log-likelihood, pseudo R-squared), optimization details, and
+censoring information.

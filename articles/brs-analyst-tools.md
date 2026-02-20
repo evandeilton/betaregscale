@@ -139,6 +139,7 @@ kbl10(tab)
 ### 3) Estimate average marginal effects
 
 ``` r
+set.seed(2026) # For marginal effects simulation
 me_mean <- brs_marginaleffects(
   fit_var,
   model = "mean",
@@ -151,18 +152,18 @@ kbl10(me_mean)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | -0.1035 |  0.0186   | -0.1329  | -0.0661  | mean  | response | 220 |
-|    x2    | 0.0734  |  0.0196   |  0.0369  |  0.1117  | mean  | response | 220 |
+|    x1    | -0.1035 |  0.0178   | -0.1339  | -0.0675  | mean  | response | 220 |
+|    x2    | 0.0734  |  0.0188   |  0.0360  |  0.1071  | mean  | response | 220 |
 
 ``` r
 
+set.seed(2026) # Reset seed for reproducibility
 me_precision <- brs_marginaleffects(
   fit_var,
   model = "precision",
   type = "link",
   interval = TRUE,
-  n_sim = 120,
-  seed = 2026
+  n_sim = 120
 )
 kbl10(me_precision)
 ```
@@ -241,13 +242,13 @@ autoplot.brs(fit_var, type = "residuals_by_delta", residual_type = "rqr")
 ### 6) Repeated k-fold cross-validation
 
 ``` r
+set.seed(2026) # For cross-validation reproducibility
 cv_res <- brs_cv(
   y ~ x1 + x2 | z1,
   data = sim,
   k = 3,
   repeats = 1,
-  repar = 2,
-  seed = 2026
+  repar = 2
 )
 
 kbl10(cv_res)

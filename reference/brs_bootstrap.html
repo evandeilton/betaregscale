@@ -13,7 +13,7 @@ variable-dispersion) objects are supported; "brsmm" is not supported.'><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ variable-dispersion) objects are supported; "brsmm" is not supported.'><meta pro
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Parametric bootstrap confidence intervals for brs models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.6/R/bootstrap.R" class="external-link"><code>R/bootstrap.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/bootstrap.R" class="external-link"><code>R/bootstrap.R</code></a></small>
       <div class="d-none name"><code>brs_bootstrap.Rd</code></div>
     </div>
 
@@ -58,7 +58,6 @@ variable-dispersion) objects are supported; <code>"brsmm"</code> is not supporte
 <span>  <span class="va">object</span>,</span>
 <span>  R <span class="op">=</span> <span class="fl">199L</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ci_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"percentile"</span>, <span class="st">"basic"</span>, <span class="st">"normal"</span>, <span class="st">"bca"</span><span class="op">)</span>,</span>
 <span>  max_tries <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  keep_draws <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -82,10 +81,6 @@ variable-dispersion) objects are supported; <code>"brsmm"</code> is not supporte
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
 <dd><p>Numeric: confidence level (default 0.95).</p></dd>
-
-
-<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional integer: random seed for reproducibility.</p></dd>
 
 
 <dt id="arg-ci-type">ci_type<a class="anchor" aria-label="anchor" href="#arg-ci-type"></a></dt>
@@ -153,7 +148,8 @@ the bootstrap distribution of each parameter.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu">brs_bootstrap</span><span class="op">(</span><span class="va">fit</span>, R <span class="op">=</span> <span class="fl">99</span>, level <span class="op">=</span> <span class="fl">0.95</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>  <span class="co"># Set seed before calling bootstrap for reproducibility</span></span></span>
+<span class="r-in"><span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu">brs_bootstrap</span><span class="op">(</span><span class="va">fit</span>, R <span class="op">=</span> <span class="fl">99</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap confidence intervals</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Level: 0.95 | CI: percentile | Successful replicates: 99 / 99 | Attempts: 99 </span>

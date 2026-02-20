@@ -1,8 +1,39 @@
 # Changelog
 
+## betaregscale 2.6.7
+
+### CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)
+
+#### Bug fixes and CRAN policy compliance
+
+- Added `\value` documentation to
+  [`print.brs()`](https://evandeilton.github.io/betaregscale/reference/print.brs.md)
+  and
+  [`print.summary.brs()`](https://evandeilton.github.io/betaregscale/reference/print.summary.brs.md)
+  methods.
+- Replaced `\dontrun{}` with `\donttest{}` in
+  [`brs_gof()`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md)
+  example and created complete executable example.
+- Removed `.GlobalEnv` modification from
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+  (CRAN policy violation).
+- Removed [`set.seed()`](https://rdrr.io/r/base/Random.html) calls from
+  exported functions:
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md),
+  [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md),
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md),
+  and
+  [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md).
+  Users must now call [`set.seed()`](https://rdrr.io/r/base/Random.html)
+  externally before these functions for reproducibility.
+- Removed `seed` parameter from all four functions listed above.
+  Documentation updated with recommended usage pattern.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.6
 
-### CRAN resubmission
+### CRAN resubmission (Uwe Ligges review, 18 Feb 2026)
 
 - DESCRIPTION: function names in Title/Description now use parentheses
   (e.g. [`logLik()`](https://rdrr.io/r/stats/logLik.html),

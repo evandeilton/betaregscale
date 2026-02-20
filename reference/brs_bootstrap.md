@@ -12,7 +12,6 @@ brs_bootstrap(
   object,
   R = 199L,
   level = 0.95,
-  seed = NULL,
   ci_type = c("percentile", "basic", "normal", "bca"),
   max_tries = NULL,
   keep_draws = FALSE
@@ -35,10 +34,6 @@ print(x, ...)
 - level:
 
   Numeric: confidence level (default 0.95).
-
-- seed:
-
-  Optional integer: random seed for reproducibility.
 
 - ci_type:
 
@@ -108,7 +103,8 @@ sim <- brs_sim(
 )
 fit <- brs(y ~ x1 + x2, data = sim)
 # \donttest{
-boot <- brs_bootstrap(fit, R = 99, level = 0.95, seed = 1)
+set.seed(1)  # Set seed before calling bootstrap for reproducibility
+boot <- brs_bootstrap(fit, R = 99, level = 0.95)
 print(boot)
 #> Bootstrap confidence intervals
 #>   Level: 0.95 | CI: percentile | Successful replicates: 99 / 99 | Attempts: 99 
