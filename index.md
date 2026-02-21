@@ -134,10 +134,12 @@ autoplot(fit_ri)
 Under the MD parameterization (`repar = 2`), the response
 $Y_{i} \sim \text{Beta}\left( \mu_{i},\sigma_{i} \right)$ has expected
 value and variance given by:
+
 $$\text{E}(Y) = \mu,\quad\text{Var}(Y) = \mu(1 - \mu)\sigma$$
 
 Both the mean and dispersion can be modeled via link functions ($g$ and
 $h$) allowing for covariate-dependent heteroscedasticity:
+
 $$g\left( \mu_{i} \right) = x_{i}^{\top}\beta,\qquad h\left( \sigma_{i} \right) = z_{i}^{\top}\zeta$$
 
 ### Interval-Censored Likelihood
@@ -159,10 +161,12 @@ where $f( \cdot )$ and $F( \cdot )$ are the beta PDF and CDF.
 For grouped or longitudinal data, the mean predictor is extended to
 include group-specific random effects
 $\mathbf{b}_{j} \sim \mathcal{N}(\mathbf{0},D)$:
+
 $$\eta_{\mu,ij} = x_{ij}^{\top}\beta + \mathbf{w}_{ij}^{\top}\mathbf{b}_{j}$$
 
 The marginal log-likelihood is approximated using a multivariate Laplace
 approximation:
+
 $$\log L_{j}(\theta) \approx Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right) + \frac{q_{b}}{2}\log(2\pi) - \frac{1}{2}\log\left| H_{j} \right|$$
 
 ------------------------------------------------------------------------

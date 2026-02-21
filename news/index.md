@@ -15,6 +15,10 @@
 - Corrected
   [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)
   usage in vignettes to correctly call the generic function.
+- Fixed mathematical formulas rendering in `README.md` to be fully
+  compatible with GitHub Markdown, and updated `pkgdown` site build
+  configuration to load `betaregscale` appropriately during vignette
+  setups.
 - Minor mathematical formatting and typographical fixes (e.g., en-dashes
   for page ranges) in `README.md` references.# betaregscale 2.6.8
 
