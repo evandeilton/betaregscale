@@ -50,7 +50,8 @@ reports:
 - $AIC = - 2\log L\left( \widehat{\theta} \right) + 2k$,
 - $BIC = - 2\log L\left( \widehat{\theta} \right) + k\log n$,
 
-where $k$ is the number of estimated parameters and $n$ is sample size.
+where $k$ is the number of estimated parameters and $n$ is the sample
+size.
 
 ### Average marginal effects (AME)
 
@@ -278,12 +279,15 @@ kbl10(
 
 ## Practical interpretation
 
-- Prefer the model with lower AIC/BIC and better predictive `log_score`.
-- Use AME on the response scale to communicate expected change in mean
-  score (on the unit interval) from small covariate shifts.
+- Prefer the model with the lower AIC/BIC and better predictive
+  `log_score`.
+- Use AME on the response scale to communicate the expected change in
+  mean score (on the unit interval) resulting from small covariate
+  shifts.
 - Use score probabilities to translate model outputs back to clinically
   interpretable scale categories.
-- Inspect calibration and residual-by-censoring plots before inference.
+- Inspect calibration and residual-by-censoring plots before proceeding
+  with statistical inference.
 
 ## References
 

@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,7 +88,7 @@ approximation);</li>
 recovery.</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="mathematical-model">Mathematical model<a class="anchor" aria-label="anchor" href="#mathematical-model"></a>
@@ -125,9 +125,9 @@ is defined by <code>random = ~ terms | group</code>.</p>
 <h3 id="beta-parameterization">Beta parameterization<a class="anchor" aria-label="anchor" href="#beta-parameterization"></a>
 </h3>
 <p>For each
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo><msub><mi>ϕ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mu_{ij}, \phi_{ij})</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo><msub><mi>ϕ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mu_{ij},\phi_{ij})</annotation></semantics></math>,
 <code>repar</code> maps to beta shape parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo><msub><mi>b</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_{ij}, b_{ij})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo><msub><mi>b</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_{ij},b_{ij})</annotation></semantics></math>
 via <code><a href="../reference/brs_repar.html">brs_repar()</a></code>.</p>
 </div>
 <div class="section level3">
@@ -303,7 +303,7 @@ fitting, inference, and recovery checks.</p>
 <div class="section level2">
 <h2 id="random-intercept-slope-example">Random intercept + slope example<a class="anchor" aria-label="anchor" href="#random-intercept-slope-example"></a>
 </h2>
-<p>The model below includes random intercept and random slope for
+<p>The model below includes a random intercept and random slope for
 <code>x1</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_mm_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brsmm.html">brsmm</a></span><span class="op">(</span></span>
@@ -425,18 +425,18 @@ fitting, inference, and recovery checks.</p>
 </table>
 </div>
 <div class="section level2">
-<h2 id="estudos-adicionais-dos-efeitos-aleatórios-numéricos-e-visuais">Estudos adicionais dos efeitos aleatórios (numéricos e visuais)<a class="anchor" aria-label="anchor" href="#estudos-adicionais-dos-efeitos-aleat%C3%B3rios-num%C3%A9ricos-e-visuais"></a>
+<h2 id="additional-studies-of-random-effects-numerical-and-visual">Additional studies of random effects (numerical and visual)<a class="anchor" aria-label="anchor" href="#additional-studies-of-random-effects-numerical-and-visual"></a>
 </h2>
-<p>Seguindo práticas de pacotes mistos consolidados, o pacote agora
-permite um estudo dedicado dos efeitos aleatórios com foco em:</p>
+<p>Following practices from established mixed-models packages, the
+package now allows for a dedicated study of the random effects focusing
+on:</p>
 <ul>
-<li>estrutura
+<li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
-e correlação;</li>
-<li>distribuição empírica dos modos por grupo;</li>
-<li>intensidade de shrinkage empírico;</li>
-<li>diagnósticos visuais específicos para os componentes
-aleatórios.</li>
+structure and correlation;</li>
+<li>empirical distribution of modes by group;</li>
+<li>empirical shrinkage intensity;</li>
+<li>specific visual diagnostics for the random components.</li>
 </ul>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">re_study</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brsmm_re_study.html">brsmm_re_study</a></span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">)</span></span>
@@ -532,7 +532,7 @@ aleatórios.</li>
 </tr>
 </tbody>
 </table>
-<p>Visualizações sugeridas para efeitos aleatórios:</p>
+<p>Suggested visualizations for random effects:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/autoplot.brsmm.html">autoplot.brsmm</a></span><span class="op">(</span><span class="va">fit_mm_rs</span>, type <span class="op">=</span> <span class="st">"ranef_caterpillar"</span><span class="op">)</span></span>
@@ -549,8 +549,9 @@ aleatórios.</li>
 <h3 id="coefficients-and-random-effects">Coefficients and random effects<a class="anchor" aria-label="anchor" href="#coefficients-and-random-effects"></a>
 </h3>
 <p><code>coef(fit_mm, model = "random")</code> returns packed
-random-effect covariance parameters on optimizer scale (lower-Cholesky,
-with log-diagonal). For random-intercept models this simplifies to
+random-effect covariance parameters on the optimizer scale
+(lower-Cholesky, with a log-diagonal). For random-intercept models, this
+simplifies to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>σ</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">\log \sigma_b</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
@@ -919,8 +920,8 @@ diagnostics:</p>
 <h3 id="prediction-with-newdata">Prediction with <code>newdata</code><a class="anchor" aria-label="anchor" href="#prediction-with-newdata"></a>
 </h3>
 <p>If <code>newdata</code> contains unseen groups,
-<code><a href="../reference/predict.brsmm.html">predict.brsmm()</a></code> uses random effect equal to zero for those
-levels.</p>
+<code><a href="../reference/predict.brsmm.html">predict.brsmm()</a></code> uses a random effect equal to zero for
+those levels.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nd</span> <span class="op">&lt;-</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"id"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span></span>
@@ -1153,39 +1154,39 @@ z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
 </table>
 </div>
 <div class="section level3">
-<h3 id="esquema-evolutivo-e-escolha-por-teste-lr">Esquema evolutivo e escolha por teste LR<a class="anchor" aria-label="anchor" href="#esquema-evolutivo-e-escolha-por-teste-lr"></a>
+<h3 id="evolutionary-scheme-and-likelihood-ratio-lr-test-selection">Evolutionary scheme and Likelihood Ratio (LR) test selection<a class="anchor" aria-label="anchor" href="#evolutionary-scheme-and-likelihood-ratio-lr-test-selection"></a>
 </h3>
-<p>Um fluxo prático de complexidade crescente:</p>
+<p>A practical workflow of increasing complexity:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code><a href="../reference/brs.html">brs()</a></code>: sem efeito aleatório (ignora agrupamento);</li>
+<code><a href="../reference/brs.html">brs()</a></code>: no random effect (ignores clustering);</li>
 <li>
-<code>brsmm(..., random = ~ 1 | id)</code>: intercepto
-aleatório;</li>
+<code>brsmm(..., random = ~ 1 | id)</code>: random intercept;</li>
 <li>
-<code>brsmm(..., random = ~ 1 + x1 | id)</code>: intercepto +
-inclinação aleatórios.</li>
+<code>brsmm(..., random = ~ 1 + x1 | id)</code>: random intercept +
+slope.</li>
 </ol>
-<p>No primeiro salto (<code>brs</code>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math><code>brsmm</code> com intercepto), a hipótese
+<p>In the first jump (<code>brs</code> to <code>brsmm</code> with
+intercept), the hypothesis
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>b</mi><mn>2</mn></msubsup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sigma_b^2 = 0</annotation></semantics></math>
-está na fronteira do espaço paramétrico. Assim, o referencial
-assintótico clássico
+lies on the boundary of the parameter space. Thus, the classical
+asymptotic
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
-deve ser interpretado com cautela. No segundo salto (intercepto
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
-intercepto + inclinação), o LR com
+reference distribution should be interpreted with caution. In the second
+jump (intercept to intercept + slope), the Likelihood Ratio (LR) test
+with a
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
-costuma ser usado como diagnóstico prático de ganho de ajuste.</p>
+distribution is commonly used as a practical diagnostic for
+goodness-of-fit gains.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Modelo base sem efeito aleatório</span></span>
+<code class="sourceCode R"><span><span class="co"># Base model without a random effect</span></span>
 <span><span class="va">fit_brs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">sim</span><span class="op">$</span><span class="va">data</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Reutiliza os ajustes mistos já estimados:</span></span>
+<span><span class="co"># Reuse the mixed models already fitted:</span></span>
 <span><span class="co"># fit_mm    : random = ~ 1 | id</span></span>
 <span><span class="co"># fit_mm_rs : random = ~ 1 + x1 | id</span></span>
 <span></span>
@@ -1248,14 +1249,14 @@ costuma ser usado como diagnóstico prático de ganho de ajuste.</p>
 </tr>
 </tbody>
 </table>
-<p>Regra operacional de decisão (analítica):</p>
+<p>Operational decision rule (analytical):</p>
 <ul>
-<li>Se o segundo salto (<code>RI -&gt; RI+RS</code>) não melhora o
-ajuste (p alto), prefira o modelo com intercepto aleatório por
-parcimônia.</li>
-<li>Se houver ganho robusto, adote <code>RI+RS</code> e valide
-estabilidade dos parâmetros (especialmente <code>sd_b</code> e matriz
-<code>D</code>) por sensibilidade e diagnóstico residual.</li>
+<li>If the second jump (RI to RI+RS) does not improve the fit (high
+p-value), prefer the random-intercept model for parsimony.</li>
+<li>If there is a robust gain, adopt the RI+RS model and validate
+parameter stability (especially <code>sd_b</code> and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+matrix) via sensitivity and residual diagnostics.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -1404,15 +1405,15 @@ for:</p>
 <p>Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
 modelling rates and proportions. <em>Journal of Applied Statistics</em>,
 31(7), 799-815. DOI: 10.1080/0266476042000214501. Validated online via:
-<a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a>.</p>
+<a href="https://doi.org/10.1080/0266476042000214501" class="external-link">https://doi.org/10.1080/0266476042000214501</a>.</p>
 <p>Pinheiro, J. C. and Bates, D. M. (2000). <em>Mixed-Effects Models in
 S and S-PLUS</em>. Springer. DOI: 10.1007/b98882. Validated online via:
-<a href="https://doi.org/10.1007/b98882" class="external-link uri">https://doi.org/10.1007/b98882</a>.</p>
+<a href="https://doi.org/10.1007/b98882" class="external-link">https://doi.org/10.1007/b98882</a>.</p>
 <p>Rue, H., Martino, S., and Chopin, N. (2009). Approximate Bayesian
 inference for latent Gaussian models by using integrated nested Laplace
 approximations. <em>Journal of the Royal Statistical Society: Series
 B</em>, 71(2), 319-392. DOI: 10.1111/j.1467-9868.2008.00700.x. Validated
-online via: <a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x" class="external-link uri">https://doi.org/10.1111/j.1467-9868.2008.00700.x</a>.</p>
+online via: <a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x" class="external-link">https://doi.org/10.1111/j.1467-9868.2008.00700.x</a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

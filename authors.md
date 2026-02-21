@@ -14,13 +14,13 @@ Source:
 [`DESCRIPTION`](https://github.com/evandeilton/betaregscale/blob/main/DESCRIPTION)
 
 Lopes J, Bonat W (2026). *betaregscale: Beta Regression for
-Interval-Censored Scale-Derived Outcomes*. R package version 2.6.8,
-<https://evandeilton.github.io/betaregscale>.
+Interval-Censored Scale-Derived Outcomes*. R package version 2.6.9,
+<https://evandeilton.github.io/betaregscale/>.
 
     @Manual{,
       title = {betaregscale: Beta Regression for Interval-Censored Scale-Derived Outcomes},
       author = {José Evandeilton Lopes and Wagner Hugo Bonat},
       year = {2026},
-      note = {R package version 2.6.8},
-      url = {https://evandeilton.github.io/betaregscale},
+      note = {R package version 2.6.9},
+      url = {https://evandeilton.github.io/betaregscale/},
     }

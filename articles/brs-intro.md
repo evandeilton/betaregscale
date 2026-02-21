@@ -35,12 +35,12 @@ The complete likelihood supports four censoring types, automatically
 classified by
 [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
-| $\delta$ | Type                     | Likelihood contribution                                                       |
-|:--------:|:-------------------------|:------------------------------------------------------------------------------|
-|    0     | Exact (uncensored)       | $f\left( y_{i};\, a_{i},b_{i} \right)$                                        |
-|    1     | Left-censored ($y = 0$)  | $F\left( u_{i};\, a_{i},b_{i} \right)$                                        |
-|    2     | Right-censored ($y = K$) | $1 - F\left( l_{i};\, a_{i},b_{i} \right)$                                    |
-|    3     | Interval-censored        | $F\left( u_{i};\, a_{i},b_{i} \right) - F\left( l_{i};\, a_{i},b_{i} \right)$ |
+| $\delta$ | Type                     | Likelihood contribution                                                 |
+|:--------:|:-------------------------|:------------------------------------------------------------------------|
+|    0     | Exact (uncensored)       | $f\left( y_{i};a_{i},b_{i} \right)$                                     |
+|    1     | Left-censored ($y = 0$)  | $F\left( u_{i};a_{i},b_{i} \right)$                                     |
+|    2     | Right-censored ($y = K$) | $1 - F\left( l_{i};a_{i},b_{i} \right)$                                 |
+|    3     | Interval-censored        | $F\left( u_{i};a_{i},b_{i} \right) - F\left( l_{i};a_{i},b_{i} \right)$ |
 
 where $f( \cdot )$ and $F( \cdot )$ are the beta density and CDF,
 $\left\lbrack l_{i},u_{i} \right\rbrack$ are the interval endpoints, and
@@ -52,10 +52,10 @@ $\mu_{i}$ and $\phi_{i}$ via the chosen reparameterization.
 Scale observations are mapped to $(0,1)$ with midpoint uncertainty
 intervals:
 
-$$y_{t} = y/K,\quad{\text{interval}\mspace{6mu}}\left\lbrack y_{t} - h/K,\; y_{t} + h/K \right\rbrack$$
+$$y_{t} = y/K,\quad{\text{interval}\mspace{6mu}}\left\lbrack y_{t} - h/K,y_{t} + h/K \right\rbrack$$
 
 where $K$ is the number of scale categories (`ncuts`) and $h$ is the
-half-width (`lim`, default 0.5).
+half-width (`lim`, default **0.5**).
 
 ``` r
 # Illustrate brs_check with a 0-10 NRS scale
@@ -228,7 +228,7 @@ summary(fit_prep, digits = 4)
 ### Simulating data
 
 We simulate observations from a beta regression model with fixed
-dispersion, two covariates, and logit link for the mean.
+dispersion, two covariates, and a logit link for the mean.
 
 ``` r
 set.seed(4255)
@@ -261,7 +261,7 @@ kbl10(head(sim_fixed, 8))
 | 0.355 | 0.365 | 0.36 | 36  |   3   | -0.7274 | 0.2061  |
 
 Each observation is centered in its interval. For example, a score of 67
-on a 0–100 scale yields $y_{t} = 0.67$ with interval
+on a 0–100 scale yields $y_{t} = 0.67$ with the interval
 $\lbrack 0.665,0.675\rbrack$.
 
 ### Fitting the model

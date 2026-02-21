@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,16 +80,16 @@ estimation of beta regression models for responses derived from bounded
 rating scales. Common examples include pain intensity scales (NRS-11,
 NRS-21, NRS-101), Likert-type scales, product quality ratings, and any
 instrument whose response can be mapped to the open interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>.</p>
 <p>The key idea is that a discrete score recorded on a bounded scale
 carries measurement uncertainty inherent to the instrument. For
 instance, a pain score of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">y = 6</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">y=6</annotation></semantics></math>
 on a 0–10 NRS is not an exact value but rather represents a range: after
 rescaling to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>,
 the observation is treated as interval-censored in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.55</mn><mo>,</mo><mn>0.65</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.55, 0.65]</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.55</mn><mo>,</mo><mn>0.65</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.55,0.65]</annotation></semantics></math>.
 The package uses the beta distribution to model such data, building a
 complete likelihood that supports mixed censoring types within the same
 dataset.</p>
@@ -102,7 +102,7 @@ dataset.</p>
 <span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evandeilton/betaregscale"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="censoring-types">Censoring types<a class="anchor" aria-label="anchor" href="#censoring-types"></a>
@@ -119,24 +119,24 @@ classified by <code><a href="../reference/brs_check.html">brs_check()</a></code>
 <tr class="odd">
 <td align="center">0</td>
 <td align="left">Exact (uncensored)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(y_i;\, a_i, b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(y_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="center">1</td>
 <td align="left">Left-censored
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y = 0</annotation></semantics></math>)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;\, a_i, b_i)</annotation></semantics></math></td>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y=0</annotation></semantics></math>)</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
 <td align="center">2</td>
 <td align="left">Right-censored
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">y = K</annotation></semantics></math>)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">1 - F(l_i;\, a_i, b_i)</annotation></semantics></math></td>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">y=K</annotation></semantics></math>)</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">1-F(l_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="center">3</td>
 <td align="left">Interval-censored</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;\, a_i, b_i) - F(l_i;\, a_i, b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;a_i,b_i)-F(l_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 </tbody>
 </table>
@@ -145,9 +145,9 @@ classified by <code><a href="../reference/brs_check.html">brs_check()</a></code>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
 are the beta density and CDF,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i, u_i]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i,u_i]</annotation></semantics></math>
 are the interval endpoints, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_i, b_i)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_i,b_i)</annotation></semantics></math>
 are the beta shape parameters derived from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_i</annotation></semantics></math>
 and
@@ -158,14 +158,14 @@ via the chosen reparameterization.</p>
 <h2 id="interval-construction">Interval construction<a class="anchor" aria-label="anchor" href="#interval-construction"></a>
 </h2>
 <p>Scale observations are mapped to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>
 with midpoint uncertainty intervals:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">y_t=y/K,\quad\text{interval }[y_t-h/K,y_t+h/K]</annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
 is the number of scale categories (<code>ncuts</code>) and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
-is the half-width (<code>lim</code>, default 0.5).</p>
+is the half-width (<code>lim</code>, default <strong>0.5</strong>).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Illustrate brs_check with a 0-10 NRS scale</span></span>
 <span><span class="va">y_example</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span></span>
@@ -218,14 +218,14 @@ is the half-width (<code>lim</code>, default 0.5).</p>
 </tbody>
 </table>
 <p>The <code>delta</code> column shows that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y = 0</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y=0</annotation></semantics></math>
 is left-censored
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta = 1</annotation></semantics></math>),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">y = 10</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta=1</annotation></semantics></math>),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">y=10</annotation></semantics></math>
 is right-censored
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta = 2</annotation></semantics></math>),
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta=2</annotation></semantics></math>),
 and all interior values are interval-censored
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\delta = 3</annotation></semantics></math>).</p>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\delta=3</annotation></semantics></math>).</p>
 </div>
 <div class="section level2">
 <h2 id="data-preparation-with-brs_prep">Data preparation with <code>brs_prep()</code><a class="anchor" aria-label="anchor" href="#data-preparation-with-brs_prep"></a>
@@ -513,7 +513,7 @@ skipped:</p>
 <h3 id="simulating-data">Simulating data<a class="anchor" aria-label="anchor" href="#simulating-data"></a>
 </h3>
 <p>We simulate observations from a beta regression model with fixed
-dispersion, two covariates, and logit link for the mean.</p>
+dispersion, two covariates, and a logit link for the mean.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4255</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
@@ -618,9 +618,9 @@ dispersion, two covariates, and logit link for the mean.</p>
 </table>
 <p>Each observation is centered in its interval. For example, a score of
 67 on a 0–100 scale yields
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mn>0.67</mn></mrow><annotation encoding="application/x-tex">y_t = 0.67</annotation></semantics></math>
-with interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.665</mn><mo>,</mo><mn>0.675</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.665, 0.675]</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mn>0.67</mn></mrow><annotation encoding="application/x-tex">y_t=0.67</annotation></semantics></math>
+with the interval
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.665</mn><mo>,</mo><mn>0.675</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.665,0.675]</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="fitting-the-model">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model"></a>
@@ -2120,30 +2120,30 @@ quantile</td>
 <p>The package supports three reparameterizations of the beta
 distribution, controlled by the <code>repar</code> argument:</p>
 <p><strong>Direct (<code>repar = 0</code>):</strong> Shape parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi></mrow><annotation encoding="application/x-tex">a = \mu</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi></mrow><annotation encoding="application/x-tex">a=\mu</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b = \phi</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=\phi</annotation></semantics></math>
 are used directly. This is rarely used in practice.</p>
 <p><strong>Precision (<code>repar = 1</code>, Ferrari &amp;
 Cribari-Neto, 2004):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
 and precision
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\phi &gt; 0</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\phi&gt;0</annotation></semantics></math>
 yield
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a = \mu\phi</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a=\mu\phi</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b = (1-\mu)\phi</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)\phi</annotation></semantics></math>.
 Higher
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 means less variability.</p>
 <p><strong>Mean–variance (<code>repar = 2</code>):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
 and dispersion
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\phi \in (0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\phi\in(0,1)</annotation></semantics></math>
 yield
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a = \mu(1-\phi)/\phi</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a=\mu(1-\phi)/\phi</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b = (1-\mu)(1-\phi)/\phi</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)(1-\phi)/\phi</annotation></semantics></math>.
 Here
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 acts as a coefficient of variation: smaller
