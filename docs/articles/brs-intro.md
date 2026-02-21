@@ -6,16 +6,16 @@ The **betaregscale** package provides maximum-likelihood estimation of
 beta regression models for responses derived from bounded rating scales.
 Common examples include pain intensity scales (NRS-11, NRS-21, NRS-101),
 Likert-type scales, product quality ratings, and any instrument whose
-response can be mapped to the open interval $(0,1)$.
+response can be mapped to the open interval $`(0, 1)`$.
 
 The key idea is that a discrete score recorded on a bounded scale
 carries measurement uncertainty inherent to the instrument. For
-instance, a pain score of $y = 6$ on a 0–10 NRS is not an exact value
-but rather represents a range: after rescaling to $(0,1)$, the
-observation is treated as interval-censored in
-$\lbrack 0.55,0.65\rbrack$. The package uses the beta distribution to
-model such data, building a complete likelihood that supports mixed
-censoring types within the same dataset.
+instance, a pain score of $`y = 6`$ on a 0–10 NRS is not an exact value
+but rather represents a range: after rescaling to $`(0, 1)`$, the
+observation is treated as interval-censored in $`[0.55, 0.65]`$. The
+package uses the beta distribution to model such data, building a
+complete likelihood that supports mixed censoring types within the same
+dataset.
 
 ## Installation
 
@@ -35,26 +35,28 @@ The complete likelihood supports four censoring types, automatically
 classified by
 [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
-| $\delta$ | Type                     | Likelihood contribution                                                       |
-|:--------:|:-------------------------|:------------------------------------------------------------------------------|
-|    0     | Exact (uncensored)       | $f\left( y_{i};\, a_{i},b_{i} \right)$                                        |
-|    1     | Left-censored ($y = 0$)  | $F\left( u_{i};\, a_{i},b_{i} \right)$                                        |
-|    2     | Right-censored ($y = K$) | $1 - F\left( l_{i};\, a_{i},b_{i} \right)$                                    |
-|    3     | Interval-censored        | $F\left( u_{i};\, a_{i},b_{i} \right) - F\left( l_{i};\, a_{i},b_{i} \right)$ |
+| $`\delta`$ | Type | Likelihood contribution |
+|:--:|:---|:---|
+| 0 | Exact (uncensored) | $`f(y_i;\, a_i, b_i)`$ |
+| 1 | Left-censored ($`y = 0`$) | $`F(u_i;\, a_i, b_i)`$ |
+| 2 | Right-censored ($`y = K`$) | $`1 - F(l_i;\, a_i, b_i)`$ |
+| 3 | Interval-censored | $`F(u_i;\, a_i, b_i) - F(l_i;\, a_i, b_i)`$ |
 
-where $f( \cdot )$ and $F( \cdot )$ are the beta density and CDF,
-$\left\lbrack l_{i},u_{i} \right\rbrack$ are the interval endpoints, and
-$\left( a_{i},b_{i} \right)$ are the beta shape parameters derived from
-$\mu_{i}$ and $\phi_{i}$ via the chosen reparameterization.
+where $`f(\cdot)`$ and $`F(\cdot)`$ are the beta density and CDF,
+$`[l_i, u_i]`$ are the interval endpoints, and $`(a_i, b_i)`$ are the
+beta shape parameters derived from $`\mu_i`$ and $`\phi_i`$ via the
+chosen reparameterization.
 
 ## Interval construction
 
-Scale observations are mapped to $(0,1)$ with midpoint uncertainty
+Scale observations are mapped to $`(0, 1)`$ with midpoint uncertainty
 intervals:
 
-$$y_{t} = y/K,\quad{\text{interval}\mspace{6mu}}\left\lbrack y_{t} - h/K,\; y_{t} + h/K \right\rbrack$$
+``` math
+y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
+```
 
-where $K$ is the number of scale categories (`ncuts`) and $h$ is the
+where $`K`$ is the number of scale categories (`ncuts`) and $`h`$ is the
 half-width (`lim`, default 0.5).
 
 ``` r
@@ -72,9 +74,9 @@ kbl10(cr)
 | 0.65 | 0.75  | 0.7 |  7  |   3   |
 | 0.95 | 1.00  | 1.0 | 10  |   2   |
 
-The `delta` column shows that $y = 0$ is left-censored ($\delta = 1$),
-$y = 10$ is right-censored ($\delta = 2$), and all interior values are
-interval-censored ($\delta = 3$).
+The `delta` column shows that $`y = 0`$ is left-censored
+($`\delta = 1`$), $`y = 10`$ is right-censored ($`\delta = 2`$), and all
+interior values are interval-censored ($`\delta = 3`$).
 
 ## Data preparation with `brs_prep()`
 
@@ -150,7 +152,7 @@ kbl10(brs_prep(d3, ncuts = 100))
 ### Mode 4: Analyst-supplied intervals
 
 When the analyst provides `y`, `left`, and `right` simultaneously, their
-endpoints are used directly (rescaled by $K$):
+endpoints are used directly (rescaled by $`K`$):
 
 ``` r
 d4 <- data.frame(
@@ -217,7 +219,7 @@ summary(fit_prep, digits = 4)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
-#> Log-likelihood: -4072.5673 on 4 Df
+#> Log-likelihood: -4072.5673 on 4 Df | AIC: 8153.1346 | BIC: 8172.7656 
 #> Pseudo R-squared: 0.1292 
 #> Number of iterations: 35 (BFGS) 
 #> Censoring: 796 interval | 74 left | 130 right
@@ -261,8 +263,7 @@ kbl10(head(sim_fixed, 8))
 | 0.355 | 0.365 | 0.36 | 36  |   3   | -0.7274 | 0.2061  |
 
 Each observation is centered in its interval. For example, a score of 67
-on a 0–100 scale yields $y_{t} = 0.67$ with interval
-$\lbrack 0.665,0.675\rbrack$.
+on a 0–100 scale yields $`y_t = 0.67`$ with interval $`[0.665, 0.675]`$.
 
 ### Fitting the model
 
@@ -298,7 +299,7 @@ summary(fit_fixed)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
-#> Log-likelihood: -4035.2262 on 4 Df
+#> Log-likelihood: -4035.2262 on 4 Df | AIC: 8078.4524 | BIC: 8098.0834 
 #> Pseudo R-squared: 0.2393 
 #> Number of iterations: 39 (BFGS) 
 #> Censoring: 809 interval | 65 left | 126 right
@@ -306,7 +307,7 @@ summary(fit_fixed)
 
 The summary output follows the `betareg` package style, showing separate
 coefficient tables for the mean and precision submodels, with Wald
-z-tests and $p$-values based on the standard normal distribution.
+z-tests and $`p`$-values based on the standard normal distribution.
 
 ### Goodness of fit
 
@@ -480,10 +481,10 @@ brs_cens(fit_fixed, gg = TRUE, inform = TRUE)
 
 ## Example 2: Variable dispersion model
 
-In many applications, the dispersion parameter $\phi$ may depend on
+In many applications, the dispersion parameter $`\phi`$ may depend on
 covariates. The package supports variable-dispersion models using the
 `Formula` package notation: `y ~ x1 + x2 | z1 + z2`, where the terms
-after `|` define the linear predictor for $\phi$. The same
+after `|` define the linear predictor for $`\phi`$. The same
 [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
 function is used for fixed and variable dispersion; the second formula
 part activates the precision submodel in simulation.
@@ -563,7 +564,7 @@ summary(fit_var)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
-#> Log-likelihood: -3922.2430 on 5 Df
+#> Log-likelihood: -3922.2430 on 5 Df | AIC: 7854.4861 | BIC: 7879.0249 
 #> Pseudo R-squared: 0.1159 
 #> Number of iterations: 42 (BFGS) 
 #> Censoring: 744 interval | 105 left | 151 right
@@ -674,12 +675,12 @@ boot_ci <- brs_bootstrap(
 kbl10(head(boot_ci, 10))
 ```
 
-|  parameter  | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
-|:-----------:|:--------:|:-------:|:--------:|:--------:|:----------:|:----------:|:----------:|:----------:|:-----:|
-| (Intercept) |  0.3060  | 0.0410  |  0.2420  |  0.4106  |   0.0058   |   0.0137   |   0.2215   |   0.3906   | 0.95  |
-|     x1      | -0.6033  | 0.0424  | -0.6863  | -0.5387  |   0.0059   |   0.0045   |  -0.6921   |  -0.5145   | 0.95  |
-|     x2      |  0.4413  | 0.0423  |  0.3641  |  0.5088  |   0.0100   |   0.0034   |   0.3554   |   0.5273   | 0.95  |
-|    (phi)    |  0.1099  | 0.0396  |  0.0307  |  0.1714  |   0.0093   |   0.0039   |   0.0304   |   0.1894   | 0.95  |
+| parameter | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| (Intercept) | 0.3060 | 0.0410 | 0.2420 | 0.4106 | 0.0058 | 0.0137 | 0.2215 | 0.3906 | 0.95 |
+| x1 | -0.6033 | 0.0424 | -0.6863 | -0.5387 | 0.0059 | 0.0045 | -0.6921 | -0.5145 | 0.95 |
+| x2 | 0.4413 | 0.0423 | 0.3641 | 0.5088 | 0.0100 | 0.0034 | 0.3554 | 0.5273 | 0.95 |
+| (phi) | 0.1099 | 0.0396 | 0.0307 | 0.1714 | 0.0093 | 0.0039 | 0.0304 | 0.1894 | 0.95 |
 
 ``` r
 autoplot.brs_bootstrap(
@@ -752,13 +753,13 @@ kbl10(
 ### Repeated k-fold cross-validation
 
 ``` r
+set.seed(303) # For cross-validation reproducibility
 cv_res <- brs_cv(
   y ~ x1 + x2,
   data = sim_fixed,
   k = 5,
   repeats = 5,
   repar = 2,
-  seed = 303
 )
 kbl10(cv_res)
 ```
@@ -801,39 +802,39 @@ kbl10(
 The following standard S3 methods are available for objects of class
 `"brs"`:
 
-| Method                                                                                   | Description                                                |
-|:-----------------------------------------------------------------------------------------|:-----------------------------------------------------------|
-| [`print()`](https://rdrr.io/r/base/print.html)                                           | Compact display of call and coefficients                   |
-| [`summary()`](https://rdrr.io/r/base/summary.html)                                       | Detailed output with Wald tests and goodness-of-fit        |
-| `coef(model=)`                                                                           | Extract coefficients (full, mean, or precision)            |
-| `vcov(model=)`                                                                           | Variance-covariance matrix (full, mean, or precision)      |
-| `confint(model=)`                                                                        | Wald confidence intervals                                  |
-| [`logLik()`](https://rdrr.io/r/stats/logLik.html)                                        | Log-likelihood value                                       |
-| [`AIC()`](https://rdrr.io/r/stats/AIC.html), [`BIC()`](https://rdrr.io/r/stats/AIC.html) | Information criteria                                       |
-| [`nobs()`](https://rdrr.io/r/stats/nobs.html)                                            | Number of observations                                     |
-| [`formula()`](https://rdrr.io/r/stats/formula.html)                                      | Model formula                                              |
-| `model.matrix(model=)`                                                                   | Design matrix (mean or precision)                          |
-| [`fitted()`](https://rdrr.io/r/stats/fitted.values.html)                                 | Fitted mean values                                         |
-| `residuals(type=)`                                                                       | Residuals: response, pearson, rqr, weighted, sweighted     |
-| `predict(type=)`                                                                         | Predictions: response, link, precision, variance, quantile |
-| `plot(gg=)`                                                                              | Diagnostic plots (base R or ggplot2)                       |
+| Method | Description |
+|:---|:---|
+| [`print()`](https://rdrr.io/r/base/print.html) | Compact display of call and coefficients |
+| [`summary()`](https://rdrr.io/r/base/summary.html) | Detailed output with Wald tests and goodness-of-fit |
+| `coef(model=)` | Extract coefficients (full, mean, or precision) |
+| `vcov(model=)` | Variance-covariance matrix (full, mean, or precision) |
+| `confint(model=)` | Wald confidence intervals |
+| [`logLik()`](https://rdrr.io/r/stats/logLik.html) | Log-likelihood value |
+| [`AIC()`](https://rdrr.io/r/stats/AIC.html), [`BIC()`](https://rdrr.io/r/stats/AIC.html) | Information criteria |
+| [`nobs()`](https://rdrr.io/r/stats/nobs.html) | Number of observations |
+| [`formula()`](https://rdrr.io/r/stats/formula.html) | Model formula |
+| `model.matrix(model=)` | Design matrix (mean or precision) |
+| [`fitted()`](https://rdrr.io/r/stats/fitted.values.html) | Fitted mean values |
+| `residuals(type=)` | Residuals: response, pearson, rqr, weighted, sweighted |
+| `predict(type=)` | Predictions: response, link, precision, variance, quantile |
+| `plot(gg=)` | Diagnostic plots (base R or ggplot2) |
 
 ## Reparameterizations
 
 The package supports three reparameterizations of the beta distribution,
 controlled by the `repar` argument:
 
-**Direct (`repar = 0`):** Shape parameters $a = \mu$ and $b = \phi$ are
-used directly. This is rarely used in practice.
+**Direct (`repar = 0`):** Shape parameters $`a = \mu`$ and $`b = \phi`$
+are used directly. This is rarely used in practice.
 
 **Precision (`repar = 1`, Ferrari & Cribari-Neto, 2004):** The mean
-$\mu \in (0,1)$ and precision $\phi > 0$ yield $a = \mu\phi$ and
-$b = (1 - \mu)\phi$. Higher $\phi$ means less variability.
+$`\mu \in (0,1)`$ and precision $`\phi > 0`$ yield $`a = \mu\phi`$ and
+$`b = (1-\mu)\phi`$. Higher $`\phi`$ means less variability.
 
-**Mean–variance (`repar = 2`):** The mean $\mu \in (0,1)$ and dispersion
-$\phi \in (0,1)$ yield $a = \mu(1 - \phi)/\phi$ and
-$b = (1 - \mu)(1 - \phi)/\phi$. Here $\phi$ acts as a coefficient of
-variation: smaller $\phi$ means less variability.
+**Mean–variance (`repar = 2`):** The mean $`\mu \in (0,1)`$ and
+dispersion $`\phi \in (0,1)`$ yield $`a = \mu(1-\phi)/\phi`$ and
+$`b = (1-\mu)(1-\phi)/\phi`$. Here $`\phi`$ acts as a coefficient of
+variation: smaller $`\phi`$ means less variability.
 
 ``` r
 # Precision parameterization: mu = 0.5, phi = 10 (high precision)

@@ -13,7 +13,7 @@ a normality check by Shapiro-Wilk (when applicable)."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,53 +73,57 @@ a normality check by Shapiro-Wilk (when applicable).</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with class <code>"brsmm_re_study"</code>.</p>
     </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: <a href="https://hdl.handle.net/1884/86624" class="external-link">https://hdl.handle.net/1884/86624</a>.</p>
+<p>Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+Beta regression for modelling rates and proportions.
+<em>Journal of Applied Statistics</em>, <b>31</b>(7), 799–815.
+<a href="https://doi.org/10.1080/0266476042000214501" class="external-link">doi:10.1080/0266476042000214501</a></p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="brsmm.html">brsmm</a></code>, <code><a href="ranef.brsmm.html">ranef.brsmm</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fl">10</span></span></span>
-<span class="r-in"><span><span class="va">ni</span> <span class="op">&lt;-</span> <span class="fl">8</span></span></span>
-<span class="r-in"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, each <span class="op">=</span> <span class="va">ni</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">g</span>, sd <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">b1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">g</span>, sd <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="fl">0.2</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">b0</span><span class="op">[</span><span class="va">id</span><span class="op">]</span> <span class="op">+</span> <span class="va">b1</span><span class="op">[</span><span class="va">id</span><span class="op">]</span> <span class="op">*</span> <span class="va">x1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="va">mu</span>, phi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">phi</span>, <span class="va">n</span><span class="op">)</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="va">n</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape1</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape2</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, x1 <span class="op">=</span> <span class="va">x1</span>, id <span class="op">=</span> <span class="va">id</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">x1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">d</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
+<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">dat</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rs</span> <span class="op">&lt;-</span> <span class="fu">brsmm_re_study</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rs</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random-effects study</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Groups: 10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Groups: 4 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Summary by term:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  (Intercept)   0.0014         0       0               0    0.9957</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           x1   0.0032         0       0               0    0.7480</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  (Intercept)   0.5338    0.0011  0.4459          0.6976    0.8241</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimated covariance matrix D:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    0    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]    0    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       [,1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.285</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimated correlation matrix:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        [,1]   [,2]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 1.0000 0.2508</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.2508 1.0000</span>
-<span class="r-in"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">rs</span><span class="op">$</span><span class="va">summary</span>, digits <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |term        | sd_model| mean_mode| sd_mode| shrinkage_ratio| shapiro_p|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |:-----------|--------:|---------:|-------:|---------------:|---------:|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |(Intercept) |   0.0014|         0|       0|               0|    0.9957|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |x1          |   0.0032|         0|       0|               0|    0.7480|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      [,1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]    1</span>
+<span class="r-in"><span><span class="va">rs</span><span class="op">$</span><span class="va">summary</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          term  sd_model  mean_mode   sd_mode shrinkage_ratio shapiro_p</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) 0.5338184 0.00114907 0.4458568       0.6975955 0.8240609</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

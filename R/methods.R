@@ -38,6 +38,24 @@
 #'
 #' @return Named numeric vector of estimated parameters.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{brs_est}}, \code{\link{vcov.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' coef(fit)
+#' coef(fit, model = "mean")
+#' coef(fit, model = "precision")
+#' }
+#'
 #' @method coef brs
 #' @importFrom stats coef
 #' @export
@@ -64,6 +82,23 @@ coef.brs <- function(object,
 #' @param ... Ignored.
 #'
 #' @return A square numeric matrix.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{coef.brs}}, \code{\link{confint.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' vcov(fit)
+#' vcov(fit, model = "mean")
+#' }
 #'
 #' @method vcov brs
 #' @importFrom stats vcov
@@ -116,6 +151,23 @@ vcov.brs <- function(object,
 #'   \code{df} (number of estimated parameters) and \code{nobs}
 #'   (number of observations).
 #'
+#' @seealso \code{\link{brs}}, \code{\link{AIC.brs}}, \code{\link{BIC.brs}},
+#'   \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' logLik(fit)
+#' }
+#'
 #' @method logLik brs
 #' @importFrom stats logLik
 #' @export
@@ -139,6 +191,23 @@ logLik.brs <- function(object, ...) {
 #'
 #' @return Scalar AIC value.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{logLik.brs}}, \code{\link{BIC.brs}},
+#'   \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' AIC(fit)
+#' }
+#'
 #' @method AIC brs
 #' @importFrom stats AIC
 #' @export
@@ -156,6 +225,23 @@ AIC.brs <- function(object, ..., k = 2) {
 #' @param ... Ignored.
 #'
 #' @return Scalar BIC value.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{logLik.brs}}, \code{\link{AIC.brs}},
+#'   \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' BIC(fit)
+#' }
 #'
 #' @method BIC brs
 #' @importFrom stats BIC
@@ -175,6 +261,22 @@ BIC.brs <- function(object, ...) {
 #'
 #' @return Integer: number of observations.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' nobs(fit)
+#' }
+#'
 #' @method nobs brs
 #' @importFrom stats nobs
 #' @export
@@ -192,6 +294,23 @@ nobs.brs <- function(object, ...) {
 #' @param ... Ignored.
 #'
 #' @return The formula used to fit the model.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{model.matrix.brs}},
+#'   \code{\link{coef.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' formula(fit)
+#' }
 #'
 #' @method formula brs
 #' @importFrom stats formula
@@ -212,6 +331,24 @@ formula.brs <- function(x, ...) {
 #' @param ... Ignored.
 #'
 #' @return The design matrix for the specified submodel.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{formula.brs}},
+#'   \code{\link{coef.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' head(model.matrix(fit))
+#' head(model.matrix(fit, model = "precision"))
+#' }
 #'
 #' @method model.matrix brs
 #' @importFrom stats model.matrix
@@ -248,6 +385,24 @@ model.matrix.brs <- function(object,
 #' @param ...    Ignored.
 #'
 #' @return A list of class \code{"summary.betaregscale"}.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{print.summary.brs}},
+#'   \code{\link{brs_est}}, \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' s <- summary(fit)
+#' s$coefficients$mean
+#' }
 #'
 #' @method summary brs
 #' @importFrom stats pnorm
@@ -332,6 +487,23 @@ summary.brs <- function(object, ...) {
 #'   and precision submodels with significance stars, goodness-of-fit statistics
 #'   (log-likelihood, pseudo R-squared), optimization details, and censoring
 #'   information.
+#'
+#' @seealso \code{\link{summary.brs}}, \code{\link{brs}},
+#'   \code{\link{print.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' print(summary(fit))
+#' }
 #'
 #' @method print summary.brs
 #' @importFrom stats quantile printCoefmat
@@ -422,6 +594,23 @@ print.summary.brs <- function(x,
 #'   to the console, including the model call, mean coefficients (with link
 #'   function), and precision coefficients (with link function).
 #'
+#' @seealso \code{\link{summary.brs}}, \code{\link{print.summary.brs}},
+#'   \code{\link{brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' print(fit)
+#' }
+#'
 #' @method print brs
 #' @export
 print.brs <- function(x,
@@ -452,6 +641,24 @@ print.brs <- function(x,
 #' @param ...    Currently ignored.
 #'
 #' @return Numeric vector of fitted values.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{residuals.brs}},
+#'   \code{\link{predict.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' head(fitted(fit))
+#' head(fitted(fit, type = "phi"))
+#' }
 #'
 #' @method fitted brs
 #' @importFrom stats fitted
@@ -493,6 +700,23 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #' The weighted and sweighted residuals use the digamma/trigamma
 #' formulation from the precision parameterization (repar = 1),
 #' so internal conversion is applied when \code{repar != 1}.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' head(residuals(fit))
+#' head(residuals(fit, type = "pearson"))
+#' }
 #'
 #' @method residuals brs
 #' @importFrom stats residuals qnorm pbeta dbeta qlogis
@@ -617,6 +841,24 @@ residuals.brs <- function(object,
 #'
 #' @return Matrix with columns for lower and upper confidence bounds.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{coef.brs}}, \code{\link{vcov.brs}},
+#'   \code{\link{brs_est}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' confint(fit)
+#' confint(fit, model = "mean")
+#' }
+#'
 #' @method confint brs
 #' @importFrom stats confint qnorm
 #' @export
@@ -659,6 +901,26 @@ confint.brs <- function(object, parm, level = 0.95,
 #'
 #' @return Numeric vector or matrix.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{fitted.brs}},
+#'   \code{\link{brs_predict_scoreprob}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' head(predict(fit))
+#' head(predict(fit, type = "precision"))
+#' newdat <- data.frame(x1 = c(1, 2))
+#' predict(fit, newdata = newdat)
+#' }
+#'
 #' @method predict brs
 #' @importFrom stats predict qbeta model.matrix make.link terms model.frame
 #' @export
@@ -682,7 +944,6 @@ predict.brs <- function(object, newdata = NULL,
     eta_mu <- stats::make.link(object$link)$linkfun(mu)
   } else {
     # Build X from newdata
-    mt_mu <- stats::delete.response(object$terms$mean)
     mt_mu <- stats::delete.response(object$terms$mean)
     mf <- stats::model.frame(mt_mu, data = newdata, ...)
     X <- stats::model.matrix(mt_mu, mf)
@@ -747,20 +1008,30 @@ predict.brs <- function(object, newdata = NULL,
 
 #' Goodness-of-fit measures
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} or \code{"brsmm"} object.
 #'
 #' @return Data frame with logLik, AIC, BIC, and pseudo-R-squared.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{brs_est}}, \code{\link{brs_hessian}}
+#'
 #' @examples
 #' \donttest{
-#' set.seed(42)
-#' n <- 100
-#' dat <- data.frame(x1 = rnorm(n))
-#' sim <- brs_sim(formula = ~x1, data = dat, beta = c(0.2, 0.5), phi = 0.3, ncuts = 10)
-#' fit <- brs(y ~ x1, data = sim)
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
 #' brs_gof(fit)
 #' }
 #' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 #' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
@@ -768,14 +1039,14 @@ predict.brs <- function(object, newdata = NULL,
 #' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 #' Intermittent and Constant Osteoarthritis Pain (ICOAP).
 #' Arthritis Care and Research, 63(S11), S240-S252.
-#' doi:10.1002/acr.20543.
+#' \doi{10.1002/acr.20543}
 #'
 #' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 #' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 #' Visual Analogue Scales for assessment of pain intensity in adults:
 #' a systematic literature review.
 #' Journal of Pain and Symptom Management, 41(6), 1073-1093.
-#' doi:10.1016/j.jpainsymman.2010.08.016.
+#' \doi{10.1016/j.jpainsymman.2010.08.016}
 #' @rdname brs_gof
 #' @export
 brs_gof <- function(object) {
@@ -798,17 +1069,33 @@ brs_gof <- function(object) {
 #' @return Data frame of estimates, standard errors, z-values, and
 #'   p-values.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{brs_gof}}, \code{\link{brs_hessian}},
+#'   \code{\link{summary.brs}}
+#'
 #' @examples
 #' \donttest{
-#' sim <- brs_sim(
-#'   formula = ~x1, data = data.frame(x1 = rnorm(50)),
-#'   beta = c(0, 0.5), phi = 0.1, ncuts = 10, repar = 2
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
 #' )
-#' fit <- brs(y ~ x1, data = sim, repar = 2)
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
 #' brs_est(fit)
 #' }
 #'
 #' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
+#'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 #' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
@@ -816,14 +1103,14 @@ brs_gof <- function(object) {
 #' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 #' Intermittent and Constant Osteoarthritis Pain (ICOAP).
 #' Arthritis Care and Research, 63(S11), S240-S252.
-#' doi:10.1002/acr.20543.
+#' \doi{10.1002/acr.20543}
 #'
 #' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 #' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 #' Visual Analogue Scales for assessment of pain intensity in adults:
 #' a systematic literature review.
 #' Journal of Pain and Symptom Management, 41(6), 1073-1093.
-#' doi:10.1016/j.jpainsymman.2010.08.016.
+#' \doi{10.1016/j.jpainsymman.2010.08.016}
 #'
 #' @importFrom stats pnorm
 #' @rdname brs_est
@@ -852,10 +1139,42 @@ brs_est <- function(object, alpha = 0.05) {
 
 #' Internal coefficient table (deprecated, use brs_est() or summary())
 #'
+#' @description
+#' Deprecated convenience wrapper. Use \code{\link{brs_est}} for coefficient
+#' estimates or \code{\link{summary.brs}} for a full model summary.
+#'
 #' @param fit   A fitted \code{"brs"} object.
 #' @param alpha Significance level.
-#' @return A list with \code{est} and \code{gof}.
+#'
+#' @return A list with components \code{est} (from \code{\link{brs_est}})
+#'   and \code{gof} (from \code{\link{brs_gof}}).
+#'
+#' @seealso \code{\link{brs_est}}, \code{\link{brs_gof}}, \code{\link{summary.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' brs_coef(fit)
+#' }
+#'
 #' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
+#'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 #' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
@@ -863,15 +1182,14 @@ brs_est <- function(object, alpha = 0.05) {
 #' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 #' Intermittent and Constant Osteoarthritis Pain (ICOAP).
 #' Arthritis Care and Research, 63(S11), S240-S252.
-#' doi:10.1002/acr.20543.
+#' \doi{10.1002/acr.20543}
 #'
 #' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 #' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 #' Visual Analogue Scales for assessment of pain intensity in adults:
 #' a systematic literature review.
 #' Journal of Pain and Symptom Management, 41(6), 1073-1093.
-#' doi:10.1016/j.jpainsymman.2010.08.016.
-#' @keywords internal
+#' \doi{10.1016/j.jpainsymman.2010.08.016}
 #' @export
 brs_coef <- function(fit, alpha = 0.05) {
   .check_class(fit)
@@ -880,21 +1198,31 @@ brs_coef <- function(fit, alpha = 0.05) {
 
 #' Extract the Hessian matrix
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} or \code{"brsmm"} object.
 #'
 #' @return Numeric Hessian matrix.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{vcov.brs}}, \code{\link{brs_est}}
+#'
 #' @examples
 #' \donttest{
-#' sim <- brs_sim(
-#'   formula = ~x1, data = data.frame(x1 = rnorm(50)),
-#'   beta = c(0, 0.5), phi = 0.1, ncuts = 10, repar = 2
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
 #' )
-#' fit <- brs(y ~ x1, data = sim, repar = 2)
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
 #' brs_hessian(fit)
 #' }
 #'
 #' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 #' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
@@ -902,14 +1230,14 @@ brs_coef <- function(fit, alpha = 0.05) {
 #' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 #' Intermittent and Constant Osteoarthritis Pain (ICOAP).
 #' Arthritis Care and Research, 63(S11), S240-S252.
-#' doi:10.1002/acr.20543.
+#' \doi{10.1002/acr.20543}
 #'
 #' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 #' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 #' Visual Analogue Scales for assessment of pain intensity in adults:
 #' a systematic literature review.
 #' Journal of Pain and Symptom Management, 41(6), 1073-1093.
-#' doi:10.1016/j.jpainsymman.2010.08.016.
+#' \doi{10.1016/j.jpainsymman.2010.08.016}
 #'
 #' @rdname brs_hessian
 #' @export

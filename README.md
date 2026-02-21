@@ -335,7 +335,7 @@ The marginal group likelihood is
 
 $$
 L_j(\theta)=\int_{\mathbb{R}^{q_b}}
-\left\\{\prod_{i=1}^{n_j} L_{ij}(\mathbf{b}_j;\theta)\right\\}
+\left\{\prod_{i=1}^{n_j} L_{ij}(\mathbf{b}_j;\theta)\right\}
 \varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
 $$
 

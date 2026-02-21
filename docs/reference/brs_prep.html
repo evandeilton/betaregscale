@@ -49,7 +49,7 @@ All covariate columns are preserved unchanged in the output."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -207,20 +207,23 @@ forced delta on non-boundary observations is intentional.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+    <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: <a href="https://hdl.handle.net/1884/86624" class="external-link">https://hdl.handle.net/1884/86624</a>.</p>
+<p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
 Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
 (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 Intermittent and Constant Osteoarthritis Pain (ICOAP).
 Arthritis Care and Research, 63(S11), S240-S252.
-doi:10.1002/acr.20543.</p>
+<a href="https://doi.org/10.1002/acr.20543" class="external-link">doi:10.1002/acr.20543</a></p>
 <p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 Visual Analogue Scales for assessment of pain intensity in adults:
 a systematic literature review.
 Journal of Pain and Symptom Management, 41(6), 1073-1093.
-doi:10.1016/j.jpainsymman.2010.08.016.</p>
+<a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link">doi:10.1016/j.jpainsymman.2010.08.016</a></p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -236,11 +239,11 @@ doi:10.1016/j.jpainsymman.2010.08.016.</p>
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      left   right      yt  y delta          x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.05000 0.00001  0     1 -1.27114327</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.25000 0.35000 0.30000  3     3 -0.38254183</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.45000 0.55000 0.50000  5     3  0.64176604</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.65000 0.75000 0.70000  7     3  0.80906191</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.95000 0.99999 0.99999 10     2  0.07706487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.05000 0.00001  0     1  0.05003884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.25000 0.35000 0.30000  3     3  0.59057037</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.45000 0.55000 0.50000  5     3 -0.06702483</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.65000 0.75000 0.70000  7     3 -0.42435788</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.95000 0.99999 0.99999 10     2 -0.03673921</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 2: y + explicit delta ---</span></span></span>
 <span class="r-in"><span><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -251,11 +254,11 @@ doi:10.1016/j.jpainsymman.2010.08.016.</p>
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 5 | exact = 2, left = 0, right = 0, interval = 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      left   right    yt  y delta          x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.00001 1e-05  0     0 -1.27114327</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02500 0.03500 3e-02  3     3 -0.38254183</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.04500 0.05500 5e-02  5     3  0.64176604</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.06500 0.07500 7e-02  7     3  0.80906191</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.10000 0.10000 1e-01 10     0  0.07706487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.00001 1e-05  0     0  0.05003884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02500 0.03500 3e-02  3     3  0.59057037</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.04500 0.05500 5e-02  5     3 -0.06702483</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.06500 0.07500 7e-02  7     3 -0.42435788</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.10000 0.10000 1e-01 10     0 -0.03673921</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 3: left/right with NA patterns ---</span></span></span>
 <span class="r-in"><span><span class="va">d3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -266,11 +269,11 @@ doi:10.1016/j.jpainsymman.2010.08.016.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    left   right    yt  y delta         x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1e-05 0.05000 0.025 NA     1 -1.2711433</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2e-01 0.99999 0.600 NA     2 -0.3825418</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 3e-01 0.45000 0.375 NA     3  0.6417660</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 5e-01 0.50000 0.500 50     0  0.8090619</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    left   right    yt  y delta          x1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1e-05 0.05000 0.025 NA     1  0.05003884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2e-01 0.99999 0.600 NA     2  0.59057037</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 3e-01 0.45000 0.375 NA     3 -0.06702483</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 5e-01 0.50000 0.500 50     0 -0.42435788</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 4: y + left + right (analyst-supplied intervals) ---</span></span></span>
 <span class="r-in"><span><span class="va">d4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -281,49 +284,44 @@ doi:10.1016/j.jpainsymman.2010.08.016.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d4</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   left right   yt  y delta         x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.48  0.52 0.50 50     3 -0.9877414</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.73  0.77 0.75 75     3 -0.6175175</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   left right   yt  y delta       x1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.48  0.52 0.50 50     3 0.320000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.73  0.77 0.75 75     3 0.608032</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># --- Simulation Example ---</span></span></span>
+<span class="r-in"><span><span class="co"># --- Fitting after prep ---</span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span></span>
-<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_sim.html">brs_sim</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">dat</span>,</span></span>
-<span class="r-in"><span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">5</span></span></span>
+<span class="r-in"><span><span class="va">dat5</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
+<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu">brs_prep</span><span class="op">(</span><span class="va">sim</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 200 | exact = 0, left = 18, right = 21, interval = 161</span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">prep5</span> <span class="op">&lt;-</span> <span class="fu">brs_prep</span><span class="op">(</span><span class="va">dat5</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
+<span class="r-in"><span><span class="va">fit5</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit5</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> brs(formula = y ~ x1 + x2, data = prep)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> brs(formula = y ~ x1, data = prep5)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Quantile residuals:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Min      1Q  Median      3Q     Max </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -3.5282 -0.5680  0.2875  0.7798  2.7336 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.2708 -0.4767  0.0618  0.5480  2.5939 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (mean model with logit link):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -5.15677    0.08757 -58.886  &lt; 2e-16 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -0.38266    0.06216  -6.156 7.45e-10 ***</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x2           0.12275    0.06556   1.872   0.0612 .  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)   0.2551     0.8644   0.295    0.768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1           -0.2202     0.5412  -0.407    0.684</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Estimate Std. Error z value Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (phi)  -4.8810     0.1352  -36.11   &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (phi)  -0.3929     0.2763  -1.422    0.155</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Log-likelihood: -896.1340 on 4 Df</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Pseudo R-squared: 0.1097 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Number of iterations: 29 (BFGS) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Censoring: 161 interval | 18 left | 21 right </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Log-likelihood: -92.6521 on 3 Df | AIC: 191.3041 | BIC: 194.2913 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pseudo R-squared: 0.0029 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of iterations: 17 (BFGS) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Censoring: 18 interval | 1 left | 1 right </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

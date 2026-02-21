@@ -42,17 +42,21 @@
 #' @return Scalar: total log-likelihood.
 #'
 #' @examples
-#' set.seed(42)
-#' n <- 100
-#' dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-#' sim <- brs_sim(
-#'   formula = ~ x1 + x2, data = dat,
-#'   beta = c(0, 0.5, -0.2), phi = 1 / 5
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   x2 = rep(c(0, 0, 1, 1), 5)
 #' )
+#' prep <- brs_prep(dat, ncuts = 100)
 #' brs_loglik(
 #'   param = c(0, 0.5, -0.2, 1 / 5),
-#'   formula = y ~ x1 + x2, data = sim
+#'   formula = y ~ x1 + x2, data = prep
 #' )
+#' }
 #'
 #' @importFrom stats model.frame model.matrix model.response terms
 #' @keywords internal
@@ -107,21 +111,22 @@ brs_loglik <- function(param,
 #' @return Scalar: total log-likelihood.
 #'
 #' @examples
-#' set.seed(42)
-#' n <- 100
+#' \donttest{
 #' dat <- data.frame(
-#'   x1 = rnorm(n), x2 = rnorm(n),
-#'   z1 = runif(n)
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   x2 = rep(c(0, 0, 1, 1), 5),
+#'   z1 = rep(c(0, 1), 10)
 #' )
-#' sim <- brs_sim(
-#'   formula = ~ x1 + x2 | z1,
-#'   data = dat,
-#'   beta = c(0.2, -0.5, 0.3), zeta = c(0.5, -0.5)
-#' )
+#' prep <- brs_prep(dat, ncuts = 100)
 #' brs_loglik_var(
 #'   param = c(0.2, -0.5, 0.3, 0.5, -0.5),
-#'   formula = y ~ x1 + x2 | z1, data = sim
+#'   formula = y ~ x1 + x2 | z1, data = prep
 #' )
+#' }
 #'
 #' @importFrom Formula as.Formula Formula
 #' @importFrom stats delete.response

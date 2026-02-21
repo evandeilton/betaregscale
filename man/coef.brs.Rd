@@ -22,3 +22,23 @@ Named numeric vector of estimated parameters.
 \description{
 Extract model coefficients
 }
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brs(y ~ x1, data = prep)
+coef(fit)
+coef(fit, model = "mean")
+coef(fit, model = "precision")
+}
+
+}
+\seealso{
+\code{\link{brs}}, \code{\link{brs_est}}, \code{\link{vcov.brs}}
+}

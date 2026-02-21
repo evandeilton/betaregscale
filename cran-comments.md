@@ -1,10 +1,23 @@
 ## Resubmission (2.6.8)
 
-This is a minor resubmission to finalize complete S3 method parity between `brs` and `brsmm` (mixed-effects) objects before a final CRAN release.
+This is a minor resubmission to finalize complete S3 method parity between `brs` and `brsmm` (mixed-effects) objects and to complete a comprehensive documentation audit before CRAN release.
 
 ### Changes in this version:
 
 1. **brsmm standardization:** Added missing extractors (`formula()`, `model.matrix()`, `confint()`) and augmented conditional outputs for `residuals()` and `predict()` to achieve explicit method parity with the base `brs` object implementations. Function parameter consistency guarantees full compliance with CRAN policies (no modifications to `.GlobalEnv` or base `par()` properties were made).
+
+2. **Documentation audit — examples:**
+   - Added `\donttest{}` examples to all ~30 previously undocumented exported functions (S3 methods for `brs` and `brsmm`: `coef()`, `vcov()`, `logLik()`, `AIC()`, `BIC()`, `nobs()`, `formula()`, `model.matrix()`, `fitted()`, `residuals()`, `confint()`, `predict()`, `print()`, `summary()`, `ranef()`, `anova()`, `plot()`, `autoplot()`).
+   - All examples use deterministic toy datasets — no `set.seed()` in any example.
+   - No `\dontrun{}` anywhere in the package.
+
+3. **Documentation audit — references:**
+   - Added DOI `10.1080/0266476042000214501` (Ferrari & Cribari-Neto, 2004) to every occurrence of that reference.
+
+4. **Documentation audit — structure:**
+   - Added `@seealso` cross-links to all S3 method blocks.
+   - Completed `@param`, `@return`, `@method`, and `@examples` for `print.brsmm_re_study()`, `ranef()` generic, `brs_coef()`, `brs_hessian()`, and all extracting methods like `vcov()`, `predict()`, etc.
+   - `autoplot.*` examples use `ggplot2::autoplot()` (explicit namespace) for reliability.
 
 ---
 
@@ -44,7 +57,7 @@ This is a resubmission following CRAN feedback (Konstanze Lauseker, 20 Feb 2026)
 
 ### R CMD check results
 
-0 errors | 0 warnings | 2 notes
+0 errors | 0 warnings | 0 notes
 
 ### Downstream dependencies
 

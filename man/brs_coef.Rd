@@ -12,12 +12,38 @@ brs_coef(fit, alpha = 0.05)
 \item{alpha}{Significance level.}
 }
 \value{
-A list with \code{est} and \code{gof}.
+A list with components \code{est} (from \code{\link{brs_est}})
+  and \code{gof} (from \code{\link{brs_gof}}).
 }
 \description{
-Internal coefficient table (deprecated, use brs_est() or summary())
+Deprecated convenience wrapper. Use \code{\link{brs_est}} for coefficient
+estimates or \code{\link{summary.brs}} for a full model summary.
+}
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brs(y ~ x1, data = prep)
+brs_coef(fit)
+}
+
 }
 \references{
+Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: \url{https://hdl.handle.net/1884/86624}.
+
+Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+Beta regression for modelling rates and proportions.
+\emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+\doi{10.1080/0266476042000214501}
+
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
@@ -25,13 +51,15 @@ Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
 (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 Intermittent and Constant Osteoarthritis Pain (ICOAP).
 Arthritis Care and Research, 63(S11), S240-S252.
-doi:10.1002/acr.20543.
+\doi{10.1002/acr.20543}
 
 Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 Visual Analogue Scales for assessment of pain intensity in adults:
 a systematic literature review.
 Journal of Pain and Symptom Management, 41(6), 1073-1093.
-doi:10.1016/j.jpainsymman.2010.08.016.
+\doi{10.1016/j.jpainsymman.2010.08.016}
 }
-\keyword{internal}
+\seealso{
+\code{\link{brs_est}}, \code{\link{brs_gof}}, \code{\link{summary.brs}}
+}

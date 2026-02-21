@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,39 +67,52 @@
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+    <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: <a href="https://hdl.handle.net/1884/86624" class="external-link">https://hdl.handle.net/1884/86624</a>.</p>
+<p>Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+Beta regression for modelling rates and proportions.
+<em>Journal of Applied Statistics</em>, <b>31</b>(7), 799–815.
+<a href="https://doi.org/10.1080/0266476042000214501" class="external-link">doi:10.1080/0266476042000214501</a></p>
+<p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
 Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
 (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 Intermittent and Constant Osteoarthritis Pain (ICOAP).
 Arthritis Care and Research, 63(S11), S240-S252.
-doi:10.1002/acr.20543.</p>
+<a href="https://doi.org/10.1002/acr.20543" class="external-link">doi:10.1002/acr.20543</a></p>
 <p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 Visual Analogue Scales for assessment of pain intensity in adults:
 a systematic literature review.
 Journal of Pain and Symptom Management, 41(6), 1073-1093.
-doi:10.1016/j.jpainsymman.2010.08.016.</p>
+<a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link">doi:10.1016/j.jpainsymman.2010.08.016</a></p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="brs.html">brs</a></code>, <code><a href="brs_gof.html">brs_gof</a></code>, <code><a href="brs_hessian.html">brs_hessian</a></code>,
+  <code><a href="summary.brs.html">summary.brs</a></code></p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_sim.html">brs_sim</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  formula <span class="op">=</span> <span class="op">~</span><span class="va">x1</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">0.1</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
+<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">dat</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">brs_est</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      variable   estimate        se    z_value      p_value     ci_lower</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -3.0886607 0.1787335 -17.280815 6.561480e-67 -3.438971974</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          x1  0.3326557 0.1729164   1.923794 5.438036e-02 -0.006254317</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       (phi) -2.7342024 0.2646231 -10.332439 5.026571e-25 -3.252854133</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ci_upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -2.7383495</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.6715657</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -2.2155506</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      variable   estimate        se    z_value   p_value   ci_lower  ci_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept)  0.2550945 0.8643907  0.2951148 0.7679062 -1.4390802 1.9492691</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          x1 -0.2202075 0.5411943 -0.4068917 0.6840875 -1.2809288 0.8405139</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       (phi) -0.3929198 0.2762612 -1.4222765 0.1549460 -0.9343818 0.1485422</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

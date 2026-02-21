@@ -42,6 +42,10 @@
 #' expected frequencies implied by the fitted beta interval model.
 #'
 #' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 #' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
@@ -49,29 +53,32 @@
 #' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 #' Intermittent and Constant Osteoarthritis Pain (ICOAP).
 #' Arthritis Care and Research, 63(S11), S240-S252.
-#' doi:10.1002/acr.20543.
+#' \doi{10.1002/acr.20543}
 #'
 #' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 #' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 #' Visual Analogue Scales for assessment of pain intensity in adults:
 #' a systematic literature review.
 #' Journal of Pain and Symptom Management, 41(6), 1073-1093.
-#' doi:10.1016/j.jpainsymman.2010.08.016.
+#' \doi{10.1016/j.jpainsymman.2010.08.016}
+#'
+#' @seealso \code{\link{brs}}, \code{\link{plot.brs}},
+#'   \code{\link{autoplot.brs_bootstrap}}
 #'
 #' @examples
 #' \donttest{
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   set.seed(100)
-#'   dat <- data.frame(x1 = rnorm(120), x2 = rnorm(120))
-#'   sim <- brs_sim(
-#'     formula = ~ x1 + x2, data = dat,
-#'     beta = c(0.1, -0.3, 0.2), phi = 0.2, ncuts = 100, repar = 2
-#'   )
-#'   fit <- brs(y ~ x1 + x2, data = sim, repar = 2)
-#'
-#'   autoplot.brs(fit, type = "calibration")
-#'   autoplot.brs(fit, type = "score_dist")
-#' }
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   x2 = rep(c(0, 0, 1, 1), 5)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1 + x2, data = prep)
+#' ggplot2::autoplot(fit, type = "calibration")
+#' ggplot2::autoplot(fit, type = "score_dist")
 #' }
 #'
 #' @importFrom ggplot2 autoplot
@@ -336,6 +343,24 @@ autoplot.brs <- function(object,
 #' For \code{type = "dist"}, \code{"qq"}, and \code{"stability"},
 #' bootstrap draws must be present in \code{attr(object, "boot_draws")},
 #' obtained by fitting with \code{brs_bootstrap(..., keep_draws = TRUE)}.
+#'
+#' @seealso \code{\link{brs_bootstrap}}, \code{\link{brs}},
+#'   \code{\link{autoplot.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' boot <- brs_bootstrap(fit, R = 50)
+#' ggplot2::autoplot(boot, type = "ci_forest")
+#' }
 #'
 #' @method autoplot brs_bootstrap
 #' @export autoplot.brs_bootstrap
@@ -660,6 +685,24 @@ autoplot.brs_bootstrap <- function(object,
 #' \code{type = "dist"} requires AME simulation draws stored in
 #' \code{attr(object, "ame_draws")}, which are available when marginal
 #' effects are computed with \code{keep_draws = TRUE} and \code{interval = TRUE}.
+#'
+#' @seealso \code{\link{brs_marginaleffects}}, \code{\link{brs}},
+#'   \code{\link{autoplot.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' ame <- brs_marginaleffects(fit)
+#' ggplot2::autoplot(ame, type = "forest")
+#' }
 #'
 #' @method autoplot brs_marginaleffects
 #' @export autoplot.brs_marginaleffects

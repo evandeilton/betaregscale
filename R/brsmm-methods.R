@@ -26,6 +26,26 @@
 #'
 #' @return Named numeric vector.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{vcov.brsmm}},
+#'   \code{\link{confint.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' coef(fit)
+#' coef(fit, model = "mean")
+#' coef(fit, model = "random")
+#' }
+#'
 #' @method coef brsmm
 #' @importFrom stats coef
 #' @export
@@ -51,6 +71,24 @@ coef.brsmm <- function(object,
 #' @param ... Currently ignored.
 #'
 #' @return Numeric matrix.
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{coef.brsmm}},
+#'   \code{\link{confint.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' vcov(fit, model = "mean")
+#' }
 #'
 #' @method vcov brsmm
 #' @importFrom stats vcov
@@ -100,6 +138,23 @@ vcov.brsmm <- function(object,
 #'
 #' @return The formula used to fit the model.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{model.matrix.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' formula(fit)
+#' }
+#'
 #' @method formula brsmm
 #' @importFrom stats formula
 #' @export
@@ -116,6 +171,24 @@ formula.brsmm <- function(x, ...) {
 #' @param ... Ignored.
 #'
 #' @return The design matrix for the specified submodel.
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{formula.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' head(model.matrix(fit))
+#' head(model.matrix(fit, model = "random"))
+#' }
 #'
 #' @method model.matrix brsmm
 #' @importFrom stats model.matrix
@@ -142,6 +215,24 @@ model.matrix.brsmm <- function(object,
 #' @param ...    Currently ignored.
 #'
 #' @return Matrix with columns for lower and upper confidence bounds.
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{coef.brsmm}},
+#'   \code{\link{vcov.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' confint(fit, model = "mean")
+#' }
 #'
 #' @method confint brsmm
 #' @importFrom stats confint qnorm
@@ -177,6 +268,24 @@ confint.brsmm <- function(object, parm, level = 0.95,
 #'
 #' @return Object of class \code{"logLik"}.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{AIC.brsmm}},
+#'   \code{\link{BIC.brsmm}}, \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' logLik(fit)
+#' }
+#'
 #' @method logLik brsmm
 #' @importFrom stats logLik
 #' @export
@@ -198,6 +307,24 @@ logLik.brsmm <- function(object, ...) {
 #'
 #' @return Numeric scalar.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{logLik.brsmm}},
+#'   \code{\link{BIC.brsmm}}, \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' AIC(fit)
+#' }
+#'
 #' @method AIC brsmm
 #' @importFrom stats AIC
 #' @export
@@ -213,6 +340,24 @@ AIC.brsmm <- function(object, ..., k = 2) {
 #' @param ... Currently ignored.
 #'
 #' @return Numeric scalar.
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{logLik.brsmm}},
+#'   \code{\link{AIC.brsmm}}, \code{\link{brs_gof}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' BIC(fit)
+#' }
 #'
 #' @method BIC brsmm
 #' @importFrom stats BIC
@@ -230,6 +375,23 @@ BIC.brsmm <- function(object, ...) {
 #'
 #' @return Integer.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{fitted.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' nobs(fit)
+#' }
+#'
 #' @method nobs brsmm
 #' @importFrom stats nobs
 #' @export
@@ -246,6 +408,25 @@ nobs.brsmm <- function(object, ...) {
 #' @param ... Currently ignored.
 #'
 #' @return Numeric vector.
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{residuals.brsmm}},
+#'   \code{\link{predict.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' head(fitted(fit))
+#' head(fitted(fit, type = "phi"))
+#' }
 #'
 #' @method fitted brsmm
 #' @importFrom stats fitted
@@ -272,6 +453,25 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
 #'
 #' @return Numeric vector.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{fitted.brsmm}},
+#'   \code{\link{brs_predict_scoreprob}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' head(predict(fit))
+#' head(predict(fit, type = "precision"))
+#' }
+#'
 #' @method predict brsmm
 #' @importFrom stats predict model.frame model.matrix delete.response qbeta
 #' @export
@@ -289,14 +489,13 @@ predict.brsmm <- function(object,
   gamma <- object$par[p + seq_len(q)]
 
   if (is.null(newdata)) {
+    eta_fixed <- as.numeric(object$model_matrices$X %*% beta)
     if (is.matrix(object$random$mode_b)) {
       b_obs <- object$random$mode_b[object$group_index, , drop = FALSE]
-      eta_mu <- as.numeric(object$model_matrices$X %*% beta) +
-        rowSums(object$model_matrices$Xr * b_obs)
+      eta_mu <- eta_fixed + rowSums(object$model_matrices$Xr * b_obs)
     } else {
       b_obs <- object$random$mode_b[object$group_index]
-      eta_mu <- as.numeric(object$model_matrices$X %*% beta) +
-        object$model_matrices$Xr[, 1L] * b_obs
+      eta_mu <- eta_fixed + object$model_matrices$Xr[, 1L] * b_obs
     }
     eta_phi <- as.numeric(object$model_matrices$Z %*% gamma)
   } else {
@@ -304,7 +503,6 @@ predict.brsmm <- function(object,
       stop("'newdata' must be a data.frame.", call. = FALSE)
     }
 
-    tm_mu <- stats::delete.response(object$terms$mean)
     tm_mu <- stats::delete.response(object$terms$mean)
     mf_mu <- stats::model.frame(tm_mu, data = newdata, ...)
     Xn <- stats::model.matrix(tm_mu, mf_mu)
@@ -321,6 +519,7 @@ predict.brsmm <- function(object,
       )
     }
 
+    eta_fixed <- as.numeric(Xn %*% beta)
     if (is.matrix(object$random$mode_b)) {
       bnew <- matrix(0, nrow = nrow(Xrn), ncol = ncol(Xrn))
       if (object$random$group %in% names(newdata)) {
@@ -331,7 +530,7 @@ predict.brsmm <- function(object,
           bnew[ok, ] <- object$random$mode_b[idx[ok], , drop = FALSE]
         }
       }
-      eta_mu <- as.numeric(Xn %*% beta + rowSums(Xrn * bnew))
+      eta_mu <- eta_fixed + rowSums(Xrn * bnew)
     } else {
       bnew <- rep(0, nrow(Xrn))
       if (object$random$group %in% names(newdata)) {
@@ -340,7 +539,7 @@ predict.brsmm <- function(object,
         bnew <- as.numeric(map[gnew])
         bnew[is.na(bnew)] <- 0
       }
-      eta_mu <- as.numeric(Xn %*% beta + Xrn[, 1L] * bnew)
+      eta_mu <- eta_fixed + Xrn[, 1L] * bnew
     }
     eta_phi <- as.numeric(Zn %*% gamma)
   }
@@ -389,8 +588,27 @@ predict.brsmm <- function(object,
 #'
 #' @return Numeric vector.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{fitted.brsmm}},
+#'   \code{\link{plot.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' head(residuals(fit))
+#' head(residuals(fit, type = "pearson"))
+#' }
+#'
 #' @method residuals brsmm
-#' @importFrom stats residuals qnorm pbeta dbeta qlogis
+#' @importFrom stats residuals qnorm pbeta dbeta qlogis runif
 #' @export
 residuals.brsmm <- function(object, type = c(
                               "response", "pearson",
@@ -459,19 +677,17 @@ residuals.brsmm <- function(object, type = c(
       u <- pmin(pmax(u, 1e-10), 1 - 1e-10)
       stats::qnorm(u)
     },
-    weighted = {
-      prec <- to_precision(mu, phi, repar)
-      ystar <- stats::qlogis(y)
-      mustar <- digamma(mu * prec) - digamma((1 - mu) * prec)
-      v <- trigamma(mu * prec) + trigamma((1 - mu) * prec)
-      (ystar - mustar) / sqrt(prec * v)
-    },
+    weighted = ,
     sweighted = {
       prec <- to_precision(mu, phi, repar)
       ystar <- stats::qlogis(y)
       mustar <- digamma(mu * prec) - digamma((1 - mu) * prec)
       v <- trigamma(mu * prec) + trigamma((1 - mu) * prec)
-      (ystar - mustar) / sqrt(v)
+      if (type == "weighted") {
+        (ystar - mustar) / sqrt(prec * v)
+      } else {
+        (ystar - mustar) / sqrt(v)
+      }
     }
   )
 }
@@ -484,8 +700,27 @@ residuals.brsmm <- function(object, type = c(
 #'
 #' @return Object of class \code{"summary.brsmm"}.
 #'
+#' @seealso \code{\link{brsmm}}, \code{\link{print.summary.brsmm}},
+#'   \code{\link{brs_gof}}, \code{\link{brsmm_re_study}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' s <- summary(fit)
+#' s$coefficients$mean
+#' }
+#'
 #' @method summary brsmm
-#' @importFrom stats pnorm
+#' @importFrom stats pnorm residuals
 #' @export
 summary.brsmm <- function(object, ...) {
   .check_class_mm(object)
@@ -509,9 +744,9 @@ summary.brsmm <- function(object, ...) {
   idx_gamma <- object$p + seq_len(object$q)
   idx_re <- object$p + object$q + seq_len(object$k_re)
 
-  # Check residuals
+  # Check residuals (Prioritizing randomized quantile residuals for censored data)
   rqr <- tryCatch(
-    residuals(object, type = "response"), # Could check rqr later if we implement for brsmm
+    residuals(object, type = "rqr"),
     error = function(e) object$residuals
   )
 
@@ -561,8 +796,26 @@ summary.brsmm <- function(object, ...) {
 #'
 #' @return Invisibly returns \code{x}.
 #'
+#' @seealso \code{\link{summary.brsmm}}, \code{\link{brsmm}},
+#'   \code{\link{print.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' print(summary(fit))
+#' }
+#'
 #' @method print summary.brsmm
-#' @importFrom stats printCoefmat
+#' @importFrom stats printCoefmat quantile
 #' @export
 print.summary.brsmm <- function(x,
                                 digits = max(3, getOption("digits") - 3),
@@ -578,13 +831,13 @@ print.summary.brsmm <- function(x,
     x$integration
   )
 
-  # Quantile residuals summary (using response residuals here initially, rqr to be added eventually)
+  # Quantile residuals summary
   rq <- stats::quantile(x$residuals,
     probs = c(0, 0.25, 0.5, 0.75, 1),
     na.rm = TRUE
   )
   names(rq) <- c("Min", "1Q", "Median", "3Q", "Max")
-  cat("Residuals:\n")
+  cat("Randomized Quantile Residuals:\n")
   print(round(rq, digits))
   cat("\n")
 
@@ -599,11 +852,7 @@ print.summary.brsmm <- function(x,
   cat("\n")
 
   # Precision model
-  phi_label <- if (nrow(x$coefficients$precision) > 1L) {
-    paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
-  } else {
-    paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
-  }
+  phi_label <- paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
   cat(phi_label)
   stats::printCoefmat(x$coefficients$precision,
     digits = digits,
@@ -614,7 +863,7 @@ print.summary.brsmm <- function(x,
   cat("\n")
 
   # Random effects
-  cat("Random-effects parameters:\n")
+  cat("Random-effects parameters (Cholesky scale):\n")
   stats::printCoefmat(x$coefficients$random,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
@@ -663,6 +912,24 @@ print.summary.brsmm <- function(x,
 #'
 #' @return Invisibly returns \code{x}.
 #'
+#' @seealso \code{\link{summary.brsmm}}, \code{\link{print.summary.brsmm}},
+#'   \code{\link{brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' print(fit)
+#' }
+#'
 #' @method print brsmm
 #' @export
 print.brsmm <- function(x,
@@ -709,12 +976,64 @@ print.brsmm <- function(x,
 }
 
 
+#' Extract random effects
+#'
+#' @description Generic function for extracting random effects.
+#' @param object A fitted model object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return Method-specific; for \code{"brsmm"} objects, a matrix or named
+#'   numeric vector of group-specific random-effect modes.
+#'
+#' @seealso \code{\link{ranef.brsmm}}, \code{\link{brsmm_re_study}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' ranef(fit)
+#' }
+#'
+#' @export
+ranef <- function(object, ...) UseMethod("ranef")
+
+
 #' Extract random effects from a brsmm model
 #'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param ... Currently ignored.
 #'
-#' @return Named numeric vector of group-specific random-intercept modes.
+#' @return A matrix or named numeric vector of group-specific random-effect
+#'   posterior modes.
+#'
+#' @method ranef brsmm
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{brsmm_re_study}},
+#'   \code{\link{ranef}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' ranef(fit)
+#' }
+#'
 #' @export
 ranef.brsmm <- function(object, ...) {
   .check_class_mm(object)

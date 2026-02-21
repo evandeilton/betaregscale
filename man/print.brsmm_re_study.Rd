@@ -2,20 +2,47 @@
 % Please edit documentation in R/brsmm-random-effects-study.R
 \name{print.brsmm_re_study}
 \alias{print.brsmm_re_study}
-\title{Print method for random-effects study}
+\title{Print a random-effects study}
 \usage{
 \method{print}{brsmm_re_study}(x, digits = max(3, getOption("digits") - 3), ...)
 }
 \arguments{
-\item{x}{A \code{"brsmm_re_study"} object.}
+\item{x}{A \code{"brsmm_re_study"} object returned by
+\code{\link{brsmm_re_study}}.}
 
-\item{digits}{Number of digits.}
+\item{digits}{Integer: number of significant digits for rounding
+(default \code{max(3, getOption("digits") - 3)}).}
 
 \item{...}{Currently ignored.}
 }
 \value{
-Invisibly returns \code{x}.
+Invisibly returns \code{x}. Called for its side-effect of
+  printing the study to the console.
 }
 \description{
-Print method for random-effects study
+Prints a compact summary of the random-effects study returned by
+\code{\link{brsmm_re_study}}, including per-term standard deviations,
+shrinkage ratios, Shapiro-Wilk p-values, and the estimated covariance
+and correlation matrices.
+}
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+rs <- brsmm_re_study(fit)
+print(rs)
+}
+
+}
+\seealso{
+\code{\link{brsmm_re_study}}, \code{\link{brsmm}},
+  \code{\link{ranef.brsmm}}
 }

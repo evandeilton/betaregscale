@@ -32,3 +32,23 @@ Matrix with columns for lower and upper confidence bounds.
 Computes Wald confidence intervals for model parameters using the
 normal approximation.
 }
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brs(y ~ x1, data = prep)
+confint(fit)
+confint(fit, model = "mean")
+}
+
+}
+\seealso{
+\code{\link{brs}}, \code{\link{coef.brs}}, \code{\link{vcov.brs}},
+  \code{\link{brs_est}}
+}

@@ -216,7 +216,7 @@ kbl10(
   data.frame(term = names(fit_mm_rs$random$sd_b), sd = as.numeric(fit_mm_rs$random$sd_b)),
   digits = 4
 )
-kbl10(head(ranef.brsmm(fit_mm_rs), 10))
+kbl10(head(ranef(fit_mm_rs), 10))
 ```
 
 ## Estudos adicionais dos efeitos aleatórios (numéricos e visuais)
@@ -271,7 +271,7 @@ kbl10(
   ),
   digits = 4
 )
-kbl10(head(ranef.brsmm(fit_mm), 10))
+kbl10(head(ranef(fit_mm), 10))
 ```
 
 For random intercept + slope models:

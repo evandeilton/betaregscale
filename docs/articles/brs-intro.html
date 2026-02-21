@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -102,7 +102,7 @@ dataset.</p>
 <span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"evandeilton/betaregscale"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evandeilton/betaregscale" class="external-link">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="censoring-types">Censoring types<a class="anchor" aria-label="anchor" href="#censoring-types"></a>
@@ -141,9 +141,9 @@ classified by <code><a href="../reference/brs_check.html">brs_check()</a></code>
 </tbody>
 </table>
 <p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
 are the beta density and CDF,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i, u_i]</annotation></semantics></math>
 are the interval endpoints, and
@@ -500,7 +500,7 @@ skipped:</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -4072.5673 on 4 Df</span></span>
+<span><span class="co">#&gt; Log-likelihood: -4072.5673 on 4 Df | AIC: 8153.1346 | BIC: 8172.7656 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.1292 </span></span>
 <span><span class="co">#&gt; Number of iterations: 35 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 796 interval | 74 left | 130 right</span></span></code></pre></div>
@@ -657,7 +657,7 @@ with interval
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -4035.2262 on 4 Df</span></span>
+<span><span class="co">#&gt; Log-likelihood: -4035.2262 on 4 Df | AIC: 8078.4524 | BIC: 8098.0834 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.2393 </span></span>
 <span><span class="co">#&gt; Number of iterations: 39 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 809 interval | 65 left | 126 right</span></span></code></pre></div>
@@ -1337,7 +1337,7 @@ simulation.</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -3922.2430 on 5 Df</span></span>
+<span><span class="co">#&gt; Log-likelihood: -3922.2430 on 5 Df | AIC: 7854.4861 | BIC: 7879.0249 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.1159 </span></span>
 <span><span class="co">#&gt; Number of iterations: 42 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 744 interval | 105 left | 151 right</span></span></code></pre></div>
@@ -1855,13 +1855,13 @@ predictive validation.</p>
 <h3 id="repeated-k-fold-cross-validation">Repeated k-fold cross-validation<a class="anchor" aria-label="anchor" href="#repeated-k-fold-cross-validation"></a>
 </h3>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">303</span><span class="op">)</span> <span class="co"># For cross-validation reproducibility</span></span>
+<span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">sim_fixed</span>,</span>
 <span>  k <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  repeats <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">303</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">cv_res</span><span class="op">)</span></span></code></pre></div>
 <table class="table">

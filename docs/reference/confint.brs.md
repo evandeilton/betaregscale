@@ -42,3 +42,36 @@ confint(
 ## Value
 
 Matrix with columns for lower and upper confidence bounds.
+
+## See also
+
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md),
+[`coef.brs`](https://evandeilton.github.io/betaregscale/reference/coef.brs.md),
+[`vcov.brs`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md),
+[`brs_est`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
+
+## Examples
+
+``` r
+# \donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brs(y ~ x1, data = prep)
+confint(fit)
+#>                  2.5 %    97.5 %
+#> (Intercept) -1.4390802 1.9492691
+#> x1          -1.2809288 0.8405139
+#> (phi)       -0.9343818 0.1485422
+confint(fit, model = "mean")
+#>                 2.5 %    97.5 %
+#> (Intercept) -1.439080 1.9492691
+#> x1          -1.280929 0.8405139
+# }
+```

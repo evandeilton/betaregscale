@@ -128,15 +128,15 @@ is the same logic used by
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
 with a user-supplied `delta` vector:
 
-|            |              |                            |                            |
-|------------|--------------|----------------------------|----------------------------|
-| \\\delta\\ | Condition    | \\l_i\\ (left)             | \\u_i\\ (right)            |
-| 0          | (any)        | \\y / K\\                  | \\y / K\\                  |
-| 1          | \\y = 0\\    | \\\epsilon\\               | \\\mathrm{lim} / K\\       |
-| 1          | \\y \neq 0\\ | \\\epsilon\\               | \\(y + \mathrm{lim}) / K\\ |
-| 2          | \\y = K\\    | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
-| 2          | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
-| 3          | type `"m"`   | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
+|  |  |  |  |
+|----|----|----|----|
+| \\\delta\\ | Condition | \\l_i\\ (left) | \\u_i\\ (right) |
+| 0 | (any) | \\y / K\\ | \\y / K\\ |
+| 1 | \\y = 0\\ | \\\epsilon\\ | \\\mathrm{lim} / K\\ |
+| 1 | \\y \neq 0\\ | \\\epsilon\\ | \\(y + \mathrm{lim}) / K\\ |
+| 2 | \\y = K\\ | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
+| 2 | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
+| 3 | type `"m"` | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
 
 **Consistency warnings**: when the analyst supplies `delta` values that
 are unusual for the given `y` (e.g., \\\delta = 1\\ but \\y \neq 0\\),
@@ -149,19 +149,25 @@ All endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\ with
 
 ## References
 
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+<https://hdl.handle.net/1884/86624>.
+
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
 of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
 Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ), Short-Form
 McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale (CPGS),
 Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of Intermittent
 and Constant Osteoarthritis Pain (ICOAP). Arthritis Care and Research,
-63(S11), S240-S252. doi:10.1002/acr.20543.
+63(S11), S240-S252.
+[doi:10.1002/acr.20543](https://doi.org/10.1002/acr.20543)
 
 Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
 comparing Numerical Rating Scales, Verbal Rating Scales, and Visual
 Analogue Scales for assessment of pain intensity in adults: a systematic
 literature review. Journal of Pain and Symptom Management, 41(6),
-1073-1093. doi:10.1016/j.jpainsymman.2010.08.016.
+1073-1093.
+[doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
 
 ## See also
 
@@ -178,11 +184,11 @@ d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
 brs_prep(d1, ncuts = 10)
 #> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3
 #>      left   right      yt  y delta          x1
-#> 1 0.00001 0.05000 0.00001  0     1 -1.27114327
-#> 2 0.25000 0.35000 0.30000  3     3 -0.38254183
-#> 3 0.45000 0.55000 0.50000  5     3  0.64176604
-#> 4 0.65000 0.75000 0.70000  7     3  0.80906191
-#> 5 0.95000 0.99999 0.99999 10     2  0.07706487
+#> 1 0.00001 0.05000 0.00001  0     1  0.05003884
+#> 2 0.25000 0.35000 0.30000  3     3  0.59057037
+#> 3 0.45000 0.55000 0.50000  5     3 -0.06702483
+#> 4 0.65000 0.75000 0.70000  7     3 -0.42435788
+#> 5 0.95000 0.99999 0.99999 10     2 -0.03673921
 
 # --- Mode 2: y + explicit delta ---
 d2 <- data.frame(
@@ -193,11 +199,11 @@ d2 <- data.frame(
 brs_prep(d2, ncuts = 100)
 #> brs_prep: n = 5 | exact = 2, left = 0, right = 0, interval = 3
 #>      left   right    yt  y delta          x1
-#> 1 0.00001 0.00001 1e-05  0     0 -1.27114327
-#> 2 0.02500 0.03500 3e-02  3     3 -0.38254183
-#> 3 0.04500 0.05500 5e-02  5     3  0.64176604
-#> 4 0.06500 0.07500 7e-02  7     3  0.80906191
-#> 5 0.10000 0.10000 1e-01 10     0  0.07706487
+#> 1 0.00001 0.00001 1e-05  0     0  0.05003884
+#> 2 0.02500 0.03500 3e-02  3     3  0.59057037
+#> 3 0.04500 0.05500 5e-02  5     3 -0.06702483
+#> 4 0.06500 0.07500 7e-02  7     3 -0.42435788
+#> 5 0.10000 0.10000 1e-01 10     0 -0.03673921
 
 # --- Mode 3: left/right with NA patterns ---
 d3 <- data.frame(
@@ -208,11 +214,11 @@ d3 <- data.frame(
 )
 brs_prep(d3, ncuts = 100)
 #> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
-#>    left   right    yt  y delta         x1
-#> 1 1e-05 0.05000 0.025 NA     1 -1.2711433
-#> 2 2e-01 0.99999 0.600 NA     2 -0.3825418
-#> 3 3e-01 0.45000 0.375 NA     3  0.6417660
-#> 4 5e-01 0.50000 0.500 50     0  0.8090619
+#>    left   right    yt  y delta          x1
+#> 1 1e-05 0.05000 0.025 NA     1  0.05003884
+#> 2 2e-01 0.99999 0.600 NA     2  0.59057037
+#> 3 3e-01 0.45000 0.375 NA     3 -0.06702483
+#> 4 5e-01 0.50000 0.500 50     0 -0.42435788
 
 # --- Mode 4: y + left + right (analyst-supplied intervals) ---
 d4 <- data.frame(
@@ -223,49 +229,44 @@ d4 <- data.frame(
 )
 brs_prep(d4, ncuts = 100)
 #> brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2
-#>   left right   yt  y delta         x1
-#> 1 0.48  0.52 0.50 50     3 -0.9877414
-#> 2 0.73  0.77 0.75 75     3 -0.6175175
+#>   left right   yt  y delta       x1
+#> 1 0.48  0.52 0.50 50     3 0.320000
+#> 2 0.73  0.77 0.75 75     3 0.608032
 
-# --- Simulation Example ---
+# --- Fitting after prep ---
 # \donttest{
-set.seed(42)
-n <- 200
-dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- brs_sim(
-  formula = ~ x1 + x2, data = dat,
-  beta = c(0.2, -0.5, 0.3), phi = 1 / 5
+dat5 <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
 )
-prep <- brs_prep(sim, ncuts = 100)
-#> brs_prep: n = 200 | exact = 0, left = 18, right = 21, interval = 161
-fit <- brs(y ~ x1 + x2, data = prep)
-summary(fit)
+prep5 <- brs_prep(dat5, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit5 <- brs(y ~ x1, data = prep5)
+summary(fit5)
 #> 
 #> Call:
-#> brs(formula = y ~ x1 + x2, data = prep)
+#> brs(formula = y ~ x1, data = prep5)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -3.5282 -0.5680  0.2875  0.7798  2.7336 
+#> -2.2708 -0.4767  0.0618  0.5480  2.5939 
 #> 
 #> Coefficients (mean model with logit link):
-#>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept) -5.15677    0.08757 -58.886  < 2e-16 ***
-#> x1          -0.38266    0.06216  -6.156 7.45e-10 ***
-#> x2           0.12275    0.06556   1.872   0.0612 .  
-#> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#>             Estimate Std. Error z value Pr(>|z|)
+#> (Intercept)   0.2551     0.8644   0.295    0.768
+#> x1           -0.2202     0.5412  -0.407    0.684
 #> 
 #> Phi coefficients (precision model with logit link):
-#>       Estimate Std. Error z value Pr(>|z|)    
-#> (phi)  -4.8810     0.1352  -36.11   <2e-16 ***
+#>       Estimate Std. Error z value Pr(>|z|)
+#> (phi)  -0.3929     0.2763  -1.422    0.155
 #> ---
-#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-#> ---
-#> Log-likelihood: -896.1340 on 4 Df
-#> Pseudo R-squared: 0.1097 
-#> Number of iterations: 29 (BFGS) 
-#> Censoring: 161 interval | 18 left | 21 right 
+#> Log-likelihood: -92.6521 on 3 Df | AIC: 191.3041 | BIC: 194.2913 
+#> Pseudo R-squared: 0.0029 
+#> Number of iterations: 17 (BFGS) 
+#> Censoring: 18 interval | 1 left | 1 right 
 #> 
 # }
 ```

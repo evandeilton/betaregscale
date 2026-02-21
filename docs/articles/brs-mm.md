@@ -22,73 +22,111 @@ library(betaregscale)
 
 ## Mathematical model
 
-Assume observations $i = 1,\ldots,n_{j}$ within groups $j = 1,\ldots,G$,
-with group-specific random-effects vector
-$\mathbf{b}_{j} \in {\mathbb{R}}^{q_{b}}$.
+Assume observations $`i = 1, \dots, n_j`$ within groups
+$`j = 1, \dots, G`$, with group-specific random-effects vector
+$`\mathbf{b}_j \in \mathbb{R}^{q_b}`$.
 
 ### Linear predictors
 
-$$\eta_{\mu,ij} = x_{ij}^{\top}\beta + w_{ij}^{\top}\mathbf{b}_{j},\qquad\eta_{\phi,ij} = z_{ij}^{\top}\gamma$$
+``` math
 
-$$\mu_{ij} = g^{- 1}\left( \eta_{\mu,ij} \right),\qquad\phi_{ij} = h^{- 1}\left( \eta_{\phi,ij} \right)$$
+\eta_{\mu,ij} = x_{ij}^\top \beta + w_{ij}^\top \mathbf{b}_j,
+\qquad
+\eta_{\phi,ij} = z_{ij}^\top \gamma
+```
 
-with $g( \cdot )$ and $h( \cdot )$ chosen by `link` and `link_phi`. The
-random-effects design row $w_{ij}$ is defined by
+``` math
+
+\mu_{ij} = g^{-1}(\eta_{\mu,ij}),
+\qquad
+\phi_{ij} = h^{-1}(\eta_{\phi,ij})
+```
+
+with $`g(\cdot)`$ and $`h(\cdot)`$ chosen by `link` and `link_phi`. The
+random-effects design row $`w_{ij}`$ is defined by
 `random = ~ terms | group`.
 
 ### Beta parameterization
 
-For each $\left( \mu_{ij},\phi_{ij} \right)$, `repar` maps to beta shape
-parameters $\left( a_{ij},b_{ij} \right)$ via
+For each $`(\mu_{ij}, \phi_{ij})`$, `repar` maps to beta shape
+parameters $`(a_{ij}, b_{ij})`$ via
 [`brs_repar()`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 ### Conditional contribution by censoring type
 
 Each observation contributes:
 
-$$L_{ij}\left( b_{j};\theta \right) = \begin{cases}
-{f\left( y_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 0} \\
-{F\left( u_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 1} \\
-{1 - F\left( l_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 2} \\
-{F\left( u_{ij};a_{ij},b_{ij} \right) - F\left( l_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 3}
-\end{cases}$$
+``` math
 
-where $l_{ij},u_{ij}$ are interval endpoints on $(0,1)$, $f( \cdot )$ is
-beta density, and $F( \cdot )$ is beta CDF.
+L_{ij}(b_j;\theta)=
+\begin{cases}
+f(y_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=0\\
+F(u_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=1\\
+1 - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=2\\
+F(u_{ij}; a_{ij}, b_{ij}) - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=3
+\end{cases}
+```
+
+where $`l_{ij},u_{ij}`$ are interval endpoints on $`(0,1)`$,
+$`f(\cdot)`$ is beta density, and $`F(\cdot)`$ is beta CDF.
 
 ### Random-effects distribution
 
-$$\mathbf{b}_{j} \sim \mathcal{N}(\mathbf{0},D),$$
+``` math
 
-where $D$ is a symmetric positive-definite covariance matrix.
+\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D),
+```
+
+where $`D`$ is a symmetric positive-definite covariance matrix.
 Internally,
 [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
-optimizes a packed lower-Cholesky parameterization $D = LL^{\top}$
+optimizes a packed lower-Cholesky parameterization $`D = LL^\top`$
 (diagonal entries on log-scale for positivity).
 
 ### Group marginal likelihood
 
-$$L_{j}(\theta) = \int_{{\mathbb{R}}^{q_{b}}}\prod\limits_{i = 1}^{n_{j}}L_{ij}\left( b_{j};\theta \right)\,\varphi_{q_{b}}\left( \mathbf{b}_{j};\mathbf{0},D \right)\, d\mathbf{b}_{j}$$
+``` math
 
-$$\ell(\theta) = \sum\limits_{j = 1}^{G}\log L_{j}(\theta)$$
+L_j(\theta)=\int_{\mathbb{R}^{q_b}}
+\prod_{i=1}^{n_j} L_{ij}(b_j;\theta)\,
+\varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
+```
+
+``` math
+
+\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)
+```
 
 ### Laplace approximation used by `brsmm()`
 
 Define
-$$Q_{j}(\mathbf{b}) = \sum\limits_{i = 1}^{n_{j}}\log L_{ij}(\mathbf{b};\theta) + \log\varphi_{q_{b}}(\mathbf{b};\mathbf{0},D)$$
-and
-${\widehat{\mathbf{b}}}_{j} = \arg\max_{\mathbf{b}}Q_{j}(\mathbf{b})$,
-with curvature
-$$H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right).$$
+``` math
+
+Q_j(\mathbf{b})=
+\sum_{i=1}^{n_j}\log L_{ij}(\mathbf{b};\theta)+
+\log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)
+```
+and $`\hat{\mathbf{b}}_j=\arg\max_{\mathbf{b}} Q_j(\mathbf{b})`$, with
+curvature
+``` math
+
+H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j).
+```
 Then
 
-$$\log L_{j}(\theta) \approx Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right) + \frac{q_{b}}{2}\log(2\pi) - \frac{1}{2}\log\left| H_{j} \right|.$$
+``` math
+
+\log L_j(\theta) \approx
+Q_j(\hat{\mathbf{b}}_j) +
+\frac{q_b}{2}\log(2\pi) -
+\frac{1}{2}\log|H_j|.
+```
 
 [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
-maximizes the approximated $\ell(\theta)$ with
+maximizes the approximated $`\ell(\theta)`$ with
 [`stats::optim()`](https://rdrr.io/r/stats/optim.html), and computes
-group-level posterior modes ${\widehat{\mathbf{b}}}_{j}$. For
-$q_{b} = 1$, this reduces to the scalar random-intercept formula.
+group-level posterior modes $`\hat{\mathbf{b}}_j`$. For $`q_b = 1`$,
+this reduces to the scalar random-intercept formula.
 
 ## Simulating clustered scale data
 
@@ -120,11 +158,13 @@ sim_brsmm_data <- function(seed = 3501L, g = 24L, ni = 12L,
   )
 }
 
-sim <- sim_brsmm_data(g = 5,
-                      ni = 200,
-                      beta = c(0.20, 0.65),
-                      gamma = c(-0.15),
-                      sigma_b = 0.55)
+sim <- sim_brsmm_data(
+  g = 5,
+  ni = 200,
+  beta = c(0.20, 0.65),
+  gamma = c(-0.15),
+  sigma_b = 0.55
+)
 str(sim$data)
 #> 'data.frame':    1000 obs. of  3 variables:
 #>  $ y : num  92 0 71 59 21 5 34 1 19 0 ...
@@ -151,17 +191,35 @@ summary(fit_mm)
 #> brsmm(formula = y ~ x1, random = ~1 | id, data = sim$data, repar = 2, 
 #>     int_method = "laplace", method = "BFGS", control = list(maxit = 1000))
 #> 
-#> Mixed beta interval model (Laplace)
-#> Observations: 1000  | Groups: 5 
-#> logLik =-4182.1094 | AIC =8372.2188 | BIC =8391.8498
+#> Randomized Quantile Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -2.8356 -0.6727 -0.0422  0.6040  3.0833 
 #> 
-#>                                Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)                     0.26237    0.18121   1.448  0.14766    
-#> x1                              0.63844    0.04381  14.573  < 2e-16 ***
-#> (phi)_(Intercept)              -0.10608    0.04044  -2.623  0.00872 ** 
-#> (re_chol_logsd)_(Intercept)|id -0.92929    0.33381  -2.784  0.00537 ** 
+#> Coefficients (mean model with logit link):
+#>             Estimate Std. Error z value Pr(>|z|)    
+#> (Intercept)  0.26237    0.18121   1.448    0.148    
+#> x1           0.63844    0.04381  14.573   <2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Phi coefficients (precision model with logit link):
+#>                   Estimate Std. Error z value Pr(>|z|)   
+#> (phi)_(Intercept) -0.10608    0.04044  -2.623  0.00872 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Random-effects parameters (Cholesky scale):
+#>                                Estimate Std. Error z value Pr(>|z|)   
+#> (re_chol_logsd)_(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> ---
+#> Mixed beta interval model (Laplace)
+#> Observations: 1000  | Groups: 5 
+#> Log-likelihood: -4182.1094 on 4 Df | AIC: 8372.2188 | BIC: 8391.8498 
+#> Pseudo R-squared: 0.1815 
+#> Number of iterations: 37 (BFGS) 
+#> Censoring: 852 interval | 39 left | 109 right
 ```
 
 ## Random intercept + slope example
@@ -185,19 +243,37 @@ summary(fit_mm_rs)
 #> brsmm(formula = y ~ x1, random = ~1 + x1 | id, data = sim$data, 
 #>     repar = 2, int_method = "laplace", method = "BFGS", control = list(maxit = 1200))
 #> 
-#> Mixed beta interval model (Laplace)
-#> Observations: 1000  | Groups: 5 
-#> logLik =-4181.9196 | AIC =8375.8392 | BIC =8405.2858
+#> Randomized Quantile Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -3.6105 -0.6741 -0.0459  0.6224  3.9925 
 #> 
-#>                                Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)                     0.26209    0.18047   1.452  0.14643    
-#> x1                              0.63755    0.04550  14.012  < 2e-16 ***
-#> (phi)_(Intercept)              -0.10665    0.04046  -2.636  0.00840 ** 
-#> (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 ** 
-#> (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852    
-#> (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248    
+#> Coefficients (mean model with logit link):
+#>             Estimate Std. Error z value Pr(>|z|)    
+#> (Intercept)   0.2621     0.1805   1.452    0.146    
+#> x1            0.6375     0.0455  14.012   <2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Phi coefficients (precision model with logit link):
+#>                   Estimate Std. Error z value Pr(>|z|)   
+#> (phi)_(Intercept) -0.10665    0.04046  -2.636   0.0084 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Random-effects parameters (Cholesky scale):
+#>                                Estimate Std. Error z value Pr(>|z|)   
+#> (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 **
+#> (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852   
+#> (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248   
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> ---
+#> Mixed beta interval model (Laplace)
+#> Observations: 1000  | Groups: 5 
+#> Log-likelihood: -4181.9196 on 6 Df | AIC: 8375.8392 | BIC: 8405.2858 
+#> Pseudo R-squared: 0.1815 
+#> Number of iterations: 64 (BFGS) 
+#> Censoring: 852 interval | 39 left | 109 right
 ```
 
 Covariance structure of random effects:
@@ -224,7 +300,7 @@ kbl10(
 |     x1      | 0.0274 |
 
 ``` r
-kbl10(head(ranef.brsmm(fit_mm_rs), 10))
+kbl10(head(ranef(fit_mm_rs), 10))
 ```
 
 | (Intercept) |   x1    |
@@ -240,7 +316,7 @@ kbl10(head(ranef.brsmm(fit_mm_rs), 10))
 Seguindo práticas de pacotes mistos consolidados, o pacote agora permite
 um estudo dedicado dos efeitos aleatórios com foco em:
 
-- estrutura $D$ e correlação;
+- estrutura $`D`$ e correlação;
 - distribuição empírica dos modos por grupo;
 - intensidade de shrinkage empírico;
 - diagnósticos visuais específicos para os componentes aleatórios.
@@ -311,12 +387,14 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 `coef(fit_mm, model = "random")` returns packed random-effect covariance
 parameters on optimizer scale (lower-Cholesky, with log-diagonal). For
-random-intercept models this simplifies to $\log\sigma_{b}$.
+random-intercept models this simplifies to $`\log \sigma_b`$.
 
 ``` r
 kbl10(
-  data.frame(parameter = names(coef(fit_mm, model = "full")),
-             estimate = as.numeric(coef(fit_mm, model = "full"))),
+  data.frame(
+    parameter = names(coef(fit_mm, model = "full")),
+    estimate = as.numeric(coef(fit_mm, model = "full"))
+  ),
   digits = 4
 )
 ```
@@ -330,8 +408,10 @@ kbl10(
 
 ``` r
 kbl10(
-  data.frame(log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
-             sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))),
+  data.frame(
+    log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
+    sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))
+  ),
   digits = 4
 )
 ```
@@ -341,7 +421,7 @@ kbl10(
 |   -0.9293   | 0.3948  |
 
 ``` r
-kbl10(head(ranef.brsmm(fit_mm), 10))
+kbl10(head(ranef(fit_mm), 10))
 ```
 
 |    x    |
@@ -390,12 +470,10 @@ sm <- summary(fit_mm)
 kbl10(sm$coefficients)
 ```
 
-|                                  | Estimate | Std. Error | z value | Pr(\>\|z\|) |
-|:---------------------------------|:--------:|:----------:|:-------:|:-----------:|
-| (Intercept)                      |  0.2624  |   0.1812   | 1.4479  |   0.1477    |
-| x1                               |  0.6384  |   0.0438   | 14.5727 |   0.0000    |
-| (phi)\_(Intercept)               | -0.1061  |   0.0404   | -2.6230 |   0.0087    |
-| (re_chol_logsd)\_(Intercept)\|id | -0.9293  |   0.3338   | -2.7839 |   0.0054    |
+|  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
+|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| (Intercept) | 0.2624 | 0.1812 | 1.4479 | 0.1477 | -0.1061 | 0.0404 | -2.623 | 0.0087 | -0.9293 | 0.3338 | -2.7839 | 0.0054 |
+| x1 | 0.6384 | 0.0438 | 14.5727 | 0.0000 | -0.1061 | 0.0404 | -2.623 | 0.0087 | -0.9293 | 0.3338 | -2.7839 | 0.0054 |
 
 ``` r
 
@@ -582,20 +660,21 @@ kbl10(
 ### Wald tests (from `summary`)
 
 [`summary.brsmm()`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)
-reports Wald $z$-tests for each parameter:
-$$z_{k} = {\widehat{\theta}}_{k}/{SE}\left( {\widehat{\theta}}_{k} \right).$$
+reports Wald $`z`$-tests for each parameter:
+``` math
+
+z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
+```
 
 ``` r
 sm <- summary(fit_mm)
 kbl10(sm$coefficients)
 ```
 
-|                                  | Estimate | Std. Error | z value | Pr(\>\|z\|) |
-|:---------------------------------|:--------:|:----------:|:-------:|:-----------:|
-| (Intercept)                      |  0.2624  |   0.1812   | 1.4479  |   0.1477    |
-| x1                               |  0.6384  |   0.0438   | 14.5727 |   0.0000    |
-| (phi)\_(Intercept)               | -0.1061  |   0.0404   | -2.6230 |   0.0087    |
-| (re_chol_logsd)\_(Intercept)\|id | -0.9293  |   0.3338   | -2.7839 |   0.0054    |
+|  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
+|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| (Intercept) | 0.2624 | 0.1812 | 1.4479 | 0.1477 | -0.1061 | 0.0404 | -2.623 | 0.0087 | -0.9293 | 0.3338 | -2.7839 | 0.0054 |
+| x1 | 0.6384 | 0.0438 | 14.5727 | 0.0000 | -0.1061 | 0.0404 | -2.623 | 0.0087 | -0.9293 | 0.3338 | -2.7839 | 0.0054 |
 
 ### Esquema evolutivo e escolha por teste LR
 
@@ -607,12 +686,12 @@ Um fluxo prático de complexidade crescente:
 3.  `brsmm(..., random = ~ 1 + x1 | id)`: intercepto + inclinação
     aleatórios.
 
-No primeiro salto (`brs` $\rightarrow$`brsmm` com intercepto), a
-hipótese $\sigma_{b}^{2} = 0$ está na fronteira do espaço paramétrico.
-Assim, o referencial assintótico clássico $\chi^{2}$ deve ser
-interpretado com cautela. No segundo salto (intercepto $\rightarrow$
-intercepto + inclinação), o LR com $\chi^{2}$ costuma ser usado como
-diagnóstico prático de ganho de ajuste.
+No primeiro salto (`brs` $`\to`$`brsmm` com intercepto), a hipótese
+$`\sigma_b^2 = 0`$ está na fronteira do espaço paramétrico. Assim, o
+referencial assintótico clássico $`\chi^2`$ deve ser interpretado com
+cautela. No segundo salto (intercepto $`\to`$ intercepto + inclinação),
+o LR com $`\chi^2`$ costuma ser usado como diagnóstico prático de ganho
+de ajuste.
 
 ``` r
 # Modelo base sem efeito aleatório

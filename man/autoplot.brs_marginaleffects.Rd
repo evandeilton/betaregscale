@@ -46,3 +46,23 @@ Produces visual summaries for objects returned by
 \code{attr(object, "ame_draws")}, which are available when marginal
 effects are computed with \code{keep_draws = TRUE} and \code{interval = TRUE}.
 }
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brs(y ~ x1, data = prep)
+ame <- brs_marginaleffects(fit)
+ggplot2::autoplot(ame, type = "forest")
+}
+
+}
+\seealso{
+\code{\link{brs_marginaleffects}}, \code{\link{brs}},
+  \code{\link{autoplot.brs}}
+}

@@ -42,6 +42,23 @@
 #'
 #' @return Invisibly returns \code{x}.
 #'
+#' @seealso \code{\link{brs}}, \code{\link{residuals.brs}},
+#'   \code{\link{autoplot.brs}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brs(y ~ x1, data = prep)
+#' plot(fit, which = 1:4)
+#' }
+#'
 #' @method plot brs
 #' @importFrom stats qnorm fitted residuals hatvalues qqnorm quantile median
 #' @importFrom graphics plot abline par mtext segments lines

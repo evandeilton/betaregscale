@@ -16,24 +16,29 @@ score of 6 on a (0-10) NRS scale is interpreted as lying in the interval
 the package supports mixed censoring types: **uncensored, left-censored,
 right-censored, and interval-censored** within the same dataset.
 
-Mathematically, for each observation $i$, the likelihood contribution is
+Mathematically, for each observation $`i`$, the likelihood contribution
+is
 
-$$L_{i}(\theta) = \begin{cases}
-{f\left( y_{i};a_{i},b_{i} \right),} & {\delta_{i} = 0,} \\
-{F\left( u_{i};a_{i},b_{i} \right),} & {\delta_{i} = 1,} \\
-{1 - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 2,} \\
-{F\left( u_{i};a_{i},b_{i} \right) - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 3.}
-\end{cases}$$
+``` math
 
-where $f( \cdot )$ and $F( \cdot )$ denote the beta density and CDF.
+L_i(\theta)=
+\begin{cases}
+f(y_i; a_i, b_i), & \delta_i=0,\\
+F(u_i; a_i, b_i), & \delta_i=1,\\
+1-F(l_i; a_i, b_i), & \delta_i=2,\\
+F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3.
+\end{cases}
+```
+
+where $`f(\cdot)`$ and $`F(\cdot)`$ denote the beta density and CDF.
 
 ## Key features
 
 - **Mixed censoring support**: the complete likelihood handles four
-  censoring types simultaneously: exact observations ($\delta = 0$),
-  left-censored ($\delta = 1$), right-censored ($\delta = 2$), and
-  interval-censored ($\delta = 3$).
-- **Fixed and variable dispersion**: model a scalar $\phi$ or let it
+  censoring types simultaneously: exact observations ($`\delta=0`$),
+  left-censored ($`\delta=1`$), right-censored ($`\delta=2`$), and
+  interval-censored ($`\delta=3`$).
+- **Fixed and variable dispersion**: model a scalar $`\phi`$ or let it
   depend on covariates via a second linear predictor
   (`y ~ x1 + x2 | z1`).
 - **Mixed-effects support**:
@@ -241,19 +246,26 @@ brs_cens(fit, gg = TRUE, inform = TRUE)
 The complete log-likelihood for mixed censoring combines the four
 observation types:
 
-$$\ell(\theta) = \sum\limits_{i:\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\delta_{i} = 2}\log\!\left\lbrack 1 - F\left( l_{i} \right) \right\rbrack + \sum\limits_{i:\delta_{i} = 3}\log\!\left\lbrack F\left( u_{i} \right) - F\left( l_{i} \right) \right\rbrack.$$
+``` math
 
-where $f( \cdot )$ and $F( \cdot )$ are the beta density and CDF,
-$\left\lbrack l_{i},u_{i} \right\rbrack$ are the interval endpoints, and
-$\delta_{i}$ indicates the censoring type.
+\ell(\theta)=
+\sum_{i:\delta_i=0}\log f(y_i)+
+\sum_{i:\delta_i=1}\log F(u_i)+
+\sum_{i:\delta_i=2}\log\!\left[1-F(l_i)\right]+
+\sum_{i:\delta_i=3}\log\!\left[F(u_i)-F(l_i)\right].
+```
+
+where $`f(\cdot)`$ and $`F(\cdot)`$ are the beta density and CDF,
+$`[l_i, u_i]`$ are the interval endpoints, and $`\delta_i`$ indicates
+the censoring type.
 
 ### Reparameterizations
 
-| Code | Name                               | Shape parameters                                         |
-|------|------------------------------------|----------------------------------------------------------|
-| 0    | Direct                             | $a = \mu,\; b = \phi$                                    |
-| 1    | Precision (Ferrari & Cribari-Neto) | $a = \mu\phi,\; b = (1 - \mu)\phi$                       |
-| 2    | Mean–variance                      | $a = \mu(1 - \phi)/\phi,\; b = (1 - \mu)(1 - \phi)/\phi$ |
+| Code | Name | Shape parameters |
+|----|----|----|
+| 0 | Direct | $`a = \mu,\; b = \phi`$ |
+| 1 | Precision (Ferrari & Cribari-Neto) | $`a = \mu\phi,\; b = (1-\mu)\phi`$ |
+| 2 | Mean–variance | $`a = \mu(1-\phi)/\phi,\; b = (1-\mu)(1-\phi)/\phi`$ |
 
 ### Analyst-oriented outputs (clean tables)
 
@@ -305,37 +317,56 @@ knitr::kable(head(cv, 10), digits = 4, align = "c")
 Scale observations are mapped to (0, 1) with midpoint uncertainty
 intervals:
 
-$$y_{t} = y/K,\quad{\text{interval}\mspace{6mu}}\left\lbrack y_{t} - h/K,\; y_{t} + h/K \right\rbrack$$
+``` math
 
-where $K$ is the number of scale categories (`ncuts`) and $h$ is the
+y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
+```
+
+where $`K`$ is the number of scale categories (`ncuts`) and $`h`$ is the
 half-width (`lim`, default `0.5`).
 
 ### Mixed-model likelihood (`brsmm`)
 
-For group $j$ with random-effects vector
-$\mathbf{b}_{j} \in {\mathbb{R}}^{q_{b}}$:
+For group $`j`$ with random-effects vector
+$`\mathbf{b}_j \in \mathbb{R}^{q_b}`$:
 
-$$\eta_{\mu,ij} = x_{ij}^{\top}\beta + w_{ij}^{\top}\mathbf{b}_{j},\qquad\eta_{\phi,ij} = z_{ij}^{\top}\gamma,$$
+``` math
+
+\eta_{\mu,ij} = x_{ij}^\top\beta + w_{ij}^\top\mathbf{b}_j,
+\qquad
+\eta_{\phi,ij} = z_{ij}^\top\gamma,
+```
 
 with
 
-$$\mathbf{b}_{j} \sim \mathcal{N}(\mathbf{0},D).$$
+``` math
+
+\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D).
+```
 
 The marginal group likelihood is
 
-$$L_{j}(\theta) = \int_{{\mathbb{R}}^{q_{b}}}\left\{ \prod\limits_{i = 1}^{n_{j}}L_{ij}\left( \mathbf{b}_{j};\theta \right) \right\}\varphi_{q_{b}}\left( \mathbf{b}_{j};\mathbf{0},D \right)\, d\mathbf{b}_{j},$$
+``` math
+
+L_j(\theta)=\int_{\mathbb{R}^{q_b}}
+\left\{\prod_{i=1}^{n_j} L_{ij}(\mathbf{b}_j;\theta)\right\}
+\varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
+```
 
 and the log-likelihood is
-$\ell(\theta) = \sum_{j = 1}^{G}\log L_{j}(\theta)$.
+$`\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)`$.
 [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
 uses a multivariate Laplace approximation:
 
-$$\log L_{j}(\theta) \approx Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right) + \frac{q_{b}}{2}\log(2\pi) - \frac{1}{2}\log\left| H_{j} \right|,$$
+``` math
+
+\log L_j(\theta)\approx
+Q_j(\hat{\mathbf{b}}_j)+\frac{q_b}{2}\log(2\pi)-\frac{1}{2}\log|H_j|,
+```
 
 where
-$Q_{j}(\mathbf{b}) = \sum_{i}\log L_{ij}(\mathbf{b};\theta) + \log\varphi_{q_{b}}(\mathbf{b};\mathbf{0},D)$
-and
-$H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right)$.
+$`Q_j(\mathbf{b})=\sum_i \log L_{ij}(\mathbf{b};\theta)+\log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)`$
+and $`H_j=-\nabla^2Q_j(\hat{\mathbf{b}}_j)`$.
 
 ## References
 

@@ -66,17 +66,18 @@ the bootstrap distribution of each parameter.
 
 }}
 \examples{
-set.seed(42)
-n <- 80
-dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- brs_sim(
-  formula = ~ x1 + x2, data = dat,
-  beta = c(0.2, -0.5, 0.3), phi = 1 / 5, ncuts = 100
-)
-fit <- brs(y ~ x1 + x2, data = sim)
 \donttest{
-set.seed(1) # Set seed before calling bootstrap for reproducibility
-boot <- brs_bootstrap(fit, R = 99, level = 0.95)
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  x2 = rep(c(0, 0, 1, 1), 5)
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brs(y ~ x1, data = prep)
+boot <- brs_bootstrap(fit, R = 50, level = 0.95)
 print(boot)
 }
 

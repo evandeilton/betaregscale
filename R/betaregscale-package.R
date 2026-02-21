@@ -64,9 +64,14 @@
 #'
 #' @author José Evandeilton Lopes \email{evandeilton@@gmail.com}
 #' @references
-#' Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
-#' rates and proportions. \emph{Journal of Applied Statistics},
-#' \bold{31}(7), 799--815.
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
 #'
 #' @useDynLib betaregscale, .registration = TRUE
 #' @importFrom Rcpp sourceCpp

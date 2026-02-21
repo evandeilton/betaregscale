@@ -4,7 +4,7 @@
 \alias{ranef.brsmm}
 \title{Extract random effects from a brsmm model}
 \usage{
-ranef.brsmm(object, ...)
+\method{ranef}{brsmm}(object, ...)
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
@@ -12,8 +12,29 @@ ranef.brsmm(object, ...)
 \item{...}{Currently ignored.}
 }
 \value{
-Named numeric vector of group-specific random-intercept modes.
+A matrix or named numeric vector of group-specific random-effect
+  posterior modes.
 }
 \description{
 Extract random effects from a brsmm model
+}
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+ranef(fit)
+}
+
+}
+\seealso{
+\code{\link{brsmm}}, \code{\link{brsmm_re_study}},
+  \code{\link{ranef}}
 }

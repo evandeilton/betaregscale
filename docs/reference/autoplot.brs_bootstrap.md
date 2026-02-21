@@ -78,3 +78,29 @@ A `ggplot2` object.
 For `type = "dist"`, `"qq"`, and `"stability"`, bootstrap draws must be
 present in `attr(object, "boot_draws")`, obtained by fitting with
 `brs_bootstrap(..., keep_draws = TRUE)`.
+
+## See also
+
+[`brs_bootstrap`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md),
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md),
+[`autoplot.brs`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+
+## Examples
+
+``` r
+# \donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brs(y ~ x1, data = prep)
+boot <- brs_bootstrap(fit, R = 50)
+ggplot2::autoplot(boot, type = "ci_forest")
+
+# }
+```

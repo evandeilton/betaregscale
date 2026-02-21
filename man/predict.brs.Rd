@@ -32,3 +32,25 @@ Numeric vector or matrix.
 \description{
 Predict from a fitted model
 }
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brs(y ~ x1, data = prep)
+head(predict(fit))
+head(predict(fit, type = "precision"))
+newdat <- data.frame(x1 = c(1, 2))
+predict(fit, newdata = newdat)
+}
+
+}
+\seealso{
+\code{\link{brs}}, \code{\link{fitted.brs}},
+  \code{\link{brs_predict_scoreprob}}
+}

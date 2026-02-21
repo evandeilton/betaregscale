@@ -44,26 +44,21 @@ Produces ggplot2 diagnostics tailored to mixed beta interval models.
 }
 \examples{
 \donttest{
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  set.seed(123)
-  g <- 10
-  ni <- 8
-  id <- factor(rep(seq_len(g), each = ni))
-  n <- length(id)
-  x1 <- rnorm(n)
-  b <- rnorm(g, sd = 0.4)
-
-  mu <- plogis(0.1 + 0.5 * x1 + b[as.integer(id)])
-  phi <- plogis(-0.2)
-  shp <- brs_repar(mu = mu, phi = rep(phi, n), repar = 2)
-  y <- round(stats::rbeta(n, shp$shape1, shp$shape2) * 100)
-  d <- data.frame(y = y, x1 = x1, id = id)
-
-  fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = d, repar = 2)
-
-  autoplot.brsmm(fit_mm, type = "calibration")
-  autoplot.brsmm(fit_mm, type = "ranef_qq")
-}
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+ggplot2::autoplot(fit_mm, type = "calibration", bins = 4)
+ggplot2::autoplot(fit_mm, type = "score_dist")
+ggplot2::autoplot(fit_mm, type = "ranef_qq")
+ggplot2::autoplot(fit_mm, type = "ranef_caterpillar")
+ggplot2::autoplot(fit_mm, type = "ranef_density")
 }
 
 }

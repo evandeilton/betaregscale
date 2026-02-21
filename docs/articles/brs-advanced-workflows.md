@@ -83,11 +83,11 @@ tab_rank <- brs_table(
 kbl10(tab_rank)
 ```
 
-|  model  | nobs | npar |  logLik   |   AIC    |   BIC    | pseudo_r2 | exact | left | right | interval | prop_exact | prop_left | prop_right | prop_interval |
-|:-------:|:----:|:----:|:---------:|:--------:|:--------:|:---------:|:-----:|:----:|:-----:|:--------:|:----------:|:---------:|:----------:|:-------------:|
-|  logit  | 260  |  5   | -1120.320 | 2250.639 | 2268.443 |  0.1875   |   0   |  15  |  16   |   229    |     0      |  0.0577   |   0.0615   |    0.8808     |
-| probit  | 260  |  5   | -1120.281 | 2250.563 | 2268.366 |  0.1807   |   0   |  15  |  16   |   229    |     0      |  0.0577   |   0.0615   |    0.8808     |
-| cauchit | 260  |  5   | -1120.656 | 2251.311 | 2269.115 |  0.1580   |   0   |  15  |  16   |   229    |     0      |  0.0577   |   0.0615   |    0.8808     |
+| model | nobs | npar | logLik | AIC | BIC | pseudo_r2 | exact | left | right | interval | prop_exact | prop_left | prop_right | prop_interval |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| logit | 260 | 5 | -1120.320 | 2250.639 | 2268.443 | 0.1875 | 0 | 15 | 16 | 229 | 0 | 0.0577 | 0.0615 | 0.8808 |
+| probit | 260 | 5 | -1120.281 | 2250.563 | 2268.366 | 0.1807 | 0 | 15 | 16 | 229 | 0 | 0.0577 | 0.0615 | 0.8808 |
+| cauchit | 260 | 5 | -1120.656 | 2251.311 | 2269.115 | 0.1580 | 0 | 15 | 16 | 229 | 0 | 0.0577 | 0.0615 | 0.8808 |
 
 ## 3) Inference stack: Wald + bootstrap + AME
 
@@ -121,23 +121,23 @@ boot_tab <- brs_bootstrap(fit_logit, R = 80, level = 0.95)
 kbl10(head(boot_tab, 10))
 ```
 
-|     parameter      | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
-|:------------------:|:--------:|:-------:|:--------:|:--------:|:----------:|:----------:|:----------:|:----------:|:-----:|
-|    (Intercept)     |  0.0673  | 0.0765  | -0.1117  |  0.1797  |   0.0164   |   0.0125   |  -0.0862   |   0.2208   | 0.95  |
-|         x1         |  0.5759  | 0.0786  |  0.4619  |  0.7419  |   0.0129   |   0.0144   |   0.4099   |   0.7419   | 0.95  |
-|         x2         | -0.2344  | 0.0736  | -0.3600  | -0.1112  |   0.0124   |   0.0098   |  -0.3816   |  -0.0871   | 0.95  |
-| (phi)\_(Intercept) | -0.1677  | 0.0699  | -0.3160  | -0.0475  |   0.0252   |   0.0146   |  -0.3185   |  -0.0169   | 0.95  |
-|     (phi)\_z1      |  0.3492  | 0.0805  |  0.2168  |  0.4992  |   0.0129   |   0.0170   |   0.1741   |   0.5243   | 0.95  |
+| parameter | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| (Intercept) | 0.0673 | 0.0765 | -0.1117 | 0.1797 | 0.0164 | 0.0125 | -0.0862 | 0.2208 | 0.95 |
+| x1 | 0.5759 | 0.0786 | 0.4619 | 0.7419 | 0.0129 | 0.0144 | 0.4099 | 0.7419 | 0.95 |
+| x2 | -0.2344 | 0.0736 | -0.3600 | -0.1112 | 0.0124 | 0.0098 | -0.3816 | -0.0871 | 0.95 |
+| (phi)\_(Intercept) | -0.1677 | 0.0699 | -0.3160 | -0.0475 | 0.0252 | 0.0146 | -0.3185 | -0.0169 | 0.95 |
+| (phi)\_z1 | 0.3492 | 0.0805 | 0.2168 | 0.4992 | 0.0129 | 0.0170 | 0.1741 | 0.5243 | 0.95 |
 
 ``` r
 
+set.seed(2026) # For marginal effects simulation
 ame_mu <- brs_marginaleffects(
   fit_logit,
   model = "mean",
   type = "response",
   interval = TRUE,
-  n_sim = 120,
-  seed = 2026
+  n_sim = 120
 )
 kbl10(ame_mu)
 ```
@@ -162,6 +162,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     title = "Bootstrap (BCa) vs Wald intervals"
   )
 
+  set.seed(2026) # For marginal effects simulation
   ame_mu_draws <- brs_marginaleffects(
     fit_logit,
     model = "mean",
@@ -169,7 +170,6 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     interval = TRUE,
     n_sim = 160,
     keep_draws = TRUE,
-    seed = 2026
   )
   autoplot.brs_marginaleffects(ame_mu_draws, type = "forest")
 }
@@ -198,12 +198,12 @@ kbl10(score_prob[1:8, 1:7])
 ## 5) Out-of-sample validation
 
 ``` r
+set.seed(2026) # For cross-validation reproducibility
 cv_tab <- brs_cv(
   y ~ x1 + x2 | z1,
   data = sim,
   k = 5,
   repeats = 5,
-  seed = 2026,
   repar = 2
 )
 kbl10(head(cv_tab, 10))
@@ -232,12 +232,12 @@ ni <- 120
 id <- factor(rep(seq_len(g), each = ni))
 n_mm <- length(id)
 x1 <- rnorm(n_mm)
-x2 <- rbinom(n_mm, size = 1, prob = 1/2)
+x2 <- rbinom(n_mm, size = 1, prob = 1 / 2)
 
 b0 <- rnorm(g, sd = 0.40)
 b1 <- rnorm(g, sd = 0.22)
 
-eta_mu <- 0.20 + 0.65 * x1 -0.30 * x2 + b0[id] + b1[id] * x1
+eta_mu <- 0.20 + 0.65 * x1 - 0.30 * x2 + b0[id] + b1[id] * x1
 eta_phi <- rep(-0.20, n_mm)
 
 mu <- plogis(eta_mu)
@@ -265,7 +265,7 @@ kbl10(head(dmm, 10))
 ### 6.2 Fit evolutionary sequence
 
 ``` r
-fit_brs <- brs(y ~  x1 + x2, data = dmm, repar = 2)
+fit_brs <- brs(y ~ x1 + x2, data = dmm, repar = 2)
 fit_ri <- brsmm(y ~ x1 + x2, random = ~ 1 | id, data = dmm, repar = 2)
 fit_rs <- brsmm(y ~ x1 + x2, random = ~ 1 + x1 | id, data = dmm, repar = 2)
 
@@ -289,10 +289,13 @@ practical LLR workflow:
 - `M2 = brsmm` with random intercept + slope (`~ 1 + x1 | id`).
 
 In nested comparisons, the statistic is:
-$$LR = 2\{\ell\left( {\widehat{\theta}}_{\text{complex}} \right) - \ell\left( {\widehat{\theta}}_{\text{simple}} \right)\}.$$
+``` math
+
+LR = 2\{\ell(\hat\theta_{\text{complex}}) - \ell(\hat\theta_{\text{simple}})\}.
+```
 
 For the first step (`M0 -> M1`), the null involves variance components
-at the boundary ($\sigma_{b}^{2} = 0$); p-values should be interpreted
+at the boundary ($`\sigma_b^2 = 0`$); p-values should be interpreted
 with caution. For `M1 -> M2`, the chi-square approximation is often used
 as a practical decision aid.
 
@@ -301,9 +304,11 @@ tab_lr_df <- data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL)
 tab_lr_df$decision <- c(
   "baseline",
   ifelse(is.na(tab_lr_df$`Pr(>Chisq)`[2]), "inspect AIC/BIC + diagnostics",
-         ifelse(tab_lr_df$`Pr(>Chisq)`[2] < 0.05, "prefer M1 over M0", "prefer M0 (parsimony)")),
+    ifelse(tab_lr_df$`Pr(>Chisq)`[2] < 0.05, "prefer M1 over M0", "prefer M0 (parsimony)")
+  ),
   ifelse(is.na(tab_lr_df$`Pr(>Chisq)`[3]), "inspect AIC/BIC + diagnostics",
-         ifelse(tab_lr_df$`Pr(>Chisq)`[3] < 0.05, "prefer M2 over M1", "prefer M1 (parsimony)"))
+    ifelse(tab_lr_df$`Pr(>Chisq)`[3] < 0.05, "prefer M2 over M1", "prefer M1 (parsimony)")
+  )
 )
 kbl10(tab_lr_df)
 ```

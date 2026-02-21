@@ -5,10 +5,23 @@
     * Added missing extractors: `formula()`, `model.matrix()`, and `confint()`.
     * Upgraded `residuals()` to support conditional `"deviance"`, `"rqr"` (randomized quantile residuals), `"weighted"`, and `"sweighted"` options.
     * Upgraded `predict()` to support conditional `type = "quantile"` evaluations directly.
+    * Added `ranef()` generic and `ranef.brsmm()` method to extract random-effect modes.
 * Modified package helper functions `brs_gof()` and `brs_est()` to compute GOF properties and estimates directly from both `brs` and `brsmm` objects respectively.
 
 ## Improvements
 * Standardized `print.brsmm()` to explicitly display mean, precision, and random-effect coefficient blocks side-by-side, mirroring the verbose visual style of `print.brs()`.
+
+## Documentation
+* **Complete `@examples` audit**: added runnable `\donttest{}` examples to all ~30 previously undocumented exported functions, including all S3 methods for `brs` and `brsmm` objects (`coef()`, `vcov()`, `logLik()`, `AIC()`, `BIC()`, `nobs()`, `formula()`, `model.matrix()`, `fitted()`, `residuals()`, `confint()`, `predict()`, `print()`, `summary()`, `ranef()`, `anova()`, `plot()`, `autoplot()`).
+* **Removed all `set.seed()` calls from examples** across 15+ files (`fit.R`, `brsmm.R`, `bootstrap.R`, `cv.R`, `marginaleffects.R`, `scoreprob.R`, `table.R`, `simulate.R`, `prepare.R`, `autoplot.R`, `autoplot-brsmm.R`, `loglik.R`). All examples now use deterministic toy datasets.
+* **No `\dontrun{}` anywhere**: all examples are either direct or wrapped in `\donttest{}` as appropriate.
+* **Ferrari & Cribari-Neto (2004) DOI** (`10.1080/0266476042000214501`) added to every occurrence of that reference across `betaregscale-package.R`, `brsmm.R`, `methods.R`, `anova-methods.R`, and `brsmm-random-effects-study.R`.
+* **`@seealso` cross-links** added to all S3 method documentation blocks for both `brs` and `brsmm` objects.
+* **`brs_coef()`** documentation updated with deprecation notice, `@description`, `@return`, and `@seealso`.
+* **`brs_hessian()`** documentation improved: added `@param object`, `@seealso`, and a deterministic example.
+* **`print.brsmm_re_study()`** now has a complete roxygen2 block including `@description`, `@param`, `@return`, `@method`, `@seealso`, and `@examples`.
+* **`ranef()` generic** now includes `@param`, `@return`, `@seealso`, and `@examples`.
+* All `autoplot.*` examples updated to use `ggplot2::autoplot()` (explicit namespace) for reliability in check environments.
 
 ---
 

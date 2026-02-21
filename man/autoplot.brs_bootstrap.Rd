@@ -57,3 +57,23 @@ For \code{type = "dist"}, \code{"qq"}, and \code{"stability"},
 bootstrap draws must be present in \code{attr(object, "boot_draws")},
 obtained by fitting with \code{brs_bootstrap(..., keep_draws = TRUE)}.
 }
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10)
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brs(y ~ x1, data = prep)
+boot <- brs_bootstrap(fit, R = 50)
+ggplot2::autoplot(boot, type = "ci_forest")
+}
+
+}
+\seealso{
+\code{\link{brs_bootstrap}}, \code{\link{brs}},
+  \code{\link{autoplot.brs}}
+}

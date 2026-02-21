@@ -29,3 +29,23 @@ Matrix with columns for lower and upper confidence bounds.
 \description{
 Wald confidence intervals for brsmm models
 }
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+confint(fit, model = "mean")
+}
+
+}
+\seealso{
+\code{\link{brsmm}}, \code{\link{coef.brsmm}},
+  \code{\link{vcov.brsmm}}
+}

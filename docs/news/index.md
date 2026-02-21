@@ -1,8 +1,71 @@
 # Changelog
 
+## betaregscale 2.6.8
+
+### New features
+
+- Completed S3 method standardization for `brsmm` (mixed-effects)
+  objects to mirror the interface of `brs` (fixed-effects) objects:
+  - Added missing extractors:
+    [`formula()`](https://rdrr.io/r/stats/formula.html),
+    [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html), and
+    [`confint()`](https://rdrr.io/r/stats/confint.html).
+  - Upgraded [`residuals()`](https://rdrr.io/r/stats/residuals.html) to
+    support conditional `"deviance"`, `"rqr"` (randomized quantile
+    residuals), `"weighted"`, and `"sweighted"` options.
+  - Upgraded [`predict()`](https://rdrr.io/r/stats/predict.html) to
+    support conditional `type = "quantile"` evaluations directly.
+- Modified package helper functions
+  [`brs_gof()`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md)
+  and
+  [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
+  to compute GOF properties and estimates directly from both `brs` and
+  `brsmm` objects respectively.
+
+### Improvements
+
+- Standardized
+  [`print.brsmm()`](https://evandeilton.github.io/betaregscale/reference/print.brsmm.md)
+  to explicitly display mean, precision, and random-effect coefficient
+  blocks side-by-side, mirroring the verbose visual style of
+  [`print.brs()`](https://evandeilton.github.io/betaregscale/reference/print.brs.md).
+
+------------------------------------------------------------------------
+
+## betaregscale 2.6.7
+
+### CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)
+
+#### Bug fixes and CRAN policy compliance
+
+- Added `\value` documentation to
+  [`print.brs()`](https://evandeilton.github.io/betaregscale/reference/print.brs.md)
+  and
+  [`print.summary.brs()`](https://evandeilton.github.io/betaregscale/reference/print.summary.brs.md)
+  methods.
+- Replaced `\dontrun{}` with `\donttest{}` in
+  [`brs_gof()`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md)
+  example and created complete executable example.
+- Removed `.GlobalEnv` modification from
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+  (CRAN policy violation).
+- Removed [`set.seed()`](https://rdrr.io/r/base/Random.html) calls from
+  exported functions:
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md),
+  [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md),
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md),
+  and
+  [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md).
+  Users must now call [`set.seed()`](https://rdrr.io/r/base/Random.html)
+  externally before these functions for reproducibility.
+- Removed `seed` parameter from all four functions listed above.
+  Documentation updated with recommended usage pattern.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.6
 
-### CRAN resubmission
+### CRAN resubmission (Uwe Ligges review, 18 Feb 2026)
 
 - DESCRIPTION: function names in Title/Description now use parentheses
   (e.g. [`logLik()`](https://rdrr.io/r/stats/logLik.html),
@@ -426,9 +489,9 @@
 ### New features
 
 - **Mixed censoring support**: the complete likelihood (Eq. 2.24) now
-  handles four censoring types simultaneously: exact ($\delta = 0$),
-  left-censored ($\delta = 1$), right-censored ($\delta = 2$), and
-  interval-censored ($\delta = 3$).
+  handles four censoring types simultaneously: exact ($`\delta=0`$),
+  left-censored ($`\delta=1`$), right-censored ($`\delta=2`$), and
+  interval-censored ($`\delta=3`$).
 - **C++ backend rewrite**: log-likelihood and analytical gradient
   functions rewritten in C++ (RcppArmadillo) for numerically stable,
   high-performance evaluation.

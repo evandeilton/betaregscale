@@ -15,27 +15,36 @@
 #'
 #' @return A list with class \code{"brsmm_re_study"}.
 #'
+#' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{ranef.brsmm}}
+#'
 #' @examples
 #' \donttest{
-#' set.seed(123)
-#' g <- 10
-#' ni <- 8
-#' id <- factor(rep(seq_len(g), each = ni))
-#' n <- length(id)
-#' x1 <- rnorm(n)
-#' b0 <- rnorm(g, sd = 0.4)
-#' b1 <- rnorm(g, sd = 0.2)
-#' mu <- plogis(0.2 + 0.5 * x1 + b0[id] + b1[id] * x1)
-#' phi <- plogis(-0.2)
-#' shp <- brs_repar(mu = mu, phi = rep(phi, n), repar = 2)
-#' y <- round(stats::rbeta(n, shp$shape1, shp$shape2) * 100)
-#' d <- data.frame(y = y, x1 = x1, id = id)
-#' fit <- brsmm(y ~ x1, random = ~ 1 + x1 | id, data = d, repar = 2)
-#'
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 #' rs <- brsmm_re_study(fit)
 #' print(rs)
-#' knitr::kable(rs$summary, digits = 4)
+#' rs$summary
 #' }
+#'
+#' @importFrom stats cov2cor sd shapiro.test
 #' @export
 brsmm_re_study <- function(object, ...) {
   .check_class_mm(object)
@@ -68,7 +77,13 @@ brsmm_re_study <- function(object, ...) {
   shapiro_p <- rep(NA_real_, ncol(B))
   if (nrow(B) >= 3L && nrow(B) <= 5000L) {
     shapiro_p <- apply(B, 2, function(x) {
-      stats::shapiro.test(as.numeric(x))$p.value
+      x_num <- as.numeric(x)
+      # Safe-guard against singular fits (identical modes = 0 variance)
+      if (stats::sd(x_num) > 1e-6) {
+        stats::shapiro.test(x_num)$p.value
+      } else {
+        NA_real_
+      }
     })
   }
 
@@ -93,12 +108,44 @@ brsmm_re_study <- function(object, ...) {
   out
 }
 
-#' Print method for random-effects study
+#' Print a random-effects study
 #'
-#' @param x A \code{"brsmm_re_study"} object.
-#' @param digits Number of digits.
+#' @description
+#' Prints a compact summary of the random-effects study returned by
+#' \code{\link{brsmm_re_study}}, including per-term standard deviations,
+#' shrinkage ratios, Shapiro-Wilk p-values, and the estimated covariance
+#' and correlation matrices.
+#'
+#' @param x A \code{"brsmm_re_study"} object returned by
+#'   \code{\link{brsmm_re_study}}.
+#' @param digits Integer: number of significant digits for rounding
+#'   (default \code{max(3, getOption("digits") - 3)}).
 #' @param ... Currently ignored.
-#' @return Invisibly returns \code{x}.
+#'
+#' @return Invisibly returns \code{x}. Called for its side-effect of
+#'   printing the study to the console.
+#'
+#' @method print brsmm_re_study
+#'
+#' @seealso \code{\link{brsmm_re_study}}, \code{\link{brsmm}},
+#'   \code{\link{ranef.brsmm}}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' rs <- brsmm_re_study(fit)
+#' print(rs)
+#' }
+#'
 #' @export
 print.brsmm_re_study <- function(x, digits = max(3, getOption("digits") - 3), ...) {
   cat("\nRandom-effects study\n")

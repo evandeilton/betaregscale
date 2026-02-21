@@ -68,9 +68,13 @@ reference:
       - AIC.brsmm
       - BIC.brsmm
       - nobs.brsmm
+      - formula.brsmm
+      - model.matrix.brsmm
       - fitted.brsmm
       - residuals.brsmm
       - predict.brsmm
+      - confint.brsmm
+      - ranef
       - ranef.brsmm
       - plot.brsmm
       - brsmm_re_study

@@ -77,12 +77,44 @@
 
 #' Model comparison by analysis of deviance (LR test) for `brs`
 #'
-#' @param object A fitted `brs` model.
-#' @param ... Additional fitted `brs` and/or `brsmm` models.
-#' @param test Character; `"Chisq"` (default) or `"none"`.
+#' @param object A fitted \code{"brs"} model.
+#' @param ... Additional fitted \code{"brs"} and/or \code{"brsmm"} models to
+#'   compare.
+#' @param test Character; \code{"Chisq"} (default) or \code{"none"}.
 #'
-#' @return An object of class `anova` and `data.frame` with model-wise
-#'   log-likelihood, information criteria, and (optionally) LR test columns.
+#' @return An object of class \code{"anova"} and \code{"data.frame"} with
+#'   model-wise log-likelihood, information criteria, and (optionally) LR test
+#'   columns.
+#'
+#' @seealso \code{\link{brs}}, \code{\link{logLik.brs}}, \code{\link{AIC.brs}},
+#'   \code{\link{BIC.brs}}
+#'
+#' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   x2 = rep(c(0, 0, 1, 1), 5)
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' m1 <- brs(y ~ 1, data = prep)
+#' m2 <- brs(y ~ x1, data = prep)
+#' m3 <- brs(y ~ x1 + x2, data = prep)
+#' anova(m1, m2, m3)
+#' }
 #'
 #' @method anova brs
 #' @importFrom stats anova pchisq
@@ -94,12 +126,43 @@ anova.brs <- function(object, ..., test = c("Chisq", "none")) {
 
 #' Model comparison by analysis of deviance (LR test) for `brsmm`
 #'
-#' @param object A fitted `brsmm` model.
-#' @param ... Additional fitted `brsmm` and/or `brs` models.
-#' @param test Character; `"Chisq"` (default) or `"none"`.
+#' @param object A fitted \code{"brsmm"} model.
+#' @param ... Additional fitted \code{"brsmm"} and/or \code{"brs"} models to
+#'   compare.
+#' @param test Character; \code{"Chisq"} (default) or \code{"none"}.
 #'
-#' @return An object of class `anova` and `data.frame` with model-wise
-#'   log-likelihood, information criteria, and (optionally) LR test columns.
+#' @return An object of class \code{"anova"} and \code{"data.frame"} with
+#'   model-wise log-likelihood, information criteria, and (optionally) LR test
+#'   columns.
+#'
+#' @seealso \code{\link{brsmm}}, \code{\link{logLik.brsmm}},
+#'   \code{\link{AIC.brsmm}}, \code{\link{BIC.brsmm}}
+#'
+#' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: \url{https://hdl.handle.net/1884/86624}.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
+#'
+#' @examples
+#' \donttest{
+#' dat <- data.frame(
+#'   y = c(
+#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+#'   ),
+#'   x1 = rep(c(1, 2), 10),
+#'   id = factor(rep(1:4, each = 5))
+#' )
+#' prep <- brs_prep(dat, ncuts = 100)
+#' m1 <- brs(y ~ 1, data = prep)
+#' m2 <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+#' anova(m1, m2)
+#' }
 #'
 #' @method anova brsmm
 #' @importFrom stats anova pchisq

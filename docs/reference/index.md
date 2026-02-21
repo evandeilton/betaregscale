@@ -85,20 +85,28 @@ Standard methods for fitted model objects of class brsmm.
   : BIC for brsmm models
 - [`nobs(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/nobs.brsmm.md)
   : Number of observations in a brsmm fit
+- [`formula(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/formula.brsmm.md)
+  : Extract model formula
+- [`model.matrix(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/model.matrix.brsmm.md)
+  : Extract design matrix
 - [`fitted(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/fitted.brsmm.md)
   : Fitted values from a brsmm model
 - [`residuals(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/residuals.brsmm.md)
   : Residuals from a brsmm model
 - [`predict(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/predict.brsmm.md)
   : Predict from a brsmm model
-- [`ranef.brsmm()`](https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.md)
+- [`confint(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/confint.brsmm.md)
+  : Wald confidence intervals for brsmm models
+- [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)
+  : Extract random effects
+- [`ranef(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.md)
   : Extract random effects from a brsmm model
 - [`plot(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
   : Diagnostic plots for mixed beta interval regression
 - [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
   : Random-effects study for brsmm models
 - [`print(`*`<brsmm_re_study>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.brsmm_re_study.md)
-  : Print method for random-effects study
+  : Print a random-effects study
 
 ## Diagnostics and Summaries
 

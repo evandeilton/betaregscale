@@ -27,7 +27,7 @@ Description: Maximum-likelihood estimation of beta regression models for
     plot(), confint(), vcov(), logLik(), AIC(), BIC()) are available
     for fitted objects.
 License: MIT + file LICENSE
-URL: https://github.com/evandeilton/betaregscale
+URL: https://evandeilton.github.io/betaregscale, https://github.com/evandeilton/betaregscale
 BugReports: https://github.com/evandeilton/betaregscale/issues
 Depends:
     R (>= 4.1.0)
@@ -36,6 +36,7 @@ Imports:
     ggplot2,
     numDeriv,
     Rcpp (>= 1.0.12),
+    rlang,
     stats
 Suggests:
     betareg,

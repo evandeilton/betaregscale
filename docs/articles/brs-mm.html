@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,7 +88,7 @@ approximation);</li>
 recovery.</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evandeilton/betaregscale" class="external-link">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="mathematical-model">Mathematical model<a class="anchor" aria-label="anchor" href="#mathematical-model"></a>
@@ -107,15 +107,15 @@ with group-specific random-effects vector
 \qquad
 \eta_{\phi,ij} = z_{ij}^\top \gamma
 </annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msup><mi>g</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mrow><mi>μ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>ϕ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msup><mi>h</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mrow><mi>ϕ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msup><mi>g</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mrow><mi>μ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>ϕ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msup><mi>h</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mrow><mi>ϕ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 \mu_{ij} = g^{-1}(\eta_{\mu,ij}),
 \qquad
 \phi_{ij} = h^{-1}(\eta_{\phi,ij})
 </annotation></semantics></math></p>
 <p>with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(\cdot)</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">h(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">h(\cdot)</annotation></semantics></math>
 chosen by <code>link</code> and <code>link_phi</code>. The
 random-effects design row
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">w_{ij}</annotation></semantics></math>
@@ -147,9 +147,9 @@ F(u_{ij}; a_{ij}, b_{ij}) - F(l_{ij}; a_{ij}, b_{ij}), &amp; \delta_{ij}=3
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>l</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo><msub><mi>u</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">l_{ij},u_{ij}</annotation></semantics></math>
 are interval endpoints on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
 is beta density, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
 is beta CDF.</p>
 </div>
 <div class="section level3">
@@ -188,7 +188,7 @@ Q_j(\mathbf{b})=
 </annotation></semantics></math> and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo>=</mo><mo>arg</mo><msub><mo>max</mo><mi>𝐛</mi></msub><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐛</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\mathbf{b}}_j=\arg\max_{\mathbf{b}} Q_j(\mathbf{b})</annotation></semantics></math>,
 with curvature
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>j</mi></msub><mo>=</mo><mo>−</mo><msup><mi>∇</mi><mn>2</mn></msup><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>j</mi></msub><mo>=</mo><mi>−</mi><msup><mi>∇</mi><mn>2</mn></msup><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
 H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j).
 </annotation></semantics></math> Then</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mfrac><msub><mi>q</mi><mi>b</mi></msub><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>π</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>H</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
@@ -237,11 +237,13 @@ fitting, inference, and recovery checks.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">sim_brsmm_data</span><span class="op">(</span>g <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                      ni <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>                      beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="fl">0.65</span><span class="op">)</span>,</span>
-<span>                      gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span><span class="op">)</span>,</span>
-<span>                      sigma_b <span class="op">=</span> <span class="fl">0.55</span><span class="op">)</span></span>
+<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu">sim_brsmm_data</span><span class="op">(</span></span>
+<span>  g <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  ni <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="fl">0.65</span><span class="op">)</span>,</span>
+<span>  gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span><span class="op">)</span>,</span>
+<span>  sigma_b <span class="op">=</span> <span class="fl">0.55</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    1000 obs. of  3 variables:</span></span>
 <span><span class="co">#&gt;  $ y : num  92 0 71 59 21 5 34 1 19 0 ...</span></span>
@@ -268,17 +270,35 @@ fitting, inference, and recovery checks.</p>
 <span><span class="co">#&gt; brsmm(formula = y ~ x1, random = ~1 | id, data = sim$data, repar = 2, </span></span>
 <span><span class="co">#&gt;     int_method = "laplace", method = "BFGS", control = list(maxit = 1000))</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Randomized Quantile Residuals:</span></span>
+<span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span><span class="co">#&gt; -2.8356 -0.6727 -0.0422  0.6040  3.0833 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; (Intercept)  0.26237    0.18121   1.448    0.148    </span></span>
+<span><span class="co">#&gt; x1           0.63844    0.04381  14.573   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
+<span><span class="co">#&gt;                   Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; (phi)_(Intercept) -0.10608    0.04044  -2.623  0.00872 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-effects parameters (Cholesky scale):</span></span>
+<span><span class="co">#&gt;                                Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; (re_chol_logsd)_(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Mixed beta interval model (Laplace)</span></span>
 <span><span class="co">#&gt; Observations: 1000  | Groups: 5 </span></span>
-<span><span class="co">#&gt; logLik =-4182.1094 | AIC =8372.2188 | BIC =8391.8498</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)                     0.26237    0.18121   1.448  0.14766    </span></span>
-<span><span class="co">#&gt; x1                              0.63844    0.04381  14.573  &lt; 2e-16 ***</span></span>
-<span><span class="co">#&gt; (phi)_(Intercept)              -0.10608    0.04044  -2.623  0.00872 ** </span></span>
-<span><span class="co">#&gt; (re_chol_logsd)_(Intercept)|id -0.92929    0.33381  -2.784  0.00537 ** </span></span>
-<span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -4182.1094 on 4 Df | AIC: 8372.2188 | BIC: 8391.8498 </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1815 </span></span>
+<span><span class="co">#&gt; Number of iterations: 37 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 852 interval | 39 left | 109 right</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="random-intercept-slope-example">Random intercept + slope example<a class="anchor" aria-label="anchor" href="#random-intercept-slope-example"></a>
@@ -302,19 +322,37 @@ fitting, inference, and recovery checks.</p>
 <span><span class="co">#&gt; brsmm(formula = y ~ x1, random = ~1 + x1 | id, data = sim$data, </span></span>
 <span><span class="co">#&gt;     repar = 2, int_method = "laplace", method = "BFGS", control = list(maxit = 1200))</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Randomized Quantile Residuals:</span></span>
+<span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span><span class="co">#&gt; -3.6105 -0.6741 -0.0459  0.6224  3.9925 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; (Intercept)   0.2621     0.1805   1.452    0.146    </span></span>
+<span><span class="co">#&gt; x1            0.6375     0.0455  14.012   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
+<span><span class="co">#&gt;                   Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; (phi)_(Intercept) -0.10665    0.04046  -2.636   0.0084 **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-effects parameters (Cholesky scale):</span></span>
+<span><span class="co">#&gt;                                Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 **</span></span>
+<span><span class="co">#&gt; (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852   </span></span>
+<span><span class="co">#&gt; (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248   </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Mixed beta interval model (Laplace)</span></span>
 <span><span class="co">#&gt; Observations: 1000  | Groups: 5 </span></span>
-<span><span class="co">#&gt; logLik =-4181.9196 | AIC =8375.8392 | BIC =8405.2858</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                                Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)                     0.26209    0.18047   1.452  0.14643    </span></span>
-<span><span class="co">#&gt; x1                              0.63755    0.04550  14.012  &lt; 2e-16 ***</span></span>
-<span><span class="co">#&gt; (phi)_(Intercept)              -0.10665    0.04046  -2.636  0.00840 ** </span></span>
-<span><span class="co">#&gt; (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 ** </span></span>
-<span><span class="co">#&gt; (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852    </span></span>
-<span><span class="co">#&gt; (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248    </span></span>
-<span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -4181.9196 on 6 Df | AIC: 8375.8392 | BIC: 8405.2858 </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1815 </span></span>
+<span><span class="co">#&gt; Number of iterations: 64 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 852 interval | 39 left | 109 right</span></span></code></pre></div>
 <p>Covariance structure of random effects:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">$</span><span class="va">random</span><span class="op">$</span><span class="va">D</span><span class="op">)</span></span></code></pre></div>
@@ -356,7 +394,7 @@ fitting, inference, and recovery checks.</p>
 </tbody>
 </table>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/ranef.brsmm.html">ranef.brsmm</a></span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/ranef.html">ranef</a></span><span class="op">(</span><span class="va">fit_mm_rs</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="center">(Intercept)</th>
@@ -516,8 +554,10 @@ with log-diagonal). For random-intercept models this simplifies to
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>σ</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">\log \sigma_b</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>parameter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"full"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>             estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"full"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    parameter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"full"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"full"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -546,8 +586,10 @@ with log-diagonal). For random-intercept models this simplifies to
 </table>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>log_sigma_b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>             sigma_b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    log_sigma_b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    sigma_b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_mm</span>, model <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">4</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -561,7 +603,7 @@ with log-diagonal). For random-intercept models this simplifies to
 </tr></tbody>
 </table>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/ranef.brsmm.html">ranef.brsmm</a></span><span class="op">(</span><span class="va">fit_mm</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/ranef.html">ranef</a></span><span class="op">(</span><span class="va">fit_mm</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="center">x</th>
@@ -644,18 +686,34 @@ with log-diagonal). For random-intercept models this simplifies to
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">sm</span><span class="op">$</span><span class="va">coefficients</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="41%">
-<col width="11%">
-<col width="13%">
-<col width="10%">
-<col width="22%">
+<col width="5%">
+<col width="6%">
+<col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="8%">
+<col width="9%">
+<col width="8%">
+<col width="8%">
+<col width="7%">
+<col width="8%">
+<col width="7%">
+<col width="7%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="center">Estimate</th>
-<th align="center">Std. Error</th>
-<th align="center">z value</th>
-<th align="center">Pr(&gt;|z|)</th>
+<th align="center">mean.Estimate</th>
+<th align="center">mean.Std..Error</th>
+<th align="center">mean.z.value</th>
+<th align="center">mean.Pr…z..</th>
+<th align="center">precision.Estimate</th>
+<th align="center">precision.Std..Error</th>
+<th align="center">precision.z.value</th>
+<th align="center">precision.Pr…z..</th>
+<th align="center">random.Estimate</th>
+<th align="center">random.Std..Error</th>
+<th align="center">random.z.value</th>
+<th align="center">random.Pr…z..</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -664,6 +722,14 @@ with log-diagonal). For random-intercept models this simplifies to
 <td align="center">0.1812</td>
 <td align="center">1.4479</td>
 <td align="center">0.1477</td>
+<td align="center">-0.1061</td>
+<td align="center">0.0404</td>
+<td align="center">-2.623</td>
+<td align="center">0.0087</td>
+<td align="center">-0.9293</td>
+<td align="center">0.3338</td>
+<td align="center">-2.7839</td>
+<td align="center">0.0054</td>
 </tr>
 <tr class="even">
 <td align="left">x1</td>
@@ -671,16 +737,10 @@ with log-diagonal). For random-intercept models this simplifies to
 <td align="center">0.0438</td>
 <td align="center">14.5727</td>
 <td align="center">0.0000</td>
-</tr>
-<tr class="odd">
-<td align="left">(phi)_(Intercept)</td>
 <td align="center">-0.1061</td>
 <td align="center">0.0404</td>
-<td align="center">-2.6230</td>
+<td align="center">-2.623</td>
 <td align="center">0.0087</td>
-</tr>
-<tr class="even">
-<td align="left">(re_chol_logsd)_(Intercept)|id</td>
 <td align="center">-0.9293</td>
 <td align="center">0.3338</td>
 <td align="center">-2.7839</td>
@@ -1029,18 +1089,34 @@ z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">sm</span><span class="op">$</span><span class="va">coefficients</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="41%">
-<col width="11%">
-<col width="13%">
-<col width="10%">
-<col width="22%">
+<col width="5%">
+<col width="6%">
+<col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="8%">
+<col width="9%">
+<col width="8%">
+<col width="8%">
+<col width="7%">
+<col width="8%">
+<col width="7%">
+<col width="7%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="center">Estimate</th>
-<th align="center">Std. Error</th>
-<th align="center">z value</th>
-<th align="center">Pr(&gt;|z|)</th>
+<th align="center">mean.Estimate</th>
+<th align="center">mean.Std..Error</th>
+<th align="center">mean.z.value</th>
+<th align="center">mean.Pr…z..</th>
+<th align="center">precision.Estimate</th>
+<th align="center">precision.Std..Error</th>
+<th align="center">precision.z.value</th>
+<th align="center">precision.Pr…z..</th>
+<th align="center">random.Estimate</th>
+<th align="center">random.Std..Error</th>
+<th align="center">random.z.value</th>
+<th align="center">random.Pr…z..</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -1049,6 +1125,14 @@ z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
 <td align="center">0.1812</td>
 <td align="center">1.4479</td>
 <td align="center">0.1477</td>
+<td align="center">-0.1061</td>
+<td align="center">0.0404</td>
+<td align="center">-2.623</td>
+<td align="center">0.0087</td>
+<td align="center">-0.9293</td>
+<td align="center">0.3338</td>
+<td align="center">-2.7839</td>
+<td align="center">0.0054</td>
 </tr>
 <tr class="even">
 <td align="left">x1</td>
@@ -1056,16 +1140,10 @@ z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
 <td align="center">0.0438</td>
 <td align="center">14.5727</td>
 <td align="center">0.0000</td>
-</tr>
-<tr class="odd">
-<td align="left">(phi)_(Intercept)</td>
 <td align="center">-0.1061</td>
 <td align="center">0.0404</td>
-<td align="center">-2.6230</td>
+<td align="center">-2.623</td>
 <td align="center">0.0087</td>
-</tr>
-<tr class="even">
-<td align="left">(re_chol_logsd)_(Intercept)|id</td>
 <td align="center">-0.9293</td>
 <td align="center">0.3338</td>
 <td align="center">-2.7839</td>

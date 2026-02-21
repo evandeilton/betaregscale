@@ -31,3 +31,24 @@ Numeric vector.
 \description{
 Predict from a brsmm model
 }
+\examples{
+\donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+head(predict(fit))
+head(predict(fit, type = "precision"))
+}
+
+}
+\seealso{
+\code{\link{brsmm}}, \code{\link{fitted.brsmm}},
+  \code{\link{brs_predict_scoreprob}}
+}
