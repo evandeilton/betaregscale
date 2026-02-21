@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,17 +75,18 @@
 <div class="section level2">
 <h2 id="audience-and-scope">Audience and scope<a class="anchor" aria-label="anchor" href="#audience-and-scope"></a>
 </h2>
-<p>This vignette is designed for analysts who already know beta
-regression and need a production-oriented workflow with:</p>
+<p>This vignette is designed for analysts who are already familiar with
+beta regression and require a production-oriented workflow
+featuring:</p>
 <ol style="list-style-type: decimal">
 <li>reproducible model selection;</li>
 <li>inferential and predictive diagnostics;</li>
 <li>mixed-effects escalation (<code>brs</code> -&gt; <code>brsmm</code>)
-with LR comparison;</li>
+with Likelihood Ratio (LR) comparisons;</li>
 <li>high-signal reporting tables for technical decision-making.</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="reproducible-simulation-and-data-checks">1) Reproducible simulation and data checks<a class="anchor" aria-label="anchor" href="#reproducible-simulation-and-data-checks"></a>
@@ -1047,8 +1048,8 @@ with LR comparison;</li>
 <div class="section level3">
 <h3 id="model-choice-by-llrlrt-anova">6.3 Model choice by LLR/LRT (ANOVA)<a class="anchor" aria-label="anchor" href="#model-choice-by-llrlrt-anova"></a>
 </h3>
-<p>The <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> methods provide a practical LLR
-workflow:</p>
+<p>The <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> methods provide a practical Likelihood Ratio
+Test (LLR) workflow:</p>
 <ul>
 <li>
 <code>M0 = brs</code> (no random effects);</li>
@@ -1059,16 +1060,15 @@ workflow:</p>
 <code>M2 = brsmm</code> with random intercept + slope
 (<code>~ 1 + x1 | id</code>).</li>
 </ul>
-<p>In nested comparisons, the statistic is:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>R</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">{</mo><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">complex</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">simple</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
-LR = 2\{\ell(\hat\theta_{\text{complex}}) - \ell(\hat\theta_{\text{simple}})\}.
-</annotation></semantics></math></p>
-<p>For the first step (<code>M0 -&gt; M1</code>), the null involves
-variance components at the boundary
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>b</mi><mn>2</mn></msubsup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sigma_b^2 = 0</annotation></semantics></math>);
-p-values should be interpreted with caution. For
-<code>M1 -&gt; M2</code>, the chi-square approximation is often used as
-a practical decision aid.</p>
+<p>In nested comparisons, the test statistic is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>R</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">{</mo><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">complex</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">simple</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">LR=2\{\ell(\hat\theta_{\text{complex}})-\ell(\hat\theta_{\text{simple}})\}</annotation></semantics></math></p>
+<p>For the first step (<code>M0 -&gt; M1</code>), the null hypothesis
+involves variance components located at the boundary of the parameter
+space
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mi>b</mi><mn>2</mn></msubsup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sigma_b^2=0</annotation></semantics></math>);
+therefore, p-values should be interpreted with caution. For the
+<code>M1 -&gt; M2</code> step, the chi-square approximation is robust
+and often used as a practical decision aid.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tab_lr_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tab_lr</span><span class="op">)</span>, <span class="va">tab_lr</span>, row.names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span><span class="va">tab_lr_df</span><span class="op">$</span><span class="va">decision</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -1253,13 +1253,14 @@ a practical decision aid.</p>
 </h2>
 <ul>
 <li>Start with <code>brs</code> candidates (<code>link</code>,
-<code>repar</code>) and rank with <code>brs_table</code>.</li>
-<li>Add bootstrap and AME before escalating complexity.</li>
-<li>Use <code>brs_cv</code> for out-of-sample stability checks.</li>
-<li>Escalate to <code>brsmm</code> only when LR/AIC/BIC and diagnostics
-support it.</li>
+<code>repar</code>) and rank them using <code><a href="../reference/brs_table.html">brs_table()</a></code>.</li>
+<li>Add bootstrap analysis and Average Marginal Effects (AME) before
+escalating complexity.</li>
+<li>Use <code><a href="../reference/brs_cv.html">brs_cv()</a></code> for out-of-sample stability checks.</li>
+<li>Escalate to <code>brsmm</code> only when LR/AIC/BIC metrics and
+diagnostics clearly support it.</li>
 <li>For random slopes, always inspect <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> and
-random-effects plots.</li>
+the associated random-effects plots.</li>
 </ul>
 </div>
 <div class="section level2">

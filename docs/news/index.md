@@ -1,5 +1,7 @@
 # Changelog
 
+## betaregscale 2.6.9
+
 ## betaregscale 2.6.8
 
 ### New features

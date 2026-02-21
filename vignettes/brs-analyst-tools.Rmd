@@ -29,11 +29,11 @@ kbl10 <- function(x, digits = 4, ...) {
 This vignette presents analyst-oriented tools added to **betaregscale**
 for post-estimation workflows:
 
-- `brs_table()`: model comparison tables.
-- `brs_marginaleffects()`: average marginal effects (AME).
-- `brs_predict_scoreprob()`: probabilities on the original score scale.
-- `autoplot.brs()`: `ggplot2` diagnostics.
-- `brs_cv()`: repeated k-fold cross-validation.
+* `brs_table()`: model comparison tables.
+* `brs_marginaleffects()`: average marginal effects (AME).
+* `brs_predict_scoreprob()`: probabilities on the original score scale.
+* `autoplot.brs()`: `ggplot2` diagnostics.
+* `brs_cv()`: repeated k-fold cross-validation.
 
 The examples use bounded scale data under the interval-censored beta
 regression framework implemented in the package.
@@ -46,18 +46,18 @@ library(betaregscale)
 
 ### Complete likelihood by censoring type
 
-For each observation $i$, let $\delta_i \in \{0,1,2,3\}$ indicate
+For each observation $i$, let $\delta_i\in\{0,1,2,3\}$ indicate
 exact, left-censored, right-censored, or interval-censored status.
 With beta CDF $F(\cdot)$, beta density $f(\cdot)$, and interval
-endpoints $[l_i, u_i]$, the contribution is:
+endpoints $[l_i,u_i]$, the contribution is:
 
 $$
 L_i(\theta)=
 \begin{cases}
-f(y_i; a_i, b_i), & \delta_i = 0,\\
-F(u_i; a_i, b_i), & \delta_i = 1,\\
-1 - F(l_i; a_i, b_i), & \delta_i = 2,\\
-F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i = 3.
+f(y_i; a_i, b_i), & \delta_i=0,\\
+F(u_i; a_i, b_i), & \delta_i=1,\\
+1 - F(l_i; a_i, b_i), & \delta_i=2,\\
+F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3.
 \end{cases}
 $$
 
@@ -65,30 +65,33 @@ This is the basis for fitting, prediction, and validation metrics.
 
 ### Model-comparison metrics
 
+
+
 `brs_table()` reports:
 
-- $\log L(\hat\theta)$,
-- $AIC = -2\log L(\hat\theta) + 2k$,
-- $BIC = -2\log L(\hat\theta) + k\log n$,
+* $\log L(\hat\theta)$,
+* $AIC=-2\log L(\hat\theta)+2k$,
+* $BIC=-2\log L(\hat\theta)+k\log n$,
 
-where $k$ is the number of estimated parameters and $n$ is sample size.
+where $k$ is the number of estimated parameters and $n$ is the sample size.
 
 ### Average marginal effects (AME)
+
+
 
 `brs_marginaleffects()` computes AME by finite differences:
 
 $$
-\mathrm{AME}_j = \frac{1}{n}\sum_{i=1}^n
-\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
+\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
 $$
 
 with $\hat g_i$ on the requested prediction scale (`response` or `link`).
-For binary covariates $x_j \in \{0,1\}$, it uses the discrete contrast
+For binary covariates $x_j\in\{0,1\}$, it uses the discrete contrast
 $\hat g(x_j=1)-\hat g(x_j=0)$.
 
 ### Score-scale probabilities
 
-For integer scores $s \in \{0,\dots,K\}$, `brs_predict_scoreprob()`
+For integer scores $s\in\{0,\dots,K\}$, `brs_predict_scoreprob()`
 computes:
 
 $$
@@ -96,7 +99,7 @@ P(Y=s)=
 \begin{cases}
 F(\mathrm{lim}/K), & s=0,\\
 1-F((K-\mathrm{lim})/K), & s=K,\\
-F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), & 1 \le s \le K-1.
+F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), & 1\le s\le K-1.
 \end{cases}
 $$
 
@@ -105,10 +108,12 @@ original instrument scale.
 
 ### Cross-validation log score
 
+
+
 In `brs_cv()`, fold-level predictive quality includes:
 
 $$
-\mathrm{log\_score} = \frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
+\mathrm{log\_score}=\frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
 $$
 
 where $p_i$ is the predictive contribution from the same censoring-rule
@@ -117,9 +122,9 @@ piecewise definition shown above.
 It also reports:
 
 $$
-\mathrm{RMSE}_{yt} = \sqrt{\frac{1}{n_{test}}\sum (y_{t,i}-\hat\mu_i)^2},
+\mathrm{RMSE}_{yt}=\sqrt{\frac{1}{n_{test}}\sum(y_{t,i}-\hat\mu_i)^2},
 \qquad
-\mathrm{MAE}_{yt} = \frac{1}{n_{test}}\sum |y_{t,i}-\hat\mu_i|.
+\mathrm{MAE}_{yt}=\frac{1}{n_{test}}\sum|y_{t,i}-\hat\mu_i|.
 $$
 
 ## Reproducible workflow
@@ -200,6 +205,8 @@ subset selection).
 
 ### 5) ggplot2 diagnostics
 
+
+
 ```{r autoplot, eval = requireNamespace("ggplot2", quietly = TRUE)}
 autoplot.brs(fit_var, type = "calibration")
 autoplot.brs(fit_var, type = "score_dist", scores = 0:20)
@@ -231,27 +238,29 @@ kbl10(
 
 ## Practical interpretation
 
-- Prefer the model with lower AIC/BIC and better predictive `log_score`.
-- Use AME on the response scale to communicate expected change in mean score
-  (on the unit interval) from small covariate shifts.
-- Use score probabilities to translate model outputs back to clinically
+* Prefer the model with the lower AIC/BIC and better predictive `log_score`.
+* Use AME on the response scale to communicate the expected change in mean score
+  (on the unit interval) resulting from small covariate shifts.
+* Use score probabilities to translate model outputs back to clinically
   interpretable scale categories.
-- Inspect calibration and residual-by-censoring plots before inference.
+* Inspect calibration and residual-by-censoring plots before proceeding with statistical inference.
 
 ## References
-- Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
+
+* Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
   31(7), 799-815. DOI: 10.1080/0266476042000214501.
   Validated online via:
   <https://doi.org/10.1080/0266476042000214501>.
-- Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+* Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
   Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS,
   and ICOAP. *Arthritis Care and Research*, 63(S11), S240-S252.
   DOI: 10.1002/acr.20543. Validated online via:
   <https://doi.org/10.1002/acr.20543>.
-- Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
+* Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
   Comparing NRS, VRS, and VAS pain scales in adults:
   a systematic review. *Journal of Pain and Symptom Management*,
   41(6), 1073-1093. DOI: 10.1016/j.jpainsymman.2010.08.016.
   Validated online via:
   <https://doi.org/10.1016/j.jpainsymman.2010.08.016>.
+  

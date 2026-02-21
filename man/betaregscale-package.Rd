@@ -85,8 +85,7 @@ Beta regression for modelling rates and proportions.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://evandeilton.github.io/betaregscale}
-  \item \url{https://github.com/evandeilton/betaregscale}
+  \item \url{https://evandeilton.github.io/betaregscale/}
   \item Report bugs at \url{https://github.com/evandeilton/betaregscale/issues}
 }
 

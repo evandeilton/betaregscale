@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +94,7 @@ score scale.</li>
 <p>The examples use bounded scale data under the interval-censored beta
 regression framework implemented in the package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="mathematical-foundations">Mathematical foundations<a class="anchor" aria-label="anchor" href="#mathematical-foundations"></a>
@@ -105,22 +105,22 @@ regression framework implemented in the package.</p>
 <p>For each observation
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
 let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\delta_i \in \{0,1,2,3\}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\delta_i\in\{0,1,2,3\}</annotation></semantics></math>
 indicate exact, left-censored, right-censored, or interval-censored
 status. With beta CDF
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>,
 beta density
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>,
 and interval endpoints
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i, u_i]</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i,u_i]</annotation></semantics></math>,
 the contribution is:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>2</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>3</mn><mi>.</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
 L_i(\theta)=
 \begin{cases}
-f(y_i; a_i, b_i), &amp; \delta_i = 0,\\
-F(u_i; a_i, b_i), &amp; \delta_i = 1,\\
-1 - F(l_i; a_i, b_i), &amp; \delta_i = 2,\\
-F(u_i; a_i, b_i)-F(l_i; a_i, b_i), &amp; \delta_i = 3.
+f(y_i; a_i, b_i), &amp; \delta_i=0,\\
+F(u_i; a_i, b_i), &amp; \delta_i=1,\\
+1 - F(l_i; a_i, b_i), &amp; \delta_i=2,\\
+F(u_i; a_i, b_i)-F(l_i; a_i, b_i), &amp; \delta_i=3.
 \end{cases}
 </annotation></semantics></math></p>
 <p>This is the basis for fitting, prediction, and validation
@@ -134,15 +134,15 @@ metrics.</p>
 <li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><mi>L</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log L(\hat\theta)</annotation></semantics></math>,</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mo>log</mo><mi>L</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC = -2\log L(\hat\theta) + 2k</annotation></semantics></math>,</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mo>log</mo><mi>L</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC=-2\log L(\hat\theta)+2k</annotation></semantics></math>,</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mo>log</mo><mi>L</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>k</mi><mo>log</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">BIC = -2\log L(\hat\theta) + k\log n</annotation></semantics></math>,</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mo>log</mo><mi>L</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mi>k</mi><mo>log</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">BIC=-2\log L(\hat\theta)+k\log n</annotation></semantics></math>,</li>
 </ul>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
 is the number of estimated parameters and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
-is sample size.</p>
+is the sample size.</p>
 </div>
 <div class="section level3">
 <h3 id="average-marginal-effects-ame">Average marginal effects (AME)<a class="anchor" aria-label="anchor" href="#average-marginal-effects-ame"></a>
@@ -150,14 +150,13 @@ is sample size.</p>
 <p><code><a href="../reference/brs_marginaleffects.html">brs_marginaleffects()</a></code> computes AME by finite
 differences:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">E</mi></mrow><mi>j</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mfrac><mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>+</mo><mi>h</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mi>h</mi></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
-\mathrm{AME}_j = \frac{1}{n}\sum_{i=1}^n
-\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
+\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
 </annotation></semantics></math></p>
 <p>with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\hat g_i</annotation></semantics></math>
 on the requested prediction scale (<code>response</code> or
 <code>link</code>). For binary covariates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>j</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">x_j \in \{0,1\}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>j</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">x_j\in\{0,1\}</annotation></semantics></math>,
 it uses the discrete contrast
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat g(x_j=1)-\hat g(x_j=0)</annotation></semantics></math>.</p>
 </div>
@@ -165,14 +164,14 @@ it uses the discrete contrast
 <h3 id="score-scale-probabilities">Score-scale probabilities<a class="anchor" aria-label="anchor" href="#score-scale-probabilities"></a>
 </h3>
 <p>For integer scores
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">s \in \{0,\dots,K\}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">s\in\{0,\dots,K\}</annotation></semantics></math>,
 <code><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob()</a></code> computes:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>s</mi><mo>=</mo><mn>0</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>K</mi><mo>−</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>s</mi><mo>=</mo><mi>K</mi><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo>+</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo>−</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mn>1</mn><mo>≤</mo><mi>s</mi><mo>≤</mo><mi>K</mi><mo>−</mo><mn>1</mn><mi>.</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
 P(Y=s)=
 \begin{cases}
 F(\mathrm{lim}/K), &amp; s=0,\\
 1-F((K-\mathrm{lim})/K), &amp; s=K,\\
-F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), &amp; 1 \le s \le K-1.
+F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), &amp; 1\le s\le K-1.
 \end{cases}
 </annotation></semantics></math></p>
 <p>These probabilities are directly aligned with interval geometry on
@@ -183,7 +182,7 @@ the original instrument scale.</p>
 </h3>
 <p>In <code><a href="../reference/brs_cv.html">brs_cv()</a></code>, fold-level predictive quality includes:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">_</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi></mrow><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>∈</mo><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></munder><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
-\mathrm{log\_score} = \frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
+\mathrm{log\_score}=\frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
 </annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
@@ -191,9 +190,9 @@ is the predictive contribution from the same censoring-rule piecewise
 definition shown above.</p>
 <p>It also reports:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">R</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mrow><mi>y</mi><mi>t</mi></mrow></msub><mo>=</mo><msqrt><mrow><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac><mo>∑</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow></msqrt><mo>,</mo><mspace width="2.0em"></mspace><msub><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">E</mi></mrow><mrow><mi>y</mi><mi>t</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac><mo>∑</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
-\mathrm{RMSE}_{yt} = \sqrt{\frac{1}{n_{test}}\sum (y_{t,i}-\hat\mu_i)^2},
+\mathrm{RMSE}_{yt}=\sqrt{\frac{1}{n_{test}}\sum(y_{t,i}-\hat\mu_i)^2},
 \qquad
-\mathrm{MAE}_{yt} = \frac{1}{n_{test}}\sum |y_{t,i}-\hat\mu_i|.
+\mathrm{MAE}_{yt}=\frac{1}{n_{test}}\sum|y_{t,i}-\hat\mu_i|.
 </annotation></semantics></math></p>
 </div>
 </div>
@@ -641,14 +640,15 @@ tolerance and score subset selection).</p>
 <h2 id="practical-interpretation">Practical interpretation<a class="anchor" aria-label="anchor" href="#practical-interpretation"></a>
 </h2>
 <ul>
-<li>Prefer the model with lower AIC/BIC and better predictive
+<li>Prefer the model with the lower AIC/BIC and better predictive
 <code>log_score</code>.</li>
-<li>Use AME on the response scale to communicate expected change in mean
-score (on the unit interval) from small covariate shifts.</li>
+<li>Use AME on the response scale to communicate the expected change in
+mean score (on the unit interval) resulting from small covariate
+shifts.</li>
 <li>Use score probabilities to translate model outputs back to
 clinically interpretable scale categories.</li>
 <li>Inspect calibration and residual-by-censoring plots before
-inference.</li>
+proceeding with statistical inference.</li>
 </ul>
 </div>
 <div class="section level2">

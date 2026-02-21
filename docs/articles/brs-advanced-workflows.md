@@ -2,12 +2,13 @@
 
 ## Audience and scope
 
-This vignette is designed for analysts who already know beta regression
-and need a production-oriented workflow with:
+This vignette is designed for analysts who are already familiar with
+beta regression and require a production-oriented workflow featuring:
 
 1.  reproducible model selection;
 2.  inferential and predictive diagnostics;
-3.  mixed-effects escalation (`brs` -\> `brsmm`) with LR comparison;
+3.  mixed-effects escalation (`brs` -\> `brsmm`) with Likelihood Ratio
+    (LR) comparisons;
 4.  high-signal reporting tables for technical decision-making.
 
 ``` r
@@ -282,22 +283,22 @@ kbl10(data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL))
 ### 6.3 Model choice by LLR/LRT (ANOVA)
 
 The [`anova()`](https://rdrr.io/r/stats/anova.html) methods provide a
-practical LLR workflow:
+practical Likelihood Ratio Test (LLR) workflow:
 
 - `M0 = brs` (no random effects);
 - `M1 = brsmm` with random intercept (`~ 1 | id`);
 - `M2 = brsmm` with random intercept + slope (`~ 1 + x1 | id`).
 
-In nested comparisons, the statistic is:
+In nested comparisons, the test statistic is:
 ``` math
-
-LR = 2\{\ell(\hat\theta_{\text{complex}}) - \ell(\hat\theta_{\text{simple}})\}.
+LR=2\{\ell(\hat\theta_{\text{complex}})-\ell(\hat\theta_{\text{simple}})\}
 ```
 
-For the first step (`M0 -> M1`), the null involves variance components
-at the boundary ($`\sigma_b^2 = 0`$); p-values should be interpreted
-with caution. For `M1 -> M2`, the chi-square approximation is often used
-as a practical decision aid.
+For the first step (`M0 -> M1`), the null hypothesis involves variance
+components located at the boundary of the parameter space
+($`\sigma_b^2=0`$); therefore, p-values should be interpreted with
+caution. For the `M1 -> M2` step, the chi-square approximation is robust
+and often used as a practical decision aid.
 
 ``` r
 tab_lr_df <- data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL)
@@ -381,14 +382,18 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 ## 8) Practical decision checklist
 
-- Start with `brs` candidates (`link`, `repar`) and rank with
-  `brs_table`.
-- Add bootstrap and AME before escalating complexity.
-- Use `brs_cv` for out-of-sample stability checks.
-- Escalate to `brsmm` only when LR/AIC/BIC and diagnostics support it.
+- Start with `brs` candidates (`link`, `repar`) and rank them using
+  [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md).
+- Add bootstrap analysis and Average Marginal Effects (AME) before
+  escalating complexity.
+- Use
+  [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
+  for out-of-sample stability checks.
+- Escalate to `brsmm` only when LR/AIC/BIC metrics and diagnostics
+  clearly support it.
 - For random slopes, always inspect
   [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
-  and random-effects plots.
+  and the associated random-effects plots.
 
 ## References
 

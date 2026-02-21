@@ -30,13 +30,15 @@ The **betaregscale** package provides maximum-likelihood estimation of beta
 regression models for responses derived from bounded rating scales.
 Common examples include pain intensity scales (NRS-11, NRS-21, NRS-101),
 Likert-type scales, product quality ratings, and any instrument whose
-response can be mapped to the open interval $(0, 1)$.
+response can be mapped to the open interval $(0,1)$.
+
+
 
 The key idea is that a discrete score recorded on a bounded scale carries
 measurement uncertainty inherent to the instrument. For instance, a pain
-score of $y = 6$ on a 0--10 NRS is not an exact value but rather
-represents a range: after rescaling to $(0, 1)$, the observation is
-treated as interval-censored in $[0.55, 0.65]$. The package uses the
+score of $y=6$ on a 0–10 NRS is not an exact value but rather
+represents a range: after rescaling to $(0,1)$, the observation is
+treated as interval-censored in $[0.55,0.65]$. The package uses the
 beta distribution to model such data, building a complete likelihood that
 supports mixed censoring types within the same dataset.
 
@@ -59,24 +61,26 @@ types, automatically classified by `brs_check()`:
 
 | $\delta$ | Type | Likelihood contribution |
 |:--------:|:-----|:-----------------------|
-| 0 | Exact (uncensored) | $f(y_i;\, a_i, b_i)$ |
-| 1 | Left-censored ($y = 0$) | $F(u_i;\, a_i, b_i)$ |
-| 2 | Right-censored ($y = K$) | $1 - F(l_i;\, a_i, b_i)$ |
-| 3 | Interval-censored | $F(u_i;\, a_i, b_i) - F(l_i;\, a_i, b_i)$ |
+| 0 | Exact (uncensored) | $f(y_i;a_i,b_i)$ |
+| 1 | Left-censored ($y=0$) | $F(u_i;a_i,b_i)$ |
+| 2 | Right-censored ($y=K$) | $1-F(l_i;a_i,b_i)$ |
+| 3 | Interval-censored | $F(u_i;a_i,b_i)-F(l_i;a_i,b_i)$ |
 
 where $f(\cdot)$ and $F(\cdot)$ are the beta density and CDF,
-$[l_i, u_i]$ are the interval endpoints, and $(a_i, b_i)$ are the beta
+$[l_i,u_i]$ are the interval endpoints, and $(a_i,b_i)$ are the beta
 shape parameters derived from $\mu_i$ and $\phi_i$ via the chosen
 reparameterization.
 
 ## Interval construction
 
-Scale observations are mapped to $(0, 1)$ with midpoint uncertainty intervals:
 
-$$y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]$$
+
+Scale observations are mapped to $(0,1)$ with midpoint uncertainty intervals:
+
+$$y_t=y/K,\quad\text{interval }[y_t-h/K,y_t+h/K]$$
 
 where $K$ is the number of scale categories (`ncuts`) and $h$ is the
-half-width (`lim`, default 0.5).
+half-width (`lim`, default **0.5**).
 
 ```{r check-response}
 # Illustrate brs_check with a 0-10 NRS scale
@@ -85,9 +89,9 @@ cr <- brs_check(y_example, ncuts = 10)
 kbl10(cr)
 ```
 
-The `delta` column shows that $y = 0$ is left-censored ($\delta = 1$),
-$y = 10$ is right-censored ($\delta = 2$), and all interior values are
-interval-censored ($\delta = 3$).
+The `delta` column shows that $y=0$ is left-censored ($\delta=1$),
+$y=10$ is right-censored ($\delta=2$), and all interior values are
+interval-censored ($\delta=3$).
 
 ## Data preparation with `brs_prep()`
 
@@ -176,8 +180,8 @@ summary(fit_prep, digits = 4)
 
 ### Simulating data
 
-We simulate  observations from a beta regression model with fixed
-dispersion, two covariates, and logit link for the mean.
+We simulate observations from a beta regression model with fixed
+dispersion, two covariates, and a logit link for the mean.
 
 ```{r sim-fixed}
 set.seed(4255)
@@ -199,7 +203,7 @@ kbl10(head(sim_fixed, 8))
 ```
 
 Each observation is centered in its interval. For example, a score of 67
-on a 0--100 scale yields $y_t = 0.67$ with interval $[0.665, 0.675]$.
+on a 0–100 scale yields $y_t=0.67$ with the interval $[0.665,0.675]$.
 
 ### Fitting the model
 
@@ -402,6 +406,8 @@ effect interpretation, score-scale communication, and predictive validation.
 
 ### Parametric bootstrap confidence intervals
 
+
+
 ```{r bootstrap-fixed}
 set.seed(101)
 boot_ci <- brs_bootstrap(
@@ -423,6 +429,8 @@ autoplot.brs_bootstrap(
 ```
 
 ### Average marginal effects (AME)
+
+
 
 ```{r marginaleffects-fixed}
 set.seed(202)
@@ -504,16 +512,16 @@ The following standard S3 methods are available for objects of class
 The package supports three reparameterizations of the beta distribution,
 controlled by the `repar` argument:
 
-**Direct (`repar = 0`):** Shape parameters $a = \mu$ and $b = \phi$
+**Direct (`repar = 0`):** Shape parameters $a=\mu$ and $b=\phi$
 are used directly. This is rarely used in practice.
 
 **Precision (`repar = 1`, Ferrari & Cribari-Neto, 2004):** The mean
-$\mu \in (0,1)$ and precision $\phi > 0$ yield $a = \mu\phi$ and
-$b = (1-\mu)\phi$. Higher $\phi$ means less variability.
+$\mu\in(0,1)$ and precision $\phi>0$ yield $a=\mu\phi$ and
+$b=(1-\mu)\phi$. Higher $\phi$ means less variability.
 
-**Mean--variance (`repar = 2`):** The mean $\mu \in (0,1)$ and
-dispersion $\phi \in (0,1)$ yield $a = \mu(1-\phi)/\phi$ and
-$b = (1-\mu)(1-\phi)/\phi$. Here $\phi$ acts as a coefficient of
+**Mean–variance (`repar = 2`):** The mean $\mu\in(0,1)$ and
+dispersion $\phi\in(0,1)$ yield $a=\mu(1-\phi)/\phi$ and
+$b=(1-\mu)(1-\phi)/\phi$. Here $\phi$ acts as a coefficient of
 variation: smaller $\phi$ means less variability.
 
 ```{r reparam}
@@ -528,13 +536,13 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,
-  **31**(7), 799--815. DOI: 10.1080/0266476042000214501.
+  **31**(7), 799–815. DOI: 10.1080/0266476042000214501.
   Validated online via:
   <https://doi.org/10.1080/0266476042000214501>.
 
 - Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
   Maximum-likelihood regression with beta-distributed dependent variables.
-  *Psychological Methods*, **11**(1), 54--71.
+  *Psychological Methods*, **11**(1), 54–71.
   DOI: 10.1037/1082-989X.11.1.54.
   Validated online via:
   <https://doi.org/10.1037/1082-989X.11.1.54>.
@@ -545,7 +553,7 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
   Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
   (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
   Intermittent and Constant Osteoarthritis Pain (ICOAP).
-  *Arthritis Care and Research*, **63**(S11), S240--S252.
+  *Arthritis Care and Research*, **63**(S11), S240–S252.
   DOI: 10.1002/acr.20543.
   Validated online via:
   <https://doi.org/10.1002/acr.20543>.
@@ -554,7 +562,8 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
   Studies comparing numerical rating scales, verbal rating scales, and
   visual analogue scales for assessment of pain intensity in adults:
   a systematic literature review.
-  *Journal of Pain and Symptom Management*, **41**(6), 1073--1093.
+  *Journal of Pain and Symptom Management*, **41**(6), 1073–1093.
   DOI: 10.1016/j.jpainsymman.2010.08.016.
   Validated online via:
   <https://doi.org/10.1016/j.jpainsymman.2010.08.016>.
+  

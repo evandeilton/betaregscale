@@ -6,13 +6,13 @@ The **betaregscale** package provides maximum-likelihood estimation of
 beta regression models for responses derived from bounded rating scales.
 Common examples include pain intensity scales (NRS-11, NRS-21, NRS-101),
 Likert-type scales, product quality ratings, and any instrument whose
-response can be mapped to the open interval $`(0, 1)`$.
+response can be mapped to the open interval $`(0,1)`$.
 
 The key idea is that a discrete score recorded on a bounded scale
 carries measurement uncertainty inherent to the instrument. For
-instance, a pain score of $`y = 6`$ on a 0–10 NRS is not an exact value
-but rather represents a range: after rescaling to $`(0, 1)`$, the
-observation is treated as interval-censored in $`[0.55, 0.65]`$. The
+instance, a pain score of $`y=6`$ on a 0–10 NRS is not an exact value
+but rather represents a range: after rescaling to $`(0,1)`$, the
+observation is treated as interval-censored in $`[0.55,0.65]`$. The
 package uses the beta distribution to model such data, building a
 complete likelihood that supports mixed censoring types within the same
 dataset.
@@ -35,29 +35,29 @@ The complete likelihood supports four censoring types, automatically
 classified by
 [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
 
-| $`\delta`$ | Type | Likelihood contribution |
-|:--:|:---|:---|
-| 0 | Exact (uncensored) | $`f(y_i;\, a_i, b_i)`$ |
-| 1 | Left-censored ($`y = 0`$) | $`F(u_i;\, a_i, b_i)`$ |
-| 2 | Right-censored ($`y = K`$) | $`1 - F(l_i;\, a_i, b_i)`$ |
-| 3 | Interval-censored | $`F(u_i;\, a_i, b_i) - F(l_i;\, a_i, b_i)`$ |
+| $`\delta`$ | Type                     | Likelihood contribution           |
+|:----------:|:-------------------------|:----------------------------------|
+|     0      | Exact (uncensored)       | $`f(y_i;a_i,b_i)`$                |
+|     1      | Left-censored ($`y=0`$)  | $`F(u_i;a_i,b_i)`$                |
+|     2      | Right-censored ($`y=K`$) | $`1-F(l_i;a_i,b_i)`$              |
+|     3      | Interval-censored        | $`F(u_i;a_i,b_i)-F(l_i;a_i,b_i)`$ |
 
 where $`f(\cdot)`$ and $`F(\cdot)`$ are the beta density and CDF,
-$`[l_i, u_i]`$ are the interval endpoints, and $`(a_i, b_i)`$ are the
-beta shape parameters derived from $`\mu_i`$ and $`\phi_i`$ via the
-chosen reparameterization.
+$`[l_i,u_i]`$ are the interval endpoints, and $`(a_i,b_i)`$ are the beta
+shape parameters derived from $`\mu_i`$ and $`\phi_i`$ via the chosen
+reparameterization.
 
 ## Interval construction
 
-Scale observations are mapped to $`(0, 1)`$ with midpoint uncertainty
+Scale observations are mapped to $`(0,1)`$ with midpoint uncertainty
 intervals:
 
 ``` math
-y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
+y_t=y/K,\quad\text{interval }[y_t-h/K,y_t+h/K]
 ```
 
 where $`K`$ is the number of scale categories (`ncuts`) and $`h`$ is the
-half-width (`lim`, default 0.5).
+half-width (`lim`, default **0.5**).
 
 ``` r
 # Illustrate brs_check with a 0-10 NRS scale
@@ -74,9 +74,9 @@ kbl10(cr)
 | 0.65 | 0.75  | 0.7 |  7  |   3   |
 | 0.95 | 1.00  | 1.0 | 10  |   2   |
 
-The `delta` column shows that $`y = 0`$ is left-censored
-($`\delta = 1`$), $`y = 10`$ is right-censored ($`\delta = 2`$), and all
-interior values are interval-censored ($`\delta = 3`$).
+The `delta` column shows that $`y=0`$ is left-censored ($`\delta=1`$),
+$`y=10`$ is right-censored ($`\delta=2`$), and all interior values are
+interval-censored ($`\delta=3`$).
 
 ## Data preparation with `brs_prep()`
 
@@ -230,7 +230,7 @@ summary(fit_prep, digits = 4)
 ### Simulating data
 
 We simulate observations from a beta regression model with fixed
-dispersion, two covariates, and logit link for the mean.
+dispersion, two covariates, and a logit link for the mean.
 
 ``` r
 set.seed(4255)
@@ -263,7 +263,8 @@ kbl10(head(sim_fixed, 8))
 | 0.355 | 0.365 | 0.36 | 36  |   3   | -0.7274 | 0.2061  |
 
 Each observation is centered in its interval. For example, a score of 67
-on a 0–100 scale yields $`y_t = 0.67`$ with interval $`[0.665, 0.675]`$.
+on a 0–100 scale yields $`y_t=0.67`$ with the interval
+$`[0.665,0.675]`$.
 
 ### Fitting the model
 
@@ -824,16 +825,16 @@ The following standard S3 methods are available for objects of class
 The package supports three reparameterizations of the beta distribution,
 controlled by the `repar` argument:
 
-**Direct (`repar = 0`):** Shape parameters $`a = \mu`$ and $`b = \phi`$
-are used directly. This is rarely used in practice.
+**Direct (`repar = 0`):** Shape parameters $`a=\mu`$ and $`b=\phi`$ are
+used directly. This is rarely used in practice.
 
 **Precision (`repar = 1`, Ferrari & Cribari-Neto, 2004):** The mean
-$`\mu \in (0,1)`$ and precision $`\phi > 0`$ yield $`a = \mu\phi`$ and
-$`b = (1-\mu)\phi`$. Higher $`\phi`$ means less variability.
+$`\mu\in(0,1)`$ and precision $`\phi>0`$ yield $`a=\mu\phi`$ and
+$`b=(1-\mu)\phi`$. Higher $`\phi`$ means less variability.
 
-**Mean–variance (`repar = 2`):** The mean $`\mu \in (0,1)`$ and
-dispersion $`\phi \in (0,1)`$ yield $`a = \mu(1-\phi)/\phi`$ and
-$`b = (1-\mu)(1-\phi)/\phi`$. Here $`\phi`$ acts as a coefficient of
+**Mean–variance (`repar = 2`):** The mean $`\mu\in(0,1)`$ and dispersion
+$`\phi\in(0,1)`$ yield $`a=\mu(1-\phi)/\phi`$ and
+$`b=(1-\mu)(1-\phi)/\phi`$. Here $`\phi`$ acts as a coefficient of
 variation: smaller $`\phi`$ means less variability.
 
 ``` r

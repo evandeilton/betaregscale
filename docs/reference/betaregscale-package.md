@@ -126,9 +126,7 @@ modelling rates and proportions. *Journal of Applied Statistics*,
 
 Useful links:
 
-- <https://evandeilton.github.io/betaregscale>
-
-- <https://github.com/evandeilton/betaregscale>
+- <https://evandeilton.github.io/betaregscale/>
 
 - Report bugs at <https://github.com/evandeilton/betaregscale/issues>
 

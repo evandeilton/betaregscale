@@ -27,19 +27,19 @@ library(betaregscale)
 
 ### Complete likelihood by censoring type
 
-For each observation $`i`$, let $`\delta_i \in \{0,1,2,3\}`$ indicate
+For each observation $`i`$, let $`\delta_i\in\{0,1,2,3\}`$ indicate
 exact, left-censored, right-censored, or interval-censored status. With
 beta CDF $`F(\cdot)`$, beta density $`f(\cdot)`$, and interval endpoints
-$`[l_i, u_i]`$, the contribution is:
+$`[l_i,u_i]`$, the contribution is:
 
 ``` math
 
 L_i(\theta)=
 \begin{cases}
-f(y_i; a_i, b_i), & \delta_i = 0,\\
-F(u_i; a_i, b_i), & \delta_i = 1,\\
-1 - F(l_i; a_i, b_i), & \delta_i = 2,\\
-F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i = 3.
+f(y_i; a_i, b_i), & \delta_i=0,\\
+F(u_i; a_i, b_i), & \delta_i=1,\\
+1 - F(l_i; a_i, b_i), & \delta_i=2,\\
+F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3.
 \end{cases}
 ```
 
@@ -51,11 +51,11 @@ This is the basis for fitting, prediction, and validation metrics.
 reports:
 
 - $`\log L(\hat\theta)`$,
-- $`AIC = -2\log L(\hat\theta) + 2k`$,
-- $`BIC = -2\log L(\hat\theta) + k\log n`$,
+- $`AIC=-2\log L(\hat\theta)+2k`$,
+- $`BIC=-2\log L(\hat\theta)+k\log n`$,
 
-where $`k`$ is the number of estimated parameters and $`n`$ is sample
-size.
+where $`k`$ is the number of estimated parameters and $`n`$ is the
+sample size.
 
 ### Average marginal effects (AME)
 
@@ -64,17 +64,16 @@ computes AME by finite differences:
 
 ``` math
 
-\mathrm{AME}_j = \frac{1}{n}\sum_{i=1}^n
-\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
+\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
 ```
 
 with $`\hat g_i`$ on the requested prediction scale (`response` or
-`link`). For binary covariates $`x_j \in \{0,1\}`$, it uses the discrete
+`link`). For binary covariates $`x_j\in\{0,1\}`$, it uses the discrete
 contrast $`\hat g(x_j=1)-\hat g(x_j=0)`$.
 
 ### Score-scale probabilities
 
-For integer scores $`s \in \{0,\dots,K\}`$,
+For integer scores $`s\in\{0,\dots,K\}`$,
 [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
 computes:
 
@@ -84,7 +83,7 @@ P(Y=s)=
 \begin{cases}
 F(\mathrm{lim}/K), & s=0,\\
 1-F((K-\mathrm{lim})/K), & s=K,\\
-F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), & 1 \le s \le K-1.
+F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), & 1\le s\le K-1.
 \end{cases}
 ```
 
@@ -99,7 +98,7 @@ fold-level predictive quality includes:
 
 ``` math
 
-\mathrm{log\_score} = \frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
+\mathrm{log\_score}=\frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
 ```
 
 where $`p_i`$ is the predictive contribution from the same
@@ -109,9 +108,9 @@ It also reports:
 
 ``` math
 
-\mathrm{RMSE}_{yt} = \sqrt{\frac{1}{n_{test}}\sum (y_{t,i}-\hat\mu_i)^2},
+\mathrm{RMSE}_{yt}=\sqrt{\frac{1}{n_{test}}\sum(y_{t,i}-\hat\mu_i)^2},
 \qquad
-\mathrm{MAE}_{yt} = \frac{1}{n_{test}}\sum |y_{t,i}-\hat\mu_i|.
+\mathrm{MAE}_{yt}=\frac{1}{n_{test}}\sum|y_{t,i}-\hat\mu_i|.
 ```
 
 ## Reproducible workflow
@@ -298,12 +297,15 @@ kbl10(
 
 ## Practical interpretation
 
-- Prefer the model with lower AIC/BIC and better predictive `log_score`.
-- Use AME on the response scale to communicate expected change in mean
-  score (on the unit interval) from small covariate shifts.
+- Prefer the model with the lower AIC/BIC and better predictive
+  `log_score`.
+- Use AME on the response scale to communicate the expected change in
+  mean score (on the unit interval) resulting from small covariate
+  shifts.
 - Use score probabilities to translate model outputs back to clinically
   interpretable scale categories.
-- Inspect calibration and residual-by-censoring plots before inference.
+- Inspect calibration and residual-by-censoring plots before proceeding
+  with statistical inference.
 
 ## References
 

@@ -48,8 +48,8 @@ random-effects design row $`w_{ij}`$ is defined by
 
 ### Beta parameterization
 
-For each $`(\mu_{ij}, \phi_{ij})`$, `repar` maps to beta shape
-parameters $`(a_{ij}, b_{ij})`$ via
+For each $`(\mu_{ij},\phi_{ij})`$, `repar` maps to beta shape parameters
+$`(a_{ij},b_{ij})`$ via
 [`brs_repar()`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 ### Conditional contribution by censoring type
@@ -224,7 +224,7 @@ summary(fit_mm)
 
 ## Random intercept + slope example
 
-The model below includes random intercept and random slope for `x1`:
+The model below includes a random intercept and random slope for `x1`:
 
 ``` r
 fit_mm_rs <- brsmm(
@@ -311,15 +311,15 @@ kbl10(head(ranef(fit_mm_rs), 10))
 |   0.1465    | -0.0102 |
 |   0.0024    | -0.0002 |
 
-## Estudos adicionais dos efeitos aleatórios (numéricos e visuais)
+## Additional studies of random effects (numerical and visual)
 
-Seguindo práticas de pacotes mistos consolidados, o pacote agora permite
-um estudo dedicado dos efeitos aleatórios com foco em:
+Following practices from established mixed-models packages, the package
+now allows for a dedicated study of the random effects focusing on:
 
-- estrutura $`D`$ e correlação;
-- distribuição empírica dos modos por grupo;
-- intensidade de shrinkage empírico;
-- diagnósticos visuais específicos para os componentes aleatórios.
+- $`D`$ structure and correlation;
+- empirical distribution of modes by group;
+- empirical shrinkage intensity;
+- specific visual diagnostics for the random components.
 
 ``` r
 re_study <- brsmm_re_study(fit_mm_rs)
@@ -368,7 +368,7 @@ kbl10(re_study$Corr)
 | 1.0000  | -0.9995 |
 | -0.9995 | 1.0000  |
 
-Visualizações sugeridas para efeitos aleatórios:
+Suggested visualizations for random effects:
 
 ``` r
 if (requireNamespace("ggplot2", quietly = TRUE)) {
@@ -386,8 +386,8 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 ### Coefficients and random effects
 
 `coef(fit_mm, model = "random")` returns packed random-effect covariance
-parameters on optimizer scale (lower-Cholesky, with log-diagonal). For
-random-intercept models this simplifies to $`\log \sigma_b`$.
+parameters on the optimizer scale (lower-Cholesky, with a log-diagonal).
+For random-intercept models, this simplifies to $`\log \sigma_b`$.
 
 ``` r
 kbl10(
@@ -575,7 +575,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 If `newdata` contains unseen groups,
 [`predict.brsmm()`](https://evandeilton.github.io/betaregscale/reference/predict.brsmm.md)
-uses random effect equal to zero for those levels.
+uses a random effect equal to zero for those levels.
 
 ``` r
 nd <- sim$data[1:8, c("x1", "id")]
@@ -676,32 +676,31 @@ kbl10(sm$coefficients)
 | (Intercept) | 0.2624 | 0.1812 | 1.4479 | 0.1477 | -0.1061 | 0.0404 | -2.623 | 0.0087 | -0.9293 | 0.3338 | -2.7839 | 0.0054 |
 | x1 | 0.6384 | 0.0438 | 14.5727 | 0.0000 | -0.1061 | 0.0404 | -2.623 | 0.0087 | -0.9293 | 0.3338 | -2.7839 | 0.0054 |
 
-### Esquema evolutivo e escolha por teste LR
+### Evolutionary scheme and Likelihood Ratio (LR) test selection
 
-Um fluxo prático de complexidade crescente:
+A practical workflow of increasing complexity:
 
 1.  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md):
-    sem efeito aleatório (ignora agrupamento);
-2.  `brsmm(..., random = ~ 1 | id)`: intercepto aleatório;
-3.  `brsmm(..., random = ~ 1 + x1 | id)`: intercepto + inclinação
-    aleatórios.
+    no random effect (ignores clustering);
+2.  `brsmm(..., random = ~ 1 | id)`: random intercept;
+3.  `brsmm(..., random = ~ 1 + x1 | id)`: random intercept + slope.
 
-No primeiro salto (`brs` $`\to`$`brsmm` com intercepto), a hipótese
-$`\sigma_b^2 = 0`$ está na fronteira do espaço paramétrico. Assim, o
-referencial assintótico clássico $`\chi^2`$ deve ser interpretado com
-cautela. No segundo salto (intercepto $`\to`$ intercepto + inclinação),
-o LR com $`\chi^2`$ costuma ser usado como diagnóstico prático de ganho
-de ajuste.
+In the first jump (`brs` to `brsmm` with intercept), the hypothesis
+$`\sigma_b^2 = 0`$ lies on the boundary of the parameter space. Thus,
+the classical asymptotic $`\chi^2`$ reference distribution should be
+interpreted with caution. In the second jump (intercept to intercept +
+slope), the Likelihood Ratio (LR) test with a $`\chi^2`$ distribution is
+commonly used as a practical diagnostic for goodness-of-fit gains.
 
 ``` r
-# Modelo base sem efeito aleatório
+# Base model without a random effect
 fit_brs <- brs(
   y ~ x1,
   data = sim$data,
   repar = 2
 )
 
-# Reutiliza os ajustes mistos já estimados:
+# Reuse the mixed models already fitted:
 # fit_mm    : random = ~ 1 | id
 # fit_mm_rs : random = ~ 1 + x1 | id
 
@@ -718,13 +717,13 @@ kbl10(
 | M2 (brsmm) |  4  | -4182.109 | 8372.219 | 8391.850 | 73.8319 |   1    |   0.0000   |
 | M3 (brsmm) |  6  | -4181.920 | 8375.839 | 8405.286 | 0.3795  |   2    |   0.8272   |
 
-Regra operacional de decisão (analítica):
+Operational decision rule (analytical):
 
-- Se o segundo salto (`RI -> RI+RS`) não melhora o ajuste (p alto),
-  prefira o modelo com intercepto aleatório por parcimônia.
-- Se houver ganho robusto, adote `RI+RS` e valide estabilidade dos
-  parâmetros (especialmente `sd_b` e matriz `D`) por sensibilidade e
-  diagnóstico residual.
+- If the second jump (RI to RI+RS) does not improve the fit (high
+  p-value), prefer the random-intercept model for parsimony.
+- If there is a robust gain, adopt the RI+RS model and validate
+  parameter stability (especially `sd_b` and the $`D`$ matrix) via
+  sensitivity and residual diagnostics.
 
 ### Residual diagnostics (quick checks)
 
