@@ -40,11 +40,18 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.9" id="betaregscale-269">betaregscale 2.6.9<a class="anchor" aria-label="anchor" href="#betaregscale-269"></a></h2>
-</div>
-    <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.6.8" id="betaregscale-268">betaregscale 2.6.8<a class="anchor" aria-label="anchor" href="#betaregscale-268"></a></h2>
 <div class="section level3">
-<h3 id="new-features-2-6-8">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-8"></a></h3>
+<h3 id="cran-resubmission-2-6-9">CRAN resubmission<a class="anchor" aria-label="anchor" href="#cran-resubmission-2-6-9"></a></h3>
+<div class="section level4">
+<h4 id="documentation-and-formatting-fixes-2-6-9">Documentation and formatting fixes<a class="anchor" aria-label="anchor" href="#documentation-and-formatting-fixes-2-6-9"></a></h4>
+<ul><li>Added missing <code>\value</code>, <code>\seealso</code>, and <code>\examples{\donttest{...}}</code> tags to multiple S3 method documentation files (<code>print.summary</code>, <code>residuals</code>, <code>summary</code>, <code>vcov</code>, <code>ranef</code>) to ensure full CRAN policy compliance.</li>
+<li>Translated remaining Portuguese text into English in the mixed-effects vignette (<code>vignettes/brs-mm.Rmd</code>).</li>
+<li>Corrected <code><a href="../reference/ranef.html">ranef()</a></code> usage in vignettes to correctly call the generic function.</li>
+<li>Minor mathematical formatting and typographical fixes (e.g., en-dashes for page ranges) in <code>README.md</code> references.# betaregscale 2.6.8</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="new-features-2-6-9">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-9"></a></h3>
 <ul><li>Completed S3 method standardization for <code>brsmm</code> (mixed-effects) objects to mirror the interface of <code>brs</code> (fixed-effects) objects:
 <ul><li>Added missing extractors: <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, and <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>.</li>
 <li>Upgraded <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> to support conditional <code>"deviance"</code>, <code>"rqr"</code> (randomized quantile residuals), <code>"weighted"</code>, and <code>"sweighted"</code> options.</li>
@@ -54,11 +61,11 @@
 <li>Modified package helper functions <code><a href="../reference/brs_gof.html">brs_gof()</a></code> and <code><a href="../reference/brs_est.html">brs_est()</a></code> to compute GOF properties and estimates directly from both <code>brs</code> and <code>brsmm</code> objects respectively.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-2-6-8">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-8"></a></h3>
+<h3 id="improvements-2-6-9">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-9"></a></h3>
 <ul><li>Standardized <code><a href="../reference/print.brsmm.html">print.brsmm()</a></code> to explicitly display mean, precision, and random-effect coefficient blocks side-by-side, mirroring the verbose visual style of <code><a href="../reference/print.brs.html">print.brs()</a></code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-2-6-8">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-6-8"></a></h3>
+<h3 id="documentation-2-6-9">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-6-9"></a></h3>
 <ul><li>
 <strong>Complete <code>@examples</code> audit</strong>: added runnable <code>\donttest{}</code> examples to all ~30 previously undocumented exported functions, including all S3 methods for <code>brs</code> and <code>brsmm</code> objects (<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>, <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code>, <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code>, <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code>, <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="../reference/ranef.html">ranef()</a></code>, <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, <code>autoplot()</code>).</li>
 <li>

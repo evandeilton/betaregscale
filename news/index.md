@@ -2,7 +2,21 @@
 
 ## betaregscale 2.6.9
 
-## betaregscale 2.6.8
+### CRAN resubmission
+
+#### Documentation and formatting fixes
+
+- Added missing `\value`, `\seealso`, and `\examples{\donttest{...}}`
+  tags to multiple S3 method documentation files (`print.summary`,
+  `residuals`, `summary`, `vcov`, `ranef`) to ensure full CRAN policy
+  compliance.
+- Translated remaining Portuguese text into English in the mixed-effects
+  vignette (`vignettes/brs-mm.Rmd`).
+- Corrected
+  [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)
+  usage in vignettes to correctly call the generic function.
+- Minor mathematical formatting and typographical fixes (e.g., en-dashes
+  for page ranges) in `README.md` references.# betaregscale 2.6.8
 
 ### New features
 
