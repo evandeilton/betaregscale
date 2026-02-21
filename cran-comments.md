@@ -1,6 +1,15 @@
-## Resubmission (2.6.8)
+## Resubmission (2.6.9)
 
-This is a minor resubmission to finalize complete S3 method parity between `brs` and `brsmm` (mixed-effects) objects and to complete a comprehensive documentation audit before CRAN release.
+This is a minor resubmission to address documentation completeness and language consistency across the package.
+
+### Changes in this version:
+
+1. **Documentation completeness:** Added missing `\value`, `\seealso`, and runnable `\donttest{}` examples to several recently standardized S3 methods (`print.summary`, `residuals`, `summary`, `vcov`, `ranef`) to guarantee full CRAN compliance.
+2. **Vignette and README formatting:** Translated remaining Portuguese text to English in the mixed-effects vignette (`brs-mm.Rmd`), corrected generic method dispatch documentation (such as using `ranef()` instead of `ranef.brsmm()`), and fixed typographical issues (e.g., en-dashes in references).
+
+---
+
+## Previous resubmission (2.6.8)
 
 ### Changes in this version:
 
