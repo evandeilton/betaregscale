@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,48 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.7/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.8" id="betaregscale-268">betaregscale 2.6.8<a class="anchor" aria-label="anchor" href="#betaregscale-268"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-6-8">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-8"></a></h3>
+<ul><li>Completed S3 method standardization for <code>brsmm</code> (mixed-effects) objects to mirror the interface of <code>brs</code> (fixed-effects) objects:
+<ul><li>Added missing extractors: <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, and <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>.</li>
+<li>Upgraded <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> to support conditional <code>"deviance"</code>, <code>"rqr"</code> (randomized quantile residuals), <code>"weighted"</code>, and <code>"sweighted"</code> options.</li>
+<li>Upgraded <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> to support conditional <code>type = "quantile"</code> evaluations directly.</li>
+<li>Added <code><a href="../reference/ranef.html">ranef()</a></code> generic and <code><a href="../reference/ranef.brsmm.html">ranef.brsmm()</a></code> method to extract random-effect modes.</li>
+</ul></li>
+<li>Modified package helper functions <code><a href="../reference/brs_gof.html">brs_gof()</a></code> and <code><a href="../reference/brs_est.html">brs_est()</a></code> to compute GOF properties and estimates directly from both <code>brs</code> and <code>brsmm</code> objects respectively.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-6-8">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-8"></a></h3>
+<ul><li>Standardized <code><a href="../reference/print.brsmm.html">print.brsmm()</a></code> to explicitly display mean, precision, and random-effect coefficient blocks side-by-side, mirroring the verbose visual style of <code><a href="../reference/print.brs.html">print.brs()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-2-6-8">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-6-8"></a></h3>
+<ul><li>
+<strong>Complete <code>@examples</code> audit</strong>: added runnable <code>\donttest{}</code> examples to all ~30 previously undocumented exported functions, including all S3 methods for <code>brs</code> and <code>brsmm</code> objects (<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>, <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code>, <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code>, <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code>, <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="../reference/ranef.html">ranef()</a></code>, <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, <code>autoplot()</code>).</li>
+<li>
+<strong>Removed all <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> calls from examples</strong> across 15+ files (<code>fit.R</code>, <code>brsmm.R</code>, <code>bootstrap.R</code>, <code>cv.R</code>, <code>marginaleffects.R</code>, <code>scoreprob.R</code>, <code>table.R</code>, <code>simulate.R</code>, <code>prepare.R</code>, <code>autoplot.R</code>, <code>autoplot-brsmm.R</code>, <code>loglik.R</code>). All examples now use deterministic toy datasets.</li>
+<li>
+<strong>No <code>\dontrun{}</code> anywhere</strong>: all examples are either direct or wrapped in <code>\donttest{}</code> as appropriate.</li>
+<li>
+<strong>Ferrari &amp; Cribari-Neto (2004) DOI</strong> (<code>10.1080/0266476042000214501</code>) added to every occurrence of that reference across <code>betaregscale-package.R</code>, <code>brsmm.R</code>, <code>methods.R</code>, <code>anova-methods.R</code>, and <code>brsmm-random-effects-study.R</code>.</li>
+<li>
+<strong><code>@seealso</code> cross-links</strong> added to all S3 method documentation blocks for both <code>brs</code> and <code>brsmm</code> objects.</li>
+<li>
+<strong><code><a href="../reference/brs_coef.html">brs_coef()</a></code></strong> documentation updated with deprecation notice, <code>@description</code>, <code>@return</code>, and <code>@seealso</code>.</li>
+<li>
+<strong><code><a href="../reference/brs_hessian.html">brs_hessian()</a></code></strong> documentation improved: added <code>@param object</code>, <code>@seealso</code>, and a deterministic example.</li>
+<li>
+<strong><code><a href="../reference/print.brsmm_re_study.html">print.brsmm_re_study()</a></code></strong> now has a complete roxygen2 block including <code>@description</code>, <code>@param</code>, <code>@return</code>, <code>@method</code>, <code>@seealso</code>, and <code>@examples</code>.</li>
+<li>
+<strong><code><a href="../reference/ranef.html">ranef()</a></code> generic</strong> now includes <code>@param</code>, <code>@return</code>, <code>@seealso</code>, and <code>@examples</code>.</li>
+<li>All <code>autoplot.*</code> examples updated to use <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">ggplot2::autoplot()</a></code> (explicit namespace) for reliability in check environments.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.7" id="betaregscale-267">betaregscale 2.6.7<a class="anchor" aria-label="anchor" href="#betaregscale-267"></a></h2>
 <div class="section level3">

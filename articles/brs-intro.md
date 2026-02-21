@@ -217,7 +217,7 @@ summary(fit_prep, digits = 4)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
-#> Log-likelihood: -4072.5673 on 4 Df
+#> Log-likelihood: -4072.5673 on 4 Df | AIC: 8153.1346 | BIC: 8172.7656 
 #> Pseudo R-squared: 0.1292 
 #> Number of iterations: 35 (BFGS) 
 #> Censoring: 796 interval | 74 left | 130 right
@@ -298,7 +298,7 @@ summary(fit_fixed)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
-#> Log-likelihood: -4035.2262 on 4 Df
+#> Log-likelihood: -4035.2262 on 4 Df | AIC: 8078.4524 | BIC: 8098.0834 
 #> Pseudo R-squared: 0.2393 
 #> Number of iterations: 39 (BFGS) 
 #> Censoring: 809 interval | 65 left | 126 right
@@ -563,7 +563,7 @@ summary(fit_var)
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
-#> Log-likelihood: -3922.2430 on 5 Df
+#> Log-likelihood: -3922.2430 on 5 Df | AIC: 7854.4861 | BIC: 7879.0249 
 #> Pseudo R-squared: 0.1159 
 #> Number of iterations: 42 (BFGS) 
 #> Censoring: 744 interval | 105 left | 151 right

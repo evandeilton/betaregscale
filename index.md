@@ -323,9 +323,7 @@ $$\mathbf{b}_{j} \sim \mathcal{N}(\mathbf{0},D).$$
 
 The marginal group likelihood is
 
-\$\$ L_j(\theta)=\int\_{\mathbb{R}^{q_b}} \left\\{\prod\_{i=1}^{n_j}
-L\_{ij}(\mathbf{b}\_j;\theta)\right\\}
-\varphi\_{q_b}(\mathbf{b}\_j;\mathbf{0},D)\\d\mathbf{b}\_j \$\$
+$$L_{j}(\theta) = \int_{{\mathbb{R}}^{q_{b}}}\left\{ \prod\limits_{i = 1}^{n_{j}}L_{ij}\left( \mathbf{b}_{j};\theta \right) \right\}\varphi_{q_{b}}\left( \mathbf{b}_{j};\mathbf{0},D \right)\, d\mathbf{b}_{j}$$
 
 and the log-likelihood is
 $\ell(\theta) = \sum_{j = 1}^{G}\log L_{j}(\theta)$.

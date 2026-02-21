@@ -1,5 +1,94 @@
 # Changelog
 
+## betaregscale 2.6.8
+
+### New features
+
+- Completed S3 method standardization for `brsmm` (mixed-effects)
+  objects to mirror the interface of `brs` (fixed-effects) objects:
+  - Added missing extractors:
+    [`formula()`](https://rdrr.io/r/stats/formula.html),
+    [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html), and
+    [`confint()`](https://rdrr.io/r/stats/confint.html).
+  - Upgraded [`residuals()`](https://rdrr.io/r/stats/residuals.html) to
+    support conditional `"deviance"`, `"rqr"` (randomized quantile
+    residuals), `"weighted"`, and `"sweighted"` options.
+  - Upgraded [`predict()`](https://rdrr.io/r/stats/predict.html) to
+    support conditional `type = "quantile"` evaluations directly.
+  - Added
+    [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)
+    generic and
+    [`ranef.brsmm()`](https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.md)
+    method to extract random-effect modes.
+- Modified package helper functions
+  [`brs_gof()`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md)
+  and
+  [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
+  to compute GOF properties and estimates directly from both `brs` and
+  `brsmm` objects respectively.
+
+### Improvements
+
+- Standardized
+  [`print.brsmm()`](https://evandeilton.github.io/betaregscale/reference/print.brsmm.md)
+  to explicitly display mean, precision, and random-effect coefficient
+  blocks side-by-side, mirroring the verbose visual style of
+  [`print.brs()`](https://evandeilton.github.io/betaregscale/reference/print.brs.md).
+
+### Documentation
+
+- **Complete `@examples` audit**: added runnable `\donttest{}` examples
+  to all ~30 previously undocumented exported functions, including all
+  S3 methods for `brs` and `brsmm` objects
+  ([`coef()`](https://rdrr.io/r/stats/coef.html),
+  [`vcov()`](https://rdrr.io/r/stats/vcov.html),
+  [`logLik()`](https://rdrr.io/r/stats/logLik.html),
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html),
+  [`BIC()`](https://rdrr.io/r/stats/AIC.html),
+  [`nobs()`](https://rdrr.io/r/stats/nobs.html),
+  [`formula()`](https://rdrr.io/r/stats/formula.html),
+  [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html),
+  [`fitted()`](https://rdrr.io/r/stats/fitted.values.html),
+  [`residuals()`](https://rdrr.io/r/stats/residuals.html),
+  [`confint()`](https://rdrr.io/r/stats/confint.html),
+  [`predict()`](https://rdrr.io/r/stats/predict.html),
+  [`print()`](https://rdrr.io/r/base/print.html),
+  [`summary()`](https://rdrr.io/r/base/summary.html),
+  [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md),
+  [`anova()`](https://rdrr.io/r/stats/anova.html),
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html),
+  `autoplot()`).
+- **Removed all [`set.seed()`](https://rdrr.io/r/base/Random.html) calls
+  from examples** across 15+ files (`fit.R`, `brsmm.R`, `bootstrap.R`,
+  `cv.R`, `marginaleffects.R`, `scoreprob.R`, `table.R`, `simulate.R`,
+  `prepare.R`, `autoplot.R`, `autoplot-brsmm.R`, `loglik.R`). All
+  examples now use deterministic toy datasets.
+- **No `\dontrun{}` anywhere**: all examples are either direct or
+  wrapped in `\donttest{}` as appropriate.
+- **Ferrari & Cribari-Neto (2004) DOI** (`10.1080/0266476042000214501`)
+  added to every occurrence of that reference across
+  `betaregscale-package.R`, `brsmm.R`, `methods.R`, `anova-methods.R`,
+  and `brsmm-random-effects-study.R`.
+- **`@seealso` cross-links** added to all S3 method documentation blocks
+  for both `brs` and `brsmm` objects.
+- **[`brs_coef()`](https://evandeilton.github.io/betaregscale/reference/brs_coef.md)**
+  documentation updated with deprecation notice, `@description`,
+  `@return`, and `@seealso`.
+- **[`brs_hessian()`](https://evandeilton.github.io/betaregscale/reference/brs_hessian.md)**
+  documentation improved: added `@param object`, `@seealso`, and a
+  deterministic example.
+- **[`print.brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/print.brsmm_re_study.md)**
+  now has a complete roxygen2 block including `@description`, `@param`,
+  `@return`, `@method`, `@seealso`, and `@examples`.
+- **[`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)
+  generic** now includes `@param`, `@return`, `@seealso`, and
+  `@examples`.
+- All `autoplot.*` examples updated to use
+  [`ggplot2::autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  (explicit namespace) for reliability in check environments.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.7
 
 ### CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +125,7 @@ F(u_i; a_i, b_i)-F(l_i; a_i, b_i), &amp; \delta_i=3.
 <h3 id="fixed-dispersion-model">Fixed dispersion model<a class="anchor" aria-label="anchor" href="#fixed-dispersion-model"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/evandeilton/betaregscale" class="external-link">betaregscale</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale">betaregscale</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Simulate interval-censored data from a fixed-dispersion model</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
@@ -388,11 +388,11 @@ y_t = y/K, \quad \text{interval } [y_t - h/K,\; y_t + h/K]
 \mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D).
 </annotation></semantics></math></p>
 <p>The marginal group likelihood is</p>
-<p><span class="math display">$$
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mo>∫</mo><msup><mi>ℝ</mi><msub><mi>q</mi><mi>b</mi></msub></msup></msub><mrow><mo stretchy="true" form="prefix">{</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>n</mi><mi>j</mi></msub></munderover><msub><mi>L</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐛</mi><mi>j</mi></msub><mo>;</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">}</mo></mrow><msub><mi>φ</mi><msub><mi>q</mi><mi>b</mi></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐛</mi><mi>j</mi></msub><mo>;</mo><mn>𝟎</mn><mo>,</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi>d</mi><msub><mi>𝐛</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">
 L_j(\theta)=\int_{\mathbb{R}^{q_b}}
-\left\\{\prod_{i=1}^{n_j} L_{ij}(\mathbf{b}_j;\theta)\right\\}
+\left\{\prod_{i=1}^{n_j} L_{ij}(\mathbf{b}_j;\theta)\right\}
 \varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
-$$</span></p>
+</annotation></semantics></math></p>
 <p>and the log-likelihood is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>G</mi></msubsup><mo>log</mo><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)</annotation></semantics></math>. <code><a href="reference/brsmm.html">brsmm()</a></code> uses a multivariate Laplace approximation:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mfrac><msub><mi>q</mi><mi>b</mi></msub><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>π</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>H</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \log L_j(\theta)\approx

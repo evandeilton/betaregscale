@@ -94,30 +94,30 @@ fitting.
 ## Examples
 
 ``` r
-set.seed(42)
-n <- 80
-dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- brs_sim(
-  formula = ~ x1 + x2, data = dat,
-  beta = c(0.2, -0.5, 0.3), phi = 1 / 5, ncuts = 100
-)
-fit <- brs(y ~ x1 + x2, data = sim)
 # \donttest{
-set.seed(1)  # Set seed before calling bootstrap for reproducibility
-boot <- brs_bootstrap(fit, R = 99, level = 0.95)
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  x2 = rep(c(0, 0, 1, 1), 5)
+)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brs(y ~ x1, data = prep)
+boot <- brs_bootstrap(fit, R = 50, level = 0.95)
 print(boot)
 #> Bootstrap confidence intervals
-#>   Level: 0.95 | CI: percentile | Successful replicates: 99 / 99 | Attempts: 99 
+#>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 
 #> 
-#>     parameter   estimate   se_boot    ci_lower   ci_upper mcse_lower mcse_upper
-#> 1 (Intercept)  0.3645114 0.1614039  0.05328573  0.6213062 0.04440235 0.01748219
-#> 2          x1 -0.5814425 0.1672911 -0.95176162 -0.2865863 0.05662854 0.02537720
-#> 3          x2  0.4480550 0.2059549  0.08387583  0.8541168 0.02833319 0.04107024
-#> 4       (phi)  0.1391969 0.1588549 -0.21002965  0.4055923 0.08952651 0.04770865
-#>    wald_lower wald_upper level
-#> 1  0.05918412  0.6698387  0.95
-#> 2 -0.88063079 -0.2822543  0.95
-#> 3  0.09586929  0.8002408  0.95
-#> 4 -0.13974933  0.4181431  0.95
+#>     parameter   estimate   se_boot  ci_lower  ci_upper mcse_lower mcse_upper
+#> 1 (Intercept)  0.2550945 0.7907320 -1.133843 1.9053881  0.3600124 0.16466097
+#> 2          x1 -0.2202075 0.4952859 -1.166506 0.5223341  0.0896141 0.07822265
+#> 3       (phi) -0.3929198 0.3436550 -1.258389 0.1050310  0.1539971 0.13098474
+#>   wald_lower wald_upper level
+#> 1 -1.4390802  1.9492691  0.95
+#> 2 -1.2809288  0.8405139  0.95
+#> 3 -0.9343818  0.1485422  0.95
 # }
 ```

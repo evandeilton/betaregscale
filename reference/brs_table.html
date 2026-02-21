@@ -9,7 +9,7 @@ summarizing fit statistics and (optionally) censoring composition.'><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@ summarizing fit statistics and (optionally) censoring composition.'><meta proper
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compare fitted brs models in a single table</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.7/R/table.R" class="external-link"><code>R/table.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/table.R" class="external-link"><code>R/table.R</code></a></small>
       <div class="d-none name"><code>brs_table.Rd</code></div>
     </div>
 
@@ -95,45 +95,48 @@ Default is <code>TRUE</code>.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+    <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: <a href="https://hdl.handle.net/1884/86624" class="external-link">https://hdl.handle.net/1884/86624</a>.</p>
+<p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
 Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
 (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 Intermittent and Constant Osteoarthritis Pain (ICOAP).
 Arthritis Care and Research, 63(S11), S240-S252.
-doi:10.1002/acr.20543.</p>
+<a href="https://doi.org/10.1002/acr.20543" class="external-link">doi:10.1002/acr.20543</a></p>
 <p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 Visual Analogue Scales for assessment of pain intensity in adults:
 a systematic literature review.
 Journal of Pain and Symptom Management, 41(6), 1073-1093.
-doi:10.1016/j.jpainsymman.2010.08.016.</p>
+<a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link">doi:10.1016/j.jpainsymman.2010.08.016</a></p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">120</span></span></span>
-<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_sim.html">brs_sim</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">dat</span>,</span></span>
-<span class="r-in"><span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.2</span><span class="op">)</span>, zeta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  ncuts <span class="op">=</span> <span class="fl">100</span>, repar <span class="op">=</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
+<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">brs_table</span><span class="op">(</span>fixed <span class="op">=</span> <span class="va">m1</span>, variable <span class="op">=</span> <span class="va">m2</span>, sort_by <span class="op">=</span> <span class="st">"AIC"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      model nobs npar    logLik      AIC      BIC pseudo_r2 exact left right</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 variable  120    5 -508.6481 1027.296 1041.234    0.1142     0    8    12</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    fixed  120    4 -511.1839 1030.368 1041.518    0.1143     0    8    12</span>
+<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">dat</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
+<span class="r-in"><span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>the standard deviation is zero</span>
+<span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">brs_table</span><span class="op">(</span>null <span class="op">=</span> <span class="va">m1</span>, x1 <span class="op">=</span> <span class="va">m2</span>, sort_by <span class="op">=</span> <span class="st">"AIC"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   model nobs npar   logLik      AIC      BIC pseudo_r2 exact left right</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  null   20    2 -92.7346 189.4692 191.4606        NA     0    1     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    x1   20    3 -92.6521 191.3041 194.2913    0.0029     0    1     1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   interval prop_exact prop_left prop_right prop_interval</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      100          0    0.0667        0.1        0.8333</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      100          0    0.0667        0.1        0.8333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       18          0      0.05       0.05           0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       18          0      0.05       0.05           0.9</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

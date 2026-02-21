@@ -68,46 +68,53 @@ An object of class `"brs"`.
 
 ## References
 
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+<https://hdl.handle.net/1884/86624>.
+
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
 of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
 Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ), Short-Form
 McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale (CPGS),
 Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of Intermittent
 and Constant Osteoarthritis Pain (ICOAP). Arthritis Care and Research,
-63(S11), S240-S252. doi:10.1002/acr.20543.
+63(S11), S240-S252.
+[doi:10.1002/acr.20543](https://doi.org/10.1002/acr.20543)
 
 Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
 comparing Numerical Rating Scales, Verbal Rating Scales, and Visual
 Analogue Scales for assessment of pain intensity in adults: a systematic
 literature review. Journal of Pain and Symptom Management, 41(6),
-1073-1093. doi:10.1016/j.jpainsymman.2010.08.016.
+1073-1093.
+[doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
 
 ## Examples
 
 ``` r
-set.seed(42)
-n <- 100
-dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-sim <- brs_sim(
-  formula = ~ x1 + x2, data = dat,
-  beta = c(0.2, -0.5, 0.3), phi = 1 / 5
+# \donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  x2 = rep(c(0, 0, 1, 1), 5)
 )
-fit <- brs_fit_fixed(
-  formula = y ~ x1 + x2, data = sim,
-  link = "logit", link_phi = "logit"
-)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brs_fit_fixed(y ~ x1 + x2, data = prep)
 print(fit)
 #> 
 #> Call:
-#> brs_fit_fixed(formula = y ~ x1 + x2, data = sim, link = "logit", 
-#>     link_phi = "logit")
+#> brs_fit_fixed(formula = y ~ x1 + x2, data = prep)
 #> 
 #> Coefficients (mean model with logit link):
 #> (Intercept)          x1          x2 
-#>      0.0969     -0.5117      0.1147 
+#>      0.0664     -0.2268      0.3884 
 #> 
 #> Phi coefficients (precision model with logit link):
-#>  (phi) 
-#> 0.1612 
+#>   (phi) 
+#> -0.4091 
 #> 
+# }
 ```

@@ -6,7 +6,11 @@ Residuals from a brsmm model
 
 ``` r
 # S3 method for class 'brsmm'
-residuals(object, type = c("response", "pearson"), ...)
+residuals(
+  object,
+  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted"),
+  ...
+)
 ```
 
 ## Arguments
@@ -17,7 +21,8 @@ residuals(object, type = c("response", "pearson"), ...)
 
 - type:
 
-  Character: `"response"` (default) or `"pearson"`.
+  Character: `"response"` (default), `"pearson"`, `"deviance"`, `"rqr"`,
+  `"weighted"`, or `"sweighted"`.
 
 - ...:
 
@@ -26,3 +31,31 @@ residuals(object, type = c("response", "pearson"), ...)
 ## Value
 
 Numeric vector.
+
+## See also
+
+[`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md),
+[`fitted.brsmm`](https://evandeilton.github.io/betaregscale/reference/fitted.brsmm.md),
+[`plot.brsmm`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
+
+## Examples
+
+``` r
+# \donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+head(residuals(fit))
+#> [1] -0.3856083 -0.2593696 -0.1856183  0.1906304  0.3643817  0.3286810
+head(residuals(fit, type = "pearson"))
+#> [1] -1.3225474 -0.9367426 -0.6366278  0.6884831  1.2497453  1.1087431
+# }
+```

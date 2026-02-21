@@ -22,3 +22,33 @@ summary(object, ...)
 ## Value
 
 Object of class `"summary.brsmm"`.
+
+## See also
+
+[`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md),
+[`print.summary.brsmm`](https://evandeilton.github.io/betaregscale/reference/print.summary.brsmm.md),
+[`brs_gof`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md),
+[`brsmm_re_study`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
+
+## Examples
+
+``` r
+# \donttest{
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
+s <- summary(fit)
+s$coefficients$mean
+#>               Estimate Std. Error    z value  Pr(>|z|)
+#> (Intercept)  0.4210848  0.8141871  0.5171843 0.6050275
+#> x1          -0.3372995  0.4982144 -0.6770167 0.4983953
+# }
+```

@@ -49,6 +49,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/compute_start.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/confint.brs.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/confint.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-anova_brs_family.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_grad_fixed_cpp.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_grad_variable_cpp.html</loc></url>
@@ -63,11 +64,13 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/fitted.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/fitted.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/formula.brs.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/formula.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/index.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/link_to_code.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/logLik.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/logLik.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/model.matrix.brs.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/model.matrix.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/nobs.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/nobs.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/plot.brs.html</loc></url>
@@ -80,6 +83,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/print.summary.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/print.summary.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/ranef.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/residuals.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/residuals.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/summary.brs.html</loc></url>

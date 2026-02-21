@@ -153,17 +153,35 @@ summary(fit_mm)
 #> brsmm(formula = y ~ x1, random = ~1 | id, data = sim$data, repar = 2, 
 #>     int_method = "laplace", method = "BFGS", control = list(maxit = 1000))
 #> 
-#> Mixed beta interval model (Laplace)
-#> Observations: 1000  | Groups: 5 
-#> logLik =-4182.1094 | AIC =8372.2188 | BIC =8391.8498
+#> Randomized Quantile Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -2.8356 -0.6727 -0.0422  0.6040  3.0833 
 #> 
-#>                                Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)                     0.26237    0.18121   1.448  0.14766    
-#> x1                              0.63844    0.04381  14.573  < 2e-16 ***
-#> (phi)_(Intercept)              -0.10608    0.04044  -2.623  0.00872 ** 
-#> (re_chol_logsd)_(Intercept)|id -0.92929    0.33381  -2.784  0.00537 ** 
+#> Coefficients (mean model with logit link):
+#>             Estimate Std. Error z value Pr(>|z|)    
+#> (Intercept)  0.26237    0.18121   1.448    0.148    
+#> x1           0.63844    0.04381  14.573   <2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Phi coefficients (precision model with logit link):
+#>                   Estimate Std. Error z value Pr(>|z|)   
+#> (phi)_(Intercept) -0.10608    0.04044  -2.623  0.00872 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Random-effects parameters (Cholesky scale):
+#>                                Estimate Std. Error z value Pr(>|z|)   
+#> (re_chol_logsd)_(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> ---
+#> Mixed beta interval model (Laplace)
+#> Observations: 1000  | Groups: 5 
+#> Log-likelihood: -4182.1094 on 4 Df | AIC: 8372.2188 | BIC: 8391.8498 
+#> Pseudo R-squared: 0.1815 
+#> Number of iterations: 37 (BFGS) 
+#> Censoring: 852 interval | 39 left | 109 right
 ```
 
 ## Random intercept + slope example
@@ -187,19 +205,37 @@ summary(fit_mm_rs)
 #> brsmm(formula = y ~ x1, random = ~1 + x1 | id, data = sim$data, 
 #>     repar = 2, int_method = "laplace", method = "BFGS", control = list(maxit = 1200))
 #> 
-#> Mixed beta interval model (Laplace)
-#> Observations: 1000  | Groups: 5 
-#> logLik =-4181.9196 | AIC =8375.8392 | BIC =8405.2858
+#> Randomized Quantile Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -3.6105 -0.6741 -0.0459  0.6224  3.9925 
 #> 
-#>                                Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)                     0.26209    0.18047   1.452  0.14643    
-#> x1                              0.63755    0.04550  14.012  < 2e-16 ***
-#> (phi)_(Intercept)              -0.10665    0.04046  -2.636  0.00840 ** 
-#> (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 ** 
-#> (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852    
-#> (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248    
+#> Coefficients (mean model with logit link):
+#>             Estimate Std. Error z value Pr(>|z|)    
+#> (Intercept)   0.2621     0.1805   1.452    0.146    
+#> x1            0.6375     0.0455  14.012   <2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Phi coefficients (precision model with logit link):
+#>                   Estimate Std. Error z value Pr(>|z|)   
+#> (phi)_(Intercept) -0.10665    0.04046  -2.636   0.0084 **
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> 
+#> Random-effects parameters (Cholesky scale):
+#>                                Estimate Std. Error z value Pr(>|z|)   
+#> (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 **
+#> (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852   
+#> (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248   
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#> ---
+#> Mixed beta interval model (Laplace)
+#> Observations: 1000  | Groups: 5 
+#> Log-likelihood: -4181.9196 on 6 Df | AIC: 8375.8392 | BIC: 8405.2858 
+#> Pseudo R-squared: 0.1815 
+#> Number of iterations: 64 (BFGS) 
+#> Censoring: 852 interval | 39 left | 109 right
 ```
 
 Covariance structure of random effects:
@@ -226,7 +262,7 @@ kbl10(
 |     x1      | 0.0274 |
 
 ``` r
-kbl10(head(ranef.brsmm(fit_mm_rs), 10))
+kbl10(head(ranef(fit_mm_rs), 10))
 ```
 
 | (Intercept) |   x1    |
@@ -347,7 +383,7 @@ kbl10(
 |   -0.9293   | 0.3948  |
 
 ``` r
-kbl10(head(ranef.brsmm(fit_mm), 10))
+kbl10(head(ranef(fit_mm), 10))
 ```
 
 |    x    |
@@ -396,12 +432,10 @@ sm <- summary(fit_mm)
 kbl10(sm$coefficients)
 ```
 
-|                                  | Estimate | Std. Error | z value | Pr(\>\|z\|) |
-|:---------------------------------|:--------:|:----------:|:-------:|:-----------:|
-| (Intercept)                      |  0.2624  |   0.1812   | 1.4479  |   0.1477    |
-| x1                               |  0.6384  |   0.0438   | 14.5727 |   0.0000    |
-| (phi)\_(Intercept)               | -0.1061  |   0.0404   | -2.6230 |   0.0087    |
-| (re_chol_logsd)\_(Intercept)\|id | -0.9293  |   0.3338   | -2.7839 |   0.0054    |
+|             | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
+|:------------|:-------------:|:---------------:|:------------:|:-----------:|:------------------:|:--------------------:|:-----------------:|:----------------:|:---------------:|:-----------------:|:--------------:|:-------------:|
+| (Intercept) |    0.2624     |     0.1812      |    1.4479    |   0.1477    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
+| x1          |    0.6384     |     0.0438      |   14.5727    |   0.0000    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
 
 ``` r
 
@@ -596,12 +630,10 @@ sm <- summary(fit_mm)
 kbl10(sm$coefficients)
 ```
 
-|                                  | Estimate | Std. Error | z value | Pr(\>\|z\|) |
-|:---------------------------------|:--------:|:----------:|:-------:|:-----------:|
-| (Intercept)                      |  0.2624  |   0.1812   | 1.4479  |   0.1477    |
-| x1                               |  0.6384  |   0.0438   | 14.5727 |   0.0000    |
-| (phi)\_(Intercept)               | -0.1061  |   0.0404   | -2.6230 |   0.0087    |
-| (re_chol_logsd)\_(Intercept)\|id | -0.9293  |   0.3338   | -2.7839 |   0.0054    |
+|             | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
+|:------------|:-------------:|:---------------:|:------------:|:-----------:|:------------------:|:--------------------:|:-----------------:|:----------------:|:---------------:|:-----------------:|:--------------:|:-------------:|
+| (Intercept) |    0.2624     |     0.1812      |    1.4479    |   0.1477    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
+| x1          |    0.6384     |     0.0438      |   14.5727    |   0.0000    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
 
 ### Esquema evolutivo e escolha por teste LR
 

@@ -113,13 +113,20 @@ automatically by
 
 ## References
 
-Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
-rates and proportions. *Journal of Applied Statistics*, **31**(7),
-799–815.
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+<https://hdl.handle.net/1884/86624>.
+
+Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
+modelling rates and proportions. *Journal of Applied Statistics*,
+**31**(7), 799–815.
+[doi:10.1080/0266476042000214501](https://doi.org/10.1080/0266476042000214501)
 
 ## See also
 
 Useful links:
+
+- <https://evandeilton.github.io/betaregscale>
 
 - <https://github.com/evandeilton/betaregscale>
 

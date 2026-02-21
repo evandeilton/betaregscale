@@ -61,50 +61,58 @@ where \\F\\ is the beta CDF under the fitted \\(\mu_i,\phi_i)\\.
 
 ## References
 
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+<https://hdl.handle.net/1884/86624>.
+
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
 of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
 Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ), Short-Form
 McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale (CPGS),
 Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of Intermittent
 and Constant Osteoarthritis Pain (ICOAP). Arthritis Care and Research,
-63(S11), S240-S252. doi:10.1002/acr.20543.
+63(S11), S240-S252.
+[doi:10.1002/acr.20543](https://doi.org/10.1002/acr.20543)
 
 Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
 comparing Numerical Rating Scales, Verbal Rating Scales, and Visual
 Analogue Scales for assessment of pain intensity in adults: a systematic
 literature review. Journal of Pain and Symptom Management, 41(6),
-1073-1093. doi:10.1016/j.jpainsymman.2010.08.016.
+1073-1093.
+[doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
 
 ## Examples
 
 ``` r
 # \donttest{
-set.seed(33)
-dat <- data.frame(x1 = rnorm(100), x2 = rnorm(100))
-sim <- brs_sim(
-  formula = ~ x1 + x2, data = dat,
-  beta = c(0.1, -0.4, 0.3), phi = 0.2, ncuts = 100, repar = 2
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  x2 = rep(c(0, 0, 1, 1), 5)
 )
-fit <- brs(y ~ x1 + x2, data = sim, repar = 2)
-
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brs(y ~ x1, data = prep)
 pmat <- brs_predict_scoreprob(fit)
 head(pmat[, 1:5])
-#>          score_0     score_1     score_2     score_3     score_4
-#> [1,] 0.031430978 0.023248768 0.016145283 0.013227826 0.011526741
-#> [2,] 0.074951430 0.040971042 0.026186408 0.020498047 0.017296166
-#> [3,] 0.176295577 0.063169280 0.036799106 0.027385744 0.022299473
-#> [4,] 0.147774517 0.058628992 0.034844930 0.026215090 0.021510394
-#> [5,] 0.004123488 0.004724261 0.003795534 0.003371817 0.003111343
-#> [6,] 0.363128384 0.074208336 0.039629538 0.028137509 0.022166138
-
+#>         score_0    score_1    score_2    score_3    score_4
+#> [1,] 0.01415135 0.01827163 0.01528009 0.01384051 0.01292160
+#> [2,] 0.02412204 0.02639973 0.02075481 0.01816032 0.01654409
+#> [3,] 0.01415135 0.01827163 0.01528009 0.01384051 0.01292160
+#> [4,] 0.02412204 0.02639973 0.02075481 0.01816032 0.01654409
+#> [5,] 0.01415135 0.01827163 0.01528009 0.01384051 0.01292160
+#> [6,] 0.02412204 0.02639973 0.02075481 0.01816032 0.01654409
 plong <- brs_predict_scoreprob(fit, scores = 0:10, format = "long")
 head(plong)
 #>   id score       prob
-#> 1  1     0 0.03143098
-#> 2  1     1 0.02324877
-#> 3  1     2 0.01614528
-#> 4  1     3 0.01322783
-#> 5  1     4 0.01152674
-#> 6  1     5 0.01038186
+#> 1  1     0 0.01415135
+#> 2  1     1 0.01827163
+#> 3  1     2 0.01528009
+#> 4  1     3 0.01384051
+#> 5  1     4 0.01292160
+#> 6  1     5 0.01226162
 # }
 ```

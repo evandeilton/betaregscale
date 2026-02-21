@@ -75,36 +75,55 @@ expected frequencies implied by the fitted beta interval model.
 
 ## References
 
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+<https://hdl.handle.net/1884/86624>.
+
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
 of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
 Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ), Short-Form
 McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale (CPGS),
 Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of Intermittent
 and Constant Osteoarthritis Pain (ICOAP). Arthritis Care and Research,
-63(S11), S240-S252. doi:10.1002/acr.20543.
+63(S11), S240-S252.
+[doi:10.1002/acr.20543](https://doi.org/10.1002/acr.20543)
 
 Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
 comparing Numerical Rating Scales, Verbal Rating Scales, and Visual
 Analogue Scales for assessment of pain intensity in adults: a systematic
 literature review. Journal of Pain and Symptom Management, 41(6),
-1073-1093. doi:10.1016/j.jpainsymman.2010.08.016.
+1073-1093.
+[doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
+
+## See also
+
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md),
+[`plot.brs`](https://evandeilton.github.io/betaregscale/reference/plot.brs.md),
+[`autoplot.brs_bootstrap`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs_bootstrap.md)
 
 ## Examples
 
 ``` r
 # \donttest{
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  set.seed(100)
-  dat <- data.frame(x1 = rnorm(120), x2 = rnorm(120))
-  sim <- brs_sim(
-    formula = ~ x1 + x2, data = dat,
-    beta = c(0.1, -0.3, 0.2), phi = 0.2, ncuts = 100, repar = 2
-  )
-  fit <- brs(y ~ x1 + x2, data = sim, repar = 2)
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  x2 = rep(c(0, 0, 1, 1), 5)
+)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brs(y ~ x1 + x2, data = prep)
+ggplot2::autoplot(fit, type = "calibration")
+#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+#> ℹ Please use `linewidth` instead.
+#> ℹ The deprecated feature was likely used in the betaregscale package.
+#>   Please report the issue at
+#>   <https://github.com/evandeilton/betaregscale/issues>.
 
-  autoplot.brs(fit, type = "calibration")
-  autoplot.brs(fit, type = "score_dist")
-}
+ggplot2::autoplot(fit, type = "score_dist")
 
 # }
 ```

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Model comparison by analysis of deviance (LR test) for `brsmm`</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.7/R/anova-methods.R" class="external-link"><code>R/anova-methods.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/anova-methods.R" class="external-link"><code>R/anova-methods.R</code></a></small>
       <div class="d-none name"><code>anova.brsmm.Rd</code></div>
     </div>
 
@@ -54,23 +54,64 @@
 
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>A fitted `brsmm` model.</p></dd>
+<dd><p>A fitted <code>"brsmm"</code> model.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional fitted `brsmm` and/or `brs` models.</p></dd>
+<dd><p>Additional fitted <code>"brsmm"</code> and/or <code>"brs"</code> models to
+compare.</p></dd>
 
 
 <dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
-<dd><p>Character; `"Chisq"` (default) or `"none"`.</p></dd>
+<dd><p>Character; <code>"Chisq"</code> (default) or <code>"none"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An object of class `anova` and `data.frame` with model-wise
-  log-likelihood, information criteria, and (optionally) LR test columns.</p>
+    <p>An object of class <code>"anova"</code> and <code>"data.frame"</code> with
+  model-wise log-likelihood, information criteria, and (optionally) LR test
+  columns.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: <a href="https://hdl.handle.net/1884/86624" class="external-link">https://hdl.handle.net/1884/86624</a>.</p>
+<p>Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+Beta regression for modelling rates and proportions.
+<em>Journal of Applied Statistics</em>, <b>31</b>(7), 799–815.
+<a href="https://doi.org/10.1080/0266476042000214501" class="external-link">doi:10.1080/0266476042000214501</a></p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="brsmm.html">brsmm</a></code>, <code><a href="logLik.brsmm.html">logLik.brsmm</a></code>,
+  <code><a href="AIC.brsmm.html">AIC.brsmm</a></code>, <code><a href="BIC.brsmm.html">BIC.brsmm</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
+<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">dat</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
+<span class="r-in"><span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>the standard deviation is zero</span>
+<span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">m1</span>, <span class="va">m2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(&gt;Chisq)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> M1 (brs)    2 -92.735 189.47 191.46                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> M2 (brsmm)  4 -92.183 192.37 196.35 1.1029      2     0.5761</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

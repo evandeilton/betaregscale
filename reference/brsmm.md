@@ -129,38 +129,52 @@ N(\mathbf{0}, D)\\ is integrated out numerically.
 
 ## References
 
-Ferrari, S. and Cribari-Neto, F. (2004). Beta regression for modelling
-rates and proportions. *Journal of Applied Statistics*, **31**(7),
-799–815.
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+<https://hdl.handle.net/1884/86624>.
+
+Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
+modelling rates and proportions. *Journal of Applied Statistics*,
+**31**(7), 799–815.
+[doi:10.1080/0266476042000214501](https://doi.org/10.1080/0266476042000214501)
 
 ## Examples
 
 ``` r
 # \donttest{
-set.seed(123)
-g <- 15
-ni <- 8
-id <- factor(rep(seq_len(g), each = ni))
-n <- length(id)
-x1 <- rnorm(n)
-b <- rnorm(g, sd = 0.5)
-eta_mu <- 0.2 + 0.6 * x1 + b[as.integer(id)]
-mu <- plogis(eta_mu)
-phi <- plogis(-0.2 + 0.2 * x1)
-shp <- brs_repar(mu = mu, phi = phi, repar = 2)
-y <- round(stats::rbeta(n, shp$shape1, shp$shape2) * 100)
-d <- data.frame(y = y, x1 = x1, id = id)
-
-fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = d, repar = 2)
+dat <- data.frame(
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  id = factor(rep(1:4, each = 5))
+)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 fit_mm
 #> 
 #> Call:
-#> brsmm(formula = y ~ x1, random = ~1 | id, data = d, repar = 2)
+#> brsmm(formula = y ~ x1, random = ~1 | id, data = prep)
 #> 
+#> Coefficients (mean model with logit link):
+#> (Intercept)          x1 
+#>      0.4211     -0.3373 
+#> 
+#> Phi coefficients (precision model with logit link):
+#> (phi)_(Intercept) 
+#>           -0.5805 
+#> 
+#> Random-effects parameters:
+#> (re_chol_logsd)_(Intercept)|id 
+#>                        -0.6277 
+#> 
+#> Random SD: 0.5338 
+#> ---
 #> Mixed beta interval model (Laplace)
-#> Observations: 120  | Groups: 15 
-#> Log-likelihood: -499.3888 
-#> Random SD: 0.2207 
+#> Observations: 20  | Groups: 4 
+#> Log-likelihood: -92.1831 
 #> Convergence code: 0 
 # }
 ```

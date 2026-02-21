@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Predict score probabilities from a fitted brs model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.7/R/scoreprob.R" class="external-link"><code>R/scoreprob.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/scoreprob.R" class="external-link"><code>R/scoreprob.R</code></a></small>
       <div class="d-none name"><code>brs_predict_scoreprob.Rd</code></div>
     </div>
 
@@ -99,52 +99,57 @@ observation and one column per requested score.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
+    <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: <a href="https://hdl.handle.net/1884/86624" class="external-link">https://hdl.handle.net/1884/86624</a>.</p>
+<p>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
 Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
 Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
 (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
 Intermittent and Constant Osteoarthritis Pain (ICOAP).
 Arthritis Care and Research, 63(S11), S240-S252.
-doi:10.1002/acr.20543.</p>
+<a href="https://doi.org/10.1002/acr.20543" class="external-link">doi:10.1002/acr.20543</a></p>
 <p>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
 Visual Analogue Scales for assessment of pain intensity in adults:
 a systematic literature review.
 Journal of Pain and Symptom Management, 41(6), 1073-1093.
-doi:10.1016/j.jpainsymman.2010.08.016.</p>
+<a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link">doi:10.1016/j.jpainsymman.2010.08.016</a></p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">33</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_sim.html">brs_sim</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">dat</span>,</span></span>
-<span class="r-in"><span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.4</span>, <span class="fl">0.3</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">0.2</span>, ncuts <span class="op">=</span> <span class="fl">100</span>, repar <span class="op">=</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
+<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">dat</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pmat</span> <span class="op">&lt;-</span> <span class="fu">brs_predict_scoreprob</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pmat</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          score_0     score_1     score_2     score_3     score_4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.031430978 0.023248768 0.016145283 0.013227826 0.011526741</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.074951430 0.040971042 0.026186408 0.020498047 0.017296166</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.176295577 0.063169280 0.036799106 0.027385744 0.022299473</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.147774517 0.058628992 0.034844930 0.026215090 0.021510394</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.004123488 0.004724261 0.003795534 0.003371817 0.003111343</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.363128384 0.074208336 0.039629538 0.028137509 0.022166138</span>
-<span class="r-in"><span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         score_0    score_1    score_2    score_3    score_4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.01415135 0.01827163 0.01528009 0.01384051 0.01292160</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.02412204 0.02639973 0.02075481 0.01816032 0.01654409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.01415135 0.01827163 0.01528009 0.01384051 0.01292160</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.02412204 0.02639973 0.02075481 0.01816032 0.01654409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.01415135 0.01827163 0.01528009 0.01384051 0.01292160</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.02412204 0.02639973 0.02075481 0.01816032 0.01654409</span>
 <span class="r-in"><span><span class="va">plong</span> <span class="op">&lt;-</span> <span class="fu">brs_predict_scoreprob</span><span class="op">(</span><span class="va">fit</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span>, format <span class="op">=</span> <span class="st">"long"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">plong</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   id score       prob</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1     0 0.03143098</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1     1 0.02324877</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  1     2 0.01614528</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  1     3 0.01322783</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1     4 0.01152674</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1     5 0.01038186</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1     0 0.01415135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1     1 0.01827163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  1     2 0.01528009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  1     3 0.01384051</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  1     4 0.01292160</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1     5 0.01226162</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

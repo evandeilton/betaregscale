@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +35,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Print summary for brsmm models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.6.7/R/brsmm-methods.R" class="external-link"><code>R/brsmm-methods.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/brsmm-methods.R" class="external-link"><code>R/brsmm-methods.R</code></a></small>
       <div class="d-none name"><code>print.summary.brsmm.Rd</code></div>
     </div>
 
@@ -69,7 +69,61 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Invisibly returns <code>x</code>.</p>
     </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="summary.brsmm.html">summary.brsmm</a></code>, <code><a href="brsmm.html">brsmm</a></code>,
+  <code><a href="print.brsmm.html">print.brsmm</a></code></p></div>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
+<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">dat</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Call:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> brsmm(formula = y ~ x1, random = ~1 | id, data = prep)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Randomized Quantile Residuals:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Min      1Q  Median      3Q     Max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.5567 -0.4879 -0.1583  0.6878  1.8470 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (mean model with logit link):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)   0.4211     0.8142   0.517    0.605</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1           -0.3373     0.4982  -0.677    0.498</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Estimate Std. Error z value Pr(&gt;|z|)  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (phi)_(Intercept)  -0.5805     0.3252  -1.785   0.0743 .</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Random-effects parameters (Cholesky scale):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (re_chol_logsd)_(Intercept)|id  -0.6277     0.7448  -0.843    0.399</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Mixed beta interval model (Laplace)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observations: 20  | Groups: 4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Log-likelihood: -92.1831 on 4 Df | AIC: 192.3663 | BIC: 196.3492 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pseudo R-squared: 0.0029 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of iterations: 17 (BFGS) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Censoring: 18 interval | 1 left | 1 right </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

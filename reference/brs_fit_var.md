@@ -66,51 +66,53 @@ An object of class `"brs"`.
 
 ## References
 
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+<https://hdl.handle.net/1884/86624>.
+
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
 of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
 Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ), Short-Form
 McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale (CPGS),
 Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of Intermittent
 and Constant Osteoarthritis Pain (ICOAP). Arthritis Care and Research,
-63(S11), S240-S252. doi:10.1002/acr.20543.
+63(S11), S240-S252.
+[doi:10.1002/acr.20543](https://doi.org/10.1002/acr.20543)
 
 Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
 comparing Numerical Rating Scales, Verbal Rating Scales, and Visual
 Analogue Scales for assessment of pain intensity in adults: a systematic
 literature review. Journal of Pain and Symptom Management, 41(6),
-1073-1093. doi:10.1016/j.jpainsymman.2010.08.016.
+1073-1093.
+[doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
 
 ## Examples
 
 ``` r
-set.seed(42)
-n <- 100
+# \donttest{
 dat <- data.frame(
-  x1 = rnorm(n), x2 = rnorm(n),
-  z1 = runif(n)
+  y = c(
+    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
+    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
+  ),
+  x1 = rep(c(1, 2), 10),
+  x2 = rep(c(0, 0, 1, 1), 5)
 )
-sim <- brs_sim(
-  formula = ~ x1 + x2 | z1,
-  data = dat,
-  beta = c(0.2, -0.5, 0.3),
-  zeta = c(1, 1.2)
-)
-fit <- brs_fit_var(
-  formula = y ~ x1 + x2 | z1, data = sim,
-  link = "logit", link_phi = "logit"
-)
+prep <- brs_prep(dat, ncuts = 100)
+#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
+fit <- brs_fit_var(y ~ x1 | x2, data = prep)
 print(fit)
 #> 
 #> Call:
-#> brs_fit_var(formula = y ~ x1 + x2 | z1, data = sim, link = "logit", 
-#>     link_phi = "logit")
+#> brs_fit_var(formula = y ~ x1 | x2, data = prep)
 #> 
 #> Coefficients (mean model with logit link):
-#> (Intercept)          x1          x2 
-#>      0.0959     -0.3912      0.2965 
+#> (Intercept)          x1 
+#>      0.2732     -0.2310 
 #> 
 #> Phi coefficients (precision model with logit link):
-#> (phi)_(Intercept)          (phi)_z1 
-#>            1.4876            0.0040 
+#> (phi)_(Intercept)          (phi)_x2 
+#>           -0.3789           -0.0288 
 #> 
+# }
 ```
