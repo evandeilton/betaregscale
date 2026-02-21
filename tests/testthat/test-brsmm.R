@@ -132,8 +132,14 @@ test_that("brsmm S3 methods return coherent outputs", {
   # Summary and printing
   sm <- summary(fit)
   expect_s3_class(sm, "summary.brsmm")
-  expect_equal(nrow(sm$coefficients), length(cf_full))
-  expect_true(all(c("Estimate", "Std. Error", "z value", "Pr(>|z|)") %in% colnames(sm$coefficients)))
+
+  # Check elements of coefficients list
+  expect_equal(nrow(sm$coefficients$mean), length(cf_mean))
+  expect_equal(nrow(sm$coefficients$precision), length(cf_prec))
+  expect_equal(nrow(sm$coefficients$random), length(cf_rand))
+
+  expect_true(all(c("Estimate", "Std. Error", "z value", "Pr(>|z|)") %in% colnames(sm$coefficients$mean)))
+
   expect_output(print(fit), "Mixed beta interval model")
   expect_output(print(sm), "Mixed beta interval model")
 

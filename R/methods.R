@@ -302,6 +302,8 @@ summary.brs <- function(object, ...) {
     coefficients = list(mean = tab_mu, precision = tab_phi),
     residuals    = rqr,
     loglik       = object$value,
+    AIC          = AIC(object),
+    BIC          = BIC(object),
     df           = object$npar,
     nobs         = object$nobs,
     pseudo.r2    = object$pseudo.r.squared,
@@ -380,7 +382,8 @@ print.summary.brs <- function(x,
   # Goodness-of-fit
   cat(
     "Log-likelihood:", formatC(x$loglik, format = "f", digits = 4),
-    "on", x$df, "Df\n"
+    "on", x$df, "Df | AIC:", formatC(x$AIC, format = "f", digits = 4),
+    "| BIC:", formatC(x$BIC, format = "f", digits = 4), "\n"
   )
   cat("Pseudo R-squared:", formatC(x$pseudo.r2, format = "f", digits = 4), "\n")
   cat(
@@ -776,7 +779,9 @@ predict.brs <- function(object, newdata = NULL,
 #' @rdname brs_gof
 #' @export
 brs_gof <- function(object) {
-  .check_class(object)
+  if (!inherits(object, c("brs", "brsmm"))) {
+    stop("Expected a 'brs' or 'brsmm' object.", call. = FALSE)
+  }
   data.frame(
     logLik    = as.numeric(logLik(object)),
     AIC       = AIC(object),
@@ -824,7 +829,9 @@ brs_gof <- function(object) {
 #' @rdname brs_est
 #' @export
 brs_est <- function(object, alpha = 0.05) {
-  .check_class(object)
+  if (!inherits(object, c("brs", "brsmm"))) {
+    stop("Expected a 'brs' or 'brsmm' object.", call. = FALSE)
+  }
   V <- vcov(object)
   se <- sqrt(pmax(diag(V), 0))
   z <- object$par / se

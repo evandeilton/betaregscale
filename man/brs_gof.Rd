@@ -20,7 +20,7 @@ Goodness-of-fit measures
 set.seed(42)
 n <- 100
 dat <- data.frame(x1 = rnorm(n))
-sim <- brs_sim(formula = ~ x1, data = dat, beta = c(0.2, 0.5), phi = 0.3, ncuts = 10)
+sim <- brs_sim(formula = ~x1, data = dat, beta = c(0.2, 0.5), phi = 0.3, ncuts = 10)
 fit <- brs(y ~ x1, data = sim)
 brs_gof(fit)
 }

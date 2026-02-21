@@ -1,5 +1,14 @@
-## Resubmission (2.6.7)
+## Resubmission (2.6.8)
 
+This is a minor resubmission to finalize complete S3 method parity between `brs` and `brsmm` (mixed-effects) objects before a final CRAN release.
+
+### Changes in this version:
+
+1. **brsmm standardization:** Added missing extractors (`formula()`, `model.matrix()`, `confint()`) and augmented conditional outputs for `residuals()` and `predict()` to achieve explicit method parity with the base `brs` object implementations. Function parameter consistency guarantees full compliance with CRAN policies (no modifications to `.GlobalEnv` or base `par()` properties were made).
+
+---
+
+## Previous resubmission (2.6.7)
 This is a resubmission following CRAN feedback (Konstanze Lauseker, 20 Feb 2026):
 
 ### Changes in response to CRAN review:
@@ -43,7 +52,7 @@ There are no downstream dependencies.
 
 ### Notes
 
-* Version 2.6.6 addresses the two CRAN notes above (DESCRIPTION wording and URL).
+* Version 2.6.8 finalizes mixed-models structure standardization for maximum robustness on CRAN.
 * The package includes compiled C++ code via Rcpp and RcppArmadillo.
 * R CMD check notes observed locally:
   - "New submission" (incoming feasibility);

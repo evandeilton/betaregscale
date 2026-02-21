@@ -75,7 +75,7 @@ sim <- brs_sim(
 )
 fit <- brs(y ~ x1 + x2, data = sim)
 \donttest{
-set.seed(1)  # Set seed before calling bootstrap for reproducibility
+set.seed(1) # Set seed before calling bootstrap for reproducibility
 boot <- brs_bootstrap(fit, R = 99, level = 0.95)
 print(boot)
 }

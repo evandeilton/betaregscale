@@ -7,7 +7,8 @@
 \method{predict}{brsmm}(
   object,
   newdata = NULL,
-  type = c("response", "link", "precision", "variance"),
+  type = c("response", "link", "precision", "variance", "quantile"),
+  at = 0.5,
   ...
 )
 }
@@ -17,7 +18,10 @@
 \item{newdata}{Optional data frame.}
 
 \item{type}{Character: \code{"response"} (default), \code{"link"},
-\code{"precision"}, or \code{"variance"}.}
+\code{"precision"}, \code{"variance"}, or \code{"quantile"}.}
+
+\item{at}{Numeric vector of probabilities for quantile
+predictions (default 0.5).}
 
 \item{...}{Currently ignored.}
 }

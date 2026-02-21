@@ -1,5 +1,18 @@
-# betaregscale 2.6.7
+# betaregscale 2.6.8
 
+## New features
+* Completed S3 method standardization for `brsmm` (mixed-effects) objects to mirror the interface of `brs` (fixed-effects) objects:
+    * Added missing extractors: `formula()`, `model.matrix()`, and `confint()`.
+    * Upgraded `residuals()` to support conditional `"deviance"`, `"rqr"` (randomized quantile residuals), `"weighted"`, and `"sweighted"` options.
+    * Upgraded `predict()` to support conditional `type = "quantile"` evaluations directly.
+* Modified package helper functions `brs_gof()` and `brs_est()` to compute GOF properties and estimates directly from both `brs` and `brsmm` objects respectively.
+
+## Improvements
+* Standardized `print.brsmm()` to explicitly display mean, precision, and random-effect coefficient blocks side-by-side, mirroring the verbose visual style of `print.brs()`.
+
+---
+
+# betaregscale 2.6.7
 ## CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)
 
 ### Bug fixes and CRAN policy compliance

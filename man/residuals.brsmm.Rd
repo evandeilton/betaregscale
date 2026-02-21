@@ -4,12 +4,17 @@
 \alias{residuals.brsmm}
 \title{Residuals from a brsmm model}
 \usage{
-\method{residuals}{brsmm}(object, type = c("response", "pearson"), ...)
+\method{residuals}{brsmm}(
+  object,
+  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted"),
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
-\item{type}{Character: \code{"response"} (default) or \code{"pearson"}.}
+\item{type}{Character: \code{"response"} (default), \code{"pearson"},
+\code{"deviance"}, \code{"rqr"}, \code{"weighted"}, or \code{"sweighted"}.}
 
 \item{...}{Currently ignored.}
 }

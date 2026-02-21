@@ -41,7 +41,7 @@ sim <- brs_sim(
   beta = c(0.2, -0.5, 0.3), phi = 0.2, ncuts = 100, repar = 2
 )
 
-set.seed(123)  # Set seed before CV for reproducibility
+set.seed(123) # Set seed before CV for reproducibility
 cv <- brs_cv(y ~ x1 + x2, data = sim, k = 3, repeats = 1, repar = 2)
 cv
 }

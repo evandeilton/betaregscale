@@ -93,6 +93,83 @@ vcov.brsmm <- function(object,
 }
 
 
+#' Extract model formula
+#'
+#' @param x A fitted \code{"brsmm"} object.
+#' @param ... Ignored.
+#'
+#' @return The formula used to fit the model.
+#'
+#' @method formula brsmm
+#' @importFrom stats formula
+#' @export
+formula.brsmm <- function(x, ...) {
+  .check_class_mm(x)
+  x$formula
+}
+
+
+#' Extract design matrix
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param model  Character: \code{"mean"} (default), \code{"precision"}, or \code{"random"}.
+#' @param ... Ignored.
+#'
+#' @return The design matrix for the specified submodel.
+#'
+#' @method model.matrix brsmm
+#' @importFrom stats model.matrix
+#' @export
+model.matrix.brsmm <- function(object,
+                               model = c("mean", "precision", "random"),
+                               ...) {
+  .check_class_mm(object)
+  model <- match.arg(model)
+  switch(model,
+    mean = object$model_matrices$X,
+    precision = object$model_matrices$Z,
+    random = object$model_matrices$Xr
+  )
+}
+
+
+#' Wald confidence intervals for brsmm models
+#'
+#' @param object A fitted \code{"brsmm"} object.
+#' @param parm   Character or integer: which parameters.
+#' @param level  Confidence level (default 0.95).
+#' @param model  Character: \code{"full"}, \code{"mean"}, \code{"precision"}, or \code{"random"}.
+#' @param ...    Currently ignored.
+#'
+#' @return Matrix with columns for lower and upper confidence bounds.
+#'
+#' @method confint brsmm
+#' @importFrom stats confint qnorm
+#' @export
+confint.brsmm <- function(object, parm, level = 0.95,
+                          model = c("full", "mean", "precision", "random"),
+                          ...) {
+  .check_class_mm(object)
+  model <- match.arg(model)
+
+  cf <- coef(object, model = model)
+  se <- sqrt(pmax(diag(vcov(object, model = model)), 0))
+  z <- stats::qnorm(1 - (1 - level) / 2)
+
+  ci <- cbind(cf - z * se, cf + z * se)
+  colnames(ci) <- paste0(
+    format(100 * c((1 - level) / 2, 1 - (1 - level) / 2), digits = 3),
+    " %"
+  )
+
+  if (!missing(parm)) {
+    ci <- ci[parm, , drop = FALSE]
+  }
+
+  ci
+}
+
+
 #' Log-likelihood for brsmm models
 #'
 #' @param object A fitted \code{"brsmm"} object.
@@ -188,17 +265,20 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
 #' @param object A fitted \code{"brsmm"} object.
 #' @param newdata Optional data frame.
 #' @param type Character: \code{"response"} (default), \code{"link"},
-#'   \code{"precision"}, or \code{"variance"}.
+#'   \code{"precision"}, \code{"variance"}, or \code{"quantile"}.
+#' @param at Numeric vector of probabilities for quantile
+#'   predictions (default 0.5).
 #' @param ... Currently ignored.
 #'
 #' @return Numeric vector.
 #'
 #' @method predict brsmm
-#' @importFrom stats predict model.frame model.matrix delete.response
+#' @importFrom stats predict model.frame model.matrix delete.response qbeta
 #' @export
 predict.brsmm <- function(object,
                           newdata = NULL,
-                          type = c("response", "link", "precision", "variance"),
+                          type = c("response", "link", "precision", "variance", "quantile"),
+                          at = 0.5,
                           ...) {
   .check_class_mm(object)
   type <- match.arg(type)
@@ -276,6 +356,25 @@ predict.brsmm <- function(object,
       shp <- brs_repar(mu = mu, phi = phi, repar = object$repar)
       s <- shp$shape1 + shp$shape2
       (shp$shape1 * shp$shape2) / (s^2 * (s + 1))
+    },
+    quantile = {
+      rp <- brs_repar(mu, phi, repar = object$repar)
+      rval <- sapply(at, function(p) {
+        stats::qbeta(p, rp$shape1, rp$shape2)
+      })
+      if (length(at) > 1L) {
+        if (NCOL(rval) == 1L) {
+          rval <- matrix(rval,
+            ncol = length(at),
+            dimnames = list(NULL, paste0("q_", at))
+          )
+        } else {
+          colnames(rval) <- paste0("q_", at)
+        }
+      } else {
+        rval <- drop(rval)
+      }
+      rval
     }
   )
 }
@@ -284,28 +383,97 @@ predict.brsmm <- function(object,
 #' Residuals from a brsmm model
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param type Character: \code{"response"} (default) or \code{"pearson"}.
+#' @param type Character: \code{"response"} (default), \code{"pearson"},
+#'   \code{"deviance"}, \code{"rqr"}, \code{"weighted"}, or \code{"sweighted"}.
 #' @param ... Currently ignored.
 #'
 #' @return Numeric vector.
 #'
 #' @method residuals brsmm
-#' @importFrom stats residuals
+#' @importFrom stats residuals qnorm pbeta dbeta qlogis
 #' @export
-residuals.brsmm <- function(object, type = c("response", "pearson"), ...) {
+residuals.brsmm <- function(object, type = c(
+                              "response", "pearson",
+                              "deviance", "rqr",
+                              "weighted", "sweighted"
+                            ), ...) {
   .check_class_mm(object)
   type <- match.arg(type)
 
   y <- as.numeric(object$Y[, "yt"])
   mu <- as.numeric(object$fitted_mu)
   r <- y - mu
-  if (identical(type, "response")) {
+  if (type == "response") {
     return(r)
   }
 
-  v <- predict(object, type = "variance")
-  v <- pmax(v, 1e-12)
-  r / sqrt(v)
+  phi <- as.numeric(object$fitted_phi)
+  repar <- object$repar
+
+  get_shapes <- function(mu, phi, repar) {
+    rp <- brs_repar(mu, phi, repar = repar)
+    list(a = rp$shape1, b = rp$shape2)
+  }
+
+  to_precision <- function(mu, phi, repar) {
+    if (repar == 1L) {
+      return(phi)
+    }
+    if (repar == 2L) {
+      return((1 - phi) / phi)
+    }
+    mu + phi
+  }
+
+  switch(type,
+    pearson = {
+      v <- predict(object, type = "variance")
+      v <- pmax(v, 1e-12)
+      r / sqrt(v)
+    },
+    deviance = {
+      sh <- get_shapes(mu, phi, repar)
+      ll_obs <- stats::dbeta(y, sh$a, sh$b, log = TRUE)
+      ll_fit <- stats::dbeta(mu, sh$a, sh$b, log = TRUE)
+      sign(y - mu) * sqrt(2 * pmax(ll_obs - ll_fit, 0))
+    },
+    rqr = {
+      sh <- get_shapes(mu, phi, repar)
+      left <- as.numeric(object$Y[, "left"])
+      right <- as.numeric(object$Y[, "right"])
+      delta <- object$delta
+
+      f_left <- stats::pbeta(left, sh$a, sh$b)
+      f_right <- stats::pbeta(right, sh$a, sh$b)
+      f_y <- stats::pbeta(y, sh$a, sh$b)
+
+      lo <- ifelse(delta == 0L, f_y,
+        ifelse(delta == 1L, 0, f_left)
+      )
+      hi <- ifelse(delta == 0L, f_y,
+        ifelse(delta == 2L, 1, f_right)
+      )
+      hi <- pmax(hi, lo)
+
+      u <- stats::runif(length(lo), min = lo, max = hi)
+      u <- pmin(pmax(u, 1e-10), 1 - 1e-10)
+      stats::qnorm(u)
+    },
+    weighted = {
+      prec <- to_precision(mu, phi, repar)
+      ystar <- stats::qlogis(y)
+      mustar <- digamma(mu * prec) - digamma((1 - mu) * prec)
+      v <- trigamma(mu * prec) + trigamma((1 - mu) * prec)
+      (ystar - mustar) / sqrt(prec * v)
+    },
+    sweighted = {
+      prec <- to_precision(mu, phi, repar)
+      ystar <- stats::qlogis(y)
+      mustar <- digamma(mu * prec) - digamma((1 - mu) * prec)
+      v <- trigamma(mu * prec) + trigamma((1 - mu) * prec)
+      (ystar - mustar) / sqrt(v)
+    }
+  )
 }
 
 
@@ -321,11 +489,14 @@ residuals.brsmm <- function(object, type = c("response", "pearson"), ...) {
 #' @export
 summary.brsmm <- function(object, ...) {
   .check_class_mm(object)
+
   V <- vcov(object, model = "full")
-  se <- sqrt(diag(V))
+
+  # Setup arrays
   est <- object$par
+  se <- sqrt(pmax(diag(V), 0))
   z <- est / se
-  p <- 2 * (1 - stats::pnorm(abs(z)))
+  p <- 2 * stats::pnorm(-abs(z))
 
   tab <- cbind(
     Estimate = est,
@@ -333,13 +504,47 @@ summary.brsmm <- function(object, ...) {
     `z value` = z,
     `Pr(>|z|)` = p
   )
+
+  idx_beta <- seq_len(object$p)
+  idx_gamma <- object$p + seq_len(object$q)
+  idx_re <- object$p + object$q + seq_len(object$k_re)
+
+  # Check residuals
+  rqr <- tryCatch(
+    residuals(object, type = "response"), # Could check rqr later if we implement for brsmm
+    error = function(e) object$residuals
+  )
+
+  # Censoring summary
+  delta <- object$delta
+  cens_counts <- c(
+    exact    = sum(delta == 0L),
+    left     = sum(delta == 1L),
+    right    = sum(delta == 2L),
+    interval = sum(delta == 3L)
+  )
+
   out <- list(
     call = object$call,
-    coefficients = tab,
-    logLik = object$value,
+    coefficients = list(
+      mean      = tab[idx_beta, , drop = FALSE],
+      precision = tab[idx_gamma, , drop = FALSE],
+      random    = tab[idx_re, , drop = FALSE]
+    ),
+    residuals = rqr,
+    loglik = object$value,
     AIC = AIC(object),
     BIC = BIC(object),
+    df = object$npar,
     nobs = object$nobs,
+    pseudo.r2 = object$pseudo.r.squared,
+    link = object$link,
+    link_phi = object$link_phi,
+    convergence = object$convergence,
+    iterations = object$iterations,
+    method = object$method,
+    censoring = cens_counts,
+    repar = object$repar,
     ngroups = object$ngroups,
     integration = object$int_method
   )
@@ -364,20 +569,88 @@ print.summary.brsmm <- function(x,
                                 ...) {
   cat("\nCall:\n")
   print(x$call)
+  cat("\n")
+
   method_name <- switch(x$integration,
     "laplace" = "Laplace",
     "aghq" = "AGHQ",
     "qmc" = "QMC",
     x$integration
   )
-  cat("\nMixed beta interval model (", method_name, ")\n", sep = "")
-  cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
-  cat("logLik =", formatC(x$logLik, digits = digits, format = "f"),
-    " | AIC =", formatC(x$AIC, digits = digits, format = "f"),
-    " | BIC =", formatC(x$BIC, digits = digits, format = "f"), "\n\n",
-    sep = ""
+
+  # Quantile residuals summary (using response residuals here initially, rqr to be added eventually)
+  rq <- stats::quantile(x$residuals,
+    probs = c(0, 0.25, 0.5, 0.75, 1),
+    na.rm = TRUE
   )
-  stats::printCoefmat(x$coefficients, digits = digits, P.values = TRUE, has.Pvalue = TRUE, ...)
+  names(rq) <- c("Min", "1Q", "Median", "3Q", "Max")
+  cat("Residuals:\n")
+  print(round(rq, digits))
+  cat("\n")
+
+  # Mean model
+  cat("Coefficients (mean model with", x$link, "link):\n")
+  stats::printCoefmat(x$coefficients$mean,
+    digits = digits,
+    P.values = TRUE, has.Pvalue = TRUE,
+    signif.stars = TRUE,
+    ...
+  )
+  cat("\n")
+
+  # Precision model
+  phi_label <- if (nrow(x$coefficients$precision) > 1L) {
+    paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
+  } else {
+    paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
+  }
+  cat(phi_label)
+  stats::printCoefmat(x$coefficients$precision,
+    digits = digits,
+    P.values = TRUE, has.Pvalue = TRUE,
+    signif.stars = TRUE,
+    ...
+  )
+  cat("\n")
+
+  # Random effects
+  cat("Random-effects parameters:\n")
+  stats::printCoefmat(x$coefficients$random,
+    digits = digits,
+    P.values = TRUE, has.Pvalue = TRUE,
+    signif.stars = TRUE,
+    ...
+  )
+
+  cat("---\n")
+  cat("Mixed beta interval model (", method_name, ")\n", sep = "")
+  cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
+
+  # Goodness-of-fit
+  cat(
+    "Log-likelihood:", formatC(x$loglik, format = "f", digits = 4),
+    "on", x$df, "Df | AIC:", formatC(x$AIC, format = "f", digits = 4),
+    "| BIC:", formatC(x$BIC, format = "f", digits = 4), "\n"
+  )
+  cat("Pseudo R-squared:", formatC(x$pseudo.r2, format = "f", digits = 4), "\n")
+  cat(
+    "Number of iterations:",
+    if (!is.null(x$iterations)) x$iterations["function"] else "NA",
+    paste0("(", x$method, ")"), "\n"
+  )
+
+  # Censoring info
+  cc <- x$censoring
+  parts <- character(0)
+  if (cc["interval"] > 0) parts <- c(parts, paste(cc["interval"], "interval"))
+  if (cc["left"] > 0) parts <- c(parts, paste(cc["left"], "left"))
+  if (cc["right"] > 0) parts <- c(parts, paste(cc["right"], "right"))
+  if (cc["exact"] > 0) parts <- c(parts, paste(cc["exact"], "exact"))
+  if (length(parts) > 0) {
+    cat("Censoring:", paste(parts, collapse = " | "), "\n")
+  }
+
+  cat("\n")
   invisible(x)
 }
 
@@ -398,15 +671,27 @@ print.brsmm <- function(x,
   .check_class_mm(x)
   cat("\nCall:\n")
   print(x$call)
+  cat("\n")
+
   method_name <- switch(x$int_method,
     "laplace" = "Laplace",
     "aghq" = "AGHQ",
     "qmc" = "QMC",
     x$int_method
   )
-  cat("\nMixed beta interval model (", method_name, ")\n", sep = "")
-  cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
-  cat("Log-likelihood:", formatC(x$value, digits = digits, format = "f"), "\n")
+
+  cat("Coefficients (mean model with", x$link, "link):\n")
+  print(round(x$coefficients$mean, digits))
+  cat("\n")
+
+  cat("Phi coefficients (precision model with", x$link_phi, "link):\n")
+  print(round(x$coefficients$precision, digits))
+  cat("\n")
+
+  cat("Random-effects parameters:\n")
+  print(round(x$coefficients$random, digits))
+  cat("\n")
+
   re_sd <- x$random$sd_b
   if (length(re_sd) == 1L) {
     cat("Random SD:", formatC(re_sd, digits = digits, format = "f"), "\n")
@@ -414,6 +699,11 @@ print.brsmm <- function(x,
     cat("Random SDs:\n")
     print(round(re_sd, digits))
   }
+
+  cat("---\n")
+  cat("Mixed beta interval model (", method_name, ")\n", sep = "")
+  cat("Observations:", x$nobs, " | Groups:", x$ngroups, "\n")
+  cat("Log-likelihood:", formatC(x$value, digits = digits, format = "f"), "\n")
   cat("Convergence code:", x$convergence, "\n")
   invisible(x)
 }
