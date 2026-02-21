@@ -31,3 +31,4 @@
 ^\.\.Rcheck$
 ^src/.*\.(o|so|dll|a|lo|obj|lib)$
 ^.*\.tar\.gz$
+^CRAN-SUBMISSION$

@@ -105,10 +105,16 @@ autoplot(fit_ri)
 
 ### Mean-Dispersion Parameterization
 Under the MD parameterization (`repar = 2`), the response $Y_i \sim \text{Beta}(\mu_i, \sigma_i)$ has expected value and variance given by:
-$$\text{E}(Y) = \mu, \quad \text{Var}(Y) = \mu(1-\mu)\sigma$$
+
+$$
+\text{E}(Y) = \mu, \quad \text{Var}(Y) = \mu(1-\mu)\sigma
+$$
 
 Both the mean and dispersion can be modeled via link functions ($g$ and $h$) allowing for covariate-dependent heteroscedasticity:
-$$g(\mu_i) = x_i^\top \beta, \qquad h(\sigma_i) = z_i^\top \zeta$$
+
+$$
+g(\mu_i) = x_i^\top \beta, \qquad h(\sigma_i) = z_i^\top \zeta
+$$
 
 ### Interval-Censored Likelihood
 Raw scores $y_i^{*} \in \{0, \dots, K\}$ are mapped to the unit interval as $y_i = y_i^{*}/K$, with uncertainty intervals $[l_i, u_i] = [y_i - 1/(2K), y_i + 1/(2K)]$. 
@@ -116,16 +122,24 @@ Raw scores $y_i^{*} \in \{0, \dots, K\}$ are mapped to the unit interval as $y_i
 
 Let $\delta_i \in \{0, 1, 2, 3\}$ indicate the censoring type (exact, left, right, or interval). The complete log-likelihood evaluated in `betaregscale` is:
 
-$$\ell(\theta) = \sum_{i:\delta_i=0} \log f(y_i) + \sum_{i:\delta_i=1} \log F(u_i) + \sum_{i:\delta_i=2} \log\bigl[1 - F(l_i)\bigr] + \sum_{i:\delta_i=3} \log\bigl[F(u_i) - F(l_i)\bigr]$$
+$$
+\ell(\theta) = \sum_{i:\delta_i=0} \log f(y_i) + \sum_{i:\delta_i=1} \log F(u_i) + \sum_{i:\delta_i=2} \log\bigl[1 - F(l_i)\bigr] + \sum_{i:\delta_i=3} \log\bigl[F(u_i) - F(l_i)\bigr]
+$$
 
 where $f(\cdot)$ and $F(\cdot)$ are the beta PDF and CDF.
 
 ### Mixed-Effects Extension (`brsmm`)
 For grouped or longitudinal data, the mean predictor is extended to include group-specific random effects $\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D)$:
-$$\eta_{\mu,ij} = x_{ij}^\top \beta + \mathbf{w}_{ij}^\top \mathbf{b}_j$$
+
+$$
+\eta_{\mu,ij} = x_{ij}^\top \beta + \mathbf{w}_{ij}^\top \mathbf{b}_j
+$$
 
 The marginal log-likelihood is approximated using a multivariate Laplace approximation:
-$$\log L_j(\theta) \approx Q_j(\hat{\mathbf{b}}_j) + \frac{q_b}{2}\log(2\pi) - \frac{1}{2}\log|H_j|$$
+
+$$
+\log L_j(\theta) \approx Q_j(\hat{\mathbf{b}}_j) + \frac{q_b}{2}\log(2\pi) - \frac{1}{2}\log|H_j|
+$$
 
 ---
 
