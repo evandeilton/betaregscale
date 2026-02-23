@@ -9,22 +9,26 @@ status](https://www.r-pkg.org/badges/version/betaregscale)](https://CRAN.R-proje
 
 ## The Methodological Gap
 
-Patient-reported outcome measures (PROMs) on bounded rating scales
-(e.g., NRS-11, VAS) are widely used in clinical research. Standard
-analyses treat these bounded, discrete scores as exact continuous values
-using ordinary least squares (OLS), which ignores natural scale
-boundaries and misrepresents heteroscedasticity.
+Patient-reported outcome measures (PROMs) on bounded rating scales —
+such as the **Numerical Rating Scale (NRS-11, NRS-21, NRS-101)**, Visual
+Analogue Scale (VAS), or Likert-type instruments — are ubiquitous in
+clinical research. Standard analyses treat these bounded, discrete
+scores as exact continuous values via ordinary least squares (OLS),
+silently violating two core assumptions: natural scale boundaries are
+ignored, and the inherent heteroscedasticity of bounded responses is
+misrepresented.
 
 While standard beta regression (e.g., the `betareg` package) respects
 the $(0,1)$ support, it suffers from two critical limitations:
 
 1.  **Interpretability:** It relies on a mean-precision parameterization
-    ($\mu,\phi$) where the precision parameter lacks a direct,
+    $(\mu,\phi)$ where the precision parameter $\phi$ lacks a direct,
     clinically intuitive meaning.
 2.  **Measurement Resolution:** It ignores the discretized nature of
-    rating scales. Selecting “5” on an NRS-11 reflects a measurement
-    interval, not a precise point estimate. Ignoring this leads to
-    underestimated residual variance and biased inference.
+    rating scales. Selecting “52” on an NRS-101 reflects a measurement
+    interval $\lbrack 0.515,0.525\rbrack$, not a precise continuous
+    value. Ignoring this leads to underestimated residual variance and
+    biased inference.
 
 ## The `betaregscale` Solution
 
@@ -33,96 +37,261 @@ tailored specifically for bounded scale data. It introduces two major
 methodological advancements:
 
 1.  **Mean-Dispersion (MD) Parameterization:** Reparameterizes the beta
-    distribution strictly in terms of the conditional mean
-    $\mu \in (0,1)$ and a proportional dispersion parameter
-    $\sigma \in (0,1)$.
-2.  **Interval-Censored Likelihood:** Properly treats discrete scale
-    points as interval-censored data, integrating the beta probability
-    density function over the uncertainty bounds implied by the
-    instrument’s resolution.
+    distribution in terms of the conditional mean $\mu \in (0,1)$ and a
+    proportional dispersion parameter $\sigma \in (0,1)$ — both directly
+    interpretable and modelable via covariates.
+
+2.  **Interval-Censored Likelihood:** Properly treats each discrete
+    scale point as interval-censored data, integrating the beta PDF over
+    the uncertainty bounds implied by the instrument’s resolution. A
+    score of $y^{*}$ on a $K$-point scale is treated as
+    $\left\lbrack y^{*}/K - 1/(2K),\; y^{*}/K + 1/(2K) \right\rbrack$.
 
 The package features a compiled **C++ backend** for analytical gradient
-computation and provides a mixed-effects extension
+computation, and provides a mixed-effects extension
 ([`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md))
-utilizing a multivariate **Laplace approximation** to accommodate
-repeated measures and clustered data.
+via multivariate **Laplace approximation** for repeated measures and
+multi-centre data.
 
 ------------------------------------------------------------------------
 
 ## Installation
 
-Install the development version directly from GitHub:
-
 ``` r
+# Stable version from CRAN
+install.packages("betaregscale")
+
+# Development version from GitHub
 # install.packages("remotes")
 remotes::install_github("evandeilton/betaregscale")
 ```
 
 ------------------------------------------------------------------------
 
-## Usage & Technical Workflow
-
-### Data Simulation and Fixed-Effects Modeling
+## Usage Examples
 
 ``` r
+# =============================================================================
+# betaregscale — Clinical Workflow: NRS-101 Pain Score Modelling
+# =============================================================================
+# Scenario: multi-centre analgesic RCT (500 patients, 20 clinics).
+# Outcome:  post-treatment pain rated on NRS-101 (0 = no pain, 100 = worst).
+# Goal:     illustrate the full betaregscale pipeline — simulation, fixed-
+#           effects modelling, mixed-effects modelling, and post-estimation
+#           diagnostics.
+# =============================================================================
+
 library(betaregscale)
+library(ggplot2)
 
-# Simulate interval-censored data with covariate-dependent dispersion
-set.seed(42)
-d <- data.frame(x1 = rnorm(200), z1 = rnorm(200))
-sim <- brs_sim(
-  formula = ~ x1 | z1, 
-  data = d, 
-  beta = c(0.3, 0.4), zeta = c(-2, 0.5), # zeta operates on logit(sigma)
-  ncuts = 10, repar = 2
+
+# -----------------------------------------------------------------------------
+# 1. CLINICAL PREDICTORS
+# -----------------------------------------------------------------------------
+# Simulate a realistic patient-level covariate matrix:
+#   trt       — treatment arm (0 = placebo, 1 = active compound; 50/50)
+#   age_std   — age in years (25–75), standardised (mean 0, sd 1)
+#   sex_f     — sex (1 = female, 0 = male; ~55 % female)
+#   bpain_std — baseline NRS-101 pain (30–90), standardised
+#   clinic    — clinic ID (20 centres, 25 patients each)
+
+set.seed(2026)
+n_patients <- 1000
+
+patient_data <- data.frame(
+  trt       = rbinom(n_patients, 1, prob = 0.50),
+  age_std   = scale(runif(n_patients, 25, 75))[, 1],
+  sex_f     = rbinom(n_patients, 1, prob = 0.55),
+  bpain_std = scale(runif(n_patients, 30, 90))[, 1],
+  clinic    = factor(rep(1:20, each = 25))
 )
 
-# Fit the interval-censored fixed-effects model
-fit_fe <- brs(y ~ x1 | z1, data = sim, repar = 2)
-summary(fit_fe)
-```
 
-### Mixed-Effects Modeling (`brsmm`)
+# -----------------------------------------------------------------------------
+# 2. DATA SIMULATION WITH brs_sim()
+# -----------------------------------------------------------------------------
+# Generate NRS-101 scores from the true beta-regression model.
+# brs_sim() returns a data frame already containing the interval-censored
+# columns (left, right, yt, delta) required by brs().
+#
+# True parameters — mean sub-model (logit link on mu):
+#   Intercept =  0.20  → average pain ~55/100 in the placebo arm
+#   trt       = -0.55  → active drug reduces pain by ~13 NRS points
+#   age_std   =  0.15  → older patients report slightly higher pain
+#   sex_f     =  0.10  → females report slightly higher pain
+#   bpain_std =  0.60  → strong tracking from baseline (dominant predictor)
+#
+# True parameters — dispersion sub-model (logit link on sigma):
+#   Intercept = -1.60  → moderate dispersion (~17 %)
+#   trt       = -0.40  → active arm shows more homogeneous responses
+#   bpain_std =  0.20  → high baseline pain leads to wider response spread
 
-``` r
-# Simulate clustered data for random intercepts & slopes
-d_mm <- data.frame(
-  x1 = rnorm(500),
-  group = factor(rep(1:50, each = 10))
+sim_nrs101 <- brs_sim(
+  formula = ~ trt + age_std + sex_f + bpain_std | trt + bpain_std,
+  data    = patient_data,
+  beta    = c(0.20, -0.55, 0.15, 0.10, 0.60),
+  zeta    = c(-1.60, -0.40, 0.20),
+  ncuts   = 100,   # NRS-101: integer scores 0–100 → ncuts = 100
+  repar   = 2      # Mean-Dispersion (MD) parameterisation
 )
-sim_mm <- brs_sim(y ~ x1 | 1, data = d_mm, ncuts = 10, repar = 2)
 
-# Fit mixed-effects model with random intercept
-fit_ri <- brsmm(y ~ x1, random = ~ 1 | group, data = sim_mm, repar = 2)
+# Attach clinic for the mixed-effects section
+sim_nrs101$clinic <- patient_data$clinic
 
-# Fit mixed-effects model with random intercept + slope
-fit_rs <- brsmm(y ~ x1, random = ~ 1 + x1 | group, data = sim_mm, repar = 2)
 
-# Likelihood-ratio test for nested model comparison
+# -----------------------------------------------------------------------------
+# 3. FIXED-EFFECTS MODELS
+# -----------------------------------------------------------------------------
+
+# 3a. Full model — covariate-dependent dispersion (correctly specified)
+#     Mean:       mu    ~ trt + age_std + sex_f + bpain_std   (logit link)
+#     Dispersion: sigma ~ trt + bpain_std                     (logit link)
+fit_full <- brs(
+  formula  = y ~ trt + age_std + sex_f + bpain_std | trt + bpain_std,
+  data     = sim_nrs101,
+  repar    = 2,
+  link     = "logit",
+  link_phi = "logit"
+)
+
+summary(fit_full)
+
+# 3b. Parsimonious model — constant (fixed) dispersion
+#     Used as baseline for model comparison.
+fit_fixed <- brs(
+  formula = y ~ trt + age_std + sex_f + bpain_std,
+  data    = sim_nrs101,
+  repar   = 2
+)
+
+# 3c. Model comparison table (AIC / BIC / log-likelihood / pseudo-R²)
+#     Variable dispersion should win if the DGP is correctly recovered.
+brs_table(
+  "Fixed dispersion"    = fit_fixed,
+  "Variable dispersion" = fit_full,
+  sort_by = "AIC"
+)
+
+
+# -----------------------------------------------------------------------------
+# 4. MIXED-EFFECTS MODELS WITH brsmm()
+# -----------------------------------------------------------------------------
+# Clinics introduce between-centre heterogeneity; ignoring this structure
+# inflates Type I error. brsmm() adds Gaussian random effects via Laplace
+# approximation.
+
+# 4a. Random-intercept model — clinics differ in average pain level
+fit_ri <- brsmm(
+  formula = y ~ trt + age_std + sex_f + bpain_std | trt + bpain_std,
+  random  = ~ 1 | clinic,
+  data    = sim_nrs101,
+  repar   = 2
+)
+
+# 4b. Random intercept + random slope — treatment efficacy may vary by clinic
+fit_rs <- brsmm(
+  formula = y ~ trt + age_std + sex_f + bpain_std | trt + bpain_std,
+  random  = ~ 1 + trt | clinic,
+  data    = sim_nrs101,
+  repar   = 2
+)
+
+# 4c. Likelihood-ratio test: is a random treatment slope warranted?
+#     p < 0.05 → clinics differ significantly in treatment response.
 anova(fit_ri, fit_rs, test = "Chisq")
-```
 
-### The Analyst Toolkit & Diagnostics
+# 4d. Clinic-level BLUPs (posterior modes of random effects)
+ranef(fit_ri)
 
-`betaregscale` is designed for end-to-end clinical reporting, supplying
-an extensive S3 interface (`print`, `summary`, `coef`, `vcov`,
-`predict`, `confint`, `ranef`), alongside specialized analyst functions:
 
-``` r
-# 1. Randomized Quantile Residuals (exact standard normal under correct specification)
-res_q <- residuals(fit_ri, type = "rqr")
+# -----------------------------------------------------------------------------
+# 5. POST-ESTIMATION: RESIDUALS & DIAGNOSTICS
+# -----------------------------------------------------------------------------
 
-# 2. Average Marginal Effects (AME) on the response scale
-brs_marginaleffects(fit_ri, type = "response")
+# 5a. Randomized quantile residuals (RQRs)
+#     Under the correctly specified model, RQRs ~ N(0,1) exactly.
+#     Departure from the diagonal in the Q-Q plot signals misspecification.
+rqr <- residuals(fit_full, type = "rqr")
+qqnorm(rqr); qqline(rqr, col = "steelblue", lwd = 2)
 
-# 3. Predict probabilities for specific discrete scale categories
-brs_predict_scoreprob(fit_ri, scores = 0:10)
+# 5b. Four-panel ggplot2 diagnostic grid:
+#     residuals vs fitted | Q-Q | scale-location | half-normal envelope
+autoplot(fit_full)
 
-# 4. Out-of-sample k-fold cross-validation
-brs_cv(y ~ x1, data = sim_mm, k = 5, repeats = 1, repar = 2)
+# 5c. Calibration plot: predicted mu (decile bins) vs. empirical mean
+autoplot(fit_full, type = "calibration")
 
-# 5. ggplot2 Diagnostics (Residual vs Fitted, QQ, Scale-Location, Half-normal envelope)
-autoplot(fit_ri)
+# 5d. Predicted score distribution over the full NRS-101 grid (0–100)
+autoplot(fit_full, type = "score_dist", scores = 0:100)
+
+
+# -----------------------------------------------------------------------------
+# 6. AVERAGE MARGINAL EFFECTS (AME)
+# -----------------------------------------------------------------------------
+# AMEs quantify the average unit change in the predicted mean (response scale,
+# mu ∈ [0,1]) for a one-unit change in each predictor.
+# Multiply by 100 to interpret directly in NRS-101 points.
+
+set.seed(2026)
+ame <- brs_marginaleffects(
+  fit_full,
+  model    = "mean",
+  type     = "response",
+  interval = TRUE,
+  n_sim    = 200
+)
+ame
+
+
+# -----------------------------------------------------------------------------
+# 7. SCORE-LEVEL PREDICTED PROBABILITIES
+# -----------------------------------------------------------------------------
+# For each patient, compute the probability mass assigned to each NRS-101 bin.
+# Here we evaluate a coarse 11-point grid (multiples of 10) for readability;
+# pass scores = 0:100 for the full resolution.
+
+prob_scores <- brs_predict_scoreprob(
+  fit_full,
+  scores = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+)
+
+# 500 patients × 11 score bins
+dim(prob_scores)
+
+# Probability profile for the first 10 patients
+round(head(prob_scores, 10), 3)
+
+
+# -----------------------------------------------------------------------------
+# 8. CROSS-VALIDATION
+# -----------------------------------------------------------------------------
+# Repeated 5-fold CV evaluates out-of-sample predictive performance.
+# Reports: log-score, RMSE_yt, and MAE_yt — averaged across folds and repeats.
+
+set.seed(2203)
+cv_res <- brs_cv(
+  formula = y ~ trt + age_std + sex_f + bpain_std | trt + bpain_std,
+  data    = sim_nrs101,
+  k       = 5,
+  repeats = 3,
+  repar   = 2
+)
+cv_res
+
+
+# -----------------------------------------------------------------------------
+# 9. CONFIDENCE INTERVALS & BACK-TRANSFORMATION TO NRS-101
+# -----------------------------------------------------------------------------
+
+# 9a. 95 % Wald CIs for all fixed-effect parameters
+confint(fit_full)
+
+# 9b. Patient-level predicted means on the mu ∈ [0,1] scale
+mu_hat <- predict(fit_full, type = "response")
+
+# 9c. Back-transform to NRS-101 units (multiply by 100)
+nrs101_hat <- mu_hat * 100
+summary(nrs101_hat)
 ```
 
 ------------------------------------------------------------------------
@@ -131,72 +300,97 @@ autoplot(fit_ri)
 
 ### Mean-Dispersion Parameterization
 
-Under the MD parameterization (`repar = 2`), the response
-$Y_{i} \sim \text{Beta}\left( \mu_{i},\sigma_{i} \right)$ has expected
-value and variance given by:
+Under `repar = 2`, the response
+$Y_{i} \sim \text{Beta}\left( \mu_{i},\sigma_{i} \right)$ has:
 
-$$\text{E}(Y) = \mu,\quad\text{Var}(Y) = \mu(1 - \mu)\sigma$$
+$$\text{E}\left( Y_{i} \right) = \mu_{i},\qquad\text{Var}\left( Y_{i} \right) = \mu_{i}\left( 1 - \mu_{i} \right)\sigma_{i}$$
 
-Both the mean and dispersion can be modeled via link functions ($g$ and
-$h$) allowing for covariate-dependent heteroscedasticity:
+Both submodels are linked to linear predictors via monotone link
+functions $g$ and $h$:
 
-$$g\left( \mu_{i} \right) = x_{i}^{\top}\beta,\qquad h\left( \sigma_{i} \right) = z_{i}^{\top}\zeta$$
+$$g\left( \mu_{i} \right) = \mathbf{x}_{i}^{\top}{\mathbf{β}},\qquad h\left( \sigma_{i} \right) = \mathbf{z}_{i}^{\top}{\mathbf{ζ}}$$
+
+The default link for both is logit, ensuring
+$\mu_{i},\sigma_{i} \in (0,1)$.
 
 ### Interval-Censored Likelihood
 
-Raw scores $y_{i}^{*} \in \{ 0,\ldots,K\}$ are mapped to the unit
-interval as $y_{i} = y_{i}^{*}/K$, with uncertainty intervals
-$\left\lbrack l_{i},u_{i} \right\rbrack = \left\lbrack y_{i} - 1/(2K),y_{i} + 1/(2K) \right\rbrack$.
+A raw NRS-101 score $y_{i}^{*} \in \{ 0,1,\ldots,100\}$ is mapped to
+$y_{i} = y_{i}^{*}/100$ with interval
+$\left\lbrack l_{i},u_{i} \right\rbrack = \left\lbrack y_{i} - 0.005,\, y_{i} + 0.005 \right\rbrack$.
 
-Let $\delta_{i} \in \{ 0,1,2,3\}$ indicate the censoring type (exact,
-left, right, or interval). The complete log-likelihood evaluated in
-`betaregscale` is:
+Let $\delta_{i} \in \{ 0,1,2,3\}$ encode the censoring type. The
+complete log-likelihood is:
 
-$$\ell(\theta) = \sum\limits_{i:\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\delta_{i} = 2}\log\lbrack 1 - F\left( l_{i} \right)\rbrack + \sum\limits_{i:\delta_{i} = 3}\log\lbrack F\left( u_{i} \right) - F\left( l_{i} \right)\rbrack$$
+$$\ell({\mathbf{θ}}) = \sum\limits_{i:\,\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\,\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\,\delta_{i} = 2}\log\lbrack 1 - F\left( l_{i} \right)\rbrack + \sum\limits_{i:\,\delta_{i} = 3}\log\lbrack F\left( u_{i} \right) - F\left( l_{i} \right)\rbrack$$
 
-where $f( \cdot )$ and $F( \cdot )$ are the beta PDF and CDF.
+where $f( \cdot )$ and $F( \cdot )$ are the Beta PDF and CDF evaluated
+at the shape parameters derived from
+$\left( \mu_{i},\sigma_{i} \right)$.
 
 ### Mixed-Effects Extension (`brsmm`)
 
-For grouped or longitudinal data, the mean predictor is extended to
-include group-specific random effects
+For patient $i$ in clinic $j$, the mean predictor is extended by
+clinic-specific random effects
 $\mathbf{b}_{j} \sim \mathcal{N}(\mathbf{0},D)$:
 
-$$\eta_{\mu,ij} = x_{ij}^{\top}\beta + \mathbf{w}_{ij}^{\top}\mathbf{b}_{j}$$
+$$\eta_{\mu,ij} = \mathbf{x}_{ij}^{\top}{\mathbf{β}} + \mathbf{w}_{ij}^{\top}\mathbf{b}_{j}$$
 
-The marginal log-likelihood is approximated using a multivariate Laplace
-approximation:
+The intractable group marginal likelihood is approximated via Laplace:
 
-$$\log L_{j}(\theta) \approx Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right) + \frac{q_{b}}{2}\log(2\pi) - \frac{1}{2}\log\left| H_{j} \right|$$
+$$\log L_{j}({\mathbf{θ}}) \approx Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right) + \frac{q_{b}}{2}\log(2\pi) - \frac{1}{2}\log\left| H_{j} \right|$$
+
+where $q_{b}$ is the random-effects dimension,
+${\widehat{\mathbf{b}}}_{j}$ is the posterior mode, and
+$H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right)$.
 
 ------------------------------------------------------------------------
 
-## Documentation & Learning
+## S3 Interface Summary
 
-To get the most out of `betaregscale`, we highly recommend reading our
-vignettes. They cover everything from the mathematical foundations to
-advanced workflows:
+| Generic                                                                                                    | `brs` | `brsmm` |
+|------------------------------------------------------------------------------------------------------------|:-----:|:-------:|
+| [`print()`](https://rdrr.io/r/base/print.html)                                                             |   ✓   |    ✓    |
+| [`summary()`](https://rdrr.io/r/base/summary.html)                                                         |   ✓   |    ✓    |
+| [`coef()`](https://rdrr.io/r/stats/coef.html)                                                              |   ✓   |    ✓    |
+| [`vcov()`](https://rdrr.io/r/stats/vcov.html)                                                              |   ✓   |    ✓    |
+| [`confint()`](https://rdrr.io/r/stats/confint.html)                                                        |   ✓   |    ✓    |
+| [`predict()`](https://rdrr.io/r/stats/predict.html)                                                        |   ✓   |    ✓    |
+| [`residuals()`](https://rdrr.io/r/stats/residuals.html) (RQR, response, pearson)                           |   ✓   |    ✓    |
+| [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)                                 |   —   |    ✓    |
+| [`anova()`](https://rdrr.io/r/stats/anova.html)                                                            |   ✓   |    ✓    |
+| [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)                                      |   ✓   |    —    |
+| [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)     |   ✓   |    —    |
+| [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md) |   ✓   |    —    |
+| [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)                               |   ✓   |    —    |
+| [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)                         |   ✓   |    ✓    |
 
-- [**Introduction to
-  betaregscale**](https://evandeilton.github.io/betaregscale/articles/brs-intro.html):
-  The basics of interval-censoring and data preparation.
-- [**Mixed-Effects Beta Interval
-  Regression**](https://evandeilton.github.io/betaregscale/articles/brs-mm.html):
-  Deep dive into
-  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
-  and random effects.
-- [**Analyst
-  Tools**](https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html):
-  Using bootstrapping, cross-validation, and marginal effects.
-- [**Advanced
-  Workflows**](https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html):
-  A step-by-step guide for high-level users and production environments.
+------------------------------------------------------------------------
+
+## Documentation & Vignettes
+
+| Vignette                                                                                                      | Content                                                                                                                            |
+|---------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| [**Introduction to betaregscale**](https://evandeilton.github.io/betaregscale/articles/brs-intro.html)        | Censoring types, [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md) modes, first fixed-effects model |
+| [**Mixed-Effects Beta Interval Regression**](https://evandeilton.github.io/betaregscale/articles/brs-mm.html) | [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md) mathematics, parameter recovery, BLUP extraction        |
+| [**Analyst Tools**](https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html)               | AME, score probabilities, cross-validation, [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)                  |
+| [**Advanced Workflows**](https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html)     | Production pipelines, model selection, sensitivity analysis                                                                        |
+
+------------------------------------------------------------------------
+
+## Citation
+
+If you use `betaregscale` in a publication, please cite:
+
+``` r
+citation("betaregscale")
+```
 
 ------------------------------------------------------------------------
 
 ## License
 
-MIT © José Evandeilton Lopes
+MIT © José Evandeilton Lopes & Wagner Hugo Bonat
 
 # Package index
 

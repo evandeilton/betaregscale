@@ -70,13 +70,13 @@
 <div class="section level2">
 <h2 id="the-methodological-gap">The Methodological Gap<a class="anchor" aria-label="anchor" href="#the-methodological-gap"></a>
 </h2>
-<p>Patient-reported outcome measures (PROMs) on bounded rating scales (e.g., NRS-11, VAS) are widely used in clinical research. Standard analyses treat these bounded, discrete scores as exact continuous values using ordinary least squares (OLS), which ignores natural scale boundaries and misrepresents heteroscedasticity.</p>
+<p>Patient-reported outcome measures (PROMs) on bounded rating scales — such as the <strong>Numerical Rating Scale (NRS-11, NRS-21, NRS-101)</strong>, Visual Analogue Scale (VAS), or Likert-type instruments — are ubiquitous in clinical research. Standard analyses treat these bounded, discrete scores as exact continuous values via ordinary least squares (OLS), silently violating two core assumptions: natural scale boundaries are ignored, and the inherent heteroscedasticity of bounded responses is misrepresented.</p>
 <p>While standard beta regression (e.g., the <code>betareg</code> package) respects the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math> support, it suffers from two critical limitations:</p>
 <ol style="list-style-type: decimal">
 <li>
-<strong>Interpretability:</strong> It relies on a mean-precision parameterization (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>,</mo><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">\mu, \phi</annotation></semantics></math>) where the precision parameter lacks a direct, clinically intuitive meaning.</li>
+<strong>Interpretability:</strong> It relies on a mean-precision parameterization <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mu,\phi)</annotation></semantics></math> where the precision parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math> lacks a direct, clinically intuitive meaning.</li>
 <li>
-<strong>Measurement Resolution:</strong> It ignores the discretized nature of rating scales. Selecting “5” on an NRS-11 reflects a measurement interval, not a precise point estimate. Ignoring this leads to underestimated residual variance and biased inference.</li>
+<strong>Measurement Resolution:</strong> It ignores the discretized nature of rating scales. Selecting “52” on an NRS-101 reflects a measurement interval <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.515</mn><mo>,</mo><mn>0.525</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.515, 0.525]</annotation></semantics></math>, not a precise continuous value. Ignoring this leads to underestimated residual variance and biased inference.</li>
 </ol>
 </div>
 <div class="section level2">
@@ -84,87 +84,250 @@
 </h2>
 <p><code>betaregscale</code> provides a frequentist, maximum-likelihood framework tailored specifically for bounded scale data. It introduces two major methodological advancements:</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>Mean-Dispersion (MD) Parameterization:</strong> Reparameterizes the beta distribution strictly in terms of the conditional mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math> and a proportional dispersion parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma \in (0,1)</annotation></semantics></math>.</li>
-<li>
-<strong>Interval-Censored Likelihood:</strong> Properly treats discrete scale points as interval-censored data, integrating the beta probability density function over the uncertainty bounds implied by the instrument’s resolution.</li>
+<li><p><strong>Mean-Dispersion (MD) Parameterization:</strong> Reparameterizes the beta distribution in terms of the conditional mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math> and a proportional dispersion parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma \in (0,1)</annotation></semantics></math> — both directly interpretable and modelable via covariates.</p></li>
+<li><p><strong>Interval-Censored Likelihood:</strong> Properly treats each discrete scale point as interval-censored data, integrating the beta PDF over the uncertainty bounds implied by the instrument’s resolution. A score of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>*</mo></msup><annotation encoding="application/x-tex">y^*</annotation></semantics></math> on a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>-point scale is treated as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msup><mi>y</mi><mo>*</mo></msup><mi>/</mi><mi>K</mi><mo>−</mo><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="0.278em"></mspace><msup><mi>y</mi><mo>*</mo></msup><mi>/</mi><mi>K</mi><mo>+</mo><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y^*/K - 1/(2K),\; y^*/K + 1/(2K)]</annotation></semantics></math>.</p></li>
 </ol>
-<p>The package features a compiled <strong>C++ backend</strong> for analytical gradient computation and provides a mixed-effects extension (<code><a href="reference/brsmm.html">brsmm()</a></code>) utilizing a multivariate <strong>Laplace approximation</strong> to accommodate repeated measures and clustered data.</p>
+<p>The package features a compiled <strong>C++ backend</strong> for analytical gradient computation, and provides a mixed-effects extension (<code><a href="reference/brsmm.html">brsmm()</a></code>) via multivariate <strong>Laplace approximation</strong> for repeated measures and multi-centre data.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the development version directly from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<code class="sourceCode R"><span><span class="co"># Stable version from CRAN</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"betaregscale"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Development version from GitHub</span></span>
+<span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evandeilton/betaregscale"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="usage--technical-workflow">Usage &amp; Technical Workflow<a class="anchor" aria-label="anchor" href="#usage--technical-workflow"></a>
+<h2 id="usage-examples">Usage Examples<a class="anchor" aria-label="anchor" href="#usage-examples"></a>
 </h2>
-<div class="section level3">
-<h3 id="data-simulation-and-fixed-effects-modeling">Data Simulation and Fixed-Effects Modeling<a class="anchor" aria-label="anchor" href="#data-simulation-and-fixed-effects-modeling"></a>
-</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># =============================================================================</span></span>
+<span><span class="co"># betaregscale — Clinical Workflow: NRS-101 Pain Score Modelling</span></span>
+<span><span class="co"># =============================================================================</span></span>
+<span><span class="co"># Scenario: multi-centre analgesic RCT (500 patients, 20 clinics).</span></span>
+<span><span class="co"># Outcome:  post-treatment pain rated on NRS-101 (0 = no pain, 100 = worst).</span></span>
+<span><span class="co"># Goal:     illustrate the full betaregscale pipeline — simulation, fixed-</span></span>
+<span><span class="co">#           effects modelling, mixed-effects modelling, and post-estimation</span></span>
+<span><span class="co">#           diagnostics.</span></span>
+<span><span class="co"># =============================================================================</span></span>
 <span></span>
-<span><span class="co"># Simulate interval-censored data with covariate-dependent dispersion</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span>, z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
-<span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">|</span> <span class="va">z1</span>, </span>
-<span>  data <span class="op">=</span> <span class="va">d</span>, </span>
-<span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.4</span><span class="op">)</span>, zeta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">0.5</span><span class="op">)</span>, <span class="co"># zeta operates on logit(sigma)</span></span>
-<span>  ncuts <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 1. CLINICAL PREDICTORS</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># Simulate a realistic patient-level covariate matrix:</span></span>
+<span><span class="co">#   trt       — treatment arm (0 = placebo, 1 = active compound; 50/50)</span></span>
+<span><span class="co">#   age_std   — age in years (25–75), standardised (mean 0, sd 1)</span></span>
+<span><span class="co">#   sex_f     — sex (1 = female, 0 = male; ~55 % female)</span></span>
+<span><span class="co">#   bpain_std — baseline NRS-101 pain (30–90), standardised</span></span>
+<span><span class="co">#   clinic    — clinic ID (20 centres, 25 patients each)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">n_patients</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span></span>
+<span><span class="va">patient_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  trt       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n_patients</span>, <span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">0.50</span><span class="op">)</span>,</span>
+<span>  age_std   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_patients</span>, <span class="fl">25</span>, <span class="fl">75</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>,</span>
+<span>  sex_f     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n_patients</span>, <span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">0.55</span><span class="op">)</span>,</span>
+<span>  bpain_std <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n_patients</span>, <span class="fl">30</span>, <span class="fl">90</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>,</span>
+<span>  clinic    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, each <span class="op">=</span> <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Fit the interval-censored fixed-effects model</span></span>
-<span><span class="va">fit_fe</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_fe</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="mixed-effects-modeling-brsmm">Mixed-Effects Modeling (<code>brsmm</code>)<a class="anchor" aria-label="anchor" href="#mixed-effects-modeling-brsmm"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Simulate clustered data for random intercepts &amp; slopes</span></span>
-<span><span class="va">d_mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span>,</span>
-<span>  group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">50</span>, each <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 2. DATA SIMULATION WITH brs_sim()</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># Generate NRS-101 scores from the true beta-regression model.</span></span>
+<span><span class="co"># brs_sim() returns a data frame already containing the interval-censored</span></span>
+<span><span class="co"># columns (left, right, yt, delta) required by brs().</span></span>
+<span><span class="co">#</span></span>
+<span><span class="co"># True parameters — mean sub-model (logit link on mu):</span></span>
+<span><span class="co">#   Intercept =  0.20  → average pain ~55/100 in the placebo arm</span></span>
+<span><span class="co">#   trt       = -0.55  → active drug reduces pain by ~13 NRS points</span></span>
+<span><span class="co">#   age_std   =  0.15  → older patients report slightly higher pain</span></span>
+<span><span class="co">#   sex_f     =  0.10  → females report slightly higher pain</span></span>
+<span><span class="co">#   bpain_std =  0.60  → strong tracking from baseline (dominant predictor)</span></span>
+<span><span class="co">#</span></span>
+<span><span class="co"># True parameters — dispersion sub-model (logit link on sigma):</span></span>
+<span><span class="co">#   Intercept = -1.60  → moderate dispersion (~17 %)</span></span>
+<span><span class="co">#   trt       = -0.40  → active arm shows more homogeneous responses</span></span>
+<span><span class="co">#   bpain_std =  0.20  → high baseline pain leads to wider response spread</span></span>
+<span></span>
+<span><span class="va">sim_nrs101</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">age_std</span> <span class="op">+</span> <span class="va">sex_f</span> <span class="op">+</span> <span class="va">bpain_std</span> <span class="op">|</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">bpain_std</span>,</span>
+<span>  data    <span class="op">=</span> <span class="va">patient_data</span>,</span>
+<span>  beta    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="op">-</span><span class="fl">0.55</span>, <span class="fl">0.15</span>, <span class="fl">0.10</span>, <span class="fl">0.60</span><span class="op">)</span>,</span>
+<span>  zeta    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.60</span>, <span class="op">-</span><span class="fl">0.40</span>, <span class="fl">0.20</span><span class="op">)</span>,</span>
+<span>  ncuts   <span class="op">=</span> <span class="fl">100</span>,   <span class="co"># NRS-101: integer scores 0–100 → ncuts = 100</span></span>
+<span>  repar   <span class="op">=</span> <span class="fl">2</span>      <span class="co"># Mean-Dispersion (MD) parameterisation</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">sim_mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_sim.html">brs_sim</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">|</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">d_mm</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Fit mixed-effects model with random intercept</span></span>
-<span><span class="va">fit_ri</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">group</span>, data <span class="op">=</span> <span class="va">sim_mm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co"># Attach clinic for the mixed-effects section</span></span>
+<span><span class="va">sim_nrs101</span><span class="op">$</span><span class="va">clinic</span> <span class="op">&lt;-</span> <span class="va">patient_data</span><span class="op">$</span><span class="va">clinic</span></span>
 <span></span>
-<span><span class="co"># Fit mixed-effects model with random intercept + slope</span></span>
-<span><span class="va">fit_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">x1</span> <span class="op">|</span> <span class="va">group</span>, data <span class="op">=</span> <span class="va">sim_mm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Likelihood-ratio test for nested model comparison</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_ri</span>, <span class="va">fit_rs</span>, test <span class="op">=</span> <span class="st">"Chisq"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="the-analyst-toolkit--diagnostics">The Analyst Toolkit &amp; Diagnostics<a class="anchor" aria-label="anchor" href="#the-analyst-toolkit--diagnostics"></a>
-</h3>
-<p><code>betaregscale</code> is designed for end-to-end clinical reporting, supplying an extensive S3 interface (<code>print</code>, <code>summary</code>, <code>coef</code>, <code>vcov</code>, <code>predict</code>, <code>confint</code>, <code>ranef</code>), alongside specialized analyst functions:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 1. Randomized Quantile Residuals (exact standard normal under correct specification)</span></span>
-<span><span class="va">res_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span><span class="va">fit_ri</span>, type <span class="op">=</span> <span class="st">"rqr"</span><span class="op">)</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 3. FIXED-EFFECTS MODELS</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
 <span></span>
-<span><span class="co"># 2. Average Marginal Effects (AME) on the response scale</span></span>
-<span><span class="fu"><a href="reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span><span class="va">fit_ri</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span></span>
+<span><span class="co"># 3a. Full model — covariate-dependent dispersion (correctly specified)</span></span>
+<span><span class="co">#     Mean:       mu    ~ trt + age_std + sex_f + bpain_std   (logit link)</span></span>
+<span><span class="co">#     Dispersion: sigma ~ trt + bpain_std                     (logit link)</span></span>
+<span><span class="va">fit_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs.html">brs</a></span><span class="op">(</span></span>
+<span>  formula  <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">age_std</span> <span class="op">+</span> <span class="va">sex_f</span> <span class="op">+</span> <span class="va">bpain_std</span> <span class="op">|</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">bpain_std</span>,</span>
+<span>  data     <span class="op">=</span> <span class="va">sim_nrs101</span>,</span>
+<span>  repar    <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  link     <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  link_phi <span class="op">=</span> <span class="st">"logit"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 3. Predict probabilities for specific discrete scale categories</span></span>
-<span><span class="fu"><a href="reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_ri</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_full</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 4. Out-of-sample k-fold cross-validation</span></span>
-<span><span class="fu"><a href="reference/brs_cv.html">brs_cv</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">sim_mm</span>, k <span class="op">=</span> <span class="fl">5</span>, repeats <span class="op">=</span> <span class="fl">1</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co"># 3b. Parsimonious model — constant (fixed) dispersion</span></span>
+<span><span class="co">#     Used as baseline for model comparison.</span></span>
+<span><span class="va">fit_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs.html">brs</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">age_std</span> <span class="op">+</span> <span class="va">sex_f</span> <span class="op">+</span> <span class="va">bpain_std</span>,</span>
+<span>  data    <span class="op">=</span> <span class="va">sim_nrs101</span>,</span>
+<span>  repar   <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 5. ggplot2 Diagnostics (Residual vs Fitted, QQ, Scale-Location, Half-normal envelope)</span></span>
-<span><span class="fu">autoplot</span><span class="op">(</span><span class="va">fit_ri</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># 3c. Model comparison table (AIC / BIC / log-likelihood / pseudo-R²)</span></span>
+<span><span class="co">#     Variable dispersion should win if the DGP is correctly recovered.</span></span>
+<span><span class="fu"><a href="reference/brs_table.html">brs_table</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Fixed dispersion"</span>    <span class="op">=</span> <span class="va">fit_fixed</span>,</span>
+<span>  <span class="st">"Variable dispersion"</span> <span class="op">=</span> <span class="va">fit_full</span>,</span>
+<span>  sort_by <span class="op">=</span> <span class="st">"AIC"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 4. MIXED-EFFECTS MODELS WITH brsmm()</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># Clinics introduce between-centre heterogeneity; ignoring this structure</span></span>
+<span><span class="co"># inflates Type I error. brsmm() adds Gaussian random effects via Laplace</span></span>
+<span><span class="co"># approximation.</span></span>
+<span></span>
+<span><span class="co"># 4a. Random-intercept model — clinics differ in average pain level</span></span>
+<span><span class="va">fit_ri</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm.html">brsmm</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">age_std</span> <span class="op">+</span> <span class="va">sex_f</span> <span class="op">+</span> <span class="va">bpain_std</span> <span class="op">|</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">bpain_std</span>,</span>
+<span>  random  <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">clinic</span>,</span>
+<span>  data    <span class="op">=</span> <span class="va">sim_nrs101</span>,</span>
+<span>  repar   <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 4b. Random intercept + random slope — treatment efficacy may vary by clinic</span></span>
+<span><span class="va">fit_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brsmm.html">brsmm</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">age_std</span> <span class="op">+</span> <span class="va">sex_f</span> <span class="op">+</span> <span class="va">bpain_std</span> <span class="op">|</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">bpain_std</span>,</span>
+<span>  random  <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">trt</span> <span class="op">|</span> <span class="va">clinic</span>,</span>
+<span>  data    <span class="op">=</span> <span class="va">sim_nrs101</span>,</span>
+<span>  repar   <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 4c. Likelihood-ratio test: is a random treatment slope warranted?</span></span>
+<span><span class="co">#     p &lt; 0.05 → clinics differ significantly in treatment response.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_ri</span>, <span class="va">fit_rs</span>, test <span class="op">=</span> <span class="st">"Chisq"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 4d. Clinic-level BLUPs (posterior modes of random effects)</span></span>
+<span><span class="fu"><a href="reference/ranef.html">ranef</a></span><span class="op">(</span><span class="va">fit_ri</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 5. POST-ESTIMATION: RESIDUALS &amp; DIAGNOSTICS</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span></span>
+<span><span class="co"># 5a. Randomized quantile residuals (RQRs)</span></span>
+<span><span class="co">#     Under the correctly specified model, RQRs ~ N(0,1) exactly.</span></span>
+<span><span class="co">#     Departure from the diagonal in the Q-Q plot signals misspecification.</span></span>
+<span><span class="va">rqr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span><span class="va">fit_full</span>, type <span class="op">=</span> <span class="st">"rqr"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqnorm</a></span><span class="op">(</span><span class="va">rqr</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqline</a></span><span class="op">(</span><span class="va">rqr</span>, col <span class="op">=</span> <span class="st">"steelblue"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 5b. Four-panel ggplot2 diagnostic grid:</span></span>
+<span><span class="co">#     residuals vs fitted | Q-Q | scale-location | half-normal envelope</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">fit_full</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 5c. Calibration plot: predicted mu (decile bins) vs. empirical mean</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">fit_full</span>, type <span class="op">=</span> <span class="st">"calibration"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 5d. Predicted score distribution over the full NRS-101 grid (0–100)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">fit_full</span>, type <span class="op">=</span> <span class="st">"score_dist"</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 6. AVERAGE MARGINAL EFFECTS (AME)</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># AMEs quantify the average unit change in the predicted mean (response scale,</span></span>
+<span><span class="co"># mu ∈ [0,1]) for a one-unit change in each predictor.</span></span>
+<span><span class="co"># Multiply by 100 to interpret directly in NRS-101 points.</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">ame</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_full</span>,</span>
+<span>  model    <span class="op">=</span> <span class="st">"mean"</span>,</span>
+<span>  type     <span class="op">=</span> <span class="st">"response"</span>,</span>
+<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_sim    <span class="op">=</span> <span class="fl">200</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">ame</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 7. SCORE-LEVEL PREDICTED PROBABILITIES</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># For each patient, compute the probability mass assigned to each NRS-101 bin.</span></span>
+<span><span class="co"># Here we evaluate a coarse 11-point grid (multiples of 10) for readability;</span></span>
+<span><span class="co"># pass scores = 0:100 for the full resolution.</span></span>
+<span></span>
+<span><span class="va">prob_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_full</span>,</span>
+<span>  scores <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">60</span>, <span class="fl">70</span>, <span class="fl">80</span>, <span class="fl">90</span>, <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 500 patients × 11 score bins</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">prob_scores</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Probability profile for the first 10 patients</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">prob_scores</span>, <span class="fl">10</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 8. CROSS-VALIDATION</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># Repeated 5-fold CV evaluates out-of-sample predictive performance.</span></span>
+<span><span class="co"># Reports: log-score, RMSE_yt, and MAE_yt — averaged across folds and repeats.</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2203</span><span class="op">)</span></span>
+<span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">age_std</span> <span class="op">+</span> <span class="va">sex_f</span> <span class="op">+</span> <span class="va">bpain_std</span> <span class="op">|</span> <span class="va">trt</span> <span class="op">+</span> <span class="va">bpain_std</span>,</span>
+<span>  data    <span class="op">=</span> <span class="va">sim_nrs101</span>,</span>
+<span>  k       <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  repeats <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  repar   <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cv_res</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span><span class="co"># 9. CONFIDENCE INTERVALS &amp; BACK-TRANSFORMATION TO NRS-101</span></span>
+<span><span class="co"># -----------------------------------------------------------------------------</span></span>
+<span></span>
+<span><span class="co"># 9a. 95 % Wald CIs for all fixed-effect parameters</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_full</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 9b. Patient-level predicted means on the mu ∈ [0,1] scale</span></span>
+<span><span class="va">mu_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_full</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 9c. Back-transform to NRS-101 units (multiply by 100)</span></span>
+<span><span class="va">nrs101_hat</span> <span class="op">&lt;-</span> <span class="va">mu_hat</span> <span class="op">*</span> <span class="fl">100</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">nrs101_hat</span><span class="op">)</span></span></code></pre></div>
 <hr>
-</div>
 </div>
 <div class="section level2">
 <h2 id="mathematical-framework">Mathematical Framework<a class="anchor" aria-label="anchor" href="#mathematical-framework"></a>
@@ -172,59 +335,180 @@
 <div class="section level3">
 <h3 id="mean-dispersion-parameterization">Mean-Dispersion Parameterization<a class="anchor" aria-label="anchor" href="#mean-dispersion-parameterization"></a>
 </h3>
-<p>Under the MD parameterization (<code>repar = 2</code>), the response <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>∼</mo><mtext mathvariant="normal">Beta</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>i</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_i \sim \text{Beta}(\mu_i, \sigma_i)</annotation></semantics></math> has expected value and variance given by:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">E</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>μ</mi><mo>,</mo><mspace width="1.0em"></mspace><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>σ</mi></mrow><annotation encoding="application/x-tex">
-\text{E}(Y) = \mu, \quad \text{Var}(Y) = \mu(1-\mu)\sigma
+<p>Under <code>repar = 2</code>, the response <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>∼</mo><mtext mathvariant="normal">Beta</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>i</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_i \sim \text{Beta}(\mu_i, \sigma_i)</annotation></semantics></math> has:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">E</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>μ</mi><mi>i</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">Var</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>μ</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>μ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>σ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">
+\text{E}(Y_i) = \mu_i, \qquad \text{Var}(Y_i) = \mu_i(1-\mu_i)\sigma_i
 </annotation></semantics></math></p>
-<p>Both the mean and dispersion can be modeled via link functions (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>) allowing for covariate-dependent heteroscedasticity:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mi>x</mi><mi>i</mi><mi>⊤</mi></msubsup><mi>β</mi><mo>,</mo><mspace width="2.0em"></mspace><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>σ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mi>z</mi><mi>i</mi><mi>⊤</mi></msubsup><mi>ζ</mi></mrow><annotation encoding="application/x-tex">
-g(\mu_i) = x_i^\top \beta, \qquad h(\sigma_i) = z_i^\top \zeta
+<p>Both submodels are linked to linear predictors via monotone link functions <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mi>𝐱</mi><mi>i</mi><mi>⊤</mi></msubsup><mi>𝛃</mi><mo>,</mo><mspace width="2.0em"></mspace><mi>h</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>σ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mi>𝐳</mi><mi>i</mi><mi>⊤</mi></msubsup><mi>𝛇</mi></mrow><annotation encoding="application/x-tex">
+g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}_i^\top \boldsymbol{\zeta}
 </annotation></semantics></math></p>
+<p>The default link for both is logit, ensuring <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>i</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>i</mi></msub><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_i, \sigma_i \in (0,1)</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="interval-censored-likelihood">Interval-Censored Likelihood<a class="anchor" aria-label="anchor" href="#interval-censored-likelihood"></a>
 </h3>
-<p>Raw scores <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>y</mi><mi>i</mi><mo>*</mo></msubsup><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">y_i^{*} \in \{0, \dots, K\}</annotation></semantics></math> are mapped to the unit interval as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><msubsup><mi>y</mi><mi>i</mi><mo>*</mo></msubsup><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">y_i = y_i^{*}/K</annotation></semantics></math>, with uncertainty intervals <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>y</mi><mi>i</mi></msub><mo>+</mo><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">[l_i, u_i] = [y_i - 1/(2K), y_i + 1/(2K)]</annotation></semantics></math>.</p>
-<p>Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\delta_i \in \{0, 1, 2, 3\}</annotation></semantics></math> indicate the censoring type (exact, left, right, or interval). The complete log-likelihood evaluated in <code>betaregscale</code> is:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow></munder><mo>log</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow></munder><mo>log</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>2</mn></mrow></munder><mo>log</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo><mo>+</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>3</mn></mrow></munder><mo>log</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
-\ell(\theta) = \sum_{i:\delta_i=0} \log f(y_i) + \sum_{i:\delta_i=1} \log F(u_i) + \sum_{i:\delta_i=2} \log\bigl[1 - F(l_i)\bigr] + \sum_{i:\delta_i=3} \log\bigl[F(u_i) - F(l_i)\bigr]
+<p>A raw NRS-101 score <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>y</mi><mi>i</mi><mo>*</mo></msubsup><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>100</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">y_i^* \in \{0, 1, \ldots, 100\}</annotation></semantics></math> is mapped to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><msubsup><mi>y</mi><mi>i</mi><mo>*</mo></msubsup><mi>/</mi><mn>100</mn></mrow><annotation encoding="application/x-tex">y_i = y_i^*/100</annotation></semantics></math> with interval <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><mn>0.005</mn><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>y</mi><mi>i</mi></msub><mo>+</mo><mn>0.005</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">[l_i, u_i] = [y_i - 0.005,\, y_i + 0.005]</annotation></semantics></math>.</p>
+<p>Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\delta_i \in \{0,1,2,3\}</annotation></semantics></math> encode the censoring type. The complete log-likelihood is:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><mspace width="0.167em"></mspace><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow></munder><mo>log</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><mspace width="0.167em"></mspace><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow></munder><mo>log</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><mspace width="0.167em"></mspace><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>2</mn></mrow></munder><mo>log</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo><mo>+</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><mspace width="0.167em"></mspace><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>3</mn></mrow></munder><mo>log</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">
+\ell(\boldsymbol{\theta}) =
+  \sum_{i:\,\delta_i=0} \log f(y_i)
++ \sum_{i:\,\delta_i=1} \log F(u_i)
++ \sum_{i:\,\delta_i=2} \log\bigl[1 - F(l_i)\bigr]
++ \sum_{i:\,\delta_i=3} \log\bigl[F(u_i) - F(l_i)\bigr]
 </annotation></semantics></math></p>
-<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math> are the beta PDF and CDF.</p>
+<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math> are the Beta PDF and CDF evaluated at the shape parameters derived from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>i</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mu_i, \sigma_i)</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="mixed-effects-extension-brsmm">Mixed-Effects Extension (<code>brsmm</code>)<a class="anchor" aria-label="anchor" href="#mixed-effects-extension-brsmm"></a>
 </h3>
-<p>For grouped or longitudinal data, the mean predictor is extended to include group-specific random effects <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐛</mi><mi>j</mi></msub><mo>∼</mo><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D)</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>η</mi><mrow><mi>μ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msubsup><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow><mi>⊤</mi></msubsup><mi>β</mi><mo>+</mo><msubsup><mi>𝐰</mi><mrow><mi>i</mi><mi>j</mi></mrow><mi>⊤</mi></msubsup><msub><mi>𝐛</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">
-\eta_{\mu,ij} = x_{ij}^\top \beta + \mathbf{w}_{ij}^\top \mathbf{b}_j
+<p>For patient <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> in clinic <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>, the mean predictor is extended by clinic-specific random effects <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐛</mi><mi>j</mi></msub><mo>∼</mo><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D)</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>η</mi><mrow><mi>μ</mi><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msubsup><mi>𝐱</mi><mrow><mi>i</mi><mi>j</mi></mrow><mi>⊤</mi></msubsup><mi>𝛃</mi><mo>+</mo><msubsup><mi>𝐰</mi><mrow><mi>i</mi><mi>j</mi></mrow><mi>⊤</mi></msubsup><msub><mi>𝐛</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">
+\eta_{\mu,ij} = \mathbf{x}_{ij}^\top \boldsymbol{\beta} + \mathbf{w}_{ij}^\top \mathbf{b}_j
 </annotation></semantics></math></p>
-<p>The marginal log-likelihood is approximated using a multivariate Laplace approximation:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mfrac><msub><mi>q</mi><mi>b</mi></msub><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>π</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>H</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow></mrow><annotation encoding="application/x-tex">
-\log L_j(\theta) \approx Q_j(\hat{\mathbf{b}}_j) + \frac{q_b}{2}\log(2\pi) - \frac{1}{2}\log|H_j|
+<p>The intractable group marginal likelihood is approximated via Laplace:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>L</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝛉</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>≈</mo><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mfrac><msub><mi>q</mi><mi>b</mi></msub><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>π</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>log</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>H</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow></mrow><annotation encoding="application/x-tex">
+\log L_j(\boldsymbol{\theta}) \approx
+  Q_j(\hat{\mathbf{b}}_j)
++ \frac{q_b}{2}\log(2\pi)
+- \frac{1}{2}\log|H_j|
 </annotation></semantics></math></p>
+<p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>b</mi></msub><annotation encoding="application/x-tex">q_b</annotation></semantics></math> is the random-effects dimension, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><annotation encoding="application/x-tex">\hat{\mathbf{b}}_j</annotation></semantics></math> is the posterior mode, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>j</mi></msub><mo>=</mo><mo>−</mo><msup><mi>∇</mi><mn>2</mn></msup><msub><mi>Q</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)</annotation></semantics></math>.</p>
 <hr>
 </div>
 </div>
 <div class="section level2">
-<h2 id="documentation--learning">Documentation &amp; Learning<a class="anchor" aria-label="anchor" href="#documentation--learning"></a>
+<h2 id="s3-interface-summary">S3 Interface Summary<a class="anchor" aria-label="anchor" href="#s3-interface-summary"></a>
 </h2>
-<p>To get the most out of <code>betaregscale</code>, we highly recommend reading our vignettes. They cover everything from the mathematical foundations to advanced workflows:</p>
-<ul>
-<li>
-<a href="https://evandeilton.github.io/betaregscale/articles/brs-intro.html"><strong>Introduction to betaregscale</strong></a>: The basics of interval-censoring and data preparation.</li>
-<li>
-<a href="https://evandeilton.github.io/betaregscale/articles/brs-mm.html"><strong>Mixed-Effects Beta Interval Regression</strong></a>: Deep dive into <code><a href="reference/brsmm.html">brsmm()</a></code> and random effects.</li>
-<li>
-<a href="https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html"><strong>Analyst Tools</strong></a>: Using bootstrapping, cross-validation, and marginal effects.</li>
-<li>
-<a href="https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html"><strong>Advanced Workflows</strong></a>: A step-by-step guide for high-level users and production environments.</li>
-</ul>
+<table class="table">
+<thead><tr class="header">
+<th>Generic</th>
+<th align="center"><code>brs</code></th>
+<th align="center"><code>brsmm</code></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="odd">
+<td>
+<code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> (RQR, response, pearson)</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/ranef.html">ranef()</a></code></td>
+<td align="center">—</td>
+<td align="center">✓</td>
+</tr>
+<tr class="odd">
+<td><code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr class="even">
+<td><code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code></td>
+<td align="center">✓</td>
+<td align="center">—</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/brs_marginaleffects.html">brs_marginaleffects()</a></code></td>
+<td align="center">✓</td>
+<td align="center">—</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/brs_predict_scoreprob.html">brs_predict_scoreprob()</a></code></td>
+<td align="center">✓</td>
+<td align="center">—</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/brs_cv.html">brs_cv()</a></code></td>
+<td align="center">✓</td>
+<td align="center">—</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/brs_table.html">brs_table()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="documentation--vignettes">Documentation &amp; Vignettes<a class="anchor" aria-label="anchor" href="#documentation--vignettes"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Vignette</th>
+<th>Content</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://evandeilton.github.io/betaregscale/articles/brs-intro.html"><strong>Introduction to betaregscale</strong></a></td>
+<td>Censoring types, <code><a href="reference/brs_prep.html">brs_prep()</a></code> modes, first fixed-effects model</td>
+</tr>
+<tr class="even">
+<td><a href="https://evandeilton.github.io/betaregscale/articles/brs-mm.html"><strong>Mixed-Effects Beta Interval Regression</strong></a></td>
+<td>
+<code><a href="reference/brsmm.html">brsmm()</a></code> mathematics, parameter recovery, BLUP extraction</td>
+</tr>
+<tr class="odd">
+<td><a href="https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html"><strong>Analyst Tools</strong></a></td>
+<td>AME, score probabilities, cross-validation, <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>
+</td>
+</tr>
+<tr class="even">
+<td><a href="https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html"><strong>Advanced Workflows</strong></a></td>
+<td>Production pipelines, model selection, sensitivity analysis</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>If you use <code>betaregscale</code> in a publication, please cite:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"betaregscale"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>MIT © José Evandeilton Lopes</p>
+<p>MIT © José Evandeilton Lopes &amp; Wagner Hugo Bonat</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
