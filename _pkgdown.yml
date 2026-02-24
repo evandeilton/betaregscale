@@ -1,15 +1,38 @@
 url: https://evandeilton.github.io/betaregscale/
+
 template:
   bootstrap: 5
-  bootswatch: cosmo
+  bootswatch: litera
+  bslib:
+    primary: "#1a5276"
+    base_font:
+      google: "Source Sans 3"
+    heading_font:
+      google: "Source Serif 4"
+
 navbar:
   structure:
-    left:  [intro, reference, articles]
+    left: [intro, reference, articles, news]
     right: [search, github]
   components:
     intro:
       text: Get started
       href: articles/brs-intro.html
+    news:
+      text: Changelog
+      href: news/index.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/evandeilton/betaregscale
+      aria-label: GitHub
+
+footer:
+  structure:
+    left: [authors]
+    right: [github]
+  components:
+    authors:
+      text: José Evandeilton Lopes, Wagner Hugo Bonat
     github:
       icon: fab fa-github
       href: https://github.com/evandeilton/betaregscale

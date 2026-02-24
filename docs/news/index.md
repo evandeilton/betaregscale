@@ -2,7 +2,25 @@
 
 ## betaregscale 2.6.9
 
-## betaregscale 2.6.8
+### CRAN resubmission
+
+#### Documentation and formatting fixes
+
+- Added missing `\value`, `\seealso`, and `\examples{\donttest{...}}`
+  tags to multiple S3 method documentation files (`print.summary`,
+  `residuals`, `summary`, `vcov`, `ranef`) to ensure full CRAN policy
+  compliance.
+- Translated remaining Portuguese text into English in the mixed-effects
+  vignette (`vignettes/brs-mm.Rmd`).
+- Corrected
+  [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)
+  usage in vignettes to correctly call the generic function.
+- Fixed mathematical formulas rendering in `README.md` to be fully
+  compatible with GitHub Markdown, and updated `pkgdown` site build
+  configuration to load `betaregscale` appropriately during vignette
+  setups.
+- Minor mathematical formatting and typographical fixes (e.g., en-dashes
+  for page ranges) in `README.md` references.# betaregscale 2.6.8
 
 ### New features
 
@@ -59,7 +77,7 @@
   [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md),
   [`anova()`](https://rdrr.io/r/stats/anova.html),
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html),
-  `autoplot()`).
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)).
 - **Removed all [`set.seed()`](https://rdrr.io/r/base/Random.html) calls
   from examples** across 15+ files (`fit.R`, `brsmm.R`, `bootstrap.R`,
   `cv.R`, `marginaleffects.R`, `scoreprob.R`, `table.R`, `simulate.R`,

@@ -7,9 +7,9 @@
 
 ## The Methodological Gap
 
-Patient-reported outcome measures (PROMs) on bounded rating scales — such as the
+Patient-reported outcome measures (PROMs) on bounded rating scales, such as the
 **Numerical Rating Scale (NRS-11, NRS-21, NRS-101)**, Visual Analogue Scale (VAS),
-or Likert-type instruments — are ubiquitous in clinical research. Standard analyses
+or Likert-type instruments, are ubiquitous in clinical research. Standard analyses
 treat these bounded, discrete scores as exact continuous values via ordinary least
 squares (OLS), silently violating two core assumptions: natural scale boundaries
 are ignored, and the inherent heteroscedasticity of bounded responses is
@@ -39,7 +39,7 @@ advancements:
 2.  **Interval-Censored Likelihood:** Properly treats each discrete scale point as
     interval-censored data, integrating the beta PDF over the uncertainty bounds
     implied by the instrument's resolution. A score of $y^*$ on a $K$-point scale
-    is treated as $[y^*/K - 1/(2K),\; y^*/K + 1/(2K)]$.
+    is treated as $y^*/K - 1/(2K),\; y^*/K + 1/(2K)$.
 
 The package features a compiled **C++ backend** for analytical gradient computation,
 and provides a mixed-effects extension (`brsmm()`) via multivariate **Laplace
@@ -76,7 +76,6 @@ remotes::install_github("evandeilton/betaregscale")
 library(betaregscale)
 library(ggplot2)
 
-
 # -----------------------------------------------------------------------------
 # 1. CLINICAL PREDICTORS
 # -----------------------------------------------------------------------------
@@ -97,7 +96,6 @@ patient_data <- data.frame(
   bpain_std = scale(runif(n_patients, 30, 90))[, 1],
   clinic    = factor(rep(1:20, each = 25))
 )
-
 
 # -----------------------------------------------------------------------------
 # 2. DATA SIMULATION WITH brs_sim()
@@ -129,7 +127,6 @@ sim_nrs101 <- brs_sim(
 
 # Attach clinic for the mixed-effects section
 sim_nrs101$clinic <- patient_data$clinic
-
 
 # -----------------------------------------------------------------------------
 # 3. FIXED-EFFECTS MODELS
@@ -164,7 +161,6 @@ brs_table(
   sort_by = "AIC"
 )
 
-
 # -----------------------------------------------------------------------------
 # 4. MIXED-EFFECTS MODELS WITH brsmm()
 # -----------------------------------------------------------------------------
@@ -195,7 +191,6 @@ anova(fit_ri, fit_rs, test = "Chisq")
 # 4d. Clinic-level BLUPs (posterior modes of random effects)
 ranef(fit_ri)
 
-
 # -----------------------------------------------------------------------------
 # 5. POST-ESTIMATION: RESIDUALS & DIAGNOSTICS
 # -----------------------------------------------------------------------------
@@ -216,7 +211,6 @@ autoplot(fit_full, type = "calibration")
 # 5d. Predicted score distribution over the full NRS-101 grid (0–100)
 autoplot(fit_full, type = "score_dist", scores = 0:100)
 
-
 # -----------------------------------------------------------------------------
 # 6. AVERAGE MARGINAL EFFECTS (AME)
 # -----------------------------------------------------------------------------
@@ -233,7 +227,6 @@ ame <- brs_marginaleffects(
   n_sim    = 200
 )
 ame
-
 
 # -----------------------------------------------------------------------------
 # 7. SCORE-LEVEL PREDICTED PROBABILITIES
@@ -253,7 +246,6 @@ dim(prob_scores)
 # Probability profile for the first 10 patients
 round(head(prob_scores, 10), 3)
 
-
 # -----------------------------------------------------------------------------
 # 8. CROSS-VALIDATION
 # -----------------------------------------------------------------------------
@@ -269,7 +261,6 @@ cv_res <- brs_cv(
   repar   = 2
 )
 cv_res
-
 
 # -----------------------------------------------------------------------------
 # 9. CONFIDENCE INTERVALS & BACK-TRANSFORMATION TO NRS-101
