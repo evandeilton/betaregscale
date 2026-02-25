@@ -2,6 +2,8 @@
 
 ## betaregscale 2.6.9
 
+CRAN release: 2026-02-25
+
 ### CRAN resubmission
 
 #### Documentation and formatting fixes
