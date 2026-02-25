@@ -33,13 +33,13 @@ advancements:
 
 1.  **Mean-Dispersion (MD) Parameterization:** Reparameterizes the beta distribution
     in terms of the conditional mean $\mu \in (0,1)$ and a proportional dispersion
-    parameter $\sigma \in (0,1)$ — both directly interpretable and modelable via
+    parameter $\sigma \in (0,1)$, both directly interpretable and modelable via
     covariates.
 
 2.  **Interval-Censored Likelihood:** Properly treats each discrete scale point as
     interval-censored data, integrating the beta PDF over the uncertainty bounds
     implied by the instrument's resolution. A score of $y^*$ on a $K$-point scale
-    is treated as $y^*/K - 1/(2K),\; y^*/K + 1/(2K)$.
+    is treated as $y^\*/K - 1/(2K); y^\*/K + 1/(2K)$.
 
 The package features a compiled **C++ backend** for analytical gradient computation,
 and provides a mixed-effects extension (`brsmm()`) via multivariate **Laplace
@@ -66,7 +66,7 @@ remotes::install_github("evandeilton/betaregscale")
 # =============================================================================
 # betaregscale — Clinical Workflow: NRS-101 Pain Score Modelling
 # =============================================================================
-# Scenario: multi-centre analgesic RCT (500 patients, 20 clinics).
+# Scenario: multi-centre analgesic RCT (1000 patients, 20 clinics).
 # Outcome:  post-treatment pain rated on NRS-101 (0 = no pain, 100 = worst).
 # Goal:     illustrate the full betaregscale pipeline — simulation, fixed-
 #           effects modelling, mixed-effects modelling, and post-estimation
@@ -307,11 +307,7 @@ Let $\delta_i \in \{0,1,2,3\}$ encode the censoring type. The complete
 log-likelihood is:
 
 $$
-\ell(\boldsymbol{\theta}) =
-  \sum_{i:\,\delta_i=0} \log f(y_i)
-+ \sum_{i:\,\delta_i=1} \log F(u_i)
-+ \sum_{i:\,\delta_i=2} \log\bigl[1 - F(l_i)\bigr]
-+ \sum_{i:\,\delta_i=3} \log\bigl[F(u_i) - F(l_i)\bigr]
+\ell(\boldsymbol{\theta}) = \sum_{i:\,\delta_i=0} \log f(y_i) + \sum_{i:\,\delta_i=1} \log F(u_i) + \sum_{i:\,\delta_i=2} \log\bigl[1 - F(l_i)\bigr] + \sum_{i:\,\delta_i=3} \log\bigl[F(u_i) - F(l_i)\bigr]
 $$
 
 where $f(\cdot)$ and $F(\cdot)$ are the Beta PDF and CDF evaluated at the
@@ -329,10 +325,7 @@ $$
 The intractable group marginal likelihood is approximated via Laplace:
 
 $$
-\log L_j(\boldsymbol{\theta}) \approx
-  Q_j(\hat{\mathbf{b}}_j)
-+ \frac{q_b}{2}\log(2\pi)
-- \frac{1}{2}\log|H_j|
+\log L_j(\boldsymbol{\theta}) \approx Q_j(\hat{\mathbf{b}}_j) + \frac{q_b}{2}\log(2\pi) - \frac{1}{2}\log|H_j|
 $$
 
 where $q_b$ is the random-effects dimension, $\hat{\mathbf{b}}_j$ is the
