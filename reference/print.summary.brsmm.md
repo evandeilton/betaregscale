@@ -55,28 +55,28 @@ print(summary(fit))
 #> 
 #> Randomized Quantile Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -3.2368 -0.4786 -0.1761  0.6817  1.8024 
+#> -3.2371 -0.4786 -0.1762  0.6817  1.8021 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)
-#> (Intercept)   0.4211     0.8142   0.517    0.605
-#> x1           -0.3373     0.4982  -0.677    0.498
+#> (Intercept)   0.4219     0.7376   0.572    0.567
+#> x1           -0.3377     0.4529  -0.746    0.456
 #> 
 #> Phi coefficients (precision model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)  
-#> (Intercept)  -0.5805     0.3252  -1.785   0.0743 .
+#> (Intercept)  -0.5805     0.3257  -1.782   0.0747 .
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
 #> Random-effects parameters (Cholesky scale):
 #>                      Estimate Std. Error z value Pr(>|z|)
-#> logSD.(Intercept)|id  -0.6277     0.7448  -0.843    0.399
+#> logSD.(Intercept)|id  -0.6278     0.7495  -0.838    0.402
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 20  | Groups: 4 
 #> Log-likelihood: -92.1831 on 4 Df | AIC: 192.3663 | BIC: 196.3492 
 #> Pseudo R-squared: 0.0029 
-#> Number of iterations: 17 (BFGS) 
+#> Number of iterations: 33 (BFGS) 
 #> Censoring: 18 interval | 1 left | 1 right 
 #> 
 # }

@@ -300,7 +300,7 @@ summary(fit_fixed)
 #> ---
 #> Log-likelihood: -4035.2262 on 4 Df | AIC: 8078.4524 | BIC: 8098.0834 
 #> Pseudo R-squared: 0.2393 
-#> Number of iterations: 39 (BFGS) 
+#> Number of iterations: 40 (BFGS) 
 #> Censoring: 809 interval | 65 left | 126 right
 ```
 
@@ -565,7 +565,7 @@ summary(fit_var)
 #> ---
 #> Log-likelihood: -3922.2430 on 5 Df | AIC: 7854.4861 | BIC: 7879.0249 
 #> Pseudo R-squared: 0.1159 
-#> Number of iterations: 42 (BFGS) 
+#> Number of iterations: 44 (BFGS) 
 #> Censoring: 744 interval | 105 left | 151 right
 ```
 
@@ -708,8 +708,8 @@ kbl10(ame)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n   |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:----:|
-|    x1    | -0.1321 |  0.0088   | -0.1473  | -0.1123  | mean  | response | 1000 |
-|    x2    | 0.0966  |  0.0093   |  0.0798  |  0.1140  | mean  | response | 1000 |
+|    x1    | -0.1321 |  0.0091   | -0.1485  | -0.1132  | mean  | response | 1000 |
+|    x2    | 0.0966  |  0.0085   |  0.0764  |  0.1125  | mean  | response | 1000 |
 
 ``` r
 autoplot.brs_marginaleffects(ame, type = "forest")

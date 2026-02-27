@@ -70,9 +70,9 @@ print(rs)
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)   0.5338    0.0011  0.4459          0.6976    0.8241
+#>  (Intercept)   0.5338     0.001  0.4458          0.6976     0.824
 rs$summary
-#>          term  sd_model  mean_mode   sd_mode shrinkage_ratio shapiro_p
-#> 1 (Intercept) 0.5338184 0.00114907 0.4458568       0.6975955 0.8240609
+#>          term  sd_model   mean_mode   sd_mode shrinkage_ratio shapiro_p
+#> 1 (Intercept) 0.5337635 0.001022037 0.4458237       0.6976355 0.8239685
 # }
 ```
