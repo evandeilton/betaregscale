@@ -165,14 +165,14 @@ summary(fit_mm)
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
-#>                   Estimate Std. Error z value Pr(>|z|)   
-#> (phi)_(Intercept) -0.10608    0.04044  -2.623  0.00872 **
+#>             Estimate Std. Error z value Pr(>|z|)   
+#> (Intercept) -0.10608    0.04044  -2.623  0.00872 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Random-effects parameters (Cholesky scale):
-#>                                Estimate Std. Error z value Pr(>|z|)   
-#> (re_chol_logsd)_(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **
+#>                      Estimate Std. Error z value Pr(>|z|)   
+#> logSD.(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
@@ -217,16 +217,16 @@ summary(fit_mm_rs)
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
-#>                   Estimate Std. Error z value Pr(>|z|)   
-#> (phi)_(Intercept) -0.10665    0.04046  -2.636   0.0084 **
+#>             Estimate Std. Error z value Pr(>|z|)   
+#> (Intercept) -0.10665    0.04046  -2.636   0.0084 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Random-effects parameters (Cholesky scale):
-#>                                Estimate Std. Error z value Pr(>|z|)   
-#> (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 **
-#> (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852   
-#> (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248   
+#>                       Estimate Std. Error z value Pr(>|z|)   
+#> logSD.(Intercept)|id  -0.92945    0.33379  -2.785  0.00536 **
+#> cov.x1:(Intercept)|id -0.02742    0.04459  -0.615  0.53852   
+#> logSD.x1|id           -7.05471   37.93692  -0.186  0.85248   
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
@@ -290,20 +290,17 @@ print(re_study)
 #> Random-effects study
 #> Groups: 5 
 #> 
-#> Summary by term:
+#> Random-effects (VarCorr):
+#>   Name                      Std.Dev.  Corr
+#>   re1                         0.3948
+#>   re2                         0.0274  -0.9995
+#> 
+#> ICC (latent logistic scale): 0.0452
+#> 
+#> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
 #>  (Intercept)   0.3948    -1e-04  0.4296               1    0.9641
 #>           x1   0.0274     0e+00  0.0298               1    0.9641
-#> 
-#> Estimated covariance matrix D:
-#>         [,1]    [,2]
-#> [1,]  0.1558 -0.0108
-#> [2,] -0.0108  0.0008
-#> 
-#> Estimated correlation matrix:
-#>         [,1]    [,2]
-#> [1,]  1.0000 -0.9995
-#> [2,] -0.9995  1.0000
 kbl10(re_study$summary)
 ```
 

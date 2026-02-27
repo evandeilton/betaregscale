@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -286,14 +286,14 @@ fitting, inference, and recovery checks.</p>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
-<span><span class="co">#&gt;                   Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; (phi)_(Intercept) -0.10608    0.04044  -2.623  0.00872 **</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; (Intercept) -0.10608    0.04044  -2.623  0.00872 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Random-effects parameters (Cholesky scale):</span></span>
-<span><span class="co">#&gt;                                Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; (re_chol_logsd)_(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **</span></span>
+<span><span class="co">#&gt;                      Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; logSD.(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
@@ -338,16 +338,16 @@ fitting, inference, and recovery checks.</p>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
-<span><span class="co">#&gt;                   Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; (phi)_(Intercept) -0.10665    0.04046  -2.636   0.0084 **</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; (Intercept) -0.10665    0.04046  -2.636   0.0084 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Random-effects parameters (Cholesky scale):</span></span>
-<span><span class="co">#&gt;                                Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; (re_chol_logsd)_(Intercept)|id -0.92945    0.33379  -2.785  0.00536 **</span></span>
-<span><span class="co">#&gt; (re_chol)_x1:(Intercept)|id    -0.02742    0.04459  -0.615  0.53852   </span></span>
-<span><span class="co">#&gt; (re_chol_logsd)_x1|id          -7.05471   37.93692  -0.186  0.85248   </span></span>
+<span><span class="co">#&gt;                       Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
+<span><span class="co">#&gt; logSD.(Intercept)|id  -0.92945    0.33379  -2.785  0.00536 **</span></span>
+<span><span class="co">#&gt; cov.x1:(Intercept)|id -0.02742    0.04459  -0.615  0.53852   </span></span>
+<span><span class="co">#&gt; logSD.x1|id           -7.05471   37.93692  -0.186  0.85248   </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
@@ -449,20 +449,17 @@ structure and correlation;</li>
 <span><span class="co">#&gt; Random-effects study</span></span>
 <span><span class="co">#&gt; Groups: 5 </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Summary by term:</span></span>
+<span><span class="co">#&gt; Random-effects (VarCorr):</span></span>
+<span><span class="co">#&gt;   Name                      Std.Dev.  Corr</span></span>
+<span><span class="co">#&gt;   re1                         0.3948</span></span>
+<span><span class="co">#&gt;   re2                         0.0274  -0.9995</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ICC (latent logistic scale): 0.0452</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):</span></span>
 <span><span class="co">#&gt;         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p</span></span>
 <span><span class="co">#&gt;  (Intercept)   0.3948    -1e-04  0.4296               1    0.9641</span></span>
 <span><span class="co">#&gt;           x1   0.0274     0e+00  0.0298               1    0.9641</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Estimated covariance matrix D:</span></span>
-<span><span class="co">#&gt;         [,1]    [,2]</span></span>
-<span><span class="co">#&gt; [1,]  0.1558 -0.0108</span></span>
-<span><span class="co">#&gt; [2,] -0.0108  0.0008</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Estimated correlation matrix:</span></span>
-<span><span class="co">#&gt;         [,1]    [,2]</span></span>
-<span><span class="co">#&gt; [1,]  1.0000 -0.9995</span></span>
-<span><span class="co">#&gt; [2,] -0.9995  1.0000</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">re_study</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>

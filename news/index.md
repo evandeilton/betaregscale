@@ -1,5 +1,79 @@
 # Changelog
 
+## betaregscale 2.7.0
+
+### New features
+
+- [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+  and
+  [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+  gain three new arguments:
+  - `theme`: accepts any ggplot2 theme object or function (default
+    [`ggplot2::theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html)),
+    replacing the hardcoded theme in all 8 internal `brsmm` and 4
+    internal `brs` plot helpers.
+  - `title`, `xlab`, `ylab`: override individual plot labels via
+    [`ggplot2::labs()`](https://ggplot2.tidyverse.org/reference/labs.html).
+  - `type = "all"`: renders every available panel in a single
+    [`gridExtra::grid.arrange()`](https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html)
+    grid.
+  - `ncol`: controls the number of columns when `type = "all"`.
+  - `...`: passes additional named arguments to
+    [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html)
+    on top of the base theme.
+- [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+  adds `type = "shrinkage"`: scatter of Laplace posterior modes versus
+  naïve per-group logit-mean deviations, with identity line and loess
+  smoother.
+- [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+  updates `type = "ranef_caterpillar"`: error bars now show ±1.96 ×
+  Model SD (marginal standard deviation from the `D` covariance matrix).
+- [`plot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
+  adds two new base R diagnostic panels:
+  - `which = 7`: Q-Q normal plot of random-effect posterior modes.
+  - `which = 8`: dotchart caterpillar of posterior modes (ordered by
+    value).
+- [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
+  now returns `$icc`: intraclass correlation coefficient on the latent
+  logistic scale (`σ²_b / (σ²_b + π²/3)`).
+- [`print.brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/print.brsmm_re_study.md)
+  now displays a VarCorr-style table (Std.Dev., Corr) and the ICC
+  alongside the existing shrinkage and normality diagnostics.
+
+### Improvements
+
+- Coefficient display:
+  [`print.summary.brsmm()`](https://evandeilton.github.io/betaregscale/reference/print.summary.brsmm.md),
+  [`print.brsmm()`](https://evandeilton.github.io/betaregscale/reference/print.brsmm.md),
+  [`print.summary.brs()`](https://evandeilton.github.io/betaregscale/reference/print.summary.brs.md),
+  and
+  [`print.brs()`](https://evandeilton.github.io/betaregscale/reference/print.brs.md)
+  now apply cosmetic name cleaners that strip internal prefixes such as
+  `(phi)_` from precision coefficients and convert Cholesky-factor
+  internal names (e.g., `(re_chol_logsd)_X|g`) to readable `logSD.X|g` /
+  `cov.X:Y|g` forms.
+- Calibration plots (`autoplot.brs` and `autoplot.brsmm`) now map
+  `linewidth = n` for
+  [`geom_line()`](https://ggplot2.tidyverse.org/reference/geom_path.html)
+  instead of the deprecated `size` aesthetic, eliminating the ggplot2 ≥
+  3.4.0 deprecation warning.
+
+### Testing
+
+- Added `tests/testthat/test-re-and-autoplot-improvements.R` with 15 new
+  tests covering: `.pretty_phi_names()`, `.pretty_re_names()`,
+  [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
+  ICC and VarCorr output,
+  [`plot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
+  panels 7 and 8,
+  [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+  and
+  [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+  title/xlab/ylab, theme arg (object and function), `type = "all"`,
+  `...` forwarding.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.6.9
 
 CRAN release: 2026-02-25

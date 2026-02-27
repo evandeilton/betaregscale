@@ -557,9 +557,9 @@ summary(fit_var)
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
-#>                   Estimate Std. Error z value Pr(>|z|)    
-#> (phi)_(Intercept)  0.24653    0.04233   5.823 5.77e-09 ***
-#> (phi)_z1          -0.72230    0.04507 -16.028  < 2e-16 ***
+#>             Estimate Std. Error z value Pr(>|z|)    
+#> (Intercept)  0.24653    0.04233   5.823 5.77e-09 ***
+#> z1          -0.72230    0.04507 -16.028  < 2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---

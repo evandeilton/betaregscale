@@ -49,7 +49,7 @@ All covariate columns are preserved unchanged in the output."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -240,11 +240,11 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      left   right      yt  y delta          x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.05000 0.00001  0     1  0.05003884</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.25000 0.35000 0.30000  3     3  0.59057037</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.45000 0.55000 0.50000  5     3 -0.06702483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.65000 0.75000 0.70000  7     3 -0.42435788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.95000 0.99999 0.99999 10     2 -0.03673921</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.05000 0.00001  0     1 -1.25150957</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.25000 0.35000 0.30000  3     3  0.52848796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.45000 0.55000 0.50000  5     3 -1.24761627</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.65000 0.75000 0.70000  7     3 -0.04165134</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.95000 0.99999 0.99999 10     2 -1.05473729</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 2: y + explicit delta ---</span></span></span>
 <span class="r-in"><span><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -255,11 +255,11 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d2</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 5 | exact = 2, left = 0, right = 0, interval = 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      left   right    yt  y delta          x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.00001 1e-05  0     0  0.05003884</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02500 0.03500 3e-02  3     3  0.59057037</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.04500 0.05500 5e-02  5     3 -0.06702483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.06500 0.07500 7e-02  7     3 -0.42435788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.10000 0.10000 1e-01 10     0 -0.03673921</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00001 0.00001 1e-05  0     0 -1.25150957</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02500 0.03500 3e-02  3     3  0.52848796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.04500 0.05500 5e-02  5     3 -1.24761627</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.06500 0.07500 7e-02  7     3 -0.04165134</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.10000 0.10000 1e-01 10     0 -1.05473729</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 3: left/right with NA patterns ---</span></span></span>
 <span class="r-in"><span><span class="va">d3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -271,10 +271,10 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d3</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    left   right    yt  y delta          x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1e-05 0.05000 0.025 NA     1  0.05003884</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2e-01 0.99999 0.600 NA     2  0.59057037</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 3e-01 0.45000 0.375 NA     3 -0.06702483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 5e-01 0.50000 0.500 50     0 -0.42435788</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1e-05 0.05000 0.025 NA     1 -1.25150957</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2e-01 0.99999 0.600 NA     2  0.52848796</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 3e-01 0.45000 0.375 NA     3 -1.24761627</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 5e-01 0.50000 0.500 50     0 -0.04165134</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Mode 4: y + left + right (analyst-supplied intervals) ---</span></span></span>
 <span class="r-in"><span><span class="va">d4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
@@ -285,9 +285,9 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">brs_prep</span><span class="op">(</span><span class="va">d4</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   left right   yt  y delta       x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.48  0.52 0.50 50     3 0.320000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.73  0.77 0.75 75     3 0.608032</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   left right   yt  y delta          x1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.48  0.52 0.50 50     3 -0.09817368</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.73  0.77 0.75 75     3  0.26143179</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># --- Fitting after prep ---</span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
@@ -308,7 +308,7 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Quantile residuals:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Min      1Q  Median      3Q     Max </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -2.2708 -0.4767  0.0618  0.5480  2.5939 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.2706 -0.4813  0.0555  0.5455  3.1621 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (mean model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)</span>

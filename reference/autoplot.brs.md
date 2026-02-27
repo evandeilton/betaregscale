@@ -8,13 +8,18 @@ Produces ggplot2 diagnostics tailored to interval-censored scale models.
 # S3 method for class 'brs'
 autoplot(
   object,
-  type = c("calibration", "score_dist", "cdf", "residuals_by_delta"),
+  type = c("calibration", "score_dist", "cdf", "residuals_by_delta", "all"),
   bins = 10L,
   scores = NULL,
   newdata = NULL,
   n_grid = 200L,
   max_curves = 6L,
   residual_type = "rqr",
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  ncol = 2L,
+  theme = ggplot2::theme_minimal(),
   ...
 )
 ```
@@ -27,12 +32,13 @@ autoplot(
 
 - type:
 
-  Plot type: `"calibration"`, `"score_dist"`, `"cdf"`, or
-  `"residuals_by_delta"`.
+  Plot type: `"calibration"`, `"score_dist"`, `"cdf"`,
+  `"residuals_by_delta"`, or `"all"` (produces all panels in a single
+  grid).
 
 - bins:
 
-  Number of bins used in calibration plots.
+  Number of bins for `"calibration"`.
 
 - scores:
 
@@ -41,7 +47,7 @@ autoplot(
 
 - newdata:
 
-  Optional data frame of covariate scenarios used by `type = "cdf"`.
+  Optional data frame of covariate scenarios for `"cdf"`.
 
 - n_grid:
 
@@ -53,13 +59,41 @@ autoplot(
 
 - residual_type:
 
-  Residual type passed to
-  [`residuals.brs`](https://evandeilton.github.io/betaregscale/reference/residuals.brs.md)
-  for `type = "residuals_by_delta"`.
+  Residual type for `"residuals_by_delta"`; passed to
+  [`residuals.brs`](https://evandeilton.github.io/betaregscale/reference/residuals.brs.md).
+
+- title:
+
+  Optional character: override the plot title via
+  `ggplot2::labs(title = ...)`. Ignored when `type = "all"`.
+
+- xlab:
+
+  Optional character: override the x-axis label. Ignored when
+  `type = "all"`.
+
+- ylab:
+
+  Optional character: override the y-axis label. Ignored when
+  `type = "all"`.
+
+- ncol:
+
+  Number of columns for the grid when `type = "all"`. Defaults to 2.
+
+- theme:
+
+  A ggplot2 theme object (e.g.,
+  [`ggplot2::theme_bw()`](https://ggplot2.tidyverse.org/reference/ggtheme.html))
+  or a theme function. Applied to every panel. Defaults to
+  [`ggplot2::theme_minimal()`](https://ggplot2.tidyverse.org/reference/ggtheme.html).
 
 - ...:
 
-  Currently ignored.
+  Additional arguments forwarded to
+  [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html)
+  and applied on top of `theme`. Use named theme element arguments, e.g.
+  `legend.position = "none"`.
 
 ## Value
 
@@ -117,13 +151,13 @@ prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 fit <- brs(y ~ x1 + x2, data = prep)
 ggplot2::autoplot(fit, type = "calibration")
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the betaregscale package.
-#>   Please report the issue at
-#>   <https://github.com/evandeilton/betaregscale/issues>.
 
-ggplot2::autoplot(fit, type = "score_dist")
+ggplot2::autoplot(fit,
+  type = "calibration",
+  title = "My calibration", ylab = "Observed"
+)
+
+ggplot2::autoplot(fit, type = "all")
 
 # }
 ```
