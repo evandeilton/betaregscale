@@ -47,8 +47,8 @@
 #' }
 #'
 #' @method plot brsmm
-#' @importFrom stats fitted residuals predict quantile
-#' @importFrom graphics plot abline par mtext
+#' @importFrom stats fitted residuals predict quantile qqline
+#' @importFrom graphics plot abline par mtext dotchart
 #' @importFrom grDevices dev.interactive devAskNewPage
 #' @export
 plot.brsmm <- function(x,

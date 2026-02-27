@@ -391,7 +391,7 @@ autoplot.brsmm <- function(object,
   re <- .brsmm_ranef_matrix(object)
   grp <- as.character(object$group)
 
-  # Naïve per-group estimate: mean of logit-transformed midpoint response
+  # Naive per-group estimate: mean of logit-transformed midpoint response
   yt <- as.numeric(object$Y[, "yt"])
   yt_safe <- pmin(pmax(yt, 1e-6), 1 - 1e-6)
   logit_y <- log(yt_safe / (1 - yt_safe))
@@ -407,7 +407,7 @@ autoplot.brsmm <- function(object,
 
   # Global logit-mean (fixed-effects anchor)
   global_mean <- mean(logit_y, na.rm = TRUE)
-  naive_re <- naive_vals - global_mean # naïve RE = deviation from global
+  naive_re <- naive_vals - global_mean # naive RE = deviation from global
 
   parts <- lapply(seq_along(colnames(re)), function(ci) {
     term <- colnames(re)[ci]
@@ -437,8 +437,8 @@ autoplot.brsmm <- function(object,
     ggplot2::facet_wrap(~term, scales = "free") +
     ggplot2::labs(
       title    = "Shrinkage Plot",
-      subtitle = "Laplace mode vs. naïve per-group logit-mean deviation",
-      x        = "Naïve estimate (deviation from global mean)",
+      subtitle = "Laplace mode vs. naive per-group logit-mean deviation",
+      x        = "Naive estimate (deviation from global mean)",
       y        = "Laplace mode (random-effect mode)"
     ) +
     theme_obj
