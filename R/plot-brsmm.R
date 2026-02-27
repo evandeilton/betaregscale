@@ -62,7 +62,9 @@ plot.brsmm <- function(x,
                          "Residuals vs linear predictor",
                          "Residuals vs fitted values",
                          "Half-normal plot",
-                         "Predicted vs observed"
+                         "Predicted vs observed",
+                         "Random-effects Q-Q",
+                         "Random-effects caterpillar"
                        ),
                        sub.caption = NULL,
                        ask = prod(par("mfcol")) < length(which) &&
@@ -193,6 +195,48 @@ plot.brsmm <- function(x,
       main = caption[6L], pch = 20, col = "gray40", ...
     )
     abline(0, 1, lty = 2, col = "red")
+  }
+
+  # B1: Q-Q plot of random-effect modes
+  if (7L %in% show) {
+    re <- x$random$mode_b
+    if (!is.matrix(re)) {
+      re <- matrix(as.numeric(re),
+        ncol = 1L,
+        dimnames = list(names(re), x$random$terms[1L])
+      )
+    }
+    for (ci in seq_len(ncol(re))) {
+      term_label <- colnames(re)[ci]
+      qqnorm(re[, ci],
+        main = paste0(caption[7L], "\n(", term_label, ")"),
+        pch = 20, col = "gray40"
+      )
+      qqline(re[, ci], lty = 2, col = "red")
+    }
+  }
+
+  # B2: Caterpillar dotchart of random-effect modes
+  if (8L %in% show) {
+    re <- x$random$mode_b
+    if (!is.matrix(re)) {
+      re <- matrix(as.numeric(re),
+        ncol = 1L,
+        dimnames = list(names(re), x$random$terms[1L])
+      )
+    }
+    for (ci in seq_len(ncol(re))) {
+      term_label <- colnames(re)[ci]
+      vals <- re[, ci]
+      ord <- order(vals)
+      dotchart(vals[ord],
+        labels = rownames(re)[ord],
+        main = paste0(caption[8L], "\n(", term_label, ")"),
+        xlab = "Random-effect mode",
+        pch = 20, col = "gray40"
+      )
+      abline(v = 0, lty = 2, col = "red")
+    }
   }
 
   if (nplots > 1L) {

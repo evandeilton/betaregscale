@@ -97,10 +97,16 @@ brsmm_re_study <- function(object, ...) {
     row.names = NULL
   )
 
+  # ICC on latent logistic scale: ICC = sigma_b^2 / (sigma_b^2 + pi^2/3)
+  # Uses only the intercept RE variance (column 1) as the between-group component.
+  sigma_b2_intercept <- as.numeric(model_var[1L])
+  icc_latent <- sigma_b2_intercept / (sigma_b2_intercept + pi^2 / 3)
+
   out <- list(
     summary = summary_df,
     D = D,
     Corr = Corr,
+    icc = icc_latent,
     n_groups = nrow(B),
     modes = B
   )
@@ -150,14 +156,38 @@ brsmm_re_study <- function(object, ...) {
 print.brsmm_re_study <- function(x, digits = max(3, getOption("digits") - 3), ...) {
   cat("\nRandom-effects study\n")
   cat("Groups:", x$n_groups, "\n\n")
-  cat("Summary by term:\n")
+
+  # --- VarCorr block (lme4 style) ---
+  cat("Random-effects (VarCorr):\n")
+  D <- x$D
+  Corr <- x$Corr
+  nms <- colnames(D)
+  q <- nrow(D)
+  sd_vals <- sqrt(pmax(diag(D), 0))
+
+  # Header
+  corr_header <- if (q > 1L) paste0("  Corr") else ""
+  cat(sprintf("  %-22s  %10s%s\n", "Name", "Std.Dev.", corr_header))
+  for (i in seq_len(q)) {
+    nm <- if (is.null(nms)) paste0("re", i) else nms[i]
+    sdv <- formatC(sd_vals[i], format = "f", digits = digits)
+    corr_part <- ""
+    if (q > 1L && i > 1L) {
+      cors <- formatC(Corr[i, seq_len(i - 1L)], format = "f", digits = digits)
+      corr_part <- paste0("  ", paste(cors, collapse = "  "))
+    }
+    cat(sprintf("  %-22s  %10s%s\n", nm, sdv, corr_part))
+  }
+
+  # --- ICC ---
+  cat(sprintf("\nICC (latent logistic scale): %.4f\n", x$icc))
+
+  # --- Per-term summary ---
+  cat("\nSummary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):\n")
   sm <- x$summary
-  is_num <- vapply(sm, is.numeric, logical(1))
+  is_num <- vapply(sm, is.numeric, logical(1L))
   sm[is_num] <- lapply(sm[is_num], round, digits = digits)
   print(sm, row.names = FALSE)
-  cat("\nEstimated covariance matrix D:\n")
-  print(round(x$D, digits))
-  cat("\nEstimated correlation matrix:\n")
-  print(round(x$Corr, digits))
+
   invisible(x)
 }

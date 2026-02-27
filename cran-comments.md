@@ -1,4 +1,44 @@
-## Resubmission (2.6.9)
+## Resubmission (2.7.0)
+
+This is a feature release adding diagnostic and plotting enhancements to both the
+`brs` (fixed-effects) and `brsmm` (mixed-effects) model classes.
+
+### Changes in this version:
+
+1. **`theme` argument in all autoplot functions:** `autoplot.brs()` and `autoplot.brsmm()`
+   now accept a `theme` argument (default `ggplot2::theme_minimal()`) that is propagated
+   to every internal plotting helper, replacing the previously hardcoded theme. Accepts
+   both theme objects and theme functions.
+
+2. **Label overrides (`title`, `xlab`, `ylab`) and `type = "all"`:** Both autoplot
+   dispatchers gain `title`, `xlab`, and `ylab` for post-hoc label overrides via
+   `ggplot2::labs()`, a `type = "all"` option that arranges all panels in a single
+   `gridExtra::grid.arrange()` grid, and `ncol` to control grid layout. The `...`
+   argument forwards named arguments to `ggplot2::theme()` on top of the base theme.
+
+3. **New `type = "shrinkage"` in `autoplot.brsmm()`:** Scatter of Laplace posterior
+   modes vs. naïve per-group logit-mean deviations, with identity line and loess smoother.
+
+4. **Improved `type = "ranef_caterpillar"`:** Error bars now represent ±1.96 × marginal
+   Model SD (from the `D` covariance matrix), with an informative subtitle.
+
+5. **New `plot.brsmm()` panels:** `which = 7` (Q-Q normal of RE modes) and `which = 8`
+   (dotchart caterpillar), both using base R graphics.
+
+6. **ICC in `brsmm_re_study()`:** Returns `$icc` (intraclass correlation on the latent
+   logistic scale). `print.brsmm_re_study()` shows a VarCorr-style table and the ICC.
+
+7. **Cosmetic coefficient printing:** `print.summary.*` and `print.*` methods strip
+   internal prefixes (`(phi)_`, `(re_chol_logsd)_`, `(re_chol)_`) for cleaner output.
+
+8. **Deprecated `size` aesthetic fix:** Calibration plots now use `linewidth` instead
+   of `size` for `geom_line()`, eliminating the ggplot2 ≥ 3.4.0 deprecation warning.
+
+9. **New test file:** `test-re-and-autoplot-improvements.R` with 15 new focused tests.
+
+---
+
+## Previous submission (2.6.9)
 
 This is a minor resubmission to address documentation completeness and language consistency across the package.
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.6.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,50 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="2.6.9" id="betaregscale-269">betaregscale 2.6.9<a class="anchor" aria-label="anchor" href="#betaregscale-269"></a></h2>
+<h2 class="pkg-version" data-toc-text="2.7.0" id="betaregscale-270">betaregscale 2.7.0<a class="anchor" aria-label="anchor" href="#betaregscale-270"></a></h2>
+<div class="section level3">
+<h3 id="new-features-2-7-0">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-0"></a></h3>
+<ul><li>
+<code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> and <code><a href="../reference/autoplot.brs.html">autoplot.brs()</a></code> gain three new arguments:
+<ul><li>
+<code>theme</code>: accepts any ggplot2 theme object or function (default <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_minimal()</a></code>), replacing the hardcoded theme in all 8 internal <code>brsmm</code> and 4 internal <code>brs</code> plot helpers.</li>
+<li>
+<code>title</code>, <code>xlab</code>, <code>ylab</code>: override individual plot labels via <code><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggplot2::labs()</a></code>.</li>
+<li>
+<code>type = "all"</code>: renders every available panel in a single <code><a href="https://rdrr.io/pkg/gridExtra/man/arrangeGrob.html" class="external-link">gridExtra::grid.arrange()</a></code> grid.</li>
+<li>
+<code>ncol</code>: controls the number of columns when <code>type = "all"</code>.</li>
+<li>
+<code>...</code>: passes additional named arguments to <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code> on top of the base theme.</li>
+</ul></li>
+<li>
+<code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> adds <code>type = "shrinkage"</code>: scatter of Laplace posterior modes versus naïve per-group logit-mean deviations, with identity line and loess smoother.</li>
+<li>
+<code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> updates <code>type = "ranef_caterpillar"</code>: error bars now show ±1.96 × Model SD (marginal standard deviation from the <code>D</code> covariance matrix).</li>
+<li>
+<code><a href="../reference/plot.brsmm.html">plot.brsmm()</a></code> adds two new base R diagnostic panels:
+<ul><li>
+<code>which = 7</code>: Q-Q normal plot of random-effect posterior modes.</li>
+<li>
+<code>which = 8</code>: dotchart caterpillar of posterior modes (ordered by value).</li>
+</ul></li>
+<li>
+<code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> now returns <code>$icc</code>: intraclass correlation coefficient on the latent logistic scale (<code>σ²_b / (σ²_b + π²/3)</code>).</li>
+<li>
+<code><a href="../reference/print.brsmm_re_study.html">print.brsmm_re_study()</a></code> now displays a VarCorr-style table (Std.Dev., Corr) and the ICC alongside the existing shrinkage and normality diagnostics.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-7-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-7-0"></a></h3>
+<ul><li>Coefficient display: <code><a href="../reference/print.summary.brsmm.html">print.summary.brsmm()</a></code>, <code><a href="../reference/print.brsmm.html">print.brsmm()</a></code>, <code><a href="../reference/print.summary.brs.html">print.summary.brs()</a></code>, and <code><a href="../reference/print.brs.html">print.brs()</a></code> now apply cosmetic name cleaners that strip internal prefixes such as <code>(phi)_</code> from precision coefficients and convert Cholesky-factor internal names (e.g., <code>(re_chol_logsd)_X|g</code>) to readable <code>logSD.X|g</code> / <code>cov.X:Y|g</code> forms.</li>
+<li>Calibration plots (<code>autoplot.brs</code> and <code>autoplot.brsmm</code>) now map <code>linewidth = n</code> for <code><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line()</a></code> instead of the deprecated <code>size</code> aesthetic, eliminating the ggplot2 ≥ 3.4.0 deprecation warning.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="testing-2-7-0">Testing<a class="anchor" aria-label="anchor" href="#testing-2-7-0"></a></h3>
+<ul><li>Added <code>tests/testthat/test-re-and-autoplot-improvements.R</code> with 15 new tests covering: <code>.pretty_phi_names()</code>, <code>.pretty_re_names()</code>, <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> ICC and VarCorr output, <code><a href="../reference/plot.brsmm.html">plot.brsmm()</a></code> panels 7 and 8, <code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> and <code><a href="../reference/autoplot.brs.html">autoplot.brs()</a></code> title/xlab/ylab, theme arg (object and function), <code>type = "all"</code>, <code>...</code> forwarding.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.9" id="betaregscale-269">betaregscale 2.6.9<a class="anchor" aria-label="anchor" href="#betaregscale-269"></a></h2><p class="text-muted">CRAN release: 2026-02-25</p>
 <div class="section level3">
 <h3 id="cran-resubmission-2-6-9">CRAN resubmission<a class="anchor" aria-label="anchor" href="#cran-resubmission-2-6-9"></a></h3>
 <div class="section level4">

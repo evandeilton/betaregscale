@@ -123,7 +123,7 @@ prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 fit <- brs(y ~ x1, data = prep)
 brs_marginaleffects(fit, model = "mean", type = "response")
-#>   variable        ame std.error   ci.lower  ci.upper model     type  n
-#> 1       x1 -0.0548085  0.126289 -0.2993009 0.1965326  mean response 20
+#>   variable        ame std.error   ci.lower ci.upper model     type  n
+#> 1       x1 -0.0548085 0.1306531 -0.3009406 0.206986  mean response 20
 # }
 ```

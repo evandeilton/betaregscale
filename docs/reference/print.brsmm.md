@@ -58,12 +58,12 @@ print(fit)
 #>      0.4211     -0.3373 
 #> 
 #> Phi coefficients (precision model with logit link):
-#> (phi)_(Intercept) 
-#>           -0.5805 
+#> (Intercept) 
+#>     -0.5805 
 #> 
 #> Random-effects parameters:
-#> (re_chol_logsd)_(Intercept)|id 
-#>                        -0.6277 
+#> logSD.(Intercept)|id 
+#>              -0.6277 
 #> 
 #> Random SD: 0.5338 
 #> ---

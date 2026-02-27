@@ -17,20 +17,32 @@
 #' Produces ggplot2 diagnostics tailored to interval-censored scale models.
 #'
 #' @param object A fitted \code{"brs"} object.
-#' @param type Plot type:
-#'   \code{"calibration"}, \code{"score_dist"}, \code{"cdf"}, or
-#'   \code{"residuals_by_delta"}.
-#' @param bins Number of bins used in calibration plots.
+#' @param type Plot type: \code{"calibration"}, \code{"score_dist"},
+#'   \code{"cdf"}, \code{"residuals_by_delta"}, or \code{"all"}
+#'   (produces all panels in a single grid).
+#' @param bins Number of bins for \code{"calibration"}.
 #' @param scores Optional integer vector of scores for \code{"score_dist"}.
 #'   Defaults to all scores from \code{0} to \code{ncuts}.
-#' @param newdata Optional data frame of covariate scenarios used by
-#'   \code{type = "cdf"}.
+#' @param newdata Optional data frame of covariate scenarios for \code{"cdf"}.
 #' @param n_grid Number of points on \eqn{(0,1)} used to draw CDF curves.
 #' @param max_curves Maximum number of CDF curves shown when \code{newdata}
 #'   is not provided.
-#' @param residual_type Residual type passed to \code{\link{residuals.brs}}
-#'   for \code{type = "residuals_by_delta"}.
-#' @param ... Currently ignored.
+#' @param residual_type Residual type for \code{"residuals_by_delta"};
+#'   passed to \code{\link{residuals.brs}}.
+#' @param title Optional character: override the plot title via
+#'   \code{ggplot2::labs(title = ...)}.  Ignored when \code{type = "all"}.
+#' @param xlab Optional character: override the x-axis label.
+#'   Ignored when \code{type = "all"}.
+#' @param ylab Optional character: override the y-axis label.
+#'   Ignored when \code{type = "all"}.
+#' @param ncol Number of columns for the grid when \code{type = "all"}.
+#'   Defaults to 2.
+#' @param theme A ggplot2 theme object (e.g., \code{ggplot2::theme_bw()}) or
+#'   a theme function. Applied to every panel. Defaults to
+#'   \code{ggplot2::theme_minimal()}.
+#' @param ... Additional arguments forwarded to \code{ggplot2::theme()} and
+#'   applied on top of \code{theme}. Use named theme element arguments, e.g.
+#'   \code{legend.position = "none"}.
 #'
 #' @return A \code{ggplot2} object.
 #'
@@ -78,7 +90,11 @@
 #' prep <- brs_prep(dat, ncuts = 100)
 #' fit <- brs(y ~ x1 + x2, data = prep)
 #' ggplot2::autoplot(fit, type = "calibration")
-#' ggplot2::autoplot(fit, type = "score_dist")
+#' ggplot2::autoplot(fit,
+#'   type = "calibration",
+#'   title = "My calibration", ylab = "Observed"
+#' )
+#' ggplot2::autoplot(fit, type = "all")
 #' }
 #'
 #' @importFrom ggplot2 autoplot
@@ -89,7 +105,8 @@ autoplot.brs <- function(object,
                            "calibration",
                            "score_dist",
                            "cdf",
-                           "residuals_by_delta"
+                           "residuals_by_delta",
+                           "all"
                          ),
                          bins = 10L,
                          scores = NULL,
@@ -97,6 +114,11 @@ autoplot.brs <- function(object,
                          n_grid = 200L,
                          max_curves = 6L,
                          residual_type = "rqr",
+                         title = NULL,
+                         xlab = NULL,
+                         ylab = NULL,
+                         ncol = 2L,
+                         theme = ggplot2::theme_minimal(),
                          ...) {
   .check_class(object)
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
@@ -105,30 +127,86 @@ autoplot.brs <- function(object,
 
   type <- match.arg(type)
   bins <- as.integer(bins)
+  ncol <- as.integer(ncol)
   if (!is.finite(bins) || bins < 3L) {
     stop("'bins' must be an integer >= 3.", call. = FALSE)
   }
 
-  switch(type,
-    calibration = .brs_autoplot_calibration(object, bins = bins),
-    score_dist = .brs_autoplot_score_dist(object, scores = scores),
+  # Resolve theme object
+  theme_obj <- if (is.function(theme)) theme() else theme
+
+  # Helper: apply post-hoc label overrides and ... → ggplot2::theme()
+  .finalize <- function(p, ttl = title, xl = xlab, yl = ylab) {
+    lbl <- Filter(Negate(is.null), list(title = ttl, x = xl, y = yl))
+    if (length(lbl) > 0L) {
+      p <- p + do.call(ggplot2::labs, lbl)
+    }
+    dots <- list(...)
+    if (length(dots) > 0L) {
+      p <- p + do.call(ggplot2::theme, dots)
+    }
+    p
+  }
+
+  # type = "all": generate every type and arrange in a grid
+  if (type == "all") {
+    all_types <- c("calibration", "score_dist", "cdf", "residuals_by_delta")
+    plots <- lapply(all_types, function(tp) {
+      p <- tryCatch(
+        autoplot.brs(object,
+          type = tp, theme = theme,
+          bins = bins, scores = scores,
+          newdata = newdata, n_grid = n_grid,
+          max_curves = max_curves,
+          residual_type = residual_type
+        ),
+        error = function(e) NULL
+      )
+      if (!is.null(p)) {
+        dots <- list(...)
+        if (length(dots) > 0L) p <- p + do.call(ggplot2::theme, dots)
+      }
+      p
+    })
+    plots <- Filter(Negate(is.null), plots)
+
+    nrow_val <- ceiling(length(plots) / ncol)
+    if (requireNamespace("gridExtra", quietly = TRUE)) {
+      gridExtra::grid.arrange(grobs = plots, ncol = ncol, nrow = nrow_val)
+    } else {
+      message("Install 'gridExtra' for a combined figure; printing individually.")
+      for (p in plots) print(p)
+    }
+    return(invisible(plots))
+  }
+
+  # Single type
+  p <- switch(type,
+    calibration = .brs_autoplot_calibration(object, bins = bins, theme = theme_obj),
+    score_dist = .brs_autoplot_score_dist(object, scores = scores, theme = theme_obj),
     cdf = .brs_autoplot_cdf(
       object,
-      newdata = newdata,
-      n_grid = as.integer(n_grid),
-      max_curves = as.integer(max_curves)
+      newdata    = newdata,
+      n_grid     = as.integer(n_grid),
+      max_curves = as.integer(max_curves),
+      theme      = theme_obj
     ),
     residuals_by_delta = .brs_autoplot_resid_delta(
       object,
-      residual_type = residual_type
+      residual_type = residual_type,
+      theme = theme_obj
     )
   )
+
+  .finalize(p)
 }
 
 #' @keywords internal
-.brs_autoplot_calibration <- function(object, bins = 10L) {
+.brs_autoplot_calibration <- function(object, bins = 10L,
+                                      theme = ggplot2::theme_minimal()) {
+  theme_obj <- if (is.function(theme)) theme() else theme
   df <- data.frame(
-    observed = as.numeric(object$Y[, "yt"]),
+    observed  = as.numeric(object$Y[, "yt"]),
     predicted = as.numeric(object$hatmu)
   )
   probs <- seq(0, 1, length.out = bins + 1L)
@@ -137,62 +215,49 @@ autoplot.brs <- function(object,
     breaks <- seq(min(df$predicted), max(df$predicted), length.out = bins + 1L)
   }
   df$bin <- cut(df$predicted, breaks = breaks, include.lowest = TRUE, ordered_result = TRUE)
-
   cal <- stats::aggregate(df[, c("predicted", "observed")], by = list(bin = df$bin), FUN = mean)
   cal$n <- as.integer(table(df$bin)[as.character(cal$bin)])
-
-  ggplot2::ggplot(cal, ggplot2::aes(x = .data$predicted, y = .data$observed, size = .data$n)) +
-    ggplot2::geom_point(color = "#1b9e77", alpha = 0.9) +
-    ggplot2::geom_line(color = "#1b9e77", alpha = 0.6) +
+  ggplot2::ggplot(cal, ggplot2::aes(x = .data$predicted, y = .data$observed)) +
+    ggplot2::geom_point(ggplot2::aes(size = .data$n), color = "#1b9e77", alpha = 0.9) +
+    ggplot2::geom_line(ggplot2::aes(linewidth = .data$n), color = "#1b9e77", alpha = 0.6) +
     ggplot2::geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray35") +
     ggplot2::labs(
       title = "Calibration Plot",
       x = "Mean predicted response (bin average)",
-      y = "Mean observed response (bin average)",
-      size = "Bin n"
+      y = "Mean observed response (bin average)", size = "Bin n"
     ) +
-    ggplot2::theme_minimal()
+    theme_obj
 }
 
 #' @keywords internal
-.brs_autoplot_score_dist <- function(object, scores = NULL) {
+.brs_autoplot_score_dist <- function(object, scores = NULL,
+                                     theme = ggplot2::theme_minimal()) {
+  theme_obj <- if (is.function(theme)) theme() else theme
   K <- as.integer(object$ncuts)
-  if (is.null(scores)) {
-    scores <- 0:K
-  }
+  if (is.null(scores)) scores <- 0:K
   scores <- sort(unique(as.integer(scores)))
   if (any(!is.finite(scores)) || any(scores < 0L) || any(scores > K)) {
     stop("'scores' must be integers in [0, ncuts].", call. = FALSE)
   }
-
   obs_scores <- .brs_observed_scores(object$Y[, "y"], K = K)
   obs_counts <- as.numeric(table(factor(obs_scores, levels = scores)))
-
   probs <- .brs_score_prob_matrix(
-    mu = object$hatmu,
-    phi = object$hatphi,
-    repar = object$repar,
-    ncuts = K,
-    lim = object$lim,
-    scores = scores
+    mu = object$hatmu, phi = object$hatphi,
+    repar = object$repar, ncuts = K, lim = object$lim, scores = scores
   )
   exp_counts <- colSums(probs)
-
   df <- rbind(
     data.frame(score = scores, count = obs_counts, source = "Observed"),
     data.frame(score = scores, count = exp_counts, source = "Expected")
   )
-
   ggplot2::ggplot(df, ggplot2::aes(x = .data$score, y = .data$count, fill = .data$source)) +
     ggplot2::geom_col(position = "dodge", alpha = 0.85) +
     ggplot2::scale_fill_manual(values = c(Observed = "#1b9e77", Expected = "#7570b3")) +
     ggplot2::labs(
       title = "Observed vs Expected Score Distribution",
-      x = "Score",
-      y = "Count",
-      fill = ""
+      x = "Score", y = "Count", fill = ""
     ) +
-    ggplot2::theme_minimal()
+    theme_obj
 }
 
 #' @keywords internal
@@ -236,18 +301,14 @@ autoplot.brs <- function(object,
 .brs_autoplot_cdf <- function(object,
                               newdata = NULL,
                               n_grid = 200L,
-                              max_curves = 6L) {
+                              max_curves = 6L,
+                              theme = ggplot2::theme_minimal()) {
+  theme_obj <- if (is.function(theme)) theme() else theme
   n_grid <- as.integer(n_grid)
   max_curves <- as.integer(max_curves)
-  if (!is.finite(n_grid) || n_grid < 20L) {
-    stop("'n_grid' must be an integer >= 20.", call. = FALSE)
-  }
-  if (!is.finite(max_curves) || max_curves < 1L) {
-    stop("'max_curves' must be an integer >= 1.", call. = FALSE)
-  }
-
+  if (!is.finite(n_grid) || n_grid < 20L) stop("'n_grid' must be an integer >= 20.", call. = FALSE)
+  if (!is.finite(max_curves) || max_curves < 1L) stop("'max_curves' must be an integer >= 1.", call. = FALSE)
   grid <- seq(1e-4, 1 - 1e-4, length.out = n_grid)
-
   if (is.null(newdata)) {
     ord <- order(object$hatmu)
     idx <- unique(round(seq(1, length(ord), length.out = min(max_curves, length(ord)))))
@@ -255,58 +316,48 @@ autoplot.brs <- function(object,
     phi <- object$hatphi[ord[idx]]
     labels <- paste0("scenario_", seq_along(mu))
   } else {
-    if (!is.data.frame(newdata)) {
-      stop("'newdata' must be a data.frame.", call. = FALSE)
-    }
-    if (nrow(newdata) > max_curves) {
-      newdata <- newdata[seq_len(max_curves), , drop = FALSE]
-    }
+    if (!is.data.frame(newdata)) stop("'newdata' must be a data.frame.", call. = FALSE)
+    if (nrow(newdata) > max_curves) newdata <- newdata[seq_len(max_curves), , drop = FALSE]
     mu <- predict(object, newdata = newdata, type = "response")
     phi <- predict(object, newdata = newdata, type = "precision")
     labels <- paste0("scenario_", seq_along(mu))
   }
-
   shp <- brs_repar(mu = mu, phi = phi, repar = object$repar)
   curves <- lapply(seq_along(mu), function(i) {
     data.frame(
-      y = grid,
-      cdf = stats::pbeta(grid, shp$shape1[i], shp$shape2[i]),
-      scenario = labels[i],
-      stringsAsFactors = FALSE
+      y = grid, cdf = stats::pbeta(grid, shp$shape1[i], shp$shape2[i]),
+      scenario = labels[i], stringsAsFactors = FALSE
     )
   })
   df <- do.call(rbind, curves)
-
   ggplot2::ggplot(df, ggplot2::aes(x = .data$y, y = .data$cdf, color = .data$scenario)) +
     ggplot2::geom_line(linewidth = 0.9) +
     ggplot2::labs(
       title = "Predicted Beta CDF by Scenario",
-      x = "y (unit scale)",
-      y = "F(y)",
-      color = ""
+      x = "y (unit scale)", y = "F(y)", color = ""
     ) +
-    ggplot2::theme_minimal()
+    theme_obj
 }
 
 #' @keywords internal
-.brs_autoplot_resid_delta <- function(object, residual_type = "rqr") {
+.brs_autoplot_resid_delta <- function(object, residual_type = "rqr",
+                                      theme = ggplot2::theme_minimal()) {
+  theme_obj <- if (is.function(theme)) theme() else theme
   dlab <- c("Exact", "Left", "Right", "Interval")
   df <- data.frame(
     residual = residuals(object, type = residual_type),
     delta = factor(object$delta, levels = 0:3, labels = dlab),
     stringsAsFactors = FALSE
   )
-
   ggplot2::ggplot(df, ggplot2::aes(x = .data$delta, y = .data$residual, fill = .data$delta)) +
     ggplot2::geom_boxplot(alpha = 0.65, outlier.shape = NA) +
     ggplot2::geom_jitter(width = 0.18, alpha = 0.25, size = 1) +
     ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray35") +
     ggplot2::labs(
       title = paste0("Residuals by Censoring Type (", residual_type, ")"),
-      x = "Censoring type",
-      y = "Residual"
+      x = "Censoring type", y = "Residual"
     ) +
-    ggplot2::theme_minimal() +
+    theme_obj +
     ggplot2::theme(legend.position = "none")
 }
 

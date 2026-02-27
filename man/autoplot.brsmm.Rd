@@ -7,37 +7,61 @@
 \method{autoplot}{brsmm}(
   object,
   type = c("calibration", "score_dist", "ranef_qq", "residuals_by_group",
-    "ranef_caterpillar", "ranef_density", "ranef_pairs"),
+    "ranef_caterpillar", "ranef_density", "ranef_pairs", "shrinkage", "all"),
   bins = 10L,
   scores = NULL,
   residual_type = c("response", "pearson"),
   max_groups = 25L,
+  title = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  ncol = 2L,
+  theme = ggplot2::theme_minimal(),
   ...
 )
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
-\item{type}{Plot type:
-\code{"calibration"}, \code{"score_dist"}, \code{"ranef_qq"}, or
-\code{"residuals_by_group"}, \code{"ranef_caterpillar"},
-\code{"ranef_density"}, \code{"ranef_pairs"}.}
+\item{type}{Plot type. One of \code{"calibration"}, \code{"score_dist"},
+\code{"ranef_qq"}, \code{"residuals_by_group"},
+\code{"ranef_caterpillar"}, \code{"ranef_density"},
+\code{"ranef_pairs"}, \code{"shrinkage"}, or \code{"all"}
+(produces all panels in a single grid).}
 
-\item{bins}{Number of bins used in calibration plots.}
+\item{bins}{Number of bins for \code{"calibration"}.}
 
 \item{scores}{Optional integer vector of scores for \code{"score_dist"}.
 Defaults to all scores from \code{0} to \code{ncuts}.}
 
-\item{residual_type}{Residual type passed to \code{\link{residuals.brsmm}}
-for \code{type = "residuals_by_group"}.}
+\item{residual_type}{Residual type for \code{"residuals_by_group"};
+passed to \code{\link{residuals.brsmm}}.}
 
-\item{max_groups}{Maximum number of groups displayed in
-\code{"residuals_by_group"}.}
+\item{max_groups}{Maximum groups in \code{"residuals_by_group"}.}
 
-\item{...}{Currently ignored.}
+\item{title}{Optional character: override the plot title via
+\code{ggplot2::labs(title = ...)}.  Ignored when \code{type = "all"}.}
+
+\item{xlab}{Optional character: override the x-axis label.
+Ignored when \code{type = "all"}.}
+
+\item{ylab}{Optional character: override the y-axis label.
+Ignored when \code{type = "all"}.}
+
+\item{ncol}{Number of columns for the grid when \code{type = "all"}.
+Defaults to 2.}
+
+\item{theme}{A ggplot2 theme object (e.g., \code{ggplot2::theme_bw()}) or
+a theme function. Applied to every panel. Defaults to
+\code{ggplot2::theme_minimal()}.}
+
+\item{...}{Additional arguments forwarded to \code{ggplot2::theme()} and
+applied on top of \code{theme}. Use named theme element arguments, e.g.
+\code{legend.position = "none"}.}
 }
 \value{
-A \code{ggplot2} object.
+A \code{ggplot2} object, or (when \code{type = "all"}) invisibly
+  returns the list of all panels after rendering the grid.
 }
 \description{
 Produces ggplot2 diagnostics tailored to mixed beta interval models.
@@ -55,10 +79,11 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 ggplot2::autoplot(fit_mm, type = "calibration", bins = 4)
-ggplot2::autoplot(fit_mm, type = "score_dist")
-ggplot2::autoplot(fit_mm, type = "ranef_qq")
-ggplot2::autoplot(fit_mm, type = "ranef_caterpillar")
-ggplot2::autoplot(fit_mm, type = "ranef_density")
+ggplot2::autoplot(fit_mm,
+  type = "ranef_caterpillar",
+  title = "My title", ylab = "Mode"
+)
+ggplot2::autoplot(fit_mm, type = "all")
 }
 
 }

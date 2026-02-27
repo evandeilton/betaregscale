@@ -111,10 +111,10 @@ print(boot)
 #> Bootstrap confidence intervals
 #>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 
 #> 
-#>     parameter   estimate   se_boot  ci_lower  ci_upper mcse_lower mcse_upper
-#> 1 (Intercept)  0.2550945 0.7907320 -1.133843 1.9053881  0.3600124 0.16466097
-#> 2          x1 -0.2202075 0.4952859 -1.166506 0.5223341  0.0896141 0.07822265
-#> 3       (phi) -0.3929198 0.3436550 -1.258389 0.1050310  0.1539971 0.13098474
+#>     parameter   estimate   se_boot  ci_lower    ci_upper mcse_lower mcse_upper
+#> 1 (Intercept)  0.2550945 0.7729304 -1.058928  1.90227138 0.23589848 0.18597710
+#> 2          x1 -0.2202075 0.4903982 -1.330071  0.76187939 0.13269817 0.13148558
+#> 3       (phi) -0.3929198 0.3042064 -1.153424 -0.02323842 0.06117592 0.04339901
 #>   wald_lower wald_upper level
 #> 1 -1.4390802  1.9492691  0.95
 #> 2 -1.2809288  0.8405139  0.95

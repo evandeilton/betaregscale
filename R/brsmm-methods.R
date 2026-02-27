@@ -852,9 +852,10 @@ print.summary.brsmm <- function(x,
   cat("\n")
 
   # Precision model
-  phi_label <- paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
-  cat(phi_label)
-  stats::printCoefmat(x$coefficients$precision,
+  cat(paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n"))
+  tab_phi_display <- x$coefficients$precision
+  rownames(tab_phi_display) <- .pretty_phi_names(rownames(tab_phi_display))
+  stats::printCoefmat(tab_phi_display,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
     signif.stars = TRUE,
@@ -864,7 +865,9 @@ print.summary.brsmm <- function(x,
 
   # Random effects
   cat("Random-effects parameters (Cholesky scale):\n")
-  stats::printCoefmat(x$coefficients$random,
+  tab_re_display <- x$coefficients$random
+  rownames(tab_re_display) <- .pretty_re_names(rownames(tab_re_display))
+  stats::printCoefmat(tab_re_display,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
     signif.stars = TRUE,
@@ -952,11 +955,15 @@ print.brsmm <- function(x,
   cat("\n")
 
   cat("Phi coefficients (precision model with", x$link_phi, "link):\n")
-  print(round(x$coefficients$precision, digits))
+  prec_display <- x$coefficients$precision
+  names(prec_display) <- .pretty_phi_names(names(prec_display))
+  print(round(prec_display, digits))
   cat("\n")
 
   cat("Random-effects parameters:\n")
-  print(round(x$coefficients$random, digits))
+  re_display <- x$coefficients$random
+  names(re_display) <- .pretty_re_names(names(re_display))
+  print(round(re_display, digits))
   cat("\n")
 
   re_sd <- x$random$sd_b

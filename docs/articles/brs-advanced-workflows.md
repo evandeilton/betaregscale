@@ -329,20 +329,17 @@ print(rs)
 #> Random-effects study
 #> Groups: 10 
 #> 
-#> Summary by term:
+#> Random-effects (VarCorr):
+#>   Name                      Std.Dev.  Corr
+#>   re1                         0.6117
+#>   re2                         0.1138  0.6654
+#> 
+#> ICC (latent logistic scale): 0.1021
+#> 
+#> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
 #>  (Intercept)   0.6117   -0.0040  0.6315          1.0000    0.4816
 #>           x1   0.1138   -0.0015  0.0930          0.6682    0.0760
-#> 
-#> Estimated covariance matrix D:
-#>        [,1]   [,2]
-#> [1,] 0.3742 0.0463
-#> [2,] 0.0463 0.0130
-#> 
-#> Estimated correlation matrix:
-#>        [,1]   [,2]
-#> [1,] 1.0000 0.6654
-#> [2,] 0.6654 1.0000
 kbl10(rs$summary)
 ```
 

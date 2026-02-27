@@ -25,6 +25,32 @@
 }
 
 
+# -- Display-name helpers --------------------------------------------------- #
+#  These are used only in print/summary to produce clean output.
+#  Internal names (names(est), rownames(hessian), etc.) are NOT changed,
+#  so user code that indexes by name continues to work.
+
+#' Strip (phi)_ prefix for summary display
+#' @keywords internal
+#' @noRd
+.pretty_phi_names <- function(nms) {
+  sub("^\\(phi\\)_", "", nms)
+}
+
+#' Convert internal Cholesky RE names to readable display names
+#'
+#' Mapping:
+#'   (re_chol_logsd)_X|g  ->  logSD.X|g
+#'   (re_chol)_X:Y|g      ->  cov.X:Y|g
+#' @keywords internal
+#' @noRd
+.pretty_re_names <- function(nms) {
+  nms <- sub("^\\(re_chol_logsd\\)_", "logSD.", nms)
+  nms <- sub("^\\(re_chol\\)_", "cov.", nms)
+  nms
+}
+
+
 # -- Extract coefficients --------------------------------------------------- #
 
 #' Extract model coefficients
@@ -536,13 +562,10 @@ print.summary.brs <- function(x,
   cat("\n")
 
   # Precision model
-  phi_label <- if (nrow(x$coefficients$precision) > 1L) {
-    paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
-  } else {
-    paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n")
-  }
-  cat(phi_label)
-  stats::printCoefmat(x$coefficients$precision,
+  cat(paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n"))
+  tab_phi_display <- x$coefficients$precision
+  rownames(tab_phi_display) <- .pretty_phi_names(rownames(tab_phi_display))
+  stats::printCoefmat(tab_phi_display,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
     signif.stars = TRUE,
@@ -625,7 +648,9 @@ print.brs <- function(x,
   cat("\n")
 
   cat("Phi coefficients (precision model with", x$link_phi, "link):\n")
-  print(round(x$coefficients$precision, digits))
+  prec_display <- x$coefficients$precision
+  names(prec_display) <- .pretty_phi_names(names(prec_display))
+  print(round(prec_display, digits))
   cat("\n")
 
   invisible(x)

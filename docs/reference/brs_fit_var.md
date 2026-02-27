@@ -111,8 +111,8 @@ print(fit)
 #>      0.2732     -0.2310 
 #> 
 #> Phi coefficients (precision model with logit link):
-#> (phi)_(Intercept)          (phi)_x2 
-#>           -0.3789           -0.0288 
+#> (Intercept)          x2 
+#>     -0.3789     -0.0288 
 #> 
 # }
 ```
