@@ -233,7 +233,7 @@ plot.brsmm <- function(x,
         labels = rownames(re)[ord],
         main = paste0(caption[8L], "\n(", term_label, ")"),
         xlab = "Random-effect mode",
-        pch = 20, col = "gray40"
+        pch = 20, color = "gray40"
       )
       abline(v = 0, lty = 2, col = "red")
     }
