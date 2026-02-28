@@ -49,8 +49,8 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 vcov(fit)
 #>             (Intercept)           x1        (phi)
-#> (Intercept)  0.74717128 -0.444368041 -0.010878706
-#> x1          -0.44436804  0.292891277  0.009448033
+#> (Intercept)  0.74717129 -0.444368049 -0.010878707
+#> x1          -0.44436805  0.292891282  0.009448033
 #> (phi)       -0.01087871  0.009448033  0.076320255
 vcov(fit, model = "mean")
 #>             (Intercept)         x1

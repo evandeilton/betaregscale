@@ -160,7 +160,7 @@ fit_mm
 #> 
 #> Coefficients (mean model with logit link):
 #> (Intercept)          x1 
-#>      0.4219     -0.3377 
+#>      0.4211     -0.3373 
 #> 
 #> Phi coefficients (precision model with logit link):
 #> (Intercept) 
@@ -168,7 +168,7 @@ fit_mm
 #> 
 #> Random-effects parameters:
 #> logSD.(Intercept)|id 
-#>              -0.6278 
+#>              -0.6277 
 #> 
 #> Random SD: 0.5338 
 #> ---

@@ -66,7 +66,7 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 confint(fit)
 #>                  2.5 %    97.5 %
-#> (Intercept) -1.4390801 1.9492691
+#> (Intercept) -1.4390802 1.9492691
 #> x1          -1.2809288 0.8405139
 #> (phi)       -0.9343818 0.1485422
 confint(fit, model = "mean")
