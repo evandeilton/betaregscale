@@ -164,12 +164,6 @@ brsmm <- function(formula,
   n <- nrow(X)
   g <- nlevels(group)
 
-  if (q_re > 1L && int_method != "laplace") {
-    stop(
-      "For random-effects dimension > 1, only int_method = 'laplace' is currently supported.",
-      call. = FALSE
-    )
-  }
 
   if (is.null(start)) {
     start_fix <- compute_start(

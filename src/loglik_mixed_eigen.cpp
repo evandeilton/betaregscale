@@ -53,7 +53,8 @@ inline double clamp_phi_by_repar(double phi, int repar) {
   return clamp(phi, EPS_BOUND, MAX_SHAPE);
 }
 
-inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) {
+inline void beta_shapes(double mu, double phi, int repar, double &a,
+                        double &b) {
   switch (repar) {
   case 0:
     a = mu;
@@ -77,8 +78,8 @@ inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) 
   b = clamp(b, EPS_SHAPE, MAX_SHAPE);
 }
 
-inline double obs_loglik(int delta_i, double left_i, double right_i, double yt_i,
-                         double a, double b) {
+inline double obs_loglik(int delta_i, double left_i, double right_i,
+                         double yt_i, double a, double b) {
   double lo = clamp(left_i, EPS_BOUND, 1.0 - EPS_BOUND);
   double hi = clamp(right_i, EPS_BOUND, 1.0 - EPS_BOUND);
   double y = clamp(yt_i, EPS_BOUND, 1.0 - EPS_BOUND);
@@ -153,7 +154,8 @@ inline double h_func_vec(const Eigen::VectorXd &b, const GroupData &gd,
   for (int i = 0; i < n; ++i) {
     double eta = gd.eta_mu_fixed(i) + gd.Zr.row(i).dot(b);
     double mu = clamp(inv_link(eta, link_mu_code), EPS_BOUND, 1.0 - EPS_BOUND);
-    double phi = clamp_phi_by_repar(inv_link(gd.eta_phi(i), link_phi_code), repar);
+    double phi =
+        clamp_phi_by_repar(inv_link(gd.eta_phi(i), link_phi_code), repar);
     double a, bb;
     beta_shapes(mu, phi, repar, a, bb);
     ll += obs_loglik((int)gd.delta(i), gd.y_left(i), gd.y_right(i), gd.yt(i), a,
@@ -218,7 +220,8 @@ struct ModeResult {
 };
 
 inline ModeResult find_mode_vec(const GroupData &gd, const RandStruct &rs,
-                                int link_mu_code, int link_phi_code, int repar) {
+                                int link_mu_code, int link_phi_code,
+                                int repar) {
   int q = rs.q_re;
   Eigen::VectorXd b = Eigen::VectorXd::Zero(q);
   double fcur = h_func_vec(b, gd, rs, link_mu_code, link_phi_code, repar);
@@ -328,6 +331,53 @@ build_groups(const Eigen::VectorXd &eta_mu, const Eigen::VectorXd &eta_phi,
   return groups;
 }
 
+const int PRIMES[] = {2,  3,  5,  7,  11, 13, 17, 19, 23, 29,
+                      31, 37, 41, 43, 47, 53, 59, 61, 67, 71};
+
+double halton(int index, int base) {
+  double f = 1.0;
+  double r = 0.0;
+  int i = index;
+  while (i > 0) {
+    f = f / base;
+    r = r + f * (i % base);
+    i = i / base;
+  }
+  return r;
+}
+
+void build_cartesian_grid(const std::vector<double> &x,
+                          const std::vector<double> &w, int q,
+                          Eigen::MatrixXd &grid, std::vector<double> &out_w) {
+  int n = x.size();
+  int total = std::pow(n, q);
+  grid.resize(total, q);
+  out_w.resize(total);
+  for (int i = 0; i < total; ++i) {
+    int temp = i;
+    double w_prod = 1.0;
+    for (int d = 0; d < q; ++d) {
+      int idx = temp % n;
+      grid(i, d) = x[idx];
+      w_prod *= w[idx];
+      temp /= n;
+    }
+    out_w[i] = w_prod;
+  }
+}
+
+Eigen::MatrixXd build_halton_grid(int n_points, int q) {
+  Eigen::MatrixXd grid(n_points, q);
+  for (int k = 0; k < n_points; ++k) {
+    for (int d = 0; d < q; ++d) {
+      int base = PRIMES[d % 20];
+      double r = halton(k + 1, base);
+      grid(k, d) = R::qnorm(r, 0.0, 1.0, 1, 0);
+    }
+  }
+  return grid;
+}
+
 //' @title Mixed Model Log-Likelihood (Eigen)
 //' @description Computes marginal log-likelihood using Laplace, AGHQ, or QMC.
 //' @param param [beta, gamma, theta_re]
@@ -352,9 +402,6 @@ double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X,
   if (param.size() != (p + q_phi + k_re)) {
     return LOG_PENALTY;
   }
-  if (q_re > 1 && method != 0) {
-    return LOG_PENALTY;
-  }
 
   Eigen::VectorXd beta = param.head(p);
   Eigen::VectorXd gamma = param.segment(p, q_phi);
@@ -367,21 +414,15 @@ double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X,
       build_groups(eta_mu, eta_phi, Xr, y_left, y_right, yt, delta, group);
 
   std::vector<double> gh_x, gh_w;
-  Eigen::VectorXd qmc_pts;
+  Eigen::MatrixXd aghq_grid;
+  std::vector<double> aghq_w;
+  Eigen::MatrixXd qmc_grid;
+
   if (method == 1) {
     compute_gh_rule(n_points, gh_x, gh_w);
+    build_cartesian_grid(gh_x, gh_w, q_re, aghq_grid, aghq_w);
   } else if (method == 2) {
-    qmc_pts.resize(n_points);
-    for (int k = 0; k < n_points; ++k) {
-      double f = 1.0, r = 0.0;
-      int i = k + 1;
-      while (i > 0) {
-        f /= 2.0;
-        r += f * (i % 2);
-        i /= 2;
-      }
-      qmc_pts(k) = R::qnorm(r, 0.0, 1.0, 1, 0);
-    }
+    qmc_grid = build_halton_grid(n_points, q_re);
   }
 
   double total = 0.0;
@@ -396,43 +437,54 @@ double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X,
       double logdet = ev.array().log().sum();
       total += mr.h_at_mode + 0.5 * q_re * std::log(2.0 * M_PI) - 0.5 * logdet;
     } else if (method == 1) {
-      double b_hat = mr.mode(0);
-      double curv = mr.curvature(0, 0);
-      double sd_proxy = 1.0 / std::sqrt(std::max(curv, 1e-8));
-      std::vector<double> lt(n_points);
-      for (int k = 0; k < n_points; ++k) {
-        Eigen::VectorXd bk(1);
-        bk(0) = b_hat + gh_x[k] * M_SQRT2 * sd_proxy;
+      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(mr.curvature);
+      Eigen::VectorXd ev = es.eigenvalues().cwiseMax(1e-8);
+      Eigen::MatrixXd S =
+          es.eigenvectors() * ev.cwiseInverse().cwiseSqrt().asDiagonal();
+
+      int total_pts = aghq_grid.rows();
+      std::vector<double> lt(total_pts);
+      for (int k = 0; k < total_pts; ++k) {
+        Eigen::VectorXd z = aghq_grid.row(k).transpose();
+        Eigen::VectorXd bk = mr.mode + M_SQRT2 * S * z;
         double h = h_func_vec(bk, groups[g], rs, link_mu, link_phi, repar);
-        lt[k] = std::log(gh_w[k]) + h + gh_x[k] * gh_x[k];
+        lt[k] = std::log(aghq_w[k]) + h + z.squaredNorm();
       }
       double m = lt[0];
-      for (int k = 1; k < n_points; ++k)
+      for (int k = 1; k < total_pts; ++k)
         if (lt[k] > m)
           m = lt[k];
       double s = 0.0;
-      for (int k = 0; k < n_points; ++k)
+      for (int k = 0; k < total_pts; ++k)
         s += std::exp(lt[k] - m);
-      total += std::log(s) + m + std::log(M_SQRT2 * sd_proxy);
+
+      double logdet_S = -0.5 * ev.array().log().sum();
+      total += std::log(s) + m + q_re * std::log(M_SQRT2) + logdet_S;
     } else {
-      double b_hat = mr.mode(0);
-      double curv = mr.curvature(0, 0);
-      double sd_proxy = 1.0 / std::sqrt(std::max(curv, 1e-8));
-      std::vector<double> lr(n_points);
+      Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(mr.curvature);
+      Eigen::VectorXd ev = es.eigenvalues().cwiseMax(1e-8);
+      Eigen::MatrixXd S =
+          es.eigenvectors() * ev.cwiseInverse().cwiseSqrt().asDiagonal();
+
+      int total_pts = qmc_grid.rows();
+      std::vector<double> lr(total_pts);
       double m = -1e12;
-      for (int k = 0; k < n_points; ++k) {
-        Eigen::VectorXd bk(1);
-        bk(0) = b_hat + qmc_pts(k) * sd_proxy;
+      double logdet_S = -0.5 * ev.array().log().sum();
+      double cst = -0.5 * q_re * std::log(2.0 * M_PI) - logdet_S;
+
+      for (int k = 0; k < total_pts; ++k) {
+        Eigen::VectorXd z = qmc_grid.row(k).transpose();
+        Eigen::VectorXd bk = mr.mode + S * z;
         double h = h_func_vec(bk, groups[g], rs, link_mu, link_phi, repar);
-        double lq = R::dnorm(bk(0), b_hat, sd_proxy, 1);
+        double lq = cst - 0.5 * z.squaredNorm();
         lr[k] = h - lq;
         if (lr[k] > m)
           m = lr[k];
       }
       double s = 0.0;
-      for (int k = 0; k < n_points; ++k)
+      for (int k = 0; k < total_pts; ++k)
         s += std::exp(lr[k] - m);
-      total += std::log(s) - std::log((double)n_points) + m;
+      total += std::log(s) - std::log((double)total_pts) + m;
     }
   }
   return total;
@@ -442,10 +494,10 @@ double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X,
 //' @keywords internal
 // [[Rcpp::export]]
 Eigen::MatrixXd brsmm_group_modes_eigen(
-    Eigen::VectorXd param, Eigen::MatrixXd X, Eigen::MatrixXd Z, Eigen::MatrixXd Xr,
-    Eigen::VectorXd y_left, Eigen::VectorXd y_right, Eigen::VectorXd yt,
-    Eigen::VectorXi delta, Eigen::VectorXi group, int link_mu, int link_phi,
-    int repar) {
+    Eigen::VectorXd param, Eigen::MatrixXd X, Eigen::MatrixXd Z,
+    Eigen::MatrixXd Xr, Eigen::VectorXd y_left, Eigen::VectorXd y_right,
+    Eigen::VectorXd yt, Eigen::VectorXi delta, Eigen::VectorXi group,
+    int link_mu, int link_phi, int repar) {
   int p = X.cols();
   int q_phi = Z.cols();
   int q_re = Xr.cols();

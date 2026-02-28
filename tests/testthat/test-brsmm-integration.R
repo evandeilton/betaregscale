@@ -170,3 +170,55 @@ test_that("random-effects study and new autoplot diagnostics run", {
   expect_s3_class(p3, "ggplot")
   expect_s3_class(p4, "ggplot")
 })
+
+test_that("brsmm supports random intercept and slope with aghq and qmc", {
+  skip_on_cran()
+
+  set.seed(422)
+  n_groups <- 10
+  n_per_group <- 15
+  n <- n_groups * n_per_group
+  id <- factor(rep(seq_len(n_groups), each = n_per_group))
+  x <- rnorm(n)
+
+  b0 <- rnorm(n_groups, sd = 0.3)
+  b1 <- rnorm(n_groups, sd = 0.2)
+  eta <- 0.2 + 0.5 * x + b0[id] + b1[id] * x
+  mu <- plogis(eta)
+  phi <- 15
+  y <- rbeta(n, mu * phi, (1 - mu) * phi)
+  dat <- data.frame(y = y, x = x, id = id)
+
+  # Laplace base
+  fit_lap <- brsmm(
+    y ~ x,
+    random = ~ 1 + x | id, data = dat,
+    int_method = "laplace", control = list(maxit = 800)
+  )
+
+  # AGHQ multivariate (q=2)
+  fit_aghq <- brsmm(
+    y ~ x,
+    random = ~ 1 + x | id, data = dat,
+    int_method = "aghq", n_points = 3, control = list(maxit = 800)
+  )
+
+  # QMC multivariate (q=2)
+  fit_qmc <- brsmm(
+    y ~ x,
+    random = ~ 1 + x | id, data = dat,
+    int_method = "qmc", qmc_points = 100, control = list(maxit = 800)
+  )
+
+  expect_s3_class(fit_aghq, "brsmm")
+  expect_equal(fit_aghq$q_re, 2L)
+  expect_equal(fit_aghq$int_method, "aghq")
+
+  expect_s3_class(fit_qmc, "brsmm")
+  expect_equal(fit_qmc$q_re, 2L)
+  expect_equal(fit_qmc$int_method, "qmc")
+
+  # Coefficients should be fairly similar
+  expect_equal(coef(fit_lap), coef(fit_aghq), tolerance = 0.2)
+  expect_equal(coef(fit_lap), coef(fit_qmc), tolerance = 0.3)
+})
