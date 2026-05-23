@@ -276,69 +276,40 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL) {
     )
   }
 
-  # Initialize output vectors
-  y_left <- numeric(n)
-  y_right <- numeric(n)
-  out_delta <- integer(n)
+  # PERF-M02: vectorized endpoint computation (replaces for-loop over n obs).
 
-  # Classify each observation
-  for (i in seq_len(n)) {
-    yi <- y[i]
-
-    # Determine censoring type: user-supplied or automatic
-    if (!is.null(delta)) {
-      di <- delta[i]
-    } else if (yi == 0) {
-      di <- 1L
-    } else if (yi == ncuts) {
-      di <- 2L
-    } else {
-      di <- 3L
-    }
-
-    out_delta[i] <- di
-
-    # Compute endpoints based on censoring type
-    switch(as.character(di),
-      "0" = {
-        # Exact: use y directly (possibly on unit interval)
-        if (yi > 0 && yi < 1) {
-          y_left[i] <- yi
-          y_right[i] <- yi
-        } else {
-          y_left[i] <- yi / ncuts
-          y_right[i] <- yi / ncuts
-        }
-      },
-      "1" = {
-        # Left-censored: latent value below upper bound u
-        # Boundary (y=0): u = lim/ncuts
-        # Non-boundary (forced delta=1): u = (y + lim)/ncuts
-        y_left[i] <- eps
-        if (yi == 0) {
-          y_right[i] <- lim / ncuts
-        } else {
-          y_right[i] <- (yi + lim) / ncuts
-        }
-      },
-      "2" = {
-        # Right-censored: latent value above lower bound l
-        # Boundary (y=ncuts): l = (ncuts - lim)/ncuts
-        # Non-boundary (forced delta=2): l = (y - lim)/ncuts
-        y_right[i] <- 1 - eps
-        if (yi == ncuts) {
-          y_left[i] <- (ncuts - lim) / ncuts
-        } else {
-          y_left[i] <- (yi - lim) / ncuts
-        }
-      },
-      "3" = {
-        # Interval-censored (midpoint geometry)
-        y_left[i] <- (yi - lim) / ncuts
-        y_right[i] <- (yi + lim) / ncuts
-      }
-    )
+  # Determine censoring type for each observation
+  out_delta <- if (!is.null(delta)) {
+    as.integer(delta)
+  } else {
+    ifelse(y == 0L, 1L, ifelse(y == ncuts, 2L, 3L))
   }
+
+  # Pre-compute candidate endpoints for each censoring type, then select.
+  # delta=0 exact: use y if already in (0,1), else y/ncuts
+  is_unit_obs <- (y > 0 & y < 1)
+  pts_exact <- ifelse(is_unit_obs, y, y / ncuts)
+
+  # delta=1 left-censored: left=eps, right=lim/ncuts (boundary) or (y+lim)/ncuts
+  right_lc <- ifelse(y == 0L, lim / ncuts, (y + lim) / ncuts)
+
+  # delta=2 right-censored: right=1-eps, left=(ncuts-lim)/ncuts (boundary) or (y-lim)/ncuts
+  left_rc <- ifelse(y == ncuts, (ncuts - lim) / ncuts, (y - lim) / ncuts)
+
+  # delta=3 interval-censored: symmetric interval around y/ncuts
+  left_ic  <- (y - lim) / ncuts
+  right_ic <- (y + lim) / ncuts
+
+  # Select based on out_delta
+  d <- out_delta
+  y_left  <- ifelse(d == 0L, pts_exact,
+             ifelse(d == 1L, eps,
+             ifelse(d == 2L, left_rc,
+                             left_ic)))
+  y_right <- ifelse(d == 0L, pts_exact,
+             ifelse(d == 1L, right_lc,
+             ifelse(d == 2L, 1 - eps,
+                             right_ic)))
 
   # Clamp all endpoints to (eps, 1 - eps) for numerical safety
   y_left <- pmin(pmax(y_left, eps), 1 - eps)

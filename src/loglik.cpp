@@ -32,176 +32,13 @@
 //     replaced by a large negative penalty (LOG_PENALTY) so that the
 //     optimizer is steered away from degenerate regions rather than
 //     receiving NaN.
+//
+// Constants, inverse-link, beta_shapes, and obs_loglik are in brs_common.h.
 // -------------------------------------------------------------------------- //
 
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
-#include <Rmath.h>
-#include <cmath>
-
-// Numerical-stability constants
-static const double EPS_SHAPE = 1.0e-12;
-static const double MAX_SHAPE = 1.0e8;
-static const double EPS_PROB = 1.0e-15;
-static const double LOG_PENALTY = -1.0e6;
-static const double EPS_BOUND = 1.0e-5;
-
-// ------------------------------------------------------------------ helpers
-
-// Clamp x into [lo, hi].
-inline double clamp(double x, double lo, double hi) {
-  return (x < lo) ? lo : ((x > hi) ? hi : x);
-}
-
-// Inverse-link functions.
-// Dispatched by an integer code for speed inside the inner loop:
-//   0 = logit, 1 = probit, 2 = cauchit, 3 = cloglog,
-//   4 = log,   5 = sqrt,   6 = inverse (1/mu), 7 = 1/mu^2,
-//   8 = identity
-inline double inv_link(double eta, int code) {
-  switch (code) {
-  case 0:
-    return 1.0 / (1.0 + std::exp(-eta)); // logit
-  case 1:
-    return R::pnorm(eta, 0.0, 1.0, 1, 0); // probit
-  case 2:
-    return 0.5 + std::atan(eta) / M_PI; // cauchit
-  case 3:
-    return 1.0 - std::exp(-std::exp(eta)); // cloglog
-  case 4:
-    return std::exp(eta); // log
-  case 5:
-    return eta * eta; // sqrt
-  case 6:
-    if (std::abs(eta) < EPS_PROB) {
-      return (eta >= 0.0) ? MAX_SHAPE : -MAX_SHAPE;
-    }
-    return 1.0 / eta; // inverse
-  case 7:
-    if (eta <= EPS_PROB) {
-      return MAX_SHAPE;
-    }
-    return 1.0 / std::sqrt(eta); // 1/mu^2
-  case 8:
-    return eta; // identity
-  default:
-    return 1.0 / (1.0 + std::exp(-eta));
-  }
-}
-
-// Clamp phi according to the selected beta reparameterization.
-// repar = 1: precision-style phi > 0
-// repar = 2: mean-variance phi in (0, 1)
-// repar = 0: direct shape2-like parameter, enforce positivity
-inline double clamp_phi_by_repar(double phi, int repar) {
-  if (!std::isfinite(phi)) {
-    return (repar == 2) ? (1.0 - EPS_BOUND) : MAX_SHAPE;
-  }
-  if (repar == 2) {
-    return clamp(phi, EPS_BOUND, 1.0 - EPS_BOUND);
-  }
-  return clamp(phi, EPS_BOUND, MAX_SHAPE);
-}
-
-// Beta reparameterization.
-// repar = 0 : shape1 = mu,               shape2 = phi
-// repar = 1 : shape1 = mu * phi,         shape2 = (1 - mu) * phi [Eq. 2.9]
-// repar = 2 : shape1 = mu*(1-phi)/phi,   shape2 = (1-mu)*(1-phi)/phi [Eq. 2.11]
-inline void beta_shapes(double mu, double phi, int repar, double &a,
-                        double &b) {
-  switch (repar) {
-  case 0:
-    a = mu;
-    b = phi;
-    break;
-  case 1:
-    a = mu * phi;
-    b = (1.0 - mu) * phi;
-    break;
-  case 2: {
-    double ratio = (1.0 - phi) / phi;
-    a = mu * ratio;
-    b = (1.0 - mu) * ratio;
-    break;
-  }
-  default:
-    a = mu;
-    b = phi;
-  }
-  // Clamp to safe range
-  a = clamp(a, EPS_SHAPE, MAX_SHAPE);
-  b = clamp(b, EPS_SHAPE, MAX_SHAPE);
-}
-
-// Log of interval probability: log(P(left < Y < right | a, b))
-inline double log_interval_prob(double left, double right, double a, double b) {
-  double lo = clamp(left, EPS_BOUND, 1.0 - EPS_BOUND);
-  double hi = clamp(right, EPS_BOUND, 1.0 - EPS_BOUND);
-
-  double p1 = R::pbeta(lo, a, b, 1, 0);
-  double p2 = R::pbeta(hi, a, b, 1, 0);
-
-  double area = p2 - p1;
-  if (area < EPS_PROB)
-    area = EPS_PROB;
-
-  return std::log(area);
-}
-
-// Log density at a point: log(f(yt | a, b))
-inline double log_density(double yt, double a, double b) {
-  double y = clamp(yt, EPS_BOUND, 1.0 - EPS_BOUND);
-  return R::dbeta(y, a, b, 1); // log = TRUE
-}
-
-// Log CDF at a point: log(F(y | a, b))  [for left-censoring]
-inline double log_cdf(double y, double a, double b) {
-  double yc = clamp(y, EPS_BOUND, 1.0 - EPS_BOUND);
-  double p = R::pbeta(yc, a, b, 1, 0); // lower_tail, non-log
-  if (p < EPS_PROB)
-    p = EPS_PROB;
-  return std::log(p);
-}
-
-// Log survival at a point: log(1 - F(y | a, b))  [for right-censoring]
-inline double log_survival(double y, double a, double b) {
-  double yc = clamp(y, EPS_BOUND, 1.0 - EPS_BOUND);
-  // Use upper tail directly for better numerical accuracy
-  double p = R::pbeta(yc, a, b, 0, 0); // upper_tail, non-log
-  if (p < EPS_PROB)
-    p = EPS_PROB;
-  return std::log(p);
-}
-
-// Compute the per-observation log-likelihood contribution given shape
-// parameters (a, b), interval endpoints, midpoint, and censoring type.
-//
-// delta_i interpretation:
-//   0 = exact / uncensored   : log f(yt_i | a, b)
-//   1 = left-censored        : log F(right_i | a, b)
-//   2 = right-censored       : log(1 - F(left_i | a, b))
-//   3 = interval-censored    : log(F(right_i) - F(left_i))
-inline double obs_loglik(int delta_i, double left_i, double right_i,
-                         double yt_i, double a, double b) {
-  double contrib;
-  switch (delta_i) {
-  case 0:
-    contrib = log_density(yt_i, a, b);
-    break;
-  case 1:
-    contrib = log_cdf(right_i, a, b);
-    break;
-  case 2:
-    contrib = log_survival(left_i, a, b);
-    break;
-  case 3:
-    contrib = log_interval_prob(left_i, right_i, a, b);
-    break;
-  default:
-    contrib = log_interval_prob(left_i, right_i, a, b);
-  }
-  return std::isfinite(contrib) ? contrib : LOG_PENALTY;
-}
+#include "brs_common.h"
 
 // ============================================================ Fixed phi === //
 
@@ -242,7 +79,7 @@ double betaregscale_loglik_fixed_cpp(const arma::vec &param, const arma::mat &X,
   double ll = 0.0;
   for (int i = 0; i < n; i++) {
     double mu_i = inv_link(eta(i), link_mu_code);
-    mu_i = clamp(mu_i, EPS_BOUND, 1.0 - EPS_BOUND);
+    mu_i = clamp(mu_i, EPS_UNIT, 1.0 - EPS_UNIT);
 
     double a, b;
     beta_shapes(mu_i, phi, repar, a, b);
@@ -293,7 +130,7 @@ double betaregscale_loglik_variable_cpp(
     double mu_i = inv_link(eta_mu(i), link_mu_code);
     double phi_i = inv_link(eta_phi(i), link_phi_code);
 
-    mu_i = clamp(mu_i, EPS_BOUND, 1.0 - EPS_BOUND);
+    mu_i = clamp(mu_i, EPS_UNIT, 1.0 - EPS_UNIT);
     phi_i = clamp_phi_by_repar(phi_i, repar);
 
     double a, b;
@@ -305,8 +142,7 @@ double betaregscale_loglik_variable_cpp(
   return ll;
 }
 
-// ============================================ Numerical gradient (fixed) ===
-// //
+// ============================================ Numerical gradient (fixed) === //
 
 //' @title C++ gradient for fixed-dispersion log-likelihood
 //' @description Returns the gradient vector of the log-likelihood with
@@ -353,8 +189,7 @@ betaregscale_grad_fixed_cpp(const arma::vec &param, const arma::mat &X,
   return grad;
 }
 
-// ========================================= Numerical gradient (variable) ===
-// //
+// ========================================= Numerical gradient (variable) === //
 
 //' @title C++ gradient for variable-dispersion log-likelihood
 //' @description Central-difference gradient for the variable-dispersion model.
@@ -399,7 +234,7 @@ arma::vec betaregscale_grad_variable_cpp(
   return grad;
 }
 
-// ============================================ Mixed model (Laplace, q=1) ===
+// ============================================ Mixed model (Laplace, q=1) === //
 
 struct GroupLaplaceResult {
   double mode_b;
@@ -412,9 +247,7 @@ inline void build_group_index(const arma::ivec &group,
   int n = group.n_elem;
   int gmax = 0;
   for (int i = 0; i < n; i++) {
-    if (group(i) > gmax) {
-      gmax = group(i);
-    }
+    if (group(i) > gmax) gmax = group(i);
   }
   group_obs.assign(gmax, std::vector<int>());
   for (int i = 0; i < n; i++) {
@@ -445,7 +278,7 @@ inline double group_Q(
     double mu_i = inv_link(eta_mu_base(ii) + b, link_mu_code);
     double phi_i = inv_link(eta_phi(ii), link_phi_code);
 
-    mu_i = clamp(mu_i, EPS_BOUND, 1.0 - EPS_BOUND);
+    mu_i = clamp(mu_i, EPS_UNIT, 1.0 - EPS_UNIT);
     phi_i = clamp_phi_by_repar(phi_i, repar);
 
     double a, bb;
@@ -580,7 +413,8 @@ double betaregscale_loglik_mixed_laplace_cpp(
     int link_phi_code, int repar) {
   int p = X.n_cols;
   int q = Z.n_cols;
-  if (param.n_elem != static_cast<unsigned int>(p + q + 1)) {
+  // NUM-M07: use arma::uword for consistent 64-bit comparison
+  if (param.n_elem != static_cast<arma::uword>(p + q + 1)) {
     return LOG_PENALTY;
   }
 
@@ -597,9 +431,7 @@ double betaregscale_loglik_mixed_laplace_cpp(
 
   double ll = 0.0;
   for (size_t g = 0; g < group_obs.size(); g++) {
-    if (group_obs[g].empty()) {
-      continue;
-    }
+    if (group_obs[g].empty()) continue;
     GroupLaplaceResult res =
         laplace_group(group_obs[g], eta_mu_base, eta_phi, y_left, y_right, yt,
                       delta, sigma_b, link_mu_code, link_phi_code, repar);
@@ -635,7 +467,8 @@ arma::mat betaregscale_group_modes_cpp(
   int p = X.n_cols;
   int q = Z.n_cols;
   arma::mat out;
-  if (param.n_elem != static_cast<unsigned int>(p + q + 1)) {
+  // NUM-M07: use arma::uword for consistent 64-bit comparison
+  if (param.n_elem != static_cast<arma::uword>(p + q + 1)) {
     return out;
   }
 

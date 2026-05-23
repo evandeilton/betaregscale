@@ -87,7 +87,7 @@
 #' \doi{10.1080/0266476042000214501}
 #'
 #' @importFrom Formula as.Formula Formula
-#' @importFrom stats model.frame terms delete.response model.matrix make.link
+#' @importFrom stats model.frame terms delete.response model.matrix
 #' @importFrom stats cor optim
 #' @importFrom numDeriv hessian
 #' @export
@@ -172,7 +172,8 @@ brsmm <- function(formula,
       link = link,
       link_phi = link_phi,
       ncuts = ncuts,
-      lim = lim
+      lim = lim,
+      repar = repar
     )
     if (length(start_fix) != (p + q)) {
       stop(
@@ -180,11 +181,16 @@ brsmm <- function(formula,
         call. = FALSE
       )
     }
+    # QUAL-L04: estimate sigma_b from between-group variance of y_mid
+    y_mid_start <- as.numeric(Y[, "yt"])
+    group_means <- tapply(y_mid_start, group_index, mean)
+    sigma_b_init <- max(stats::sd(as.numeric(group_means)), 0.1, na.rm = TRUE)
+
     theta_re_start <- numeric(k_re)
     k <- 1L
     for (j in seq_len(q_re)) {
       for (i in j:q_re) {
-        theta_re_start[k] <- if (i == j) log(0.3) else 0
+        theta_re_start[k] <- if (i == j) log(sigma_b_init) else 0
         k <- k + 1L
       }
     }
@@ -209,8 +215,7 @@ brsmm <- function(formula,
   n_pts <- if (int_method == "qmc") qmc_points else n_points
 
   fn_ll <- function(par) {
-    # Call the new Eigen-based backend
-    brsmm_loglik_eigen(
+    .brsmm_loglik_eigen(
       param = as.numeric(par),
       X = X,
       Z = Z,
@@ -238,6 +243,16 @@ brsmm <- function(formula,
     control = control
   )
 
+  # BUG-H04: warn if optimizer did not converge
+  if (opt$convergence != 0L) {
+    warning(
+      "Optimizer did not converge (code ", opt$convergence, ")",
+      if (!is.null(opt$message)) paste0(": ", opt$message) else ".",
+      "\nResults may be unreliable. Try increasing 'control$maxit' or changing 'method'.",
+      call. = FALSE
+    )
+  }
+
   if (hessian_method == "numDeriv") {
     hess <- numDeriv::hessian(fn_ll, opt$par)
   } else {
@@ -264,7 +279,7 @@ brsmm <- function(formula,
   D <- L %*% t(L)
   sd_b_terms <- sqrt(diag(D))
 
-  gm <- brsmm_group_modes_eigen(
+  gm <- .brsmm_group_modes_eigen(
     param = est,
     X = X,
     Z = Z,
@@ -287,7 +302,7 @@ brsmm <- function(formula,
 
   pseudo_r2 <- suppressWarnings(stats::cor(
     as.numeric(X %*% beta_hat),
-    stats::make.link(link)$linkfun(y_mid)
+    apply_link(pmin(pmax(y_mid, 1e-7), 1 - 1e-7), link)
   )^2)
   if (!is.finite(pseudo_r2)) {
     pseudo_r2 <- NA_real_

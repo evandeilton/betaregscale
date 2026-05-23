@@ -22,7 +22,7 @@
 #' @keywords internal
 compute_start <- function(formula, data, link = "logit",
                           link_phi = "logit", ncuts = 100L,
-                          lim = 0.5) {
+                          lim = 0.5, repar = 2L) {
   link <- match.arg(link, .mu_links)
 
   formula <- Formula::as.Formula(formula)
@@ -45,7 +45,6 @@ compute_start <- function(formula, data, link = "logit",
   y <- rowMeans(Y[, c("left", "right"), drop = FALSE], na.rm = TRUE)
 
   # Mean-model starting values via quasi-binomial GLM
-  # Mean-model starting values via quasi-binomial GLM
   glm_data <- data.frame(y = y, x)
   init_beta <- stats::coef(
     stats::glm(y ~ 0 + .,
@@ -56,10 +55,28 @@ compute_start <- function(formula, data, link = "logit",
 
   # Dispersion starting values
   if (is.null(z) || ncol(z) < 2L) {
-    # Intercept-only dispersion: use the mean of the link-inverse
-    init_phi <- mean(stats::make.link(link_phi)$linkfun(
-      pmin(pmax(y, 1e-4), 1 - 1e-4)
-    ), na.rm = TRUE)
+    # PERF-M04: moment-based estimate avoids a second GLM call.
+    # repar=1 precision: Var(Y) = mu*(1-mu)/(phi+1) => phi = mu*(1-mu)/Var(Y) - 1
+    # repar=2 mean-var:  Var(Y) = phi*mu*(1-mu)     => phi = Var(Y)/(mu*(1-mu))
+    y_safe <- pmin(pmax(y, 1e-4), 1 - 1e-4)
+    muy    <- mean(y_safe, na.rm = TRUE)
+    vy     <- stats::var(y_safe, na.rm = TRUE)
+    denom  <- muy * (1 - muy)
+    phi_start <- if (!is.na(vy) && vy > 0 && denom > 0) {
+      if (repar == 1L) max(denom / vy - 1, 1.0)
+      else if (repar == 2L) min(max(vy / denom, 0.05), 0.9)
+      else muy
+    } else {
+      if (repar == 2L) 0.3 else 5.0
+    }
+    # Clamp phi_start to the valid domain of the forward link to avoid NaN.
+    phi_start_clamped <- if (link_phi %in% c("logit", "probit", "cauchit", "cloglog")) {
+      min(max(phi_start, 1e-6), 1 - 1e-6)
+    } else {
+      max(phi_start, 1e-6)
+    }
+    init_phi <- apply_link(phi_start_clamped, link_phi)
+    if (!is.finite(init_phi)) init_phi <- 0
     names(init_phi) <- "phi"
   } else {
     glm_data_z <- if (ncol(z) == 1L) {

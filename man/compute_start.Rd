@@ -10,7 +10,8 @@ compute_start(
   link = "logit",
   link_phi = "logit",
   ncuts = 100L,
-  lim = 0.5
+  lim = 0.5,
+  repar = 2L
 )
 }
 \arguments{

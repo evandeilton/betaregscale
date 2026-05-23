@@ -30,7 +30,7 @@ dat <- data.frame(
 )
 prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
-brs_coef(fit)
+suppressWarnings(brs_coef(fit))  # deprecated; use brs_est()
 }
 
 }

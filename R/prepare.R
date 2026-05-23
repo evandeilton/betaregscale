@@ -283,48 +283,42 @@ brs_prep <- function(data, y = "y", delta = "delta",
   }
 
   # -- Per-observation processing ---------------------------------------------
-  out_left <- numeric(n)
-  out_right <- numeric(n)
-  out_yt <- numeric(n)
-  out_delta <- integer(n)
-  out_y <- numeric(n)
+  # PERF-M02: vectorize the all-NA guard first; then use vapply for the complex
+  # per-row NA-pattern logic (.infer_delta / .compute_endpoints) which cannot be
+  # trivially vectorized without replicating all branch conditions.
 
-  for (i in seq_len(n)) {
-    yi <- v_y[i]
+  all_na_rows <- is.na(v_y) & is.na(v_delta) & is.na(v_left) & is.na(v_right)
+  if (any(all_na_rows)) {
+    bad <- which(all_na_rows)
+    stop("Observation(s) ", paste(bad, collapse = ", "),
+         ": all relevant columns are NA.", call. = FALSE)
+  }
+
+  has_lr_cols <- has_left || has_right
+
+  # Determine delta for each row
+  out_delta <- vapply(seq_len(n), function(i) {
     di <- v_delta[i]
-    li <- v_left[i]
-    ri <- v_right[i]
-
-    # Check that observation is not completely NA
-    all_na <- is.na(yi) && is.na(di) && is.na(li) && is.na(ri)
-    if (all_na) {
-      stop(
-        "Observation ", i, ": all relevant columns are NA.",
-        call. = FALSE
-      )
-    }
-
-    # ---- Determine delta ----
     if (!is.na(di) && di %in% 0:3) {
-      # Explicit delta from analyst — use directly
-      d_final <- as.integer(di)
+      as.integer(di)
     } else {
-      # Infer delta from NA pattern
-      d_final <- .infer_delta(yi, li, ri, K, has_lr_cols = has_left || has_right)
+      .infer_delta(v_y[i], v_left[i], v_right[i], K, has_lr_cols = has_lr_cols)
     }
+  }, integer(1L))
 
-    # ---- Compute endpoints ----
-    endpoints <- .compute_endpoints(
-      yi = yi, d = d_final, li = li, ri = ri,
+  # Compute endpoints using the determined delta
+  ep_mat <- vapply(seq_len(n), function(i) {
+    ep <- .compute_endpoints(
+      yi = v_y[i], d = out_delta[i], li = v_left[i], ri = v_right[i],
       K = K, lim = lim, eps = eps
     )
+    c(ep$left, ep$right, ep$yt)
+  }, numeric(3L))
 
-    out_left[i] <- endpoints$left
-    out_right[i] <- endpoints$right
-    out_yt[i] <- endpoints$yt
-    out_delta[i] <- d_final
-    out_y[i] <- if (!is.na(yi)) yi else NA_real_
-  }
+  out_left  <- ep_mat[1L, ]
+  out_right <- ep_mat[2L, ]
+  out_yt    <- ep_mat[3L, ]
+  out_y <- ifelse(!is.na(v_y), v_y, NA_real_)
 
   # Clamp to [eps, 1-eps]
   out_left <- pmin(pmax(out_left, eps), 1 - eps)

@@ -82,7 +82,6 @@
 #' \doi{10.1016/j.jpainsymman.2010.08.016}
 #'
 #' @importFrom stats optim cor model.frame model.matrix model.response terms
-#' @importFrom stats make.link
 #' @importFrom numDeriv hessian
 #' @keywords internal
 #' @export
@@ -119,7 +118,7 @@ brs_fit_fixed <- function(formula, data,
   ini <- compute_start(
     formula = formula, data = data, link = link,
     link_phi = link_phi, ncuts = ncuts,
-    lim = lim
+    lim = lim, repar = repar
   )
 
   # Pre-compute link codes for C++
@@ -152,6 +151,16 @@ brs_fit_fixed <- function(formula, data,
     control = list(maxit = 5000L)
   )
 
+  # BUG-H04: warn if optimizer did not converge
+  if (opt$convergence != 0L) {
+    warning(
+      "Optimizer did not converge (code ", opt$convergence, ")",
+      if (!is.null(opt$message)) paste0(": ", opt$message) else ".",
+      "\nResults may be unreliable. Try increasing 'maxit' or changing 'method'.",
+      call. = FALSE
+    )
+  }
+
   # Hessian (on the log-likelihood scale)
   if (hessian_method == "numDeriv") {
     fn_ll <- function(par) {
@@ -174,7 +183,7 @@ brs_fit_fixed <- function(formula, data,
 
   pseudo_r2 <- stats::cor(
     X %*% est[1:p],
-    stats::make.link(link)$linkfun(y_mid)
+    apply_link(pmin(pmax(y_mid, 1e-7), 1 - 1e-7), link)
   )^2
 
   # --- betareg-style parameter naming ---
@@ -295,7 +304,7 @@ brs_fit_fixed <- function(formula, data,
 #' \doi{10.1016/j.jpainsymman.2010.08.016}
 #'
 #' @importFrom Formula as.Formula Formula
-#' @importFrom stats optim cor make.link delete.response
+#' @importFrom stats optim cor delete.response
 #' @importFrom numDeriv hessian
 #' @keywords internal
 #' @export
@@ -345,7 +354,7 @@ brs_fit_var <- function(formula, data,
   ini <- compute_start(
     formula = formula, data = data, link = link,
     link_phi = link_phi, ncuts = ncuts,
-    lim = lim
+    lim = lim, repar = repar
   )
 
   # Link codes
@@ -376,6 +385,16 @@ brs_fit_var <- function(formula, data,
     control = list(maxit = 5000L)
   )
 
+  # BUG-H04: warn if optimizer did not converge
+  if (opt$convergence != 0L) {
+    warning(
+      "Optimizer did not converge (code ", opt$convergence, ")",
+      if (!is.null(opt$message)) paste0(": ", opt$message) else ".",
+      "\nResults may be unreliable. Try increasing 'maxit' or changing 'method'.",
+      call. = FALSE
+    )
+  }
+
   # Hessian
   if (hessian_method == "numDeriv") {
     fn_ll <- function(par) {
@@ -401,7 +420,7 @@ brs_fit_var <- function(formula, data,
 
   pseudo_r2 <- stats::cor(
     X %*% est[idx_beta],
-    stats::make.link(link)$linkfun(y_mid)
+    apply_link(pmin(pmax(y_mid, 1e-7), 1 - 1e-7), link)
   )^2
 
   # --- betareg-style parameter naming ---

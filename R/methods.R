@@ -138,14 +138,21 @@ vcov.brs <- function(object,
   V <- tryCatch(
     solve(-object$hessian),
     error = function(e) {
-      warning(
-        "Hessian is computationally singular; ",
-        "returning a generalized inverse.",
-        call. = FALSE
-      )
       if (requireNamespace("MASS", quietly = TRUE)) {
+        warning(
+          "Hessian is computationally singular; returning a generalized inverse. ",
+          "Standard errors may be unreliable.",
+          call. = FALSE
+        )
         MASS::ginv(-object$hessian)
       } else {
+        # QUAL-L05: inform user why SEs will be NA
+        warning(
+          "Hessian is computationally singular and package 'MASS' is not available ",
+          "for a generalized inverse. Install 'MASS' for approximate SEs. ",
+          "Returning NA variance matrix.",
+          call. = FALSE
+        )
         matrix(NA_real_, nrow(object$hessian), ncol(object$hessian))
       }
     }
@@ -478,6 +485,10 @@ summary.brs <- function(object, ...) {
     interval = sum(delta == 3L)
   )
 
+  n_exact   <- cens_counts[["exact"]]
+  n_total   <- sum(cens_counts)
+  pct_exact <- if (n_total > 0L) n_exact / n_total else 1.0
+
   out <- list(
     call         = object$call,
     coefficients = list(mean = tab_mu, precision = tab_phi),
@@ -488,6 +499,7 @@ summary.brs <- function(object, ...) {
     df           = object$npar,
     nobs         = object$nobs,
     pseudo.r2    = object$pseudo.r.squared,
+    pct_exact    = pct_exact,
     link         = object$link,
     link_phi     = object$link_phi,
     convergence  = object$convergence,
@@ -580,7 +592,10 @@ print.summary.brs <- function(x,
     "on", x$df, "Df | AIC:", formatC(x$AIC, format = "f", digits = 4),
     "| BIC:", formatC(x$BIC, format = "f", digits = 4), "\n"
   )
-  cat("Pseudo R-squared:", formatC(x$pseudo.r2, format = "f", digits = 4), "\n")
+  r2_note <- if (!is.null(x$pct_exact) && x$pct_exact < 0.5)
+    " (midpoint approx.; interpret with caution for heavily censored data)" else ""
+  cat("Pseudo R-squared:", formatC(x$pseudo.r2, format = "f", digits = 4),
+      r2_note, "\n")
   cat(
     "Number of iterations:",
     if (!is.null(x$iterations)) x$iterations["function"] else "NA",
@@ -802,10 +817,14 @@ residuals.brs <- function(object,
     },
     deviance = {
       sh <- get_shapes(mu, phi, repar)
-      # Individual log-density at observed vs fitted
-      ll_obs <- stats::dbeta(y, sh$a, sh$b, log = TRUE)
-      ll_fit <- stats::dbeta(mu, sh$a, sh$b, log = TRUE)
-      sign(y - mu) * sqrt(2 * pmax(ll_obs - ll_fit, 0))
+      # BUG-C02: deviance uses the SATURATED log-likelihood where mu_sat = y.
+      # The fitted contribution evaluates density at y with fitted shapes (a,b).
+      # The saturated contribution uses shapes derived from y itself.
+      y_safe <- pmin(pmax(y, 1e-7), 1 - 1e-7)
+      sh_sat  <- brs_repar(y_safe, phi, repar = repar)
+      ll_sat  <- stats::dbeta(y_safe, sh_sat$shape1, sh_sat$shape2, log = TRUE)
+      ll_fit  <- stats::dbeta(y_safe, sh$a, sh$b, log = TRUE)
+      sign(y - mu) * sqrt(abs(2 * (ll_sat - ll_fit)))
     },
     rqr = {
       sh <- get_shapes(mu, phi, repar)
@@ -947,7 +966,7 @@ confint.brs <- function(object, parm, level = 0.95,
 #' }
 #'
 #' @method predict brs
-#' @importFrom stats predict qbeta model.matrix make.link terms model.frame
+#' @importFrom stats predict qbeta model.matrix terms model.frame
 #' @export
 predict.brs <- function(object, newdata = NULL,
                         type = c(
@@ -966,25 +985,31 @@ predict.brs <- function(object, newdata = NULL,
     } else {
       as.numeric(object$hatphi)
     }
-    eta_mu <- stats::make.link(object$link)$linkfun(mu)
+    eta_mu <- apply_link(pmin(pmax(mu, 1e-7), 1 - 1e-7), object$link)
   } else {
     # Build X from newdata
     mt_mu <- stats::delete.response(object$terms$mean)
     mf <- stats::model.frame(mt_mu, data = newdata, ...)
     X <- stats::model.matrix(mt_mu, mf)
     eta_mu <- as.numeric(X %*% object$coefficients$mean)
-    mu <- stats::make.link(object$link)$linkinv(eta_mu)
+    mu <- apply_inv_link(eta_mu, object$link)
 
+    # BUG-H02: detect variable-dispersion by presence of Z matrix with
+    # non-intercept columns, not by q > 1 (which misclassifies y ~ x | 1).
+    has_var_phi <- !is.null(object$model_matrices$Z) &&
+                   !is.null(object$terms$precision) &&
+                   length(attr(object$terms$precision, "term.labels")) > 0L
     # Build Z from newdata (variable dispersion)
-    if (!is.null(object$model_matrices$Z) && object$q > 1L) {
+    if (has_var_phi) {
       mt_phi <- object$terms$precision
       mf_z <- stats::model.frame(mt_phi, data = newdata, ...)
       Z <- stats::model.matrix(mt_phi, mf_z)
       eta_phi <- as.numeric(Z %*% object$coefficients$precision)
-      phi <- stats::make.link(object$link_phi)$linkinv(eta_phi)
+      phi <- apply_inv_link(eta_phi, object$link_phi)
     } else {
-      phi_scalar <- stats::make.link(object$link_phi)$linkinv(
-        as.numeric(object$coefficients$precision)
+      phi_scalar <- apply_inv_link(
+        as.numeric(object$coefficients$precision),
+        object$link_phi
       )
       phi <- rep(phi_scalar, nrow(X))
     }
@@ -1187,7 +1212,7 @@ brs_est <- function(object, alpha = 0.05) {
 #' )
 #' prep <- brs_prep(dat, ncuts = 100)
 #' fit <- brs(y ~ x1, data = prep)
-#' brs_coef(fit)
+#' suppressWarnings(brs_coef(fit))  # deprecated; use brs_est()
 #' }
 #'
 #' @references
@@ -1217,6 +1242,7 @@ brs_est <- function(object, alpha = 0.05) {
 #' \doi{10.1016/j.jpainsymman.2010.08.016}
 #' @export
 brs_coef <- function(fit, alpha = 0.05) {
+  .Deprecated("brs_est")
   .check_class(fit)
   list(est = brs_est(fit, alpha = alpha), gof = brs_gof(fit))
 }

@@ -20,8 +20,7 @@
 #'
 #' @description
 #' Evaluates the inverse of a standard link function for a given
-#' linear-predictor vector or scalar. This is a convenience wrapper
-#' around \code{\link[stats]{make.link}}.
+#' linear-predictor vector or scalar.
 #'
 #' @param eta  Numeric vector or scalar — the linear predictor
 #'   \eqn{\eta = X \beta}.
@@ -34,17 +33,48 @@
 #'   containing \eqn{g^{-1}(\eta)}.
 #'
 #' @keywords internal
+# BUG-H07: use direct formulas instead of make.link() which allocates a list
+# of 4 closures on every call.
 apply_inv_link <- function(eta, link) {
   switch(link,
-    logit = stats::make.link("logit")$linkinv(eta),
-    probit = stats::make.link("probit")$linkinv(eta),
-    cauchit = stats::make.link("cauchit")$linkinv(eta),
-    cloglog = stats::make.link("cloglog")$linkinv(eta),
-    log = stats::make.link("log")$linkinv(eta),
-    sqrt = stats::make.link("sqrt")$linkinv(eta),
-    "1/mu^2" = stats::make.link("1/mu^2")$linkinv(eta),
-    inverse = stats::make.link("inverse")$linkinv(eta),
+    logit    = stats::plogis(eta),
+    probit   = stats::pnorm(eta),
+    cauchit  = 0.5 + atan(eta) / pi,
+    cloglog  = -expm1(-exp(eta)),
+    log      = exp(eta),
+    sqrt     = pmax(eta, 0) ^ 2,
+    "1/mu^2" = 1 / sqrt(pmax(eta, .Machine$double.eps)),
+    inverse  = 1 / eta,
     identity = eta,
+    stop("Unknown link function: '", link, "'.", call. = FALSE)
+  )
+}
+
+
+#' Apply the forward link function to a response value
+#'
+#' @description
+#' Evaluates the link function \eqn{g(\mu)} for a given response vector.
+#' Used internally for starting-value computation.
+#'
+#' @param mu   Numeric vector of response values.
+#' @param link Character string naming the link function (same set as
+#'   \code{\link{apply_inv_link}}).
+#'
+#' @return Numeric vector containing \eqn{g(\mu)}.
+#'
+#' @keywords internal
+apply_link <- function(mu, link) {
+  switch(link,
+    logit    = stats::qlogis(mu),
+    probit   = stats::qnorm(mu),
+    cauchit  = tan(pi * (mu - 0.5)),
+    cloglog  = log(-log(1 - mu)),
+    log      = log(mu),
+    sqrt     = sqrt(mu),
+    "1/mu^2" = 1 / mu^2,
+    inverse  = 1 / mu,
+    identity = mu,
     stop("Unknown link function: '", link, "'.", call. = FALSE)
   )
 }

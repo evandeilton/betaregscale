@@ -21,7 +21,6 @@ Numeric vector (or scalar) of the same length as \code{eta},
 }
 \description{
 Evaluates the inverse of a standard link function for a given
-linear-predictor vector or scalar. This is a convenience wrapper
-around \code{\link[stats]{make.link}}.
+linear-predictor vector or scalar.
 }
 \keyword{internal}

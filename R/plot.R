@@ -113,7 +113,7 @@ plot.brs <- function(x,
                        ask, ...) {
   r <- residuals(x, type = type)
   mu_hat <- fitted(x, type = "mu")
-  eta <- stats::make.link(x$link)$linkfun(mu_hat)
+  eta <- apply_link(pmin(pmax(mu_hat, 1e-7), 1 - 1e-7), x$link)
   n <- length(r)
   idx <- seq_len(n)
 
@@ -248,7 +248,7 @@ plot.brs <- function(x,
 
   r <- residuals(x, type = type)
   mu_hat <- fitted(x, type = "mu")
-  eta <- stats::make.link(x$link)$linkfun(mu_hat)
+  eta <- apply_link(pmin(pmax(mu_hat, 1e-7), 1 - 1e-7), x$link)
   n <- length(r)
   idx <- seq_len(n)
   y_obs <- x$Y[, "yt"]
