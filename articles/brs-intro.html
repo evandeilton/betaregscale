@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to betaregscale</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-intro.Rmd" class="external-link"><code>vignettes/brs-intro.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.1/vignettes/brs-intro.Rmd" class="external-link"><code>vignettes/brs-intro.Rmd</code></a></small>
       <div class="d-none name"><code>brs-intro.Rmd</code></div>
     </div>
 
@@ -506,7 +506,7 @@ skipped:</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -4072.5673 on 4 Df | AIC: 8153.1346 | BIC: 8172.7656 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.1292  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 37 (BFGS) </span></span>
+<span><span class="co">#&gt; Number of iterations: 33 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 796 interval | 74 left | 130 right</span></span></code></pre></div>
 </div>
 </div>
@@ -663,7 +663,7 @@ with the interval
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -4035.2262 on 4 Df | AIC: 8078.4524 | BIC: 8098.0834 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.2393  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 37 (BFGS) </span></span>
+<span><span class="co">#&gt; Number of iterations: 34 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 809 interval | 65 left | 126 right</span></span></code></pre></div>
 <p>The summary output follows the <code>betareg</code> package style,
 showing separate coefficient tables for the mean and precision
@@ -1343,7 +1343,7 @@ simulation.</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -3922.2430 on 5 Df | AIC: 7854.4861 | BIC: 7879.0249 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.1159  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 42 (BFGS) </span></span>
+<span><span class="co">#&gt; Number of iterations: 44 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 744 interval | 105 left | 151 right</span></span></code></pre></div>
 <p>Notice the <code>(phi)_</code> prefix in the precision coefficient
 names, following the <code>betareg</code> convention.</p>
@@ -1735,9 +1735,9 @@ predictive validation.</p>
 <tr class="odd">
 <td align="center">x1</td>
 <td align="center">-0.1321</td>
-<td align="center">0.0091</td>
-<td align="center">-0.1485</td>
-<td align="center">-0.1132</td>
+<td align="center">0.0088</td>
+<td align="center">-0.1473</td>
+<td align="center">-0.1123</td>
 <td align="center">mean</td>
 <td align="center">response</td>
 <td align="center">1000</td>
@@ -1745,9 +1745,9 @@ predictive validation.</p>
 <tr class="even">
 <td align="center">x2</td>
 <td align="center">0.0966</td>
-<td align="center">0.0085</td>
-<td align="center">0.0764</td>
-<td align="center">0.1125</td>
+<td align="center">0.0093</td>
+<td align="center">0.0798</td>
+<td align="center">0.1140</td>
 <td align="center">mean</td>
 <td align="center">response</td>
 <td align="center">1000</td>

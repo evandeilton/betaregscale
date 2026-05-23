@@ -9,7 +9,7 @@ normal approximation."><meta property="og:image" content="https://evandeilton.gi
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ normal approximation."><meta property="og:image" content="https://evandeilton.gi
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Wald confidence intervals</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/methods.R" class="external-link"><code>R/methods.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.1/R/methods.R" class="external-link"><code>R/methods.R</code></a></small>
       <div class="d-none name"><code>confint.brs.Rd</code></div>
     </div>
 
@@ -110,12 +110,12 @@ all parameters are returned.</p></dd>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  2.5 %    97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.4390767 1.9492766</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -1.2809285 0.8405165</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.4390767 1.9492767</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -1.2809286 0.8405165</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (phi)       -0.9343775 0.1485488</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 2.5 %    97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.439077 1.9492766</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.439077 1.9492767</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x1          -1.280929 0.8405165</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

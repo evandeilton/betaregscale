@@ -44,7 +44,7 @@ prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 ranef(fit)
-#>           1           2           3           4 
-#> -0.54952766  0.54072504  0.03719696 -0.02379276 
+#>          1          2          3          4 
+#> -0.5499318  0.5409097  0.0370912 -0.0238766 
 # }
 ```
