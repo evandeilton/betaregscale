@@ -153,8 +153,8 @@ kbl10(ame_mu)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | 0.1325  |  0.0180   |  0.0898  |  0.1636  | mean  | response | 260 |
-|    x2    | -0.0539 |  0.0184   | -0.0830  | -0.0195  | mean  | response | 260 |
+|    x1    | 0.1325  |  0.0170   |  0.1004  |  0.1652  | mean  | response | 260 |
+|    x2    | -0.0539 |  0.0184   | -0.0936  | -0.0201  | mean  | response | 260 |
 
 ``` r
 
@@ -346,22 +346,22 @@ print(rs)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.  Corr
-#>   re1                         0.6114
-#>   re2                         0.1133  0.6708
+#>   re1                         0.6115
+#>   re2                         0.1133  0.6710
 #> 
-#> ICC (latent logistic scale): 0.1020
+#> ICC (latent logistic scale): 0.1021
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)   0.6114   -0.0011  0.6314          1.0000    0.4815
-#>           x1   0.1133   -0.0011  0.0928          0.6712    0.0788
+#>  (Intercept)   0.6115   -0.0011  0.6314          1.0000    0.4815
+#>           x1   0.1133   -0.0011  0.0928          0.6712    0.0789
 kbl10(rs$summary)
 ```
 
 |    term     | sd_model | mean_mode | sd_mode | shrinkage_ratio | shapiro_p |
 |:-----------:|:--------:|:---------:|:-------:|:---------------:|:---------:|
-| (Intercept) |  0.6114  |  -0.0011  | 0.6314  |     1.0000      |  0.4815   |
-|     x1      |  0.1133  |  -0.0011  | 0.0928  |     0.6712      |  0.0788   |
+| (Intercept) |  0.6115  |  -0.0011  | 0.6314  |     1.0000      |  0.4815   |
+|     x1      |  0.1133  |  -0.0011  | 0.0928  |     0.6712      |  0.0789   |
 
 ``` r
 
@@ -378,10 +378,10 @@ kbl10(rs$D)
 kbl10(rs$Corr)
 ```
 
-|   V1   |   V2   |
-|:------:|:------:|
-| 1.0000 | 0.6708 |
-| 0.6708 | 1.0000 |
+|  V1   |  V2   |
+|:-----:|:-----:|
+| 1.000 | 0.671 |
+| 0.671 | 1.000 |
 
 ``` r
 
