@@ -50,14 +50,14 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 coef(fit)
 #>                    (Intercept)                             x1 
-#>                      0.4210848                     -0.3372995 
+#>                      0.4223418                     -0.3380178 
 #>              (phi)_(Intercept) (re_chol_logsd)_(Intercept)|id 
-#>                     -0.5804978                     -0.6276995 
+#>                     -0.5805937                     -0.6272903 
 coef(fit, model = "mean")
 #> (Intercept)          x1 
-#>   0.4210848  -0.3372995 
+#>   0.4223418  -0.3380178 
 coef(fit, model = "random")
 #> (re_chol_logsd)_(Intercept)|id 
-#>                     -0.6276995 
+#>                     -0.6272903 
 # }
 ```

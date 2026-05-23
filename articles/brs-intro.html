@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Source_Serif_4-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -84,16 +84,16 @@ estimation of beta regression models for responses derived from bounded
 rating scales. Common examples include pain intensity scales (NRS-11,
 NRS-21, NRS-101), Likert-type scales, product quality ratings, and any
 instrument whose response can be mapped to the open interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>.</p>
 <p>The key idea is that a discrete score recorded on a bounded scale
 carries measurement uncertainty inherent to the instrument. For
 instance, a pain score of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">y=6</annotation></semantics></math>
 on a 0–10 NRS is not an exact value but rather represents a range: after
 rescaling to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>,
 the observation is treated as interval-censored in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.55</mn><mo>,</mo><mn>0.65</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.55,0.65]</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.55</mn><mo>,</mo><mn>0.65</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.55,0.65]</annotation></semantics></math>.
 The package uses the beta distribution to model such data, building a
 complete likelihood that supports mixed censoring types within the same
 dataset.</p>
@@ -123,35 +123,35 @@ classified by <code><a href="../reference/brs_check.html">brs_check()</a></code>
 <tr class="odd">
 <td align="center">0</td>
 <td align="left">Exact (uncensored)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(y_i;a_i,b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(y_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="center">1</td>
 <td align="left">Left-censored
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">y=0</annotation></semantics></math>)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;a_i,b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(u_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
 <td align="center">2</td>
 <td align="left">Right-censored
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">y=K</annotation></semantics></math>)</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">1-F(l_i;a_i,b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">1-F(l_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 <tr class="even">
 <td align="center">3</td>
 <td align="left">Interval-censored</td>
-<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(u_i;a_i,b_i)-F(l_i;a_i,b_i)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(u_i;a_i,b_i)-F(l_i;a_i,b_i)</annotation></semantics></math></td>
 </tr>
 </tbody>
 </table>
 <p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>
 are the beta density and CDF,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i,u_i]</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i,u_i]</annotation></semantics></math>
 are the interval endpoints, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_i,b_i)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a_i,b_i)</annotation></semantics></math>
 are the beta shape parameters derived from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_i</annotation></semantics></math>
 and
@@ -162,9 +162,9 @@ via the chosen reparameterization.</p>
 <h2 id="interval-construction">Interval construction<a class="anchor" aria-label="anchor" href="#interval-construction"></a>
 </h2>
 <p>Scale observations are mapped to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>
 with midpoint uncertainty intervals:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">y_t=y/K,\quad\text{interval }[y_t-h/K,y_t+h/K]</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">y_t=y/K,\quad\text{interval }[y_t-h/K,y_t+h/K]</annotation></semantics></math></p>
 <p>where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
 is the number of scale categories (<code>ncuts</code>) and
@@ -505,8 +505,8 @@ skipped:</p>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -4072.5673 on 4 Df | AIC: 8153.1346 | BIC: 8172.7656 </span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.1292 </span></span>
-<span><span class="co">#&gt; Number of iterations: 35 (BFGS) </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1292  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 33 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 796 interval | 74 left | 130 right</span></span></code></pre></div>
 </div>
 </div>
@@ -624,7 +624,7 @@ dispersion, two covariates, and a logit link for the mean.</p>
 67 on a 0–100 scale yields
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mn>0.67</mn></mrow><annotation encoding="application/x-tex">y_t=0.67</annotation></semantics></math>
 with the interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mn>0.665</mn><mo>,</mo><mn>0.675</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.665,0.675]</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.665</mn><mo>,</mo><mn>0.675</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.665,0.675]</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="fitting-the-model">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model"></a>
@@ -645,25 +645,25 @@ with the interval
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.0753 -0.6600  0.0058  0.7071  3.3708 </span></span>
+<span><span class="co">#&gt; -3.0752 -0.6600  0.0058  0.7071  3.3708 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  0.30604    0.04312   7.097 1.28e-12 ***</span></span>
-<span><span class="co">#&gt; x1          -0.60332    0.04530 -13.317  &lt; 2e-16 ***</span></span>
-<span><span class="co">#&gt; x2           0.44135    0.04385  10.066  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; (Intercept)  0.30605    0.04312   7.097 1.28e-12 ***</span></span>
+<span><span class="co">#&gt; x1          -0.60333    0.04531 -13.317  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; x2           0.44136    0.04385  10.066  &lt; 2e-16 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
 <span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; (phi)  0.10991    0.04057   2.709  0.00674 **</span></span>
+<span><span class="co">#&gt; (phi)  0.10994    0.04057    2.71  0.00673 **</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -4035.2262 on 4 Df | AIC: 8078.4524 | BIC: 8098.0834 </span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.2393 </span></span>
-<span><span class="co">#&gt; Number of iterations: 39 (BFGS) </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.2393  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 34 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 809 interval | 65 left | 126 right</span></span></code></pre></div>
 <p>The summary output follows the <code>betareg</code> package style,
 showing separate coefficient tables for the mean and precision
@@ -733,9 +733,9 @@ can compare them using information criteria:</p>
 <tbody>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.3060</td>
+<td align="center">0.3061</td>
 <td align="center">0.0431</td>
-<td align="center">7.0968</td>
+<td align="center">7.0970</td>
 <td align="center">0.0000</td>
 <td align="center">0.2215</td>
 <td align="center">0.3906</td>
@@ -745,7 +745,7 @@ can compare them using information criteria:</p>
 <td align="center">x1</td>
 <td align="center">-0.6033</td>
 <td align="center">0.0453</td>
-<td align="center">-13.3169</td>
+<td align="center">-13.3171</td>
 <td align="center">0.0000</td>
 <td align="center">-0.6921</td>
 <td align="center">-0.5145</td>
@@ -753,9 +753,9 @@ can compare them using information criteria:</p>
 </tr>
 <tr class="odd">
 <td align="center">x2</td>
-<td align="center">0.4413</td>
+<td align="center">0.4414</td>
 <td align="center">0.0438</td>
-<td align="center">10.0661</td>
+<td align="center">10.0663</td>
 <td align="center">0.0000</td>
 <td align="center">0.3554</td>
 <td align="center">0.5273</td>
@@ -765,10 +765,10 @@ can compare them using information criteria:</p>
 <td align="center">(phi)</td>
 <td align="center">0.1099</td>
 <td align="center">0.0406</td>
-<td align="center">2.7095</td>
+<td align="center">2.7101</td>
 <td align="center">0.0067</td>
 <td align="center">0.0304</td>
-<td align="center">0.1894</td>
+<td align="center">0.1895</td>
 <td align="center">logit</td>
 </tr>
 <tr class="odd">
@@ -785,7 +785,7 @@ can compare them using information criteria:</p>
 <td align="center">x1</td>
 <td align="center">-0.3652</td>
 <td align="center">0.0266</td>
-<td align="center">-13.7107</td>
+<td align="center">-13.7108</td>
 <td align="center">0.0000</td>
 <td align="center">-0.4175</td>
 <td align="center">-0.3130</td>
@@ -813,7 +813,7 @@ can compare them using information criteria:</p>
 </tr>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.2766</td>
+<td align="center">0.2765</td>
 <td align="center">0.0409</td>
 <td align="center">6.7671</td>
 <td align="center">0.0000</td>
@@ -825,7 +825,7 @@ can compare them using information criteria:</p>
 <td align="center">x1</td>
 <td align="center">-0.5595</td>
 <td align="center">0.0493</td>
-<td align="center">-11.3590</td>
+<td align="center">-11.3589</td>
 <td align="center">0.0000</td>
 <td align="center">-0.6561</td>
 <td align="center">-0.4630</td>
@@ -1076,7 +1076,7 @@ approximation:</p>
 <tr class="even">
 <td align="left">(phi)</td>
 <td align="center">0.0304</td>
-<td align="center">0.1894</td>
+<td align="center">0.1895</td>
 </tr>
 </tbody>
 </table>
@@ -1342,8 +1342,8 @@ simulation.</p>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -3922.2430 on 5 Df | AIC: 7854.4861 | BIC: 7879.0249 </span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.1159 </span></span>
-<span><span class="co">#&gt; Number of iterations: 42 (BFGS) </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1159  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 44 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 744 interval | 105 left | 151 right</span></span></code></pre></div>
 <p>Notice the <code>(phi)_</code> prefix in the precision coefficient
 names, following the <code>betareg</code> convention.</p>
@@ -1640,11 +1640,11 @@ predictive validation.</p>
 <tbody>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.3060</td>
-<td align="center">0.0410</td>
-<td align="center">0.2420</td>
+<td align="center">0.3061</td>
+<td align="center">0.0416</td>
+<td align="center">0.2373</td>
 <td align="center">0.4106</td>
-<td align="center">0.0058</td>
+<td align="center">0.0062</td>
 <td align="center">0.0137</td>
 <td align="center">0.2215</td>
 <td align="center">0.3906</td>
@@ -1664,12 +1664,12 @@ predictive validation.</p>
 </tr>
 <tr class="odd">
 <td align="center">x2</td>
-<td align="center">0.4413</td>
-<td align="center">0.0423</td>
-<td align="center">0.3641</td>
-<td align="center">0.5088</td>
-<td align="center">0.0100</td>
-<td align="center">0.0034</td>
+<td align="center">0.4414</td>
+<td align="center">0.0421</td>
+<td align="center">0.3645</td>
+<td align="center">0.5091</td>
+<td align="center">0.0105</td>
+<td align="center">0.0032</td>
 <td align="center">0.3554</td>
 <td align="center">0.5273</td>
 <td align="center">0.95</td>
@@ -1677,13 +1677,13 @@ predictive validation.</p>
 <tr class="even">
 <td align="center">(phi)</td>
 <td align="center">0.1099</td>
-<td align="center">0.0396</td>
+<td align="center">0.0395</td>
 <td align="center">0.0307</td>
 <td align="center">0.1714</td>
 <td align="center">0.0093</td>
-<td align="center">0.0039</td>
+<td align="center">0.0038</td>
 <td align="center">0.0304</td>
-<td align="center">0.1894</td>
+<td align="center">0.1895</td>
 <td align="center">0.95</td>
 </tr>
 </tbody>
@@ -1791,7 +1791,7 @@ predictive validation.</p>
 <td align="center">0.0095</td>
 </tr>
 <tr class="odd">
-<td align="center">0.0320</td>
+<td align="center">0.0321</td>
 <td align="center">0.0249</td>
 <td align="center">0.0176</td>
 <td align="center">0.0145</td>
@@ -2130,24 +2130,24 @@ and
 are used directly. This is rarely used in practice.</p>
 <p><strong>Precision (<code>repar = 1</code>, Ferrari &amp;
 Cribari-Neto, 2004):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
 and precision
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\phi&gt;0</annotation></semantics></math>
 yield
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a=\mu\phi</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)\phi</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)\phi</annotation></semantics></math>.
 Higher
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 means less variability.</p>
 <p><strong>Mean–variance (<code>repar = 2</code>):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
 and dispersion
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\phi\in(0,1)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi\in(0,1)</annotation></semantics></math>
 yield
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a=\mu(1-\phi)/\phi</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a=\mu(1-\phi)/\phi</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)(1-\phi)/\phi</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)(1-\phi)/\phi</annotation></semantics></math>.
 Here
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 acts as a coefficient of variation: smaller

@@ -12,12 +12,14 @@ beta regression and require a production-oriented workflow featuring:
 4.  high-signal reporting tables for technical decision-making.
 
 ``` r
+
 library(betaregscale)
 ```
 
 ## 1) Reproducible simulation and data checks
 
 ``` r
+
 n <- 260
 d <- data.frame(
   x1 = rnorm(n),
@@ -53,6 +55,7 @@ kbl10(head(sim, 10))
 | 0.005 | 0.015 | 0.01 |  1  |   3   | -0.4738 | -0.7299 | 1.8569  |
 
 ``` r
+
 kbl10(
   data.frame(
     n = nrow(sim),
@@ -72,6 +75,7 @@ kbl10(
 ## 2) Fixed-effects candidate set and model ranking
 
 ``` r
+
 fit_logit <- brs(y ~ x1 + x2 | z1, data = sim, link = "logit", repar = 2)
 fit_probit <- brs(y ~ x1 + x2 | z1, data = sim, link = "probit", repar = 2)
 fit_cauchit <- brs(y ~ x1 + x2 | z1, data = sim, link = "cauchit", repar = 2)
@@ -84,15 +88,16 @@ tab_rank <- brs_table(
 kbl10(tab_rank)
 ```
 
-|  model  | nobs | npar |  logLik   |   AIC    |   BIC    | pseudo_r2 | exact | left | right | interval | prop_exact | prop_left | prop_right | prop_interval |
-|:-------:|:----:|:----:|:---------:|:--------:|:--------:|:---------:|:-----:|:----:|:-----:|:--------:|:----------:|:---------:|:----------:|:-------------:|
-|  logit  | 260  |  5   | -1120.320 | 2250.639 | 2268.443 |  0.1875   |   0   |  15  |  16   |   229    |     0      |  0.0577   |   0.0615   |    0.8808     |
-| probit  | 260  |  5   | -1120.281 | 2250.563 | 2268.366 |  0.1807   |   0   |  15  |  16   |   229    |     0      |  0.0577   |   0.0615   |    0.8808     |
-| cauchit | 260  |  5   | -1120.656 | 2251.311 | 2269.115 |  0.1580   |   0   |  15  |  16   |   229    |     0      |  0.0577   |   0.0615   |    0.8808     |
+| model | nobs | npar | logLik | AIC | BIC | pseudo_r2 | exact | left | right | interval | prop_exact | prop_left | prop_right | prop_interval |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| logit | 260 | 5 | -1120.320 | 2250.639 | 2268.443 | 0.1875 | 0 | 15 | 16 | 229 | 0 | 0.0577 | 0.0615 | 0.8808 |
+| probit | 260 | 5 | -1120.281 | 2250.563 | 2268.366 | 0.1807 | 0 | 15 | 16 | 229 | 0 | 0.0577 | 0.0615 | 0.8808 |
+| cauchit | 260 | 5 | -1120.656 | 2251.311 | 2269.115 | 0.1580 | 0 | 15 | 16 | 229 | 0 | 0.0577 | 0.0615 | 0.8808 |
 
 ## 3) Inference stack: Wald + bootstrap + AME
 
 ``` r
+
 kbl10(brs_est(fit_logit))
 ```
 
@@ -105,6 +110,7 @@ kbl10(brs_est(fit_logit))
 |     (phi)\_z1      |  0.3492  | 0.0893 | 3.9085  | 0.0001  |  0.1741  |  0.5243  |
 
 ``` r
+
 kbl10(confint(fit_logit))
 ```
 
@@ -118,19 +124,21 @@ kbl10(confint(fit_logit))
 
 ``` r
 
+
 boot_tab <- brs_bootstrap(fit_logit, R = 80, level = 0.95)
 kbl10(head(boot_tab, 10))
 ```
 
-|     parameter      | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
-|:------------------:|:--------:|:-------:|:--------:|:--------:|:----------:|:----------:|:----------:|:----------:|:-----:|
-|    (Intercept)     |  0.0673  | 0.0765  | -0.1117  |  0.1797  |   0.0164   |   0.0125   |  -0.0862   |   0.2208   | 0.95  |
-|         x1         |  0.5759  | 0.0786  |  0.4619  |  0.7419  |   0.0129   |   0.0144   |   0.4099   |   0.7419   | 0.95  |
-|         x2         | -0.2344  | 0.0736  | -0.3600  | -0.1112  |   0.0124   |   0.0098   |  -0.3816   |  -0.0871   | 0.95  |
-| (phi)\_(Intercept) | -0.1677  | 0.0699  | -0.3160  | -0.0475  |   0.0252   |   0.0146   |  -0.3185   |  -0.0169   | 0.95  |
-|     (phi)\_z1      |  0.3492  | 0.0805  |  0.2168  |  0.4992  |   0.0129   |   0.0170   |   0.1741   |   0.5243   | 0.95  |
+| parameter | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| (Intercept) | 0.0673 | 0.0765 | -0.1117 | 0.1797 | 0.0164 | 0.0125 | -0.0862 | 0.2208 | 0.95 |
+| x1 | 0.5759 | 0.0786 | 0.4619 | 0.7419 | 0.0129 | 0.0144 | 0.4099 | 0.7419 | 0.95 |
+| x2 | -0.2344 | 0.0736 | -0.3600 | -0.1112 | 0.0124 | 0.0098 | -0.3816 | -0.0871 | 0.95 |
+| (phi)\_(Intercept) | -0.1677 | 0.0699 | -0.3160 | -0.0475 | 0.0252 | 0.0146 | -0.3185 | -0.0169 | 0.95 |
+| (phi)\_z1 | 0.3492 | 0.0805 | 0.2168 | 0.4992 | 0.0129 | 0.0170 | 0.1741 | 0.5243 | 0.95 |
 
 ``` r
+
 
 set.seed(2026) # For marginal effects simulation
 ame_mu <- brs_marginaleffects(
@@ -145,10 +153,11 @@ kbl10(ame_mu)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | 0.1325  |  0.0170   |  0.1004  |  0.1652  | mean  | response | 260 |
-|    x2    | -0.0539 |  0.0184   | -0.0936  | -0.0201  | mean  | response | 260 |
+|    x1    | 0.1325  |  0.0180   |  0.0898  |  0.1636  | mean  | response | 260 |
+|    x2    | -0.0539 |  0.0184   | -0.0830  | -0.0195  | mean  | response | 260 |
 
 ``` r
+
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   boot_tab_bca <- brs_bootstrap(
     fit_logit,
@@ -181,6 +190,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 ## 4) Prediction layer on analyst scale
 
 ``` r
+
 score_prob <- brs_predict_scoreprob(fit_logit, scores = 0:10)
 kbl10(score_prob[1:8, 1:7])
 ```
@@ -199,6 +209,7 @@ kbl10(score_prob[1:8, 1:7])
 ## 5) Out-of-sample validation
 
 ``` r
+
 set.seed(2026) # For cross-validation reproducibility
 cv_tab <- brs_cv(
   y ~ x1 + x2 | z1,
@@ -228,6 +239,7 @@ kbl10(head(cv_tab, 10))
 ### 6.1 Simulate clustered data with random intercept + slope
 
 ``` r
+
 g <- 10
 ni <- 120
 id <- factor(rep(seq_len(g), each = ni))
@@ -266,6 +278,7 @@ kbl10(head(dmm, 10))
 ### 6.2 Fit evolutionary sequence
 
 ``` r
+
 fit_brs <- brs(y ~ x1 + x2, data = dmm, repar = 2)
 fit_ri <- brsmm(y ~ x1 + x2, random = ~ 1 | id, data = dmm, repar = 2)
 fit_rs <- brsmm(y ~ x1 + x2, random = ~ 1 + x1 | id, data = dmm, repar = 2)
@@ -277,8 +290,8 @@ kbl10(data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL))
 |   model    | Df  |  logLik   |   AIC    |   BIC    |  Chisq   | Chi.Df | Pr..Chisq. |
 |:----------:|:---:|:---------:|:--------:|:--------:|:--------:|:------:|:----------:|
 |  M1 (brs)  |  4  | -4929.925 | 9867.850 | 9888.210 |    NA    |   NA   |     NA     |
-| M2 (brsmm) |  5  | -4829.123 | 9668.247 | 9693.697 | 201.6026 |   1    |   0.0000   |
-| M3 (brsmm) |  7  | -4827.018 | 9668.037 | 9703.667 |  4.2101  |   2    |   0.1218   |
+| M2 (brsmm) |  5  | -4829.123 | 9668.247 | 9693.697 | 201.6025 |   1    |   0.0000   |
+| M3 (brsmm) |  7  | -4827.018 | 9668.036 | 9703.667 |  4.2105  |   2    |   0.1218   |
 
 ### 6.3 Model choice by LLR/LRT (ANOVA)
 
@@ -290,15 +303,18 @@ practical Likelihood Ratio Test (LLR) workflow:
 - `M2 = brsmm` with random intercept + slope (`~ 1 + x1 | id`).
 
 In nested comparisons, the test statistic is:
-$$LR = 2\{\ell\left( {\widehat{\theta}}_{\text{complex}} \right) - \ell\left( {\widehat{\theta}}_{\text{simple}} \right)\}$$
+``` math
+LR=2\{\ell(\hat\theta_{\text{complex}})-\ell(\hat\theta_{\text{simple}})\}
+```
 
 For the first step (`M0 -> M1`), the null hypothesis involves variance
 components located at the boundary of the parameter space
-($\sigma_{b}^{2} = 0$); therefore, p-values should be interpreted with
+($`\sigma_b^2=0`$); therefore, p-values should be interpreted with
 caution. For the `M1 -> M2` step, the chi-square approximation is robust
 and often used as a practical decision aid.
 
 ``` r
+
 tab_lr_df <- data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL)
 tab_lr_df$decision <- c(
   "baseline",
@@ -315,12 +331,13 @@ kbl10(tab_lr_df)
 |   model    | Df  |  logLik   |   AIC    |   BIC    |  Chisq   | Chi.Df | Pr..Chisq. | decision |
 |:----------:|:---:|:---------:|:--------:|:--------:|:--------:|:------:|:----------:|:--------:|
 |  M1 (brs)  |  4  | -4929.925 | 9867.850 | 9888.210 |    NA    |   NA   |     NA     | baseline |
-| M2 (brsmm) |  5  | -4829.123 | 9668.247 | 9693.697 | 201.6026 |   1    |   0.0000   | baseline |
-| M3 (brsmm) |  7  | -4827.018 | 9668.037 | 9703.667 |  4.2101  |   2    |   0.1218   | baseline |
+| M2 (brsmm) |  5  | -4829.123 | 9668.247 | 9693.697 | 201.6025 |   1    |   0.0000   | baseline |
+| M3 (brsmm) |  7  | -4827.018 | 9668.036 | 9703.667 |  4.2105  |   2    |   0.1218   | baseline |
 
 ## 7) Random-effects study (numeric + visual)
 
 ``` r
+
 rs <- brsmm_re_study(fit_rs)
 print(rs)
 #> 
@@ -329,42 +346,45 @@ print(rs)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.  Corr
-#>   re1                         0.6117
-#>   re2                         0.1138  0.6654
+#>   re1                         0.6114
+#>   re2                         0.1133  0.6708
 #> 
-#> ICC (latent logistic scale): 0.1021
+#> ICC (latent logistic scale): 0.1020
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)   0.6117   -0.0040  0.6315          1.0000    0.4816
-#>           x1   0.1138   -0.0015  0.0930          0.6682    0.0760
+#>  (Intercept)   0.6114   -0.0011  0.6314          1.0000    0.4815
+#>           x1   0.1133   -0.0011  0.0928          0.6712    0.0788
 kbl10(rs$summary)
 ```
 
 |    term     | sd_model | mean_mode | sd_mode | shrinkage_ratio | shapiro_p |
 |:-----------:|:--------:|:---------:|:-------:|:---------------:|:---------:|
-| (Intercept) |  0.6117  |  -0.0040  | 0.6315  |     1.0000      |  0.4816   |
-|     x1      |  0.1138  |  -0.0015  | 0.0930  |     0.6682      |  0.0760   |
+| (Intercept) |  0.6114  |  -0.0011  | 0.6314  |     1.0000      |  0.4815   |
+|     x1      |  0.1133  |  -0.0011  | 0.0928  |     0.6712      |  0.0788   |
 
 ``` r
+
 kbl10(rs$D)
 ```
 
 |   V1   |   V2   |
 |:------:|:------:|
-| 0.3742 | 0.0463 |
-| 0.0463 | 0.0130 |
+| 0.3739 | 0.0465 |
+| 0.0465 | 0.0128 |
 
 ``` r
+
 kbl10(rs$Corr)
 ```
 
 |   V1   |   V2   |
 |:------:|:------:|
-| 1.0000 | 0.6654 |
-| 0.6654 | 1.0000 |
+| 1.0000 | 0.6708 |
+| 0.6708 | 1.0000 |
 
 ``` r
+
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot.brsmm(fit_rs, type = "ranef_caterpillar")
   autoplot.brsmm(fit_rs, type = "ranef_density")

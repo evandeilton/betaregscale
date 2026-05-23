@@ -1,8 +1,7 @@
 # Apply the inverse-link function to a linear predictor
 
 Evaluates the inverse of a standard link function for a given
-linear-predictor vector or scalar. This is a convenience wrapper around
-[`make.link`](https://rdrr.io/r/stats/make.link.html).
+linear-predictor vector or scalar.
 
 ## Usage
 

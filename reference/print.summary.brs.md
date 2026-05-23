@@ -59,7 +59,7 @@ print(summary(fit))
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -2.6342 -0.4820  0.0653  0.5357  2.8625 
+#> -2.4605 -0.4830  0.0612  0.5494  2.2923 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)
@@ -71,8 +71,8 @@ print(summary(fit))
 #> (phi)  -0.3929     0.2763  -1.422    0.155
 #> ---
 #> Log-likelihood: -92.6521 on 3 Df | AIC: 191.3041 | BIC: 194.2913 
-#> Pseudo R-squared: 0.0029 
-#> Number of iterations: 17 (BFGS) 
+#> Pseudo R-squared: 0.0029  (midpoint approx.; interpret with caution for heavily censored data) 
+#> Number of iterations: 15 (BFGS) 
 #> Censoring: 18 interval | 1 left | 1 right 
 #> 
 # }

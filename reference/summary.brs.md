@@ -46,8 +46,8 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 s <- summary(fit)
 s$coefficients$mean
-#>               Estimate Std. Error    z value  Pr(>|z|)
-#> (Intercept)  0.2550945  0.8643907  0.2951148 0.7679062
-#> x1          -0.2202075  0.5411943 -0.4068917 0.6840875
+#>              Estimate Std. Error    z value  Pr(>|z|)
+#> (Intercept)  0.255100  0.8643918  0.2951208 0.7679016
+#> x1          -0.220206  0.5411949 -0.4068885 0.6840899
 # }
 ```

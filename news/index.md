@@ -279,10 +279,8 @@ CRAN release: 2026-02-25
 - Added multivariate Laplace approximation in the Eigen C++ backend for
   group-specific latent vectors and covariance matrix handling via
   packed lower-Cholesky parameterization.
-- Added
-  [`brsmm_group_modes_eigen()`](https://evandeilton.github.io/betaregscale/reference/brsmm_group_modes_eigen.md)
-  to compute posterior modes of group random effects for general
-  random-effects dimension.
+- Added `brsmm_group_modes_eigen()` to compute posterior modes of group
+  random effects for general random-effects dimension.
 - Added generic model-comparison methods
   [`anova.brs()`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
   and
@@ -642,9 +640,9 @@ CRAN release: 2026-02-25
 ### New features
 
 - **Mixed censoring support**: the complete likelihood (Eq. 2.24) now
-  handles four censoring types simultaneously: exact ($\delta = 0$),
-  left-censored ($\delta = 1$), right-censored ($\delta = 2$), and
-  interval-censored ($\delta = 3$).
+  handles four censoring types simultaneously: exact ($`\delta=0`$),
+  left-censored ($`\delta=1`$), right-censored ($`\delta=2`$), and
+  interval-censored ($`\delta=3`$).
 - **C++ backend rewrite**: log-likelihood and analytical gradient
   functions rewritten in C++ (RcppArmadillo) for numerically stable,
   high-performance evaluation.

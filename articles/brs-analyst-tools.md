@@ -20,6 +20,7 @@ The examples use bounded scale data under the interval-censored beta
 regression framework implemented in the package.
 
 ``` r
+
 library(betaregscale)
 ```
 
@@ -27,17 +28,20 @@ library(betaregscale)
 
 ### Complete likelihood by censoring type
 
-For each observation $i$, let $\delta_{i} \in \{ 0,1,2,3\}$ indicate
+For each observation $`i`$, let $`\delta_i\in\{0,1,2,3\}`$ indicate
 exact, left-censored, right-censored, or interval-censored status. With
-beta CDF $F( \cdot )$, beta density $f( \cdot )$, and interval endpoints
-$\left\lbrack l_{i},u_{i} \right\rbrack$, the contribution is:
+beta CDF $`F(\cdot)`$, beta density $`f(\cdot)`$, and interval endpoints
+$`[l_i,u_i]`$, the contribution is:
 
-$$L_{i}(\theta) = \begin{cases}
-{f\left( y_{i};a_{i},b_{i} \right),} & {\delta_{i} = 0,} \\
-{F\left( u_{i};a_{i},b_{i} \right),} & {\delta_{i} = 1,} \\
-{1 - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 2,} \\
-{F\left( u_{i};a_{i},b_{i} \right) - F\left( l_{i};a_{i},b_{i} \right),} & {\delta_{i} = 3.}
-\end{cases}$$
+``` math
+L_i(\theta)=
+\begin{cases}
+f(y_i; a_i, b_i), & \delta_i=0,\\
+F(u_i; a_i, b_i), & \delta_i=1,\\
+1 - F(l_i; a_i, b_i), & \delta_i=2,\\
+F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3.
+\end{cases}
+```
 
 This is the basis for fitting, prediction, and validation metrics.
 
@@ -46,36 +50,40 @@ This is the basis for fitting, prediction, and validation metrics.
 [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)
 reports:
 
-- $\log L\left( \widehat{\theta} \right)$,
-- $AIC = - 2\log L\left( \widehat{\theta} \right) + 2k$,
-- $BIC = - 2\log L\left( \widehat{\theta} \right) + k\log n$,
+- $`\log L(\hat\theta)`$,
+- $`AIC=-2\log L(\hat\theta)+2k`$,
+- $`BIC=-2\log L(\hat\theta)+k\log n`$,
 
-where $k$ is the number of estimated parameters and $n$ is the sample
-size.
+where $`k`$ is the number of estimated parameters and $`n`$ is the
+sample size.
 
 ### Average marginal effects (AME)
 
 [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)
 computes AME by finite differences:
 
-$${AME}_{j} = \frac{1}{n}\sum\limits_{i = 1}^{n}\frac{{\widehat{g}}_{i}\left( x_{ij} + h \right) - {\widehat{g}}_{i}\left( x_{ij} \right)}{h},$$
+``` math
+\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
+```
 
-with ${\widehat{g}}_{i}$ on the requested prediction scale (`response`
-or `link`). For binary covariates $x_{j} \in \{ 0,1\}$, it uses the
-discrete contrast
-$\widehat{g}\left( x_{j} = 1 \right) - \widehat{g}\left( x_{j} = 0 \right)$.
+with $`\hat g_i`$ on the requested prediction scale (`response` or
+`link`). For binary covariates $`x_j\in\{0,1\}`$, it uses the discrete
+contrast $`\hat g(x_j=1)-\hat g(x_j=0)`$.
 
 ### Score-scale probabilities
 
-For integer scores $s \in \{ 0,\ldots,K\}$,
+For integer scores $`s\in\{0,\dots,K\}`$,
 [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
 computes:
 
-$$P(Y = s) = \begin{cases}
-{F\left( {lim}/K \right),} & {s = 0,} \\
-{1 - F\left( \left( K - {lim} \right)/K \right),} & {s = K,} \\
-{F\left( \left( s + {lim} \right)/K \right) - F\left( \left( s - {lim} \right)/K \right),} & {1 \leq s \leq K - 1.}
-\end{cases}$$
+``` math
+P(Y=s)=
+\begin{cases}
+F(\mathrm{lim}/K), & s=0,\\
+1-F((K-\mathrm{lim})/K), & s=K,\\
+F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), & 1\le s\le K-1.
+\end{cases}
+```
 
 These probabilities are directly aligned with interval geometry on the
 original instrument scale.
@@ -86,20 +94,27 @@ In
 [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md),
 fold-level predictive quality includes:
 
-$${log\_ score} = \frac{1}{n_{test}}\sum\limits_{i \in test}\log\left( p_{i} \right),$$
+``` math
+\mathrm{log\_score}=\frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
+```
 
-where $p_{i}$ is the predictive contribution from the same
+where $`p_i`$ is the predictive contribution from the same
 censoring-rule piecewise definition shown above.
 
 It also reports:
 
-$${RMSE}_{yt} = \sqrt{\frac{1}{n_{test}}\sum\left( y_{t,i} - {\widehat{\mu}}_{i} \right)^{2}},\qquad{MAE}_{yt} = \frac{1}{n_{test}}\sum\left| y_{t,i} - {\widehat{\mu}}_{i} \right|.$$
+``` math
+\mathrm{RMSE}_{yt}=\sqrt{\frac{1}{n_{test}}\sum(y_{t,i}-\hat\mu_i)^2},
+\qquad
+\mathrm{MAE}_{yt}=\frac{1}{n_{test}}\sum|y_{t,i}-\hat\mu_i|.
+```
 
 ## Reproducible workflow
 
 ### 1) Simulate data and fit candidate models
 
 ``` r
+
 set.seed(2026)
 n <- 220
 d <- data.frame(
@@ -124,6 +139,7 @@ fit_var <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
 ### 2) Compare models in one table
 
 ``` r
+
 tab <- brs_table(
   fixed = fit_fixed,
   variable = fit_var,
@@ -132,14 +148,15 @@ tab <- brs_table(
 kbl10(tab)
 ```
 
-|  model   | nobs | npar |  logLik   |   AIC    |   BIC    | pseudo_r2 | exact | left | right | interval | prop_exact | prop_left | prop_right | prop_interval |
-|:--------:|:----:|:----:|:---------:|:--------:|:--------:|:---------:|:-----:|:----:|:-----:|:--------:|:----------:|:---------:|:----------:|:-------------:|
-| variable | 220  |  5   | -931.8646 | 1873.729 | 1890.697 |  0.1381   |   0   |  8   |  22   |   190    |     0      |  0.0364   |    0.1     |    0.8636     |
-|  fixed   | 220  |  4   | -939.3243 | 1886.649 | 1900.223 |  0.1381   |   0   |  8   |  22   |   190    |     0      |  0.0364   |    0.1     |    0.8636     |
+| model | nobs | npar | logLik | AIC | BIC | pseudo_r2 | exact | left | right | interval | prop_exact | prop_left | prop_right | prop_interval |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| variable | 220 | 5 | -931.8646 | 1873.729 | 1890.697 | 0.1381 | 0 | 8 | 22 | 190 | 0 | 0.0364 | 0.1 | 0.8636 |
+| fixed | 220 | 4 | -939.3243 | 1886.649 | 1900.223 | 0.1381 | 0 | 8 | 22 | 190 | 0 | 0.0364 | 0.1 | 0.8636 |
 
 ### 3) Estimate average marginal effects
 
 ``` r
+
 set.seed(2026) # For marginal effects simulation
 me_mean <- brs_marginaleffects(
   fit_var,
@@ -153,10 +170,11 @@ kbl10(me_mean)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | -0.1035 |  0.0178   | -0.1339  | -0.0675  | mean  | response | 220 |
-|    x2    | 0.0734  |  0.0188   |  0.0360  |  0.1071  | mean  | response | 220 |
+|    x1    | -0.1035 |  0.0191   | -0.1467  | -0.0667  | mean  | response | 220 |
+|    x2    | 0.0734  |  0.0182   |  0.0381  |  0.1053  | mean  | response | 220 |
 
 ``` r
+
 
 set.seed(2026) # Reset seed for reproducibility
 me_precision <- brs_marginaleffects(
@@ -171,11 +189,12 @@ kbl10(me_precision)
 
 | variable |   ame   | std.error | ci.lower | ci.upper |   model   | type |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:---------:|:----:|:---:|
-|    z1    | -0.3361 |  0.0835   | -0.4781  | -0.1413  | precision | link | 220 |
+|    z1    | -0.3361 |  0.0907   | -0.4909  | -0.1541  | precision | link | 220 |
 
 ### 4) Predict score probabilities
 
 ``` r
+
 P <- brs_predict_scoreprob(fit_var, scores = 0:10)
 dim(P)
 #> [1] 220  11
@@ -192,6 +211,7 @@ kbl10(P[1:6, 1:5])
 | 0.0050  | 0.0050  | 0.0039  | 0.0034  | 0.0030  |
 
 ``` r
+
 kbl10(
   data.frame(row_sum = rowSums(P)),
   digits = 4
@@ -217,24 +237,28 @@ subset selection).
 ### 5) ggplot2 diagnostics
 
 ``` r
+
 autoplot.brs(fit_var, type = "calibration")
 ```
 
 ![](brs-analyst-tools_files/figure-html/autoplot-1.png)
 
 ``` r
+
 autoplot.brs(fit_var, type = "score_dist", scores = 0:20)
 ```
 
 ![](brs-analyst-tools_files/figure-html/autoplot-2.png)
 
 ``` r
+
 autoplot.brs(fit_var, type = "cdf", max_curves = 4)
 ```
 
 ![](brs-analyst-tools_files/figure-html/autoplot-3.png)
 
 ``` r
+
 autoplot.brs(fit_var, type = "residuals_by_delta", residual_type = "rqr")
 ```
 
@@ -243,6 +267,7 @@ autoplot.brs(fit_var, type = "residuals_by_delta", residual_type = "rqr")
 ### 6) Repeated k-fold cross-validation
 
 ``` r
+
 set.seed(2026) # For cross-validation reproducibility
 cv_res <- brs_cv(
   y ~ x1 + x2 | z1,
@@ -262,6 +287,7 @@ kbl10(cv_res)
 |   1    |  3   |   147   |   73   |  -4.1676  | 0.3454  | 0.3022 |   TRUE    |  NA   |
 
 ``` r
+
 kbl10(
   data.frame(
     metric = c("log_score", "rmse_yt", "mae_yt"),

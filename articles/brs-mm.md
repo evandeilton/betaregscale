@@ -17,78 +17,108 @@ This vignette covers:
 4.  inferential and validation workflows, including parameter recovery.
 
 ``` r
+
 library(betaregscale)
 ```
 
 ## Mathematical model
 
-Assume observations $i = 1,\ldots,n_{j}$ within groups $j = 1,\ldots,G$,
-with group-specific random-effects vector
-$\mathbf{b}_{j} \in {\mathbb{R}}^{q_{b}}$.
+Assume observations $`i = 1, \dots, n_j`$ within groups
+$`j = 1, \dots, G`$, with group-specific random-effects vector
+$`\mathbf{b}_j \in \mathbb{R}^{q_b}`$.
 
 ### Linear predictors
 
-$$\eta_{\mu,ij} = x_{ij}^{\top}\beta + w_{ij}^{\top}\mathbf{b}_{j},\qquad\eta_{\phi,ij} = z_{ij}^{\top}\gamma$$
+``` math
+\eta_{\mu,ij} = x_{ij}^\top \beta + w_{ij}^\top \mathbf{b}_j,
+\qquad
+\eta_{\phi,ij} = z_{ij}^\top \gamma
+```
 
-$$\mu_{ij} = g^{- 1}\left( \eta_{\mu,ij} \right),\qquad\phi_{ij} = h^{- 1}\left( \eta_{\phi,ij} \right)$$
+``` math
+\mu_{ij} = g^{-1}(\eta_{\mu,ij}),
+\qquad
+\phi_{ij} = h^{-1}(\eta_{\phi,ij})
+```
 
-with $g( \cdot )$ and $h( \cdot )$ chosen by `link` and `link_phi`. The
-random-effects design row $w_{ij}$ is defined by
+with $`g(\cdot)`$ and $`h(\cdot)`$ chosen by `link` and `link_phi`. The
+random-effects design row $`w_{ij}`$ is defined by
 `random = ~ terms | group`.
 
 ### Beta parameterization
 
-For each $\left( \mu_{ij},\phi_{ij} \right)$, `repar` maps to beta shape
-parameters $\left( a_{ij},b_{ij} \right)$ via
+For each $`(\mu_{ij},\phi_{ij})`$, `repar` maps to beta shape parameters
+$`(a_{ij},b_{ij})`$ via
 [`brs_repar()`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 ### Conditional contribution by censoring type
 
 Each observation contributes:
 
-$$L_{ij}\left( b_{j};\theta \right) = \begin{cases}
-{f\left( y_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 0} \\
-{F\left( u_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 1} \\
-{1 - F\left( l_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 2} \\
-{F\left( u_{ij};a_{ij},b_{ij} \right) - F\left( l_{ij};a_{ij},b_{ij} \right),} & {\delta_{ij} = 3}
-\end{cases}$$
+``` math
+L_{ij}(b_j;\theta)=
+\begin{cases}
+f(y_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=0\\
+F(u_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=1\\
+1 - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=2\\
+F(u_{ij}; a_{ij}, b_{ij}) - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=3
+\end{cases}
+```
 
-where $l_{ij},u_{ij}$ are interval endpoints on $(0,1)$, $f( \cdot )$ is
-beta density, and $F( \cdot )$ is beta CDF.
+where $`l_{ij},u_{ij}`$ are interval endpoints on $`(0,1)`$,
+$`f(\cdot)`$ is beta density, and $`F(\cdot)`$ is beta CDF.
 
 ### Random-effects distribution
 
-$$\mathbf{b}_{j} \sim \mathcal{N}(\mathbf{0},D),$$
+``` math
+\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D),
+```
 
-where $D$ is a symmetric positive-definite covariance matrix.
+where $`D`$ is a symmetric positive-definite covariance matrix.
 Internally,
 [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
-optimizes a packed lower-Cholesky parameterization $D = LL^{\top}$
+optimizes a packed lower-Cholesky parameterization $`D = LL^\top`$
 (diagonal entries on log-scale for positivity).
 
 ### Group marginal likelihood
 
-$$L_{j}(\theta) = \int_{{\mathbb{R}}^{q_{b}}}\prod\limits_{i = 1}^{n_{j}}L_{ij}\left( b_{j};\theta \right)\,\varphi_{q_{b}}\left( \mathbf{b}_{j};\mathbf{0},D \right)\, d\mathbf{b}_{j}$$
+``` math
+L_j(\theta)=\int_{\mathbb{R}^{q_b}}
+\prod_{i=1}^{n_j} L_{ij}(b_j;\theta)\,
+\varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
+```
 
-$$\ell(\theta) = \sum\limits_{j = 1}^{G}\log L_{j}(\theta)$$
+``` math
+\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)
+```
 
 ### Laplace approximation used by `brsmm()`
 
 Define
-$$Q_{j}(\mathbf{b}) = \sum\limits_{i = 1}^{n_{j}}\log L_{ij}(\mathbf{b};\theta) + \log\varphi_{q_{b}}(\mathbf{b};\mathbf{0},D)$$
-and
-${\widehat{\mathbf{b}}}_{j} = \arg\max_{\mathbf{b}}Q_{j}(\mathbf{b})$,
-with curvature
-$$H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right).$$
+``` math
+Q_j(\mathbf{b})=
+\sum_{i=1}^{n_j}\log L_{ij}(\mathbf{b};\theta)+
+\log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)
+```
+and $`\hat{\mathbf{b}}_j=\arg\max_{\mathbf{b}} Q_j(\mathbf{b})`$, with
+curvature
+``` math
+H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j).
+```
 Then
 
-$$\log L_{j}(\theta) \approx Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right) + \frac{q_{b}}{2}\log(2\pi) - \frac{1}{2}\log\left| H_{j} \right|.$$
+``` math
+\log L_j(\theta) \approx
+Q_j(\hat{\mathbf{b}}_j) +
+\frac{q_b}{2}\log(2\pi) -
+\frac{1}{2}\log|H_j|.
+```
 
 [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
-maximizes the approximated $\ell(\theta)$ with
+maximizes the approximated $`\ell(\theta)`$ with
 [`stats::optim()`](https://rdrr.io/r/stats/optim.html), and computes
-group-level posterior modes ${\widehat{\mathbf{b}}}_{j}$. For
-$q_{b} = 1$, this reduces to the scalar random-intercept formula.
+group-level posterior modes $`\hat{\mathbf{b}}_j`$. For $`q_b = 1`$,
+this reduces to the scalar random-intercept formula.
 
 ## Simulating clustered scale data
 
@@ -96,6 +126,7 @@ The next helper simulates data from a known mixed model to illustrate
 fitting, inference, and recovery checks.
 
 ``` r
+
 sim_brsmm_data <- function(seed = 3501L, g = 24L, ni = 12L,
                            beta = c(0.20, 0.65),
                            gamma = c(-0.15),
@@ -137,6 +168,7 @@ str(sim$data)
 ## Fitting `brsmm()`
 
 ``` r
+
 fit_mm <- brsmm(
   y ~ x1,
   random = ~ 1 | id,
@@ -155,24 +187,24 @@ summary(fit_mm)
 #> 
 #> Randomized Quantile Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -2.8356 -0.6727 -0.0422  0.6040  3.0833 
+#> -2.8356 -0.6727 -0.0422  0.6041  3.0834 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)  0.26237    0.18121   1.448    0.148    
-#> x1           0.63844    0.04381  14.573   <2e-16 ***
+#> (Intercept)  0.26225    0.18145   1.445    0.148    
+#> x1           0.63847    0.04382  14.570   <2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)   
-#> (Intercept) -0.10608    0.04044  -2.623  0.00872 **
+#> (Intercept) -0.10608    0.04052  -2.618  0.00885 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Random-effects parameters (Cholesky scale):
 #>                      Estimate Std. Error z value Pr(>|z|)   
-#> logSD.(Intercept)|id  -0.9293     0.3338  -2.784  0.00537 **
+#> logSD.(Intercept)|id  -0.9285     0.3346  -2.774  0.00553 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
@@ -180,7 +212,7 @@ summary(fit_mm)
 #> Observations: 1000  | Groups: 5 
 #> Log-likelihood: -4182.1094 on 4 Df | AIC: 8372.2188 | BIC: 8391.8498 
 #> Pseudo R-squared: 0.1815 
-#> Number of iterations: 37 (BFGS) 
+#> Number of iterations: 27 (BFGS) 
 #> Censoring: 852 interval | 39 left | 109 right
 ```
 
@@ -189,6 +221,7 @@ summary(fit_mm)
 The model below includes a random intercept and random slope for `x1`:
 
 ``` r
+
 fit_mm_rs <- brsmm(
   y ~ x1,
   random = ~ 1 + x1 | id,
@@ -207,49 +240,51 @@ summary(fit_mm_rs)
 #> 
 #> Randomized Quantile Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -3.6105 -0.6741 -0.0459  0.6224  3.9925 
+#> -3.6104 -0.6735 -0.0460  0.6225  3.9921 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)   0.2621     0.1805   1.452    0.146    
-#> x1            0.6375     0.0455  14.012   <2e-16 ***
+#> (Intercept)  0.25946    0.18124   1.432    0.152    
+#> x1           0.63729    0.04571  13.941   <2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)   
-#> (Intercept) -0.10665    0.04046  -2.636   0.0084 **
+#> (Intercept) -0.10624    0.04045  -2.626  0.00863 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Random-effects parameters (Cholesky scale):
 #>                       Estimate Std. Error z value Pr(>|z|)   
-#> logSD.(Intercept)|id  -0.92945    0.33379  -2.785  0.00536 **
-#> cov.x1:(Intercept)|id -0.02742    0.04459  -0.615  0.53852   
-#> logSD.x1|id           -7.05471   37.93692  -0.186  0.85248   
+#> logSD.(Intercept)|id  -0.92447    0.33457  -2.763  0.00572 **
+#> cov.x1:(Intercept)|id -0.02744    0.04589  -0.598  0.54982   
+#> logSD.x1|id           -4.64645    4.03641  -1.151  0.24968   
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 1000  | Groups: 5 
-#> Log-likelihood: -4181.9196 on 6 Df | AIC: 8375.8392 | BIC: 8405.2858 
+#> Log-likelihood: -4181.9351 on 6 Df | AIC: 8375.8702 | BIC: 8405.3167 
 #> Pseudo R-squared: 0.1815 
-#> Number of iterations: 64 (BFGS) 
+#> Number of iterations: 68 (BFGS) 
 #> Censoring: 852 interval | 39 left | 109 right
 ```
 
 Covariance structure of random effects:
 
 ``` r
+
 kbl10(fit_mm_rs$random$D)
 ```
 
 |   V1    |   V2    |
 |:-------:|:-------:|
-| 0.1558  | -0.0108 |
-| -0.0108 | 0.0008  |
+| 0.1574  | -0.0109 |
+| -0.0109 | 0.0008  |
 
 ``` r
+
 kbl10(
   data.frame(term = names(fit_mm_rs$random$sd_b), sd = as.numeric(fit_mm_rs$random$sd_b)),
   digits = 4
@@ -258,32 +293,34 @@ kbl10(
 
 |    term     |   sd   |
 |:-----------:|:------:|
-| (Intercept) | 0.3948 |
-|     x1      | 0.0274 |
+| (Intercept) | 0.3967 |
+|     x1      | 0.0291 |
 
 ``` r
+
 kbl10(head(ranef(fit_mm_rs), 10))
 ```
 
 | (Intercept) |   x1    |
 |:-----------:|:-------:|
-|   -0.5205   | 0.0362  |
-|   0.6196    | -0.0430 |
-|   -0.2488   | 0.0173  |
-|   0.1465    | -0.0102 |
-|   0.0024    | -0.0002 |
+|   -0.5182   | 0.0357  |
+|   0.6223    | -0.0431 |
+|   -0.2465   | 0.0170  |
+|   0.1489    | -0.0111 |
+|   0.0049    | 0.0007  |
 
 ## Additional studies of random effects (numerical and visual)
 
 Following practices from established mixed-models packages, the package
 now allows for a dedicated study of the random effects focusing on:
 
-- $D$ structure and correlation;
+- $`D`$ structure and correlation;
 - empirical distribution of modes by group;
 - empirical shrinkage intensity;
 - specific visual diagnostics for the random components.
 
 ``` r
+
 re_study <- brsmm_re_study(fit_mm_rs)
 print(re_study)
 #> 
@@ -292,44 +329,47 @@ print(re_study)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.  Corr
-#>   re1                         0.3948
-#>   re2                         0.0274  -0.9995
+#>   re1                         0.3967
+#>   re2                         0.0291  -0.9440
 #> 
-#> ICC (latent logistic scale): 0.0452
+#> ICC (latent logistic scale): 0.0457
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)   0.3948    -1e-04  0.4296               1    0.9641
-#>           x1   0.0274     0e+00  0.0298               1    0.9641
+#>  (Intercept)   0.3967    0.0023  0.4298               1    0.9640
+#>           x1   0.0291   -0.0002  0.0298               1    0.9688
 kbl10(re_study$summary)
 ```
 
 |    term     | sd_model | mean_mode | sd_mode | shrinkage_ratio | shapiro_p |
 |:-----------:|:--------:|:---------:|:-------:|:---------------:|:---------:|
-| (Intercept) |  0.3948  |  -1e-04   | 0.4296  |        1        |  0.9641   |
-|     x1      |  0.0274  |   0e+00   | 0.0298  |        1        |  0.9641   |
+| (Intercept) |  0.3967  |  0.0023   | 0.4298  |        1        |  0.9640   |
+|     x1      |  0.0291  |  -0.0002  | 0.0298  |        1        |  0.9688   |
 
 ``` r
+
 kbl10(re_study$D)
 ```
 
 |   V1    |   V2    |
 |:-------:|:-------:|
-| 0.1558  | -0.0108 |
-| -0.0108 | 0.0008  |
+| 0.1574  | -0.0109 |
+| -0.0109 | 0.0008  |
 
 ``` r
+
 kbl10(re_study$Corr)
 ```
 
-|   V1    |   V2    |
-|:-------:|:-------:|
-| 1.0000  | -0.9995 |
-| -0.9995 | 1.0000  |
+|   V1   |   V2   |
+|:------:|:------:|
+| 1.000  | -0.944 |
+| -0.944 | 1.000  |
 
 Suggested visualizations for random effects:
 
 ``` r
+
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot.brsmm(fit_mm_rs, type = "ranef_caterpillar")
   autoplot.brsmm(fit_mm_rs, type = "ranef_density")
@@ -346,9 +386,10 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 `coef(fit_mm, model = "random")` returns packed random-effect covariance
 parameters on the optimizer scale (lower-Cholesky, with a log-diagonal).
-For random-intercept models, this simplifies to $\log\sigma_{b}$.
+For random-intercept models, this simplifies to $`\log \sigma_b`$.
 
 ``` r
+
 kbl10(
   data.frame(
     parameter = names(coef(fit_mm, model = "full")),
@@ -360,12 +401,13 @@ kbl10(
 
 |            parameter             | estimate |
 |:--------------------------------:|:--------:|
-|           (Intercept)            |  0.2624  |
-|                x1                |  0.6384  |
+|           (Intercept)            |  0.2623  |
+|                x1                |  0.6385  |
 |        (phi)\_(Intercept)        | -0.1061  |
-| (re_chol_logsd)\_(Intercept)\|id | -0.9293  |
+| (re_chol_logsd)\_(Intercept)\|id | -0.9285  |
 
 ``` r
+
 kbl10(
   data.frame(
     log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
@@ -377,23 +419,25 @@ kbl10(
 
 | log_sigma_b | sigma_b |
 |:-----------:|:-------:|
-|   -0.9293   | 0.3948  |
+|   -0.9285   | 0.3952  |
 
 ``` r
+
 kbl10(head(ranef(fit_mm), 10))
 ```
 
 |    x    |
 |:-------:|
-| -0.5220 |
-| 0.6187  |
-| -0.2499 |
-| 0.1420  |
-| 0.0083  |
+| -0.5219 |
+| 0.6189  |
+| -0.2498 |
+| 0.1421  |
+| 0.0084  |
 
 For random intercept + slope models:
 
 ``` r
+
 kbl10(
   data.frame(
     parameter = names(coef(fit_mm_rs, model = "random")),
@@ -405,22 +449,24 @@ kbl10(
 
 |            parameter             | estimate |
 |:--------------------------------:|:--------:|
-| (re_chol_logsd)\_(Intercept)\|id | -0.9294  |
+| (re_chol_logsd)\_(Intercept)\|id | -0.9245  |
 |  (re_chol)\_x1:(Intercept)\|id   | -0.0274  |
-|     (re_chol_logsd)\_x1\|id      | -7.0547  |
+|     (re_chol_logsd)\_x1\|id      | -4.6465  |
 
 ``` r
+
 kbl10(fit_mm_rs$random$D)
 ```
 
 |   V1    |   V2    |
 |:-------:|:-------:|
-| 0.1558  | -0.0108 |
-| -0.0108 | 0.0008  |
+| 0.1574  | -0.0109 |
+| -0.0109 | 0.0008  |
 
 ### Variance-covariance, summary and likelihood criteria
 
 ``` r
+
 vc <- vcov(fit_mm)
 dim(vc)
 #> [1] 4 4
@@ -429,12 +475,13 @@ sm <- summary(fit_mm)
 kbl10(sm$coefficients)
 ```
 
-|             | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
-|:------------|:-------------:|:---------------:|:------------:|:-----------:|:------------------:|:--------------------:|:-----------------:|:----------------:|:---------------:|:-----------------:|:--------------:|:-------------:|
-| (Intercept) |    0.2624     |     0.1812      |    1.4479    |   0.1477    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
-| x1          |    0.6384     |     0.0438      |   14.5727    |   0.0000    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
+|  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
+|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| (Intercept) | 0.2623 | 0.1815 | 1.4453 | 0.1484 | -0.1061 | 0.0405 | -2.6178 | 0.0088 | -0.9285 | 0.3346 | -2.7745 | 0.0055 |
+| x1 | 0.6385 | 0.0438 | 14.5701 | 0.0000 | -0.1061 | 0.0405 | -2.6178 | 0.0088 | -0.9285 | 0.3346 | -2.7745 | 0.0055 |
 
 ``` r
+
 
 kbl10(
   data.frame(
@@ -454,6 +501,7 @@ kbl10(
 ### Fitted values, prediction and residuals
 
 ``` r
+
 kbl10(
   data.frame(
     mu_hat = head(fitted(fit_mm, type = "mu")),
@@ -469,14 +517,15 @@ kbl10(
 
 | mu_hat | phi_hat | pred_mu | pred_eta | pred_phi | pred_var |
 |:------:|:-------:|:-------:|:--------:|:--------:|:--------:|
-| 0.3789 | 0.4735  | 0.3789  | -0.4943  |  0.4735  |  0.1114  |
-| 0.1764 | 0.4735  | 0.1764  | -1.5409  |  0.4735  |  0.0688  |
-| 0.4281 | 0.4735  | 0.4281  | -0.2895  |  0.4735  |  0.1159  |
+| 0.3789 | 0.4735  | 0.3789  | -0.4944  |  0.4735  |  0.1114  |
+| 0.1764 | 0.4735  | 0.1764  | -1.5410  |  0.4735  |  0.0688  |
+| 0.4281 | 0.4735  | 0.4281  | -0.2896  |  0.4735  |  0.1159  |
 | 0.3972 | 0.4735  | 0.3972  | -0.4172  |  0.4735  |  0.1134  |
 | 0.5567 | 0.4735  | 0.5567  |  0.2278  |  0.4735  |  0.1169  |
-| 0.3379 | 0.4735  | 0.3379  | -0.6728  |  0.4735  |  0.1059  |
+| 0.3378 | 0.4735  | 0.3378  | -0.6729  |  0.4735  |  0.1059  |
 
 ``` r
+
 
 kbl10(
   data.frame(
@@ -492,9 +541,9 @@ kbl10(
 |    0.5411    |   1.6211    |
 |   -0.1764    |   -0.6725   |
 |    0.2819    |   0.8279    |
-|    0.1928    |   0.5726    |
+|    0.1928    |   0.5727    |
 |   -0.3467    |   -1.0142   |
-|   -0.2879    |   -0.8845   |
+|   -0.2878    |   -0.8844   |
 
 ### Diagnostic plotting methods
 
@@ -502,12 +551,14 @@ kbl10(
 supports base and ggplot2 backends:
 
 ``` r
+
 plot(fit_mm, which = 1:4, type = "pearson")
 ```
 
 ![](brs-mm_files/figure-html/methods-plot-1.png)
 
 ``` r
+
 
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   plot(fit_mm, which = 1:2, gg = TRUE)
@@ -520,6 +571,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 provides focused ggplot diagnostics:
 
 ``` r
+
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   autoplot.brsmm(fit_mm, type = "calibration")
   autoplot.brsmm(fit_mm, type = "score_dist")
@@ -537,6 +589,7 @@ If `newdata` contains unseen groups,
 uses a random effect equal to zero for those levels.
 
 ``` r
+
 nd <- sim$data[1:8, c("x1", "id")]
 kbl10(
   data.frame(pred_seen = as.numeric(predict(fit_mm, newdata = nd, type = "response"))),
@@ -551,11 +604,12 @@ kbl10(
 |  0.4281   |
 |  0.3972   |
 |  0.5567   |
-|  0.3379   |
-|  0.4601   |
+|  0.3378   |
+|  0.4600   |
 |  0.3268   |
 
 ``` r
+
 
 nd_unseen <- nd
 nd_unseen$id <- factor(rep("new_cluster", nrow(nd_unseen)))
@@ -570,15 +624,16 @@ kbl10(
 |   0.5069    |
 |   0.2652    |
 |   0.5578    |
-|   0.5262    |
+|   0.5261    |
 |   0.6791    |
-|   0.4624    |
+|   0.4623    |
 |   0.5895    |
-|   0.4500    |
+|   0.4499    |
 
 The same logic applies to random intercept + slope models:
 
 ``` r
+
 kbl10(
   data.frame(pred_rs_seen = as.numeric(predict(fit_mm_rs, newdata = nd, type = "response"))),
   digits = 4
@@ -588,15 +643,16 @@ kbl10(
 | pred_rs_seen |
 |:------------:|
 |    0.3761    |
-|    0.1665    |
-|    0.4280    |
+|    0.1667    |
+|    0.4279    |
 |    0.3954    |
-|    0.5636    |
-|    0.3330    |
-|    0.4617    |
-|    0.3214    |
+|    0.5634    |
+|    0.3331    |
+|    0.4616    |
+|    0.3215    |
 
 ``` r
+
 kbl10(
   data.frame(pred_rs_unseen = as.numeric(predict(fit_mm_rs, newdata = nd_unseen, type = "response"))),
   digits = 4
@@ -605,32 +661,35 @@ kbl10(
 
 | pred_rs_unseen |
 |:--------------:|
-|     0.5069     |
-|     0.2655     |
-|     0.5578     |
-|     0.5262     |
-|     0.6789     |
-|     0.4624     |
-|     0.5894     |
-|     0.4501     |
+|     0.5063     |
+|     0.2651     |
+|     0.5571     |
+|     0.5255     |
+|     0.6783     |
+|     0.4618     |
+|     0.5887     |
+|     0.4494     |
 
 ## Statistical tests and validation workflow
 
 ### Wald tests (from `summary`)
 
 [`summary.brsmm()`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)
-reports Wald $z$-tests for each parameter:
-$$z_{k} = {\widehat{\theta}}_{k}/{SE}\left( {\widehat{\theta}}_{k} \right).$$
+reports Wald $`z`$-tests for each parameter:
+``` math
+z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
+```
 
 ``` r
+
 sm <- summary(fit_mm)
 kbl10(sm$coefficients)
 ```
 
-|             | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
-|:------------|:-------------:|:---------------:|:------------:|:-----------:|:------------------:|:--------------------:|:-----------------:|:----------------:|:---------------:|:-----------------:|:--------------:|:-------------:|
-| (Intercept) |    0.2624     |     0.1812      |    1.4479    |   0.1477    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
-| x1          |    0.6384     |     0.0438      |   14.5727    |   0.0000    |      -0.1061       |        0.0404        |      -2.623       |      0.0087      |     -0.9293     |      0.3338       |    -2.7839     |    0.0054     |
+|  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
+|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| (Intercept) | 0.2623 | 0.1815 | 1.4453 | 0.1484 | -0.1061 | 0.0405 | -2.6178 | 0.0088 | -0.9285 | 0.3346 | -2.7745 | 0.0055 |
+| x1 | 0.6385 | 0.0438 | 14.5701 | 0.0000 | -0.1061 | 0.0405 | -2.6178 | 0.0088 | -0.9285 | 0.3346 | -2.7745 | 0.0055 |
 
 ### Evolutionary scheme and Likelihood Ratio (LR) test selection
 
@@ -642,13 +701,14 @@ A practical workflow of increasing complexity:
 3.  `brsmm(..., random = ~ 1 + x1 | id)`: random intercept + slope.
 
 In the first jump (`brs` to `brsmm` with intercept), the hypothesis
-$\sigma_{b}^{2} = 0$ lies on the boundary of the parameter space. Thus,
-the classical asymptotic $\chi^{2}$ reference distribution should be
+$`\sigma_b^2 = 0`$ lies on the boundary of the parameter space. Thus,
+the classical asymptotic $`\chi^2`$ reference distribution should be
 interpreted with caution. In the second jump (intercept to intercept +
-slope), the Likelihood Ratio (LR) test with a $\chi^{2}$ distribution is
+slope), the Likelihood Ratio (LR) test with a $`\chi^2`$ distribution is
 commonly used as a practical diagnostic for goodness-of-fit gains.
 
 ``` r
+
 # Base model without a random effect
 fit_brs <- brs(
   y ~ x1,
@@ -671,19 +731,20 @@ kbl10(
 |:----------:|:---:|:---------:|:--------:|:--------:|:-------:|:------:|:----------:|
 |  M1 (brs)  |  3  | -4219.025 | 8444.051 | 8458.774 |   NA    |   NA   |     NA     |
 | M2 (brsmm) |  4  | -4182.109 | 8372.219 | 8391.850 | 73.8319 |   1    |   0.0000   |
-| M3 (brsmm) |  6  | -4181.920 | 8375.839 | 8405.286 | 0.3795  |   2    |   0.8272   |
+| M3 (brsmm) |  6  | -4181.935 | 8375.870 | 8405.317 | 0.3486  |   2    |   0.8401   |
 
 Operational decision rule (analytical):
 
 - If the second jump (RI to RI+RS) does not improve the fit (high
   p-value), prefer the random-intercept model for parsimony.
 - If there is a robust gain, adopt the RI+RS model and validate
-  parameter stability (especially `sd_b` and the $D$ matrix) via
+  parameter stability (especially `sd_b` and the $`D`$ matrix) via
   sensitivity and residual diagnostics.
 
 ### Residual diagnostics (quick checks)
 
 ``` r
+
 r <- residuals(fit_mm, type = "pearson")
 kbl10(
   data.frame(
@@ -706,6 +767,7 @@ A single-fit recovery table can be produced directly from the previous
 fit:
 
 ``` r
+
 est <- c(
   beta0 = unname(coef(fit_mm, model = "mean")[1]),
   beta1 = unname(coef(fit_mm, model = "mean")[2]),
@@ -729,14 +791,15 @@ kbl10(recovery_table)
 
 | parameter | true | estimate |  bias   |
 |:---------:|:----:|:--------:|:-------:|
-|   beta0   | 0.20 |  0.2624  | 0.0624  |
-|   beta1   | 0.65 |  0.6384  | -0.0116 |
-|  sigma_b  | 0.55 |  0.3948  | -0.1552 |
+|   beta0   | 0.20 |  0.2623  | 0.0623  |
+|   beta1   | 0.65 |  0.6385  | -0.0115 |
+|  sigma_b  | 0.55 |  0.3952  | -0.1548 |
 
 For a Monte Carlo recovery study, repeat simulation and fitting across
 replicates:
 
 ``` r
+
 mc_recovery <- function(R = 50L, seed = 7001L) {
   set.seed(seed)
   out <- vector("list", R)
@@ -788,6 +851,7 @@ The package test suite includes dedicated `brsmm` tests for:
 Run locally:
 
 ``` r
+
 devtools::test(filter = "brsmm")
 ```
 

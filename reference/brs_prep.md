@@ -128,15 +128,15 @@ is the same logic used by
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
 with a user-supplied `delta` vector:
 
-|            |              |                            |                            |
-|------------|--------------|----------------------------|----------------------------|
-| \\\delta\\ | Condition    | \\l_i\\ (left)             | \\u_i\\ (right)            |
-| 0          | (any)        | \\y / K\\                  | \\y / K\\                  |
-| 1          | \\y = 0\\    | \\\epsilon\\               | \\\mathrm{lim} / K\\       |
-| 1          | \\y \neq 0\\ | \\\epsilon\\               | \\(y + \mathrm{lim}) / K\\ |
-| 2          | \\y = K\\    | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
-| 2          | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
-| 3          | type `"m"`   | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
+|  |  |  |  |
+|----|----|----|----|
+| \\\delta\\ | Condition | \\l_i\\ (left) | \\u_i\\ (right) |
+| 0 | (any) | \\y / K\\ | \\y / K\\ |
+| 1 | \\y = 0\\ | \\\epsilon\\ | \\\mathrm{lim} / K\\ |
+| 1 | \\y \neq 0\\ | \\\epsilon\\ | \\(y + \mathrm{lim}) / K\\ |
+| 2 | \\y = K\\ | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
+| 2 | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
+| 3 | type `"m"` | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
 
 **Consistency warnings**: when the analyst supplies `delta` values that
 are unusual for the given `y` (e.g., \\\delta = 1\\ but \\y \neq 0\\),
@@ -183,12 +183,12 @@ fitting the model.
 d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
 brs_prep(d1, ncuts = 10)
 #> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3
-#>      left   right      yt  y delta          x1
-#> 1 0.00001 0.05000 0.00001  0     1 -1.25150957
-#> 2 0.25000 0.35000 0.30000  3     3  0.52848796
-#> 3 0.45000 0.55000 0.50000  5     3 -1.24761627
-#> 4 0.65000 0.75000 0.70000  7     3 -0.04165134
-#> 5 0.95000 0.99999 0.99999 10     2 -1.05473729
+#>      left   right      yt  y delta         x1
+#> 1 0.00001 0.05000 0.00001  0     1 -0.7956434
+#> 2 0.25000 0.35000 0.30000  3     3 -0.5847379
+#> 3 0.45000 0.55000 0.50000  5     3  0.5348066
+#> 4 0.65000 0.75000 0.70000  7     3 -0.5306958
+#> 5 0.95000 0.99999 0.99999 10     2  0.1306995
 
 # --- Mode 2: y + explicit delta ---
 d2 <- data.frame(
@@ -198,12 +198,12 @@ d2 <- data.frame(
 )
 brs_prep(d2, ncuts = 100)
 #> brs_prep: n = 5 | exact = 2, left = 0, right = 0, interval = 3
-#>      left   right    yt  y delta          x1
-#> 1 0.00001 0.00001 1e-05  0     0 -1.25150957
-#> 2 0.02500 0.03500 3e-02  3     3  0.52848796
-#> 3 0.04500 0.05500 5e-02  5     3 -1.24761627
-#> 4 0.06500 0.07500 7e-02  7     3 -0.04165134
-#> 5 0.10000 0.10000 1e-01 10     0 -1.05473729
+#>      left   right    yt  y delta         x1
+#> 1 0.00001 0.00001 1e-05  0     0 -0.7956434
+#> 2 0.02500 0.03500 3e-02  3     3 -0.5847379
+#> 3 0.04500 0.05500 5e-02  5     3  0.5348066
+#> 4 0.06500 0.07500 7e-02  7     3 -0.5306958
+#> 5 0.10000 0.10000 1e-01 10     0  0.1306995
 
 # --- Mode 3: left/right with NA patterns ---
 d3 <- data.frame(
@@ -214,11 +214,11 @@ d3 <- data.frame(
 )
 brs_prep(d3, ncuts = 100)
 #> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
-#>    left   right    yt  y delta          x1
-#> 1 1e-05 0.05000 0.025 NA     1 -1.25150957
-#> 2 2e-01 0.99999 0.600 NA     2  0.52848796
-#> 3 3e-01 0.45000 0.375 NA     3 -1.24761627
-#> 4 5e-01 0.50000 0.500 50     0 -0.04165134
+#>    left   right    yt  y delta         x1
+#> 1 1e-05 0.05000 0.025 NA     1 -0.7956434
+#> 2 2e-01 0.99999 0.600 NA     2 -0.5847379
+#> 3 3e-01 0.45000 0.375 NA     3  0.5348066
+#> 4 5e-01 0.50000 0.500 50     0 -0.5306958
 
 # --- Mode 4: y + left + right (analyst-supplied intervals) ---
 d4 <- data.frame(
@@ -229,9 +229,9 @@ d4 <- data.frame(
 )
 brs_prep(d4, ncuts = 100)
 #> brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2
-#>   left right   yt  y delta          x1
-#> 1 0.48  0.52 0.50 50     3 -0.09817368
-#> 2 0.73  0.77 0.75 75     3  0.26143179
+#>   left right   yt  y delta        x1
+#> 1 0.48  0.52 0.50 50     3 0.8770613
+#> 2 0.73  0.77 0.75 75     3 0.5578939
 
 # --- Fitting after prep ---
 # \donttest{
@@ -252,7 +252,7 @@ summary(fit5)
 #> 
 #> Quantile residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -2.2706 -0.4813  0.0555  0.5455  3.1621 
+#> -2.2451 -0.4798  0.0673  0.5350  2.5252 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)
@@ -264,8 +264,8 @@ summary(fit5)
 #> (phi)  -0.3929     0.2763  -1.422    0.155
 #> ---
 #> Log-likelihood: -92.6521 on 3 Df | AIC: 191.3041 | BIC: 194.2913 
-#> Pseudo R-squared: 0.0029 
-#> Number of iterations: 17 (BFGS) 
+#> Pseudo R-squared: 0.0029  (midpoint approx.; interpret with caution for heavily censored data) 
+#> Number of iterations: 15 (BFGS) 
 #> Censoring: 18 interval | 1 left | 1 right 
 #> 
 # }

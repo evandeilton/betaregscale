@@ -4,6 +4,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/CONTRIBUTING.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/LICENSE-text.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/LICENSE.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/TODO.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/articles/brs-intro.html</loc></url>
@@ -19,6 +20,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/anova.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/anova.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/apply_inv_link.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/apply_link.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brs_bootstrap.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/autoplot.brs_marginaleffects.html</loc></url>
@@ -42,8 +44,6 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_sim.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_table.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm.html</loc></url>
-<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_group_modes_eigen.html</loc></url>
-<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_loglik_eigen.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brsmm.html</loc></url>

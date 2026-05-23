@@ -64,15 +64,15 @@ print(rs)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.
-#>   re1                         0.5338
+#>   re1                         0.5340
 #> 
-#> ICC (latent logistic scale): 0.0797
+#> ICC (latent logistic scale): 0.0798
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)   0.5338    0.0011  0.4459          0.6976    0.8241
+#>  (Intercept)    0.534     0.001  0.4461          0.6977    0.8239
 rs$summary
-#>          term  sd_model  mean_mode   sd_mode shrinkage_ratio shapiro_p
-#> 1 (Intercept) 0.5338184 0.00114907 0.4458568       0.6975955 0.8240609
+#>          term  sd_model   mean_mode   sd_mode shrinkage_ratio shapiro_p
+#> 1 (Intercept) 0.5340369 0.001048123 0.4460754       0.6977084 0.8239009
 # }
 ```

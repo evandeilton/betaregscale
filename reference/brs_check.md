@@ -133,16 +133,16 @@ studies.
 
 The endpoint formulas for each delta value are:
 
-|            |                       |                            |                            |
-|------------|-----------------------|----------------------------|----------------------------|
-| \\\delta\\ | Condition             | \\l_i\\ (left)             | \\u_i\\ (right)            |
-| 0          | \\y \in (0, 1)\\      | \\y\\                      | \\y\\                      |
-| 0          | \\y\\ on scale        | \\y / K\\                  | \\y / K\\                  |
-| 1          | \\y = 0\\ (boundary)  | \\\epsilon\\               | \\\mathrm{lim} / K\\       |
-| 1          | \\y \neq 0\\ (forced) | \\\epsilon\\               | \\(y + \mathrm{lim}) / K\\ |
-| 2          | \\y = K\\ (boundary)  | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
-| 2          | \\y \neq K\\ (forced) | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\           |
-| 3          | midpoint interval     | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
+|  |  |  |  |
+|----|----|----|----|
+| \\\delta\\ | Condition | \\l_i\\ (left) | \\u_i\\ (right) |
+| 0 | \\y \in (0, 1)\\ | \\y\\ | \\y\\ |
+| 0 | \\y\\ on scale | \\y / K\\ | \\y / K\\ |
+| 1 | \\y = 0\\ (boundary) | \\\epsilon\\ | \\\mathrm{lim} / K\\ |
+| 1 | \\y \neq 0\\ (forced) | \\\epsilon\\ | \\(y + \mathrm{lim}) / K\\ |
+| 2 | \\y = K\\ (boundary) | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
+| 2 | \\y \neq K\\ (forced) | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
+| 3 | midpoint interval | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
 
 All endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\ with
 \\\epsilon = 10^{-5}\\ to avoid boundary issues in the beta likelihood.

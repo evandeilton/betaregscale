@@ -51,12 +51,12 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 coef(fit)
 #> (Intercept)          x1       (phi) 
-#>   0.2550945  -0.2202075  -0.3929198 
+#>   0.2551000  -0.2202060  -0.3929144 
 coef(fit, model = "mean")
 #> (Intercept)          x1 
-#>   0.2550945  -0.2202075 
+#>    0.255100   -0.220206 
 coef(fit, model = "precision")
 #>      (phi) 
-#> -0.3929198 
+#> -0.3929144 
 # }
 ```

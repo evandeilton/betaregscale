@@ -21,16 +21,16 @@ ignored, and the inherent heteroscedasticity of bounded responses is
 misrepresented.
 
 While standard beta regression (e.g., the `betareg` package) respects
-the $(0,1)$ support, it suffers from two critical limitations:
+the $`(0,1)`$ support, it suffers from two critical limitations:
 
 1.  **Interpretability:** It relies on a mean-precision parameterization
-    $(\mu,\phi)$ where the precision parameter $\phi$ lacks a direct,
-    clinically intuitive meaning.
+    $`(\mu,\phi)`$ where the precision parameter $`\phi`$ lacks a
+    direct, clinically intuitive meaning.
 2.  **Measurement Resolution:** It ignores the discretized nature of
     rating scales. Selecting “52” on an NRS-101 reflects a measurement
-    interval $\lbrack 0.515,0.525\rbrack$, not a precise continuous
-    value. Ignoring this leads to underestimated residual variance and
-    biased inference.
+    interval $`[0.515, 0.525]`$, not a precise continuous value.
+    Ignoring this leads to underestimated residual variance and biased
+    inference.
 
 ## The `betaregscale` Solution
 
@@ -39,14 +39,14 @@ tailored specifically for bounded scale data. It introduces two major
 methodological advancements:
 
 1.  **Mean-Dispersion (MD) Parameterization:** Reparameterizes the beta
-    distribution in terms of the conditional mean $\mu \in (0,1)$ and a
-    proportional dispersion parameter $\sigma \in (0,1)$, both directly
-    interpretable and modelable via covariates.
+    distribution in terms of the conditional mean $`\mu \in (0,1)`$ and
+    a proportional dispersion parameter $`\sigma \in (0,1)`$, both
+    directly interpretable and modelable via covariates.
 
 2.  **Interval-Censored Likelihood:** Properly treats each discrete
     scale point as interval-censored data, integrating the beta PDF over
     the uncertainty bounds implied by the instrument’s resolution. A
-    score of $y^{*}$ on a $K$-point scale is treated as \$y^\\/K -
+    score of $`y^*`$ on a $`K`$-point scale is treated as \$y^\\/K -
     1/(2K); y^\\/K + 1/(2K)\$.
 
 The package features a compiled **C++ backend** for analytical gradient
@@ -60,6 +60,7 @@ multi-centre data.
 ## Installation
 
 ``` r
+
 # Stable version from CRAN
 install.packages("betaregscale")
 
@@ -73,6 +74,7 @@ remotes::install_github("evandeilton/betaregscale")
 ## Usage Examples
 
 ``` r
+
 # =============================================================================
 # betaregscale — Clinical Workflow: NRS-101 Pain Score Modelling
 # =============================================================================
@@ -294,80 +296,88 @@ summary(nrs101_hat)
 ### Mean-Dispersion Parameterization
 
 Under `repar = 2`, the response
-$Y_{i} \sim \text{Beta}\left( \mu_{i},\sigma_{i} \right)$ has:
+$`Y_i \sim \text{Beta}(\mu_i, \sigma_i)`$ has:
 
-$$\text{E}\left( Y_{i} \right) = \mu_{i},\qquad\text{Var}\left( Y_{i} \right) = \mu_{i}\left( 1 - \mu_{i} \right)\sigma_{i}$$
+``` math
+\text{E}(Y_i) = \mu_i, \qquad \text{Var}(Y_i) = \mu_i(1-\mu_i)\sigma_i
+```
 
 Both submodels are linked to linear predictors via monotone link
-functions $g$ and $h$:
+functions $`g`$ and $`h`$:
 
-$$g\left( \mu_{i} \right) = \mathbf{x}_{i}^{\top}{\mathbf{β}},\qquad h\left( \sigma_{i} \right) = \mathbf{z}_{i}^{\top}{\mathbf{ζ}}$$
+``` math
+g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}_i^\top \boldsymbol{\zeta}
+```
 
 The default link for both is logit, ensuring
-$\mu_{i},\sigma_{i} \in (0,1)$.
+$`\mu_i, \sigma_i \in (0,1)`$.
 
 ### Interval-Censored Likelihood
 
-A raw NRS-101 score $y_{i}^{*} \in \{ 0,1,\ldots,100\}$ is mapped to
-$y_{i} = y_{i}^{*}/100$ with interval
-$\left\lbrack l_{i},u_{i} \right\rbrack = \left\lbrack y_{i} - 0.005,\, y_{i} + 0.005 \right\rbrack$.
+A raw NRS-101 score $`y_i^* \in \{0, 1, \ldots, 100\}`$ is mapped to
+$`y_i = y_i^*/100`$ with interval
+$`[l_i, u_i] = [y_i - 0.005,\, y_i + 0.005]`$.
 
-Let $\delta_{i} \in \{ 0,1,2,3\}$ encode the censoring type. The
-complete log-likelihood is:
+Let $`\delta_i \in \{0,1,2,3\}`$ encode the censoring type. The complete
+log-likelihood is:
 
-$$\ell({\mathbf{θ}}) = \sum\limits_{i:\,\delta_{i} = 0}\log f\left( y_{i} \right) + \sum\limits_{i:\,\delta_{i} = 1}\log F\left( u_{i} \right) + \sum\limits_{i:\,\delta_{i} = 2}\log\lbrack 1 - F\left( l_{i} \right)\rbrack + \sum\limits_{i:\,\delta_{i} = 3}\log\lbrack F\left( u_{i} \right) - F\left( l_{i} \right)\rbrack$$
+``` math
+\ell(\boldsymbol{\theta}) = \sum_{i:\,\delta_i=0} \log f(y_i) + \sum_{i:\,\delta_i=1} \log F(u_i) + \sum_{i:\,\delta_i=2} \log\bigl[1 - F(l_i)\bigr] + \sum_{i:\,\delta_i=3} \log\bigl[F(u_i) - F(l_i)\bigr]
+```
 
-where $f( \cdot )$ and $F( \cdot )$ are the Beta PDF and CDF evaluated
-at the shape parameters derived from
-$\left( \mu_{i},\sigma_{i} \right)$.
+where $`f(\cdot)`$ and $`F(\cdot)`$ are the Beta PDF and CDF evaluated
+at the shape parameters derived from $`(\mu_i, \sigma_i)`$.
 
 ### Mixed-Effects Extension (`brsmm`)
 
-For patient $i$ in clinic $j$, the mean predictor is extended by
+For patient $`i`$ in clinic $`j`$, the mean predictor is extended by
 clinic-specific random effects
-$\mathbf{b}_{j} \sim \mathcal{N}(\mathbf{0},D)$:
+$`\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D)`$:
 
-$$\eta_{\mu,ij} = \mathbf{x}_{ij}^{\top}{\mathbf{β}} + \mathbf{w}_{ij}^{\top}\mathbf{b}_{j}$$
+``` math
+\eta_{\mu,ij} = \mathbf{x}_{ij}^\top \boldsymbol{\beta} + \mathbf{w}_{ij}^\top \mathbf{b}_j
+```
 
 The intractable group marginal likelihood is approximated via Laplace:
 
-$$\log L_{j}({\mathbf{θ}}) \approx Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right) + \frac{q_{b}}{2}\log(2\pi) - \frac{1}{2}\log\left| H_{j} \right|$$
+``` math
+\log L_j(\boldsymbol{\theta}) \approx Q_j(\hat{\mathbf{b}}_j) + \frac{q_b}{2}\log(2\pi) - \frac{1}{2}\log|H_j|
+```
 
-where $q_{b}$ is the random-effects dimension,
-${\widehat{\mathbf{b}}}_{j}$ is the posterior mode, and
-$H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right)$.
+where $`q_b`$ is the random-effects dimension, $`\hat{\mathbf{b}}_j`$ is
+the posterior mode, and $`H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)`$.
 
 ------------------------------------------------------------------------
 
 ## S3 Interface Summary
 
-| Generic                                                                                                    | `brs` | `brsmm` |
-|------------------------------------------------------------------------------------------------------------|:-----:|:-------:|
-| [`print()`](https://rdrr.io/r/base/print.html)                                                             |   ✓   |    ✓    |
-| [`summary()`](https://rdrr.io/r/base/summary.html)                                                         |   ✓   |    ✓    |
-| [`coef()`](https://rdrr.io/r/stats/coef.html)                                                              |   ✓   |    ✓    |
-| [`vcov()`](https://rdrr.io/r/stats/vcov.html)                                                              |   ✓   |    ✓    |
-| [`confint()`](https://rdrr.io/r/stats/confint.html)                                                        |   ✓   |    ✓    |
-| [`predict()`](https://rdrr.io/r/stats/predict.html)                                                        |   ✓   |    ✓    |
-| [`residuals()`](https://rdrr.io/r/stats/residuals.html) (RQR, response, pearson)                           |   ✓   |    ✓    |
-| [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md)                                 |   —   |    ✓    |
-| [`anova()`](https://rdrr.io/r/stats/anova.html)                                                            |   ✓   |    ✓    |
-| [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)                                      |   ✓   |    —    |
-| [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)     |   ✓   |    —    |
-| [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md) |   ✓   |    —    |
-| [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)                               |   ✓   |    —    |
-| [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)                         |   ✓   |    ✓    |
+| Generic | `brs` | `brsmm` |
+|----|:--:|:--:|
+| [`print()`](https://rdrr.io/r/base/print.html) | ✓ | ✓ |
+| [`summary()`](https://rdrr.io/r/base/summary.html) | ✓ | ✓ |
+| [`coef()`](https://rdrr.io/r/stats/coef.html) | ✓ | ✓ |
+| [`vcov()`](https://rdrr.io/r/stats/vcov.html) | ✓ | ✓ |
+| [`confint()`](https://rdrr.io/r/stats/confint.html) | ✓ | ✓ |
+| [`predict()`](https://rdrr.io/r/stats/predict.html) | ✓ | ✓ |
+| [`residuals()`](https://rdrr.io/r/stats/residuals.html) (RQR, response, pearson) | ✓ | ✓ |
+| [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md) | — | ✓ |
+| [`anova()`](https://rdrr.io/r/stats/anova.html) | ✓ | ✓ |
+| [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) | ✓ | — |
+| [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md) | ✓ | — |
+| [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md) | ✓ | — |
+| [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md) | ✓ | — |
+| [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md) | ✓ | ✓ |
 
 ------------------------------------------------------------------------
 
 ## Documentation & Vignettes
 
-| Vignette                                                                                                      | Content                                                                                                                            |
-|---------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| [**Introduction to betaregscale**](https://evandeilton.github.io/betaregscale/articles/brs-intro.html)        | Censoring types, [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md) modes, first fixed-effects model |
-| [**Mixed-Effects Beta Interval Regression**](https://evandeilton.github.io/betaregscale/articles/brs-mm.html) | [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md) mathematics, parameter recovery, BLUP extraction        |
-| [**Analyst Tools**](https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html)               | AME, score probabilities, cross-validation, [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)                  |
-| [**Advanced Workflows**](https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html)     | Production pipelines, model selection, sensitivity analysis                                                                        |
+| Vignette | Content |
+|----|----|
+| [**Introduction to betaregscale**](https://evandeilton.github.io/betaregscale/articles/brs-intro.html) | Censoring types, [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md) modes, first fixed-effects model |
+| [**Mixed-Effects Beta Interval Regression**](https://evandeilton.github.io/betaregscale/articles/brs-mm.html) | [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md) mathematics, parameter recovery, BLUP extraction |
+| [**Analyst Tools**](https://evandeilton.github.io/betaregscale/articles/brs-analyst-tools.html) | AME, score probabilities, cross-validation, [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) |
+| [**Advanced Workflows**](https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html) | Production pipelines, model selection, sensitivity analysis |
 
 ------------------------------------------------------------------------
 
@@ -376,6 +386,7 @@ $H_{j} = - \nabla^{2}Q_{j}\left( {\widehat{\mathbf{b}}}_{j} \right)$.
 If you use `betaregscale` in a publication, please cite:
 
 ``` r
+
 citation("betaregscale")
 ```
 

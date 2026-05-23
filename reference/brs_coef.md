@@ -76,12 +76,12 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 fit <- brs(y ~ x1, data = prep)
-brs_coef(fit)
+suppressWarnings(brs_coef(fit))  # deprecated; use brs_est()
 #> $est
 #>      variable   estimate        se    z_value   p_value   ci_lower  ci_upper
-#> 1 (Intercept)  0.2550945 0.8643907  0.2951148 0.7679062 -1.4390802 1.9492691
-#> 2          x1 -0.2202075 0.5411943 -0.4068917 0.6840875 -1.2809288 0.8405139
-#> 3       (phi) -0.3929198 0.2762612 -1.4222765 0.1549460 -0.9343818 0.1485422
+#> 1 (Intercept)  0.2551000 0.8643918  0.2951208 0.7679016 -1.4390767 1.9492767
+#> 2          x1 -0.2202060 0.5411949 -0.4068885 0.6840899 -1.2809286 0.8405165
+#> 3       (phi) -0.3929144 0.2762618 -1.4222538 0.1549526 -0.9343775 0.1485488
 #> 
 #> $gof
 #>      logLik      AIC      BIC   pseudo_r2

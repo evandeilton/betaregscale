@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_3-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Source_Serif_4-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -597,9 +597,9 @@ with Likelihood Ratio (LR) comparisons;</li>
 <tr class="odd">
 <td align="center">x1</td>
 <td align="center">0.1325</td>
-<td align="center">0.0170</td>
-<td align="center">0.1004</td>
-<td align="center">0.1652</td>
+<td align="center">0.0180</td>
+<td align="center">0.0898</td>
+<td align="center">0.1636</td>
 <td align="center">mean</td>
 <td align="center">response</td>
 <td align="center">260</td>
@@ -608,8 +608,8 @@ with Likelihood Ratio (LR) comparisons;</li>
 <td align="center">x2</td>
 <td align="center">-0.0539</td>
 <td align="center">0.0184</td>
-<td align="center">-0.0936</td>
-<td align="center">-0.0201</td>
+<td align="center">-0.0830</td>
+<td align="center">-0.0195</td>
 <td align="center">mean</td>
 <td align="center">response</td>
 <td align="center">260</td>
@@ -1032,7 +1032,7 @@ with Likelihood Ratio (LR) comparisons;</li>
 <td align="center">-4829.123</td>
 <td align="center">9668.247</td>
 <td align="center">9693.697</td>
-<td align="center">201.6026</td>
+<td align="center">201.6025</td>
 <td align="center">1</td>
 <td align="center">0.0000</td>
 </tr>
@@ -1040,9 +1040,9 @@ with Likelihood Ratio (LR) comparisons;</li>
 <td align="center">M3 (brsmm)</td>
 <td align="center">7</td>
 <td align="center">-4827.018</td>
-<td align="center">9668.037</td>
+<td align="center">9668.036</td>
 <td align="center">9703.667</td>
-<td align="center">4.2101</td>
+<td align="center">4.2105</td>
 <td align="center">2</td>
 <td align="center">0.1218</td>
 </tr>
@@ -1065,7 +1065,7 @@ Test (LLR) workflow:</p>
 (<code>~ 1 + x1 | id</code>).</li>
 </ul>
 <p>In nested comparisons, the test statistic is:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>R</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">{</mo><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">complex</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mo>ℓ</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">simple</mtext></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">LR=2\{\ell(\hat\theta_{\text{complex}})-\ell(\hat\theta_{\text{simple}})\}</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>R</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">{</mo><mi>ℓ</mi><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">complex</mtext></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>ℓ</mi><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">simple</mtext></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">LR=2\{\ell(\hat\theta_{\text{complex}})-\ell(\hat\theta_{\text{simple}})\}</annotation></semantics></math></p>
 <p>For the first step (<code>M0 -&gt; M1</code>), the null hypothesis
 involves variance components located at the boundary of the parameter
 space
@@ -1126,7 +1126,7 @@ and often used as a practical decision aid.</p>
 <td align="center">-4829.123</td>
 <td align="center">9668.247</td>
 <td align="center">9693.697</td>
-<td align="center">201.6026</td>
+<td align="center">201.6025</td>
 <td align="center">1</td>
 <td align="center">0.0000</td>
 <td align="center">baseline</td>
@@ -1135,9 +1135,9 @@ and often used as a practical decision aid.</p>
 <td align="center">M3 (brsmm)</td>
 <td align="center">7</td>
 <td align="center">-4827.018</td>
-<td align="center">9668.037</td>
+<td align="center">9668.036</td>
 <td align="center">9703.667</td>
-<td align="center">4.2101</td>
+<td align="center">4.2105</td>
 <td align="center">2</td>
 <td align="center">0.1218</td>
 <td align="center">baseline</td>
@@ -1158,15 +1158,15 @@ and often used as a practical decision aid.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Random-effects (VarCorr):</span></span>
 <span><span class="co">#&gt;   Name                      Std.Dev.  Corr</span></span>
-<span><span class="co">#&gt;   re1                         0.6117</span></span>
-<span><span class="co">#&gt;   re2                         0.1138  0.6654</span></span>
+<span><span class="co">#&gt;   re1                         0.6114</span></span>
+<span><span class="co">#&gt;   re2                         0.1133  0.6708</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ICC (latent logistic scale): 0.1021</span></span>
+<span><span class="co">#&gt; ICC (latent logistic scale): 0.1020</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):</span></span>
 <span><span class="co">#&gt;         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p</span></span>
-<span><span class="co">#&gt;  (Intercept)   0.6117   -0.0040  0.6315          1.0000    0.4816</span></span>
-<span><span class="co">#&gt;           x1   0.1138   -0.0015  0.0930          0.6682    0.0760</span></span>
+<span><span class="co">#&gt;  (Intercept)   0.6114   -0.0011  0.6314          1.0000    0.4815</span></span>
+<span><span class="co">#&gt;           x1   0.1133   -0.0011  0.0928          0.6712    0.0788</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">rs</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
@@ -1188,19 +1188,19 @@ and often used as a practical decision aid.</p>
 <tbody>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.6117</td>
-<td align="center">-0.0040</td>
-<td align="center">0.6315</td>
+<td align="center">0.6114</td>
+<td align="center">-0.0011</td>
+<td align="center">0.6314</td>
 <td align="center">1.0000</td>
-<td align="center">0.4816</td>
+<td align="center">0.4815</td>
 </tr>
 <tr class="even">
 <td align="center">x1</td>
-<td align="center">0.1138</td>
-<td align="center">-0.0015</td>
-<td align="center">0.0930</td>
-<td align="center">0.6682</td>
-<td align="center">0.0760</td>
+<td align="center">0.1133</td>
+<td align="center">-0.0011</td>
+<td align="center">0.0928</td>
+<td align="center">0.6712</td>
+<td align="center">0.0788</td>
 </tr>
 </tbody>
 </table>
@@ -1213,12 +1213,12 @@ and often used as a practical decision aid.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.3742</td>
-<td align="center">0.0463</td>
+<td align="center">0.3739</td>
+<td align="center">0.0465</td>
 </tr>
 <tr class="even">
-<td align="center">0.0463</td>
-<td align="center">0.0130</td>
+<td align="center">0.0465</td>
+<td align="center">0.0128</td>
 </tr>
 </tbody>
 </table>
@@ -1232,10 +1232,10 @@ and often used as a practical decision aid.</p>
 <tbody>
 <tr class="odd">
 <td align="center">1.0000</td>
-<td align="center">0.6654</td>
+<td align="center">0.6708</td>
 </tr>
 <tr class="even">
-<td align="center">0.6654</td>
+<td align="center">0.6708</td>
 <td align="center">1.0000</td>
 </tr>
 </tbody>
