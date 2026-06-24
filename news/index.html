@@ -36,9 +36,45 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.1/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.1" id="betaregscale-271">betaregscale 2.7.1<a class="anchor" aria-label="anchor" href="#betaregscale-271"></a></h2>
+<p>This is a maintenance release focused on correctness, numerical robustness, and performance. It carries the fixes from a deep audit of the C++ backends and the R interface. No user-facing API changes.</p>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-1"></a></h3>
+<ul><li>Fixed the inverse link for the precision (dispersion) submodel, which could return a negative shape near the origin; the dispersion parameter is now always positive.</li>
+<li>Corrected deviance residuals to use the proper saturated-model log-likelihood (affecting <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> and the diagnostic plots for both <code>brs</code> and <code>brsmm</code>). Negative discrepancies are now handled via <code>sqrt(abs(...))</code> rather than being silently truncated to zero.</li>
+<li>
+<code><a href="../reference/predict.brs.html">predict.brs()</a></code> now detects a variable-dispersion model from the model’s term labels instead of the number of parameters, fixing incorrect predictions for some fits.</li>
+<li>The <code>sqrt</code> link for the precision submodel now clamps the linear predictor to be non-negative, preserving the correct gradient sign during optimization.</li>
+<li>Mixed-effects mode finding (<code>brsmm</code>) is substantially more robust: the Newton-Raphson step is accepted only when it improves the objective, the Hessian regularization is now proportional to the smallest eigenvalue of <code>-H</code>, and non-finite proposed steps are rejected before evaluation, preventing <code>NaN</code>/<code>Inf</code> crashes.</li>
+<li>The adaptive Gauss-Hermite (AGHQ) integration grid now uses 64-bit indexing to prevent an integer-overflow crash for four or more random-effect dimensions, and the quasi-Monte Carlo prime table was expanded (20 to 50 primes) to keep Halton sequences uncorrelated in higher dimensions.</li>
+<li>Halton quantiles are clamped to <code>(1e-9, 1 - 1e-9)</code> to avoid infinite values at the boundary.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="improvements-2-7-1">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-7-1"></a></h3>
+<ul><li>The optimizer now emits a warning when it fails to converge in <code><a href="../reference/brs.html">brs()</a></code> and <code><a href="../reference/brsmm.html">brsmm()</a></code>.</li>
+<li>Pseudo-R2 reporting adds a caution note when more than 50% of observations are censored.</li>
+<li>Link evaluation no longer constructs <code><a href="https://rdrr.io/r/stats/make.link.html" class="external-link">stats::make.link()</a></code> objects on every call: <code><a href="../reference/apply_inv_link.html">apply_inv_link()</a></code> uses direct closed-form formulas, and a new <code><a href="../reference/apply_link.html">apply_link()</a></code> provides the forward transform, used across the fitting, methods, and plotting code.</li>
+<li>
+<code><a href="../reference/brs_check.html">brs_check()</a></code> is fully vectorized (no R-level loop) and <code><a href="../reference/brs_prep.html">brs_prep()</a></code> uses <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply()</a></code> with a vectorized <code>NA</code> guard.</li>
+<li>Starting values: <code><a href="../reference/compute_start.html">compute_start()</a></code> uses a moment-based estimate for the precision intercept (avoiding a second GLM fit), and <code><a href="../reference/brsmm.html">brsmm()</a></code> initializes the random-effect standard deviation from the between-group variance.</li>
+<li>
+<code><a href="../reference/brs_coef.html">brs_coef()</a></code> now formally signals its deprecation via <code>.Deprecated("brs_est")</code>.</li>
+<li>
+<code><a href="../reference/vcov.brs.html">vcov.brs()</a></code> warns when it cannot compute a finite covariance matrix (e.g., when <code>MASS</code> is unavailable for the generalized-inverse fallback).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-2-7-1">Internal<a class="anchor" aria-label="anchor" href="#internal-2-7-1"></a></h3>
+<ul><li>Extracted a shared C++ header (<code>src/brs_common.h</code>) to remove duplicated code between the Armadillo and Eigen backends, and documented the numerical tolerance constants.</li>
+<li>The Eigen backend reuses a single pre-allocated workspace vector when forming the numerical Hessian.</li>
+<li>
+<code>src/Makevars</code> and <code>src/Makevars.win</code> no longer define <code>-DARMA_NO_DEBUG</code>, enabling Armadillo bounds checking during development.</li>
+<li>The internal <code>.brsmm_loglik_eigen</code> entry point is exported with a leading dot to keep it out of the public namespace.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.0" id="betaregscale-270">betaregscale 2.7.0<a class="anchor" aria-label="anchor" href="#betaregscale-270"></a></h2>
 <div class="section level3">

@@ -1,5 +1,91 @@
 # Changelog
 
+## betaregscale 2.7.1
+
+This is a maintenance release focused on correctness, numerical
+robustness, and performance. It carries the fixes from a deep audit of
+the C++ backends and the R interface. No user-facing API changes.
+
+### Bug fixes
+
+- Fixed the inverse link for the precision (dispersion) submodel, which
+  could return a negative shape near the origin; the dispersion
+  parameter is now always positive.
+- Corrected deviance residuals to use the proper saturated-model
+  log-likelihood (affecting
+  [`residuals()`](https://rdrr.io/r/stats/residuals.html) and the
+  diagnostic plots for both `brs` and `brsmm`). Negative discrepancies
+  are now handled via `sqrt(abs(...))` rather than being silently
+  truncated to zero.
+- [`predict.brs()`](https://evandeilton.github.io/betaregscale/reference/predict.brs.md)
+  now detects a variable-dispersion model from the model’s term labels
+  instead of the number of parameters, fixing incorrect predictions for
+  some fits.
+- The `sqrt` link for the precision submodel now clamps the linear
+  predictor to be non-negative, preserving the correct gradient sign
+  during optimization.
+- Mixed-effects mode finding (`brsmm`) is substantially more robust: the
+  Newton-Raphson step is accepted only when it improves the objective,
+  the Hessian regularization is now proportional to the smallest
+  eigenvalue of `-H`, and non-finite proposed steps are rejected before
+  evaluation, preventing `NaN`/`Inf` crashes.
+- The adaptive Gauss-Hermite (AGHQ) integration grid now uses 64-bit
+  indexing to prevent an integer-overflow crash for four or more
+  random-effect dimensions, and the quasi-Monte Carlo prime table was
+  expanded (20 to 50 primes) to keep Halton sequences uncorrelated in
+  higher dimensions.
+- Halton quantiles are clamped to `(1e-9, 1 - 1e-9)` to avoid infinite
+  values at the boundary.
+
+### Improvements
+
+- The optimizer now emits a warning when it fails to converge in
+  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+  and
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md).
+- Pseudo-R2 reporting adds a caution note when more than 50% of
+  observations are censored.
+- Link evaluation no longer constructs
+  [`stats::make.link()`](https://rdrr.io/r/stats/make.link.html) objects
+  on every call:
+  [`apply_inv_link()`](https://evandeilton.github.io/betaregscale/reference/apply_inv_link.md)
+  uses direct closed-form formulas, and a new
+  [`apply_link()`](https://evandeilton.github.io/betaregscale/reference/apply_link.md)
+  provides the forward transform, used across the fitting, methods, and
+  plotting code.
+- [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
+  is fully vectorized (no R-level loop) and
+  [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  uses [`vapply()`](https://rdrr.io/r/base/lapply.html) with a
+  vectorized `NA` guard.
+- Starting values:
+  [`compute_start()`](https://evandeilton.github.io/betaregscale/reference/compute_start.md)
+  uses a moment-based estimate for the precision intercept (avoiding a
+  second GLM fit), and
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  initializes the random-effect standard deviation from the
+  between-group variance.
+- [`brs_coef()`](https://evandeilton.github.io/betaregscale/reference/brs_coef.md)
+  now formally signals its deprecation via `.Deprecated("brs_est")`.
+- [`vcov.brs()`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md)
+  warns when it cannot compute a finite covariance matrix (e.g., when
+  `MASS` is unavailable for the generalized-inverse fallback).
+
+### Internal
+
+- Extracted a shared C++ header (`src/brs_common.h`) to remove
+  duplicated code between the Armadillo and Eigen backends, and
+  documented the numerical tolerance constants.
+- The Eigen backend reuses a single pre-allocated workspace vector when
+  forming the numerical Hessian.
+- `src/Makevars` and `src/Makevars.win` no longer define
+  `-DARMA_NO_DEBUG`, enabling Armadillo bounds checking during
+  development.
+- The internal `.brsmm_loglik_eigen` entry point is exported with a
+  leading dot to keep it out of the public namespace.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.7.0
 
 ### New features
