@@ -40,23 +40,31 @@ advancements:
 2.  **Interval-Censored Likelihood:** Properly treats each discrete scale point as
     interval-censored data, integrating the beta PDF over the uncertainty bounds
     implied by the instrument's resolution. A score of $y^*$ on a $K$-point scale
-    is treated as $y^\*/K - 1/(2K); y^\*/K + 1/(2K)$.
+    is treated as $[y^*/K - 1/(2K),\; y^*/K + 1/(2K)]$.
 
 The package features a compiled **C++ backend** for analytical gradient computation,
-and provides a mixed-effects extension (`brsmm()`) via multivariate **Laplace
-approximation** for repeated measures and multi-centre data.
+and provides a mixed-effects extension (`brsmm()`) for repeated measures and
+multi-centre data, with three integration methods for the random-effects
+likelihood — multivariate **Laplace approximation** (default), **adaptive
+Gauss-Hermite quadrature** and **quasi-Monte Carlo** — all available for
+arbitrary random-effects structures.
 
 ---
 
 ## Installation
 
-```r
-# Stable version from CRAN
-install.packages("betaregscale")
+`betaregscale` is currently under review for CRAN. Until it is accepted, install
+the development version from GitHub:
 
-# Development version from GitHub
+```r
 # install.packages("remotes")
 remotes::install_github("evandeilton/betaregscale")
+```
+
+Once the package is on CRAN:
+
+```r
+install.packages("betaregscale")
 ```
 
 ---
@@ -241,7 +249,7 @@ prob_scores <- brs_predict_scoreprob(
   scores = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
 )
 
-# 500 patients × 11 score bins
+# 1000 patients × 11 score bins
 dim(prob_scores)
 
 # Probability profile for the first 10 patients
@@ -332,6 +340,12 @@ $$
 where $q_b$ is the random-effects dimension, $\hat{\mathbf{b}}_j$ is the
 posterior mode, and $H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)$.
 
+For higher accuracy, `int_method = "aghq"` replaces the Laplace step with adaptive
+Gauss-Hermite quadrature on a Cartesian grid centred at $\hat{\mathbf{b}}_j$ and
+scaled by $H_j^{-1/2}$, and `int_method = "qmc"` uses importance sampling from a
+Gaussian proposal along a Halton low-discrepancy sequence. Both work for any
+$q_b$; Laplace remains the default.
+
 ---
 
 ## S3 Interface Summary
@@ -345,12 +359,14 @@ posterior mode, and $H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)$.
 | `confint()` | ✓ | ✓ |
 | `predict()` | ✓ | ✓ |
 | `residuals()` (RQR, response, pearson) | ✓ | ✓ |
+| `plot()` | ✓ | ✓ |
 | `ranef()` | — | ✓ |
 | `anova()` | ✓ | ✓ |
-| `autoplot()` | ✓ | — |
+| `autoplot()` | ✓ | ✓ |
 | `brs_marginaleffects()` | ✓ | — |
 | `brs_predict_scoreprob()` | ✓ | — |
 | `brs_cv()` | ✓ | — |
+| `logLik()`, `AIC()`, `BIC()`, `nobs()`, `fitted()`, `formula()`, `model.matrix()` | ✓ | ✓ |
 | `brs_table()` | ✓ | ✓ |
 
 ---

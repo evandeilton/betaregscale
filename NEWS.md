@@ -48,9 +48,13 @@ interface. No user-facing API changes.
 * The Eigen backend reuses a single pre-allocated workspace vector when forming the numerical
   Hessian.
 * `src/Makevars` and `src/Makevars.win` no longer define `-DARMA_NO_DEBUG`, enabling Armadillo
-  bounds checking during development.
+  bounds checking. They also no longer request the OpenMP compiler and linker flags, which
+  were never used: no translation unit in `src/` contains an OpenMP directive.
 * The internal `.brsmm_loglik_eigen` entry point is exported with a leading dot to keep it out
   of the public namespace.
+* `DESCRIPTION` drops `LazyData: true` (the package ships no `data/` directory, so `R CMD build`
+  was stripping the field) and drops `betareg` from `Suggests` (it was never used in code, tests
+  or vignettes; the package is only referenced in prose).
 
 ---
 
@@ -58,6 +62,17 @@ interface. No user-facing API changes.
 
 ## New features
 
+* `brsmm()` now supports the `"aghq"` and `"qmc"` integration methods with
+  **multivariate** random effects. Previously both were restricted to a single
+  random-effects dimension and `brsmm()` raised an error for
+  `random = ~ 1 + x | group` unless `int_method = "laplace"`. The Eigen backend now
+  builds a Cartesian adaptive Gauss-Hermite grid and prime-based multidimensional
+  Halton sequences of the required dimension, so all three integration methods are
+  available for any random-effects structure.
+  * For `int_method = "aghq"` the grid has `n_points^q_re` nodes; `brsmm()` stops with
+    an informative message if that exceeds 500,000, suggesting a smaller `n_points`
+    or `int_method = "qmc"`.
+  * `int_method = "qmc"` supports up to 50 random-effects dimensions.
 * `autoplot.brsmm()` and `autoplot.brs()` gain three new arguments:
   * `theme`: accepts any ggplot2 theme object or function (default `ggplot2::theme_minimal()`),
     replacing the hardcoded theme in all 8 internal `brsmm` and 4 internal `brs` plot helpers.
