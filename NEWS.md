@@ -1,3 +1,56 @@
+# betaregscale 2.7.2
+
+This release contains no changes to the statistical methods or to the user-facing
+API. It collects packaging cleanups for CRAN submission and corrections to the
+package documentation.
+
+## Packaging
+
+* `DESCRIPTION` no longer sets `LazyData: true`. The package ships no `data/`
+  directory, so `R CMD build` was already reporting
+  "Omitted 'LazyData' from DESCRIPTION".
+* `betareg` was removed from `Suggests`. It is not used by any function, test or
+  vignette; the package is only mentioned in prose when describing the output
+  style of `summary()`.
+* `src/Makevars` and `src/Makevars.win` no longer request the OpenMP compiler and
+  linker flags (`$(SHLIB_OPENMP_CXXFLAGS)`). No translation unit in `src/`
+  contains an OpenMP directive, so the flags added portability risk without any
+  parallelism.
+* `TODO.md`, a development-only file, is now listed in `.Rbuildignore`.
+
+## Documentation
+
+* `NEWS.md` records under 2.7.0 the extension of `int_method = "aghq"` and
+  `int_method = "qmc"` to multivariate random effects, which had been implemented
+  but never announced. The 2.6.8 heading, which had been concatenated onto the
+  end of the 2.6.9 entry, is now a separate section.
+* `README.md`: the S3 interface table marked `autoplot()` as unavailable for
+  `brsmm` objects although `autoplot.brsmm()` is registered, exported and
+  documented; it is now marked as available, and the missing `plot()` and
+  extractor (`logLik()`, `AIC()`, `BIC()`, `nobs()`, `fitted()`, `formula()`,
+  `model.matrix()`) rows were added.
+* `README.md`: the score-probability example described its output as
+  "500 patients" while the accompanying simulation creates 1000.
+* `README.md`: the installation section presented `install.packages()` as the
+  stable route while the package is still under CRAN review; GitHub installation
+  is now listed first.
+* `README.md`: the package summary and the mixed-effects section described the
+  random-effects likelihood as Laplace-only, omitting the AGHQ and QMC methods.
+* `README.md`: fixed the interval-censoring notation, which rendered as a
+  semicolon-separated list rather than a closed interval.
+* The package help page (`?betaregscale`) showed its "Useful links" section
+  twice and listed the maintainer a third time below the author list. The cause
+  was a block in `R/autoplot.R` that used the `"_PACKAGE"` sentinel purely to
+  emit `@rawNamespace` directives, which made roxygen2 treat it as a second
+  package-level documentation block; it now uses `@noRd` and contributes only
+  the NAMESPACE directives (`NAMESPACE` is unchanged). A hand-written
+  `@seealso`/`@author` pair in `R/betaregscale-package.R` that duplicated what
+  roxygen2 already derives from `Authors@R`, `URL` and `BugReports` was removed.
+* `DESCRIPTION` now lists the GitHub repository in `URL` alongside the pkgdown
+  site.
+
+---
+
 # betaregscale 2.7.1
 
 This is a maintenance release focused on correctness, numerical robustness, and
@@ -48,13 +101,9 @@ interface. No user-facing API changes.
 * The Eigen backend reuses a single pre-allocated workspace vector when forming the numerical
   Hessian.
 * `src/Makevars` and `src/Makevars.win` no longer define `-DARMA_NO_DEBUG`, enabling Armadillo
-  bounds checking. They also no longer request the OpenMP compiler and linker flags, which
-  were never used: no translation unit in `src/` contains an OpenMP directive.
+  bounds checking.
 * The internal `.brsmm_loglik_eigen` entry point is exported with a leading dot to keep it out
   of the public namespace.
-* `DESCRIPTION` drops `LazyData: true` (the package ships no `data/` directory, so `R CMD build`
-  was stripping the field) and drops `betareg` from `Suggests` (it was never used in code, tests
-  or vignettes; the package is only referenced in prose).
 
 ---
 
@@ -121,7 +170,11 @@ interface. No user-facing API changes.
 * Translated remaining Portuguese text into English in the mixed-effects vignette (`vignettes/brs-mm.Rmd`).
 * Corrected `ranef()` usage in vignettes to correctly call the generic function.
 * Fixed mathematical formulas rendering in `README.md` to be fully compatible with GitHub Markdown, and updated `pkgdown` site build configuration to load `betaregscale` appropriately during vignette setups.
-* Minor mathematical formatting and typographical fixes (e.g., en-dashes for page ranges) in `README.md` references.# betaregscale 2.6.8
+* Minor mathematical formatting and typographical fixes (e.g., en-dashes for page ranges) in `README.md` references.
+
+---
+
+# betaregscale 2.6.8
 
 ## New features
 * Completed S3 method standardization for `brsmm` (mixed-effects) objects to mirror the interface of `brs` (fixed-effects) objects:
