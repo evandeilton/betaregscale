@@ -1,8 +1,30 @@
-# betaregscale 2.7.2
+# betaregscale 2.7.3
 
-This release contains no changes to the statistical methods or to the user-facing
-API. It collects packaging cleanups for CRAN submission and corrections to the
-package documentation.
+This release makes no change to the user-facing API. It improves the numerical
+conditioning of the interval-censored likelihood, removes an unused C++ backend,
+and collects packaging and documentation cleanups for CRAN submission.
+
+## Numerical accuracy
+
+* The interval probability `P(lo < Y < hi)` that underlies every interval-censored
+  observation is no longer always computed from lower-tail beta CDF values. When
+  both endpoints lie in the upper tail (`lo + hi > 1`, common when the fitted mean
+  is close to 1) the difference is now taken between upper-tail (survival)
+  probabilities, so both terms stay small and the subtraction no longer suffers
+  catastrophic cancellation. The two forms are identical in exact arithmetic; the
+  new one is strictly better conditioned in floating point.
+
+## Bug fixes
+
+* Removed two stale help pages, `man/brsmm_loglik_eigen.Rd` and
+  `man/brsmm_group_modes_eigen.Rd`, that documented `brsmm_loglik_eigen()` and
+  `brsmm_group_modes_eigen()`. Those objects do not exist: the Eigen entry points
+  are registered as the internal `.brsmm_loglik_eigen` and
+  `.brsmm_group_modes_eigen`. `R CMD check` reported both as code/documentation
+  mismatches.
+* Removed a Dropbox conflict copy of `.Rbuildignore` that had been committed by
+  mistake and was being shipped in the source tarball, where `R CMD check`
+  flagged it as a hidden file with a non-portable name.
 
 ## Packaging
 
@@ -48,6 +70,15 @@ package documentation.
   roxygen2 already derives from `Authors@R`, `URL` and `BugReports` was removed.
 * `DESCRIPTION` now lists the GitHub repository in `URL` alongside the pkgdown
   site.
+
+## Internal
+
+* Removed the unused Armadillo mixed-effects backend from `src/loglik.cpp`
+  (`betaregscale_loglik_mixed_laplace_cpp()`, `betaregscale_group_modes_cpp()`
+  and the `build_group_index()` / `group_Q()` / `golden_max_group()` /
+  `laplace_group()` helpers, 267 lines). It was reachable from no R code, test or
+  vignette: `brsmm()` uses the Eigen backend exclusively. `RcppExports` were
+  regenerated and the two corresponding help pages removed.
 
 ---
 
