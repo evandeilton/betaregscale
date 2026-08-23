@@ -151,15 +151,44 @@ This is a resubmission following CRAN feedback (Konstanze Lauseker, 20 Feb 2026)
 
 ---
 
-## Test environments
-
-* Local: Ubuntu 24.04, R 4.3.3 (x86_64-pc-linux-gnu)
-* GitHub Actions: ubuntu-latest (R devel, release, oldrel-1),
-  macOS-latest (R release), windows-latest (R release)
-
 ## R CMD check results
 
-_Results for 2.7.2 are recorded here once the release check completes._
+0 errors | 0 warnings | 3 notes
+
+All three notes are artifacts of the local Debian/Ubuntu R build rather than
+properties of the package:
+
+1. `checking installed package size ... NOTE` — *installed size is 21.2Mb;
+   libs 18.8Mb*. The Ubuntu R build injects `-g` into `CXXFLAGS`
+   (`R CMD config CXXFLAGS`), so `betaregscale.so` ships unstripped debug
+   information. The same object stripped with `strip --strip-debug` is 325 KB.
+
+2. `checking compilation flags used ... NOTE` — *non-portable flag(s):
+   `-mno-omit-leaf-frame-pointer`*. This flag comes from the same distribution
+   default `CXXFLAGS`; it is not set by `src/Makevars` or `src/Makevars.win`,
+   which now contain only `CXX_STD`, `-DARMA_64BIT_WORD` and the
+   LAPACK/BLAS/FLIBS link line.
+
+3. `checking for future file timestamps ... NOTE` — *unable to verify current
+   time*. The check machine has no outbound access to the time service.
+
+`checking compiled code` and `checking C++ specification` both pass.
+`CXX_STD = CXX17` is retained deliberately: the package declares
+`Depends: R (>= 4.1.0)`, and R only defaults to C++17 from 4.3.0 onwards.
+
+### Timings
+
+* `checking whether package can be installed`: 43s
+* `checking examples` (with `--run-donttest`): 18s
+* `checking tests`: 16s
+* `checking re-building of vignette outputs`: 120s
+
+## Test environments
+
+* Local: Ubuntu 24.04, R 4.3.3 (x86_64-pc-linux-gnu), `R CMD check --as-cran
+  --run-donttest`
+* GitHub Actions: ubuntu-latest (R devel, release, oldrel-1),
+  macOS-latest (R release), windows-latest (R release)
 
 ## Downstream dependencies
 
