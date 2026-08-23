@@ -1,3 +1,61 @@
+## Resubmission (2.7.4)
+
+Thank you for the review. This resubmission addresses the single point raised:
+
+> `* checking re-building of vignette outputs ... [376s] OK`
+>
+> Please reduce the vignette build timings by using small toy data only, few
+> iterations, or by providing precomputed results for the most lengthy parts.
+> Can this be reduced by at least 2 minutes, please?
+
+Yes. We profiled the vignettes chunk by chunk and cut the total knit time from
+**77.5s to 18.3s** on our machine, a **4.2x reduction**. Scaled to the 376s you
+measured, that corresponds to roughly **90s**, i.e. about **five minutes saved**
+rather than the two requested. No precomputed results were needed: everything
+still runs at check time.
+
+### Where the time was going
+
+One chunk accounted for 45.1s of the 77.5s total. It called `brs_bootstrap()`
+with `ci_type = "bca"` on 1000 observations. Our BCa implementation obtains the
+acceleration constant from a leave-one-out jackknife, so that single call fitted
+the model 1000 times for the jackknife in addition to the 100 bootstrap
+replicates. The vignette now uses 250 observations and 30 replicates, which
+brings the chunk to 3.7s.
+
+We have also documented this cost in `?brs_bootstrap`: `ci_type = "bca"`
+requires `R + n` fits rather than `R`, so its run time is governed by the sample
+size rather than by the number of replicates. That was previously undocumented.
+
+### All reductions applied
+
+| Vignette | Before | After |
+|---|---|---|
+| `brs-intro.Rmd` | 49.8s | 7.2s |
+| `brs-advanced-workflows.Rmd` | 19.2s | 6.2s |
+| `brs-mm.Rmd` | 6.4s | 2.7s |
+| `brs-analyst-tools.Rmd` | 2.1s | 2.2s |
+| **Total** | **77.5s** | **18.3s** |
+
+* Sample sizes: `brs-intro.Rmd` 1000 -> 200/250; `brs-advanced-workflows.Rmd`
+  260 -> 150, and its mixed-effects example 1200 -> 250 observations;
+  `brs-mm.Rmd` 5 groups of 200 -> 12 groups of 20 (also a more natural design
+  for illustrating random effects).
+* Bootstrap replicates: 80/100/120 -> 30.
+* Marginal-effect simulation draws: 120/160 -> 60.
+* Cross-validation repeats: 5 -> 2.
+
+All four vignettes still knit without warnings, and the narrative is unchanged.
+
+### R CMD check for this resubmission
+
+0 errors | 0 warnings | 1 note, with `checking CRAN incoming feasibility` OK.
+The note is `checking HTML version of manual`, which reports only that HTML Tidy
+is not installed on our machine. Local timing of `checking re-building of vignette outputs` inside
+`R CMD check --as-cran`: **28s**, down from 89s for the 2.7.3 sources.
+
+---
+
 ## Update (2.6.9 -> 2.7.3)
 
 This is an update to `betaregscale`, currently on CRAN at version 2.6.9

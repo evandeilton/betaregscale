@@ -165,8 +165,8 @@ sim_brsmm_data <- function(seed = 3501L, g = 24L, ni = 12L,
 }
 
 sim <- sim_brsmm_data(
-  g = 5,
-  ni = 200,
+  g = 12,
+  ni = 20,
   beta = c(0.20, 0.65),
   gamma = c(-0.15),
   sigma_b = 0.55

@@ -42,7 +42,7 @@ library(betaregscale)
 ## 1) Reproducible simulation and data checks
 
 ```{r data-sim}
-n <- 260
+n <- 150
 d <- data.frame(
   x1 = rnorm(n),
   x2 = rnorm(n),
@@ -96,7 +96,7 @@ kbl10(tab_rank)
 kbl10(brs_est(fit_logit))
 kbl10(confint(fit_logit))
 
-boot_tab <- brs_bootstrap(fit_logit, R = 80, level = 0.95)
+boot_tab <- brs_bootstrap(fit_logit, R = 30, level = 0.95)
 kbl10(head(boot_tab, 10))
 
 set.seed(2026) # For marginal effects simulation
@@ -105,7 +105,7 @@ ame_mu <- brs_marginaleffects(
   model = "mean",
   type = "response",
   interval = TRUE,
-  n_sim = 120
+  n_sim = 60
 )
 kbl10(ame_mu)
 ```
@@ -114,7 +114,7 @@ kbl10(ame_mu)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   boot_tab_bca <- brs_bootstrap(
     fit_logit,
-    R = 120,
+    R = 30,
     level = 0.95,
     ci_type = "bca",
     keep_draws = TRUE
@@ -131,7 +131,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     model = "mean",
     type = "response",
     interval = TRUE,
-    n_sim = 160,
+    n_sim = 60,
     keep_draws = TRUE,
   )
   autoplot.brs_marginaleffects(ame_mu_draws, type = "forest")
@@ -155,7 +155,7 @@ cv_tab <- brs_cv(
   y ~ x1 + x2 | z1,
   data = sim,
   k = 5,
-  repeats = 5,
+  repeats = 2,
   repar = 2
 )
 kbl10(head(cv_tab, 10))
@@ -167,7 +167,7 @@ kbl10(head(cv_tab, 10))
 
 ```{r mixed-data}
 g <- 10
-ni <- 120
+ni <- 25
 id <- factor(rep(seq_len(g), each = ni))
 n_mm <- length(id)
 x1 <- rnorm(n_mm)

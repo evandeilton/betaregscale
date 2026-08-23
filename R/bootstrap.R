@@ -21,12 +21,23 @@
 #' is too low, a warning is issued. Intervals are the empirical quantiles of
 #' the bootstrap distribution of each parameter.
 #'
+#' @section Cost of \code{ci_type = "bca"}:
+#' The bias-corrected and accelerated interval needs an acceleration constant,
+#' which is obtained here by a leave-one-out jackknife. That requires \code{n}
+#' additional model fits, one per observation, on top of the \code{R} bootstrap
+#' replicates: the total is \code{R + n} fits rather than \code{R}. The cost is
+#' therefore driven by the sample size, not by \code{R}, and grows quickly --
+#' for \code{n = 1000} the jackknife alone dominates the run time by an order of
+#' magnitude. The other three interval types need only the \code{R} replicates.
+#' Prefer \code{"percentile"} or \code{"basic"} for exploratory work on large
+#' samples, and reserve \code{"bca"} for a final result.
+#'
 #' @param object A fitted \code{"brs"} object (fixed or variable dispersion).
 #' @param R Integer: number of bootstrap replicates (default 199).
 #' @param level Numeric: confidence level (default 0.95).
 #' @param ci_type Character: type of confidence interval. One of
 #'   \code{"percentile"} (default), \code{"basic"}, \code{"normal"},
-#'   or \code{"bca"}.
+#'   or \code{"bca"}. See the section on the cost of \code{"bca"} below.
 #' @param max_tries Optional integer: maximum number of bootstrap attempts
 #'   to obtain converged replicates. If \code{NULL}, uses \code{max(3 * R, 50)}.
 #' @param keep_draws Logical: if \code{TRUE}, stores successful bootstrap

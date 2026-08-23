@@ -159,7 +159,7 @@ Data processed by `brs_prep()` is automatically detected by
 
 ```{r prepare-workflow}
 set.seed(42)
-n <- 1000
+n <- 200
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
 sim <- brs_sim(
   formula = ~ x1 + x2, data = dat,
@@ -185,7 +185,7 @@ dispersion, two covariates, and a logit link for the mean.
 
 ```{r sim-fixed}
 set.seed(4255)
-n <- 1000
+n <- 250
 dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
 
 sim_fixed <- brs_sim(
@@ -317,7 +317,7 @@ part activates the precision submodel in simulation.
 
 ```{r sim-variable}
 set.seed(2222)
-n <- 1000
+n <- 250
 dat_z <- data.frame(
   x1 = rnorm(n),
   x2 = rnorm(n),
@@ -412,7 +412,7 @@ effect interpretation, score-scale communication, and predictive validation.
 set.seed(101)
 boot_ci <- brs_bootstrap(
   fit_fixed,
-  R = 100,
+  R = 30,
   level = 0.95,
   ci_type = "bca",
   keep_draws = TRUE
@@ -439,7 +439,7 @@ ame <- brs_marginaleffects(
   model = "mean",
   type = "response",
   interval = TRUE,
-  n_sim = 120,
+  n_sim = 60,
   keep_draws = TRUE
 )
 kbl10(ame)
@@ -468,7 +468,7 @@ cv_res <- brs_cv(
   y ~ x1 + x2,
   data = sim_fixed,
   k = 5,
-  repeats = 5,
+  repeats = 2,
   repar = 2,
 )
 kbl10(cv_res)
