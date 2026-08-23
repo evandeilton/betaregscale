@@ -62,20 +62,19 @@ structures.
 
 ## Installation
 
-`betaregscale` is currently under review for CRAN. Until it is accepted,
-install the development version from GitHub:
+Install the released version from CRAN:
+
+``` r
+
+install.packages("betaregscale")
+```
+
+The development version, with the newest fixes, is on GitHub:
 
 ``` r
 
 # install.packages("remotes")
 remotes::install_github("evandeilton/betaregscale")
-```
-
-Once the package is on CRAN:
-
-``` r
-
-install.packages("betaregscale")
 ```
 
 ------------------------------------------------------------------------

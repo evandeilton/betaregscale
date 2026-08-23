@@ -71,10 +71,11 @@ for CRAN submission.
   were added.
 - `README.md`: the score-probability example described its output as
   “500 patients” while the accompanying simulation creates 1000.
-- `README.md`: the installation section presented
-  [`install.packages()`](https://rdrr.io/r/utils/install.packages.html)
-  as the stable route while the package is still under CRAN review;
-  GitHub installation is now listed first.
+- `README.md`: the installation section claimed the package was
+  “currently under review for CRAN”. It has been on CRAN since 2.6.9
+  (published 2026-02-25), so `install.packages("betaregscale")` is again
+  presented as the primary route, with the GitHub install offered as the
+  development version.
 - `README.md`: the package summary and the mixed-effects section
   described the random-effects likelihood as Laplace-only, omitting the
   AGHQ and QMC methods.
@@ -93,6 +94,13 @@ for CRAN submission.
   and `BugReports` was removed.
 - `DESCRIPTION` now lists the GitHub repository in `URL` alongside the
   pkgdown site.
+- The URI of the cited master’s dissertation is no longer wrapped in
+  `\url{}` in the `\references` section of the 22 help pages that carry
+  it. The UFPR institutional repository hosting it is down (502 across
+  the whole server, with an official maintenance notice), so the link
+  resolved to an error. The identifier is persistent and the reference
+  unchanged; only the hyperlink markup was dropped, and it will be
+  restored once the repository is back.
 
 ### Internal
 

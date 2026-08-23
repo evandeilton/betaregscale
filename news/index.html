@@ -71,7 +71,7 @@
 <li>
 <code>README.md</code>: the score-probability example described its output as “500 patients” while the accompanying simulation creates 1000.</li>
 <li>
-<code>README.md</code>: the installation section presented <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> as the stable route while the package is still under CRAN review; GitHub installation is now listed first.</li>
+<code>README.md</code>: the installation section claimed the package was “currently under review for CRAN”. It has been on CRAN since 2.6.9 (published 2026-02-25), so <code>install.packages("betaregscale")</code> is again presented as the primary route, with the GitHub install offered as the development version.</li>
 <li>
 <code>README.md</code>: the package summary and the mixed-effects section described the random-effects likelihood as Laplace-only, omitting the AGHQ and QMC methods.</li>
 <li>
@@ -79,6 +79,7 @@
 <li>The package help page (<code><a href="../reference/betaregscale-package.html">?betaregscale</a></code>) showed its “Useful links” section twice and listed the maintainer a third time below the author list. The cause was a block in <code>R/autoplot.R</code> that used the <code>"_PACKAGE"</code> sentinel purely to emit <code>@rawNamespace</code> directives, which made roxygen2 treat it as a second package-level documentation block; it now uses <code>@noRd</code> and contributes only the NAMESPACE directives (<code>NAMESPACE</code> is unchanged). A hand-written <code>@seealso</code>/<code>@author</code> pair in <code>R/betaregscale-package.R</code> that duplicated what roxygen2 already derives from <code>Authors@R</code>, <code>URL</code> and <code>BugReports</code> was removed.</li>
 <li>
 <code>DESCRIPTION</code> now lists the GitHub repository in <code>URL</code> alongside the pkgdown site.</li>
+<li>The URI of the cited master’s dissertation is no longer wrapped in <code>\url{}</code> in the <code>\references</code> section of the 22 help pages that carry it. The UFPR institutional repository hosting it is down (502 across the whole server, with an official maintenance notice), so the link resolved to an error. The identifier is persistent and the reference unchanged; only the hyperlink markup was dropped, and it will be restored once the repository is back.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="internal-2-7-3">Internal<a class="anchor" aria-label="anchor" href="#internal-2-7-3"></a></h3>
