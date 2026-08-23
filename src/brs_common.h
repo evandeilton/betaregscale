@@ -91,12 +91,24 @@ inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) 
 // ------------------------------------------------- log-likelihood building blocks --
 
 // log P(left < Y < right | a, b)
+//
+// The interval probability is the dominant quantity of the whole package
+// (every interval-censored observation). Computing it as
+// pbeta(hi, lower) - pbeta(lo, lower) suffers catastrophic cancellation when
+// both endpoints sit in the upper tail (both CDF values ~= 1, common when the
+// fitted mean is near 1). We pick the tail that keeps both terms small:
+//   * interval in the lower half  -> subtract lower tails
+//   * interval in the upper half  -> subtract upper tails (survival)
 inline double log_interval_prob(double left, double right, double a, double b) {
   double lo = clamp(left,  EPS_UNIT, 1.0 - EPS_UNIT);
   double hi = clamp(right, EPS_UNIT, 1.0 - EPS_UNIT);
-  double p1   = R::pbeta(lo, a, b, 1, 0);
-  double p2   = R::pbeta(hi, a, b, 1, 0);
-  double area = p2 - p1;
+  double area;
+  if (lo + hi > 1.0) {
+    // upper region: P(lo<Y<hi) = S(lo) - S(hi), both small, no cancellation
+    area = R::pbeta(lo, a, b, 0, 0) - R::pbeta(hi, a, b, 0, 0);
+  } else {
+    area = R::pbeta(hi, a, b, 1, 0) - R::pbeta(lo, a, b, 1, 0);
+  }
   if (area < EPS_PROB) area = EPS_PROB;
   return std::log(area);
 }

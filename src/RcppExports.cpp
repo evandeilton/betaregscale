@@ -90,48 +90,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// betaregscale_loglik_mixed_laplace_cpp
-double betaregscale_loglik_mixed_laplace_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, const arma::ivec& group, int link_mu_code, int link_phi_code, int repar);
-RcppExport SEXP _betaregscale_betaregscale_loglik_mixed_laplace_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP groupSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type param(paramSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type group(groupSEXP);
-    Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
-    Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
-    Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
-    rcpp_result_gen = Rcpp::wrap(betaregscale_loglik_mixed_laplace_cpp(param, X, Z, y_left, y_right, yt, delta, group, link_mu_code, link_phi_code, repar));
-    return rcpp_result_gen;
-END_RCPP
-}
-// betaregscale_group_modes_cpp
-arma::mat betaregscale_group_modes_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, const arma::ivec& group, int link_mu_code, int link_phi_code, int repar);
-RcppExport SEXP _betaregscale_betaregscale_group_modes_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP groupSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type param(paramSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type group(groupSEXP);
-    Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
-    Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
-    Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
-    rcpp_result_gen = Rcpp::wrap(betaregscale_group_modes_cpp(param, X, Z, y_left, y_right, yt, delta, group, link_mu_code, link_phi_code, repar));
-    return rcpp_result_gen;
-END_RCPP
-}
 // brsmm_loglik_eigen
 double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X, Eigen::MatrixXd Z, Eigen::MatrixXd Xr, Eigen::VectorXd y_left, Eigen::VectorXd y_right, Eigen::VectorXd yt, Eigen::VectorXi delta, Eigen::VectorXi group, int link_mu, int link_phi, int repar, int method, int n_points);
 RcppExport SEXP _betaregscale_brsmm_loglik_eigen(SEXP paramSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP XrSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP groupSEXP, SEXP link_muSEXP, SEXP link_phiSEXP, SEXP reparSEXP, SEXP methodSEXP, SEXP n_pointsSEXP) {
@@ -184,8 +142,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_betaregscale_betaregscale_loglik_variable_cpp", (DL_FUNC) &_betaregscale_betaregscale_loglik_variable_cpp, 10},
     {"_betaregscale_betaregscale_grad_fixed_cpp", (DL_FUNC) &_betaregscale_betaregscale_grad_fixed_cpp, 9},
     {"_betaregscale_betaregscale_grad_variable_cpp", (DL_FUNC) &_betaregscale_betaregscale_grad_variable_cpp, 10},
-    {"_betaregscale_betaregscale_loglik_mixed_laplace_cpp", (DL_FUNC) &_betaregscale_betaregscale_loglik_mixed_laplace_cpp, 11},
-    {"_betaregscale_betaregscale_group_modes_cpp", (DL_FUNC) &_betaregscale_betaregscale_group_modes_cpp, 11},
     {"_betaregscale_brsmm_loglik_eigen", (DL_FUNC) &_betaregscale_brsmm_loglik_eigen, 14},
     {"_betaregscale_brsmm_group_modes_eigen", (DL_FUNC) &_betaregscale_brsmm_group_modes_eigen, 12},
     {NULL, NULL, 0}
