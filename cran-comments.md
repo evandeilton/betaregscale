@@ -1,9 +1,38 @@
-## Submission (2.7.3)
+## Update (2.6.9 -> 2.7.3)
 
-This submission supersedes 2.7.1. There is no change to the user-facing API.
-It improves the numerical conditioning of the interval-censored likelihood,
-removes an unused C++ backend, and collects packaging cleanups and corrections
-to the package documentation found while preparing the release.
+This is an update to `betaregscale`, currently on CRAN at version 2.6.9
+(published 2026-02-25, OK on all 13 check flavors). Versions 2.7.0, 2.7.1 and
+2.7.2 were prepared but never submitted, so this submission carries their
+changes as well. There is no change to the user-facing API anywhere in the
+range: every function, argument and returned object present in 2.6.9 keeps its
+name and meaning.
+
+The full delta relative to the version on CRAN:
+
+* **2.7.0 (features).** `autoplot.brs()` and `autoplot.brsmm()` gained a `theme`
+  argument, `title`/`xlab`/`ylab` overrides, `type = "all"` (all panels in one
+  `gridExtra::grid.arrange()` grid) and `ncol`. New `type = "shrinkage"` for
+  `autoplot.brsmm()`; `type = "ranef_caterpillar"` now uses +/-1.96 x marginal
+  model SD. Two new base-graphics panels in `plot.brsmm()` (`which = 7`, `8`).
+  `brsmm_re_study()` returns the intraclass correlation. `int_method = "aghq"`
+  and `int_method = "qmc"` were extended to multivariate random effects.
+
+* **2.7.1 (correctness and robustness).** A deep audit of the two C++ backends
+  and the R interface. Among the user-visible corrections: the inverse link for
+  the precision submodel could return a negative shape near the origin; deviance
+  residuals used the wrong saturated-model log-likelihood; `predict.brs()`
+  detected variable dispersion from the parameter count rather than the model
+  terms; the `sqrt` link for the precision submodel had the wrong gradient sign
+  for negative linear predictors; mixed-effects mode finding accepted
+  non-improving Newton-Raphson steps and regularized the Hessian in the wrong
+  direction; the AGHQ grid overflowed 32-bit indexing at four or more
+  random-effect dimensions; the QMC prime table was too short to keep Halton
+  sequences uncorrelated in higher dimensions.
+
+* **2.7.3 (this release).** Improves the numerical conditioning of the
+  interval-censored likelihood, removes an unused C++ backend, and collects
+  packaging cleanups and corrections to the package documentation, detailed
+  below.
 
 ### Numerical accuracy
 
@@ -85,14 +114,27 @@ to the package documentation found while preparing the release.
    for `brsmm` objects although `autoplot.brsmm()` is registered, exported and
    documented; the missing `plot()` and extractor rows were added. The
    score-probability example described its output as "500 patients" while the
-   accompanying simulation creates 1000. The installation section presented
-   `install.packages("betaregscale")` as the stable route while the package is
-   still under review. The package summary described the random-effects
-   likelihood as Laplace-only, omitting the AGHQ and QMC methods.
+   accompanying simulation creates 1000. The installation section claimed the
+   package was "currently under review for CRAN"; it has in fact been on CRAN
+   since 2.6.9, so `install.packages()` is again presented as the primary route
+   and the GitHub install as the development one. The package summary described
+   the random-effects likelihood as Laplace-only, omitting the AGHQ and QMC
+   methods.
+
+13. **Dissertation URI unmarked** (`\references`, 22 help pages). The cited
+   master's dissertation is hosted in the UFPR institutional repository, whose
+   server (`https://acervodigital.ufpr.br/`) is currently down: it returns 502
+   for every URL including its own home page, and serves an official
+   "Pagina indisponivel / Nossos tecnicos ja foram acionados" maintenance
+   notice from CSI-AGTIC-UFPR. The handle resolver in front of it
+   (`https://hdl.handle.net/`) answers 200 but propagates a 500 for the record.
+   The reference is correct and the identifier is persistent, so rather than
+   remove or redirect the citation we dropped only the `\url{}` markup and left
+   the URI as text. The markup will be restored once the repository is back.
 
 ---
 
-## Previous submission (2.7.0)
+## Previous version (2.7.0, prepared but not submitted)
 
 This is a feature release adding diagnostic and plotting enhancements to both the
 `brs` (fixed-effects) and `brsmm` (mixed-effects) model classes.
@@ -132,7 +174,7 @@ This is a feature release adding diagnostic and plotting enhancements to both th
 
 ---
 
-## Previous submission (2.6.9)
+## Previous submission (2.6.9, the version currently on CRAN)
 
 This is a minor resubmission to address documentation completeness and language consistency across the package.
 
@@ -193,45 +235,38 @@ This is a resubmission following CRAN feedback (Konstanze Lauseker, 20 Feb 2026)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 2 notes
+0 errors | 0 warnings | 1 note
 
-Neither note is a property of the package as submitted:
+`checking CRAN incoming feasibility` is **OK**. The single remaining note is a
+property of the local check machine, not of the package:
 
-1. `checking CRAN incoming feasibility ... NOTE` — *Found the following
-   (possibly) invalid URLs: `https://hdl.handle.net/1884/86624`, Status: 500*.
-   This is the persistent handle of the master's dissertation cited in the
-   `\references` section of 22 help pages. The handle resolver itself
-   (`https://hdl.handle.net/`) answers 200; the institutional repository it
-   redirects to, `https://acervodigital.ufpr.br/`, is currently returning 502
-   for **every** URL including its own home page, i.e. the whole server is
-   down. The handle is a persistent identifier and the reference is correct; we
-   will re-verify immediately before submitting.
+* `checking HTML version of manual ... NOTE` — *Skipping checking HTML
+  validation: no command 'tidy' found.* HTML Tidy is not installed here. This
+  note does not arise on the CRAN check farm.
 
-2. `checking HTML version of manual ... NOTE` — *Skipping checking HTML
-   validation: no command 'tidy' found*. HTML Tidy is not installed on the
-   local check machine. This note does not arise on the CRAN check farm.
+For reference, the state of the sources before this release produced
+**2 warnings and 3 notes**: a code/documentation mismatch (two help pages
+documenting objects that do not exist), a non-portable file name (an editor
+conflict copy of `.Rbuildignore` committed by mistake), the corresponding hidden
+file note, a non-standard top-level file (`TODO.md`), and the dissertation URL
+note described in item 13. All are resolved.
 
-For reference, the previous state of the package (2.7.1) produced
-**2 warnings and 3 notes**; the two warnings (code/documentation mismatch and
-non-portable file name) and the two packaging notes (hidden file, non-standard
-top-level file) are resolved by this release.
-
-`checking installed package size` reports 22.6Mb (`libs` 20.2Mb) as INFO. The
-Ubuntu R build injects `-g` into `CXXFLAGS` (`R CMD config CXXFLAGS`), so
-`betaregscale.so` ships unstripped debug information; the same object stripped
+`checking installed package size` reports 22.6Mb (`libs` 20.2Mb, `doc` 1.7Mb) as
+INFO. The Ubuntu R build injects `-g` into `CXXFLAGS` (`R CMD config CXXFLAGS`),
+so `betaregscale.so` ships unstripped debug information; the same object stripped
 with `strip --strip-debug` is 325 KB. `src/Makevars` and `src/Makevars.win`
-contain only `CXX_STD`, `-DARMA_64BIT_WORD` and the LAPACK/BLAS/FLIBS link
-line. `checking compilation flags in Makevars`, `checking compilation flags
-used`, `checking compiled code` and `checking C++ specification` all pass.
+contain only `CXX_STD`, `-DARMA_64BIT_WORD` and the LAPACK/BLAS/FLIBS link line.
+`checking compilation flags in Makevars`, `checking compilation flags used`,
+`checking compiled code` and `checking C++ specification` all pass.
 `CXX_STD = CXX17` is retained deliberately: the package declares
 `Depends: R (>= 4.1.0)`, and R only defaults to C++17 from 4.3.0 onwards.
 
 ### Timings
 
-* `checking whether package can be installed`: 33s
-* `checking examples` (with `--run-donttest`): 13s
+* `checking whether package can be installed`: 32s
+* `checking examples` (with `--run-donttest`): 12s
 * `checking tests`: 14s (all testthat tests pass)
-* `checking re-building of vignette outputs`: 90s
+* `checking re-building of vignette outputs`: 89s
 
 ## Test environments
 
@@ -247,5 +282,5 @@ There are no downstream dependencies.
 ## Notes
 
 * The package contains compiled C++ code via Rcpp, RcppArmadillo and RcppEigen.
-* Expected on a first submission: the "New submission" note from the incoming
-  feasibility check.
+* This is an update, not a new submission: `betaregscale` 2.6.9 has been on CRAN
+  since 2026-02-25 and currently checks OK on all 13 flavors.

@@ -92,7 +92,7 @@
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: \url{https://hdl.handle.net/1884/86624}.
+#' URI: https://hdl.handle.net/1884/86624.
 #'
 #' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
 #' Beta regression for modelling rates and proportions.
@@ -141,7 +141,7 @@ anova.brs <- function(object, ..., test = c("Chisq", "none")) {
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: \url{https://hdl.handle.net/1884/86624}.
+#' URI: https://hdl.handle.net/1884/86624.
 #'
 #' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
 #' Beta regression for modelling rates and proportions.

@@ -42,7 +42,7 @@ brs_repar(mu = 0.5, phi = 0.2, repar = 2)
 \references{
 Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 Master's dissertation, Universidade Federal do Parana, Curitiba.
-URI: \url{https://hdl.handle.net/1884/86624}.
+URI: https://hdl.handle.net/1884/86624.
 
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
