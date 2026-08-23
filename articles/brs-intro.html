@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Introduction to betaregscale</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.3/vignettes/brs-intro.Rmd" class="external-link"><code>vignettes/brs-intro.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-intro.Rmd" class="external-link"><code>vignettes/brs-intro.Rmd</code></a></small>
       <div class="d-none name"><code>brs-intro.Rmd</code></div>
     </div>
 
@@ -466,7 +466,7 @@ by <code><a href="../reference/brs.html">brs()</a></code> - the internal <code><
 skipped:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">dat</span>,</span>
@@ -488,26 +488,26 @@ skipped:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.1122 -0.6590 -0.0288  0.6409  3.6970 </span></span>
+<span><span class="co">#&gt; -3.3566 -0.7310 -0.0537  0.6635  2.9618 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  0.18254    0.04364   4.183 2.88e-05 ***</span></span>
-<span><span class="co">#&gt; x1          -0.48490    0.04491 -10.797  &lt; 2e-16 ***</span></span>
-<span><span class="co">#&gt; x2           0.26206    0.04447   5.893 3.80e-09 ***</span></span>
+<span><span class="co">#&gt; (Intercept)   0.1946     0.0996   1.954   0.0507 .  </span></span>
+<span><span class="co">#&gt; x1           -0.5456     0.1079  -5.057 4.26e-07 ***</span></span>
+<span><span class="co">#&gt; x2            0.2204     0.1067   2.066   0.0389 *  </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
 <span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (phi)  0.26989    0.03992    6.76 1.38e-11 ***</span></span>
+<span><span class="co">#&gt; (phi)   0.3326     0.0910   3.655 0.000257 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -4072.5673 on 4 Df | AIC: 8153.1346 | BIC: 8172.7656 </span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.1292  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 37 (BFGS) </span></span>
-<span><span class="co">#&gt; Censoring: 796 interval | 74 left | 130 right</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -804.9904 on 4 Df | AIC: 1617.9809 | BIC: 1631.1741 </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1372  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 28 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 152 interval | 19 left | 29 right</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -520,7 +520,7 @@ skipped:</p>
 dispersion, two covariates, and a logit link for the mean.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4255</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">250</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sim_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
@@ -547,76 +547,76 @@ dispersion, two covariates, and a logit link for the mean.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.165</td>
-<td align="center">0.175</td>
-<td align="center">0.17</td>
-<td align="center">17</td>
+<td align="center">0.805</td>
+<td align="center">0.815</td>
+<td align="center">0.81</td>
+<td align="center">81</td>
 <td align="center">3</td>
 <td align="center">1.9510</td>
-<td align="center">0.2888</td>
+<td align="center">-1.3482</td>
 </tr>
 <tr class="even">
-<td align="center">0.985</td>
-<td align="center">0.995</td>
-<td align="center">0.99</td>
-<td align="center">99</td>
+<td align="center">0.585</td>
+<td align="center">0.595</td>
+<td align="center">0.59</td>
+<td align="center">59</td>
 <td align="center">3</td>
 <td align="center">0.7725</td>
-<td align="center">1.6103</td>
+<td align="center">1.2966</td>
 </tr>
 <tr class="odd">
-<td align="center">0.000</td>
-<td align="center">0.005</td>
-<td align="center">0.00</td>
-<td align="center">0</td>
-<td align="center">1</td>
+<td align="center">0.245</td>
+<td align="center">0.255</td>
+<td align="center">0.25</td>
+<td align="center">25</td>
+<td align="center">3</td>
 <td align="center">0.7264</td>
-<td align="center">1.0542</td>
+<td align="center">1.1585</td>
 </tr>
 <tr class="even">
-<td align="center">0.575</td>
-<td align="center">0.585</td>
-<td align="center">0.58</td>
-<td align="center">58</td>
+<td align="center">0.965</td>
+<td align="center">0.975</td>
+<td align="center">0.97</td>
+<td align="center">97</td>
 <td align="center">3</td>
 <td align="center">0.0487</td>
-<td align="center">-0.4923</td>
+<td align="center">0.6334</td>
 </tr>
 <tr class="odd">
-<td align="center">0.095</td>
-<td align="center">0.105</td>
-<td align="center">0.10</td>
-<td align="center">10</td>
+<td align="center">0.285</td>
+<td align="center">0.295</td>
+<td align="center">0.29</td>
+<td align="center">29</td>
 <td align="center">3</td>
 <td align="center">-0.5445</td>
-<td align="center">-1.4098</td>
+<td align="center">0.1161</td>
 </tr>
 <tr class="even">
-<td align="center">0.065</td>
-<td align="center">0.075</td>
-<td align="center">0.07</td>
-<td align="center">7</td>
+<td align="center">0.795</td>
+<td align="center">0.805</td>
+<td align="center">0.80</td>
+<td align="center">80</td>
 <td align="center">3</td>
 <td align="center">0.3600</td>
-<td align="center">-1.0116</td>
+<td align="center">-0.2545</td>
 </tr>
 <tr class="odd">
-<td align="center">0.025</td>
-<td align="center">0.035</td>
-<td align="center">0.03</td>
-<td align="center">3</td>
-<td align="center">3</td>
-<td align="center">0.7136</td>
-<td align="center">2.3083</td>
-</tr>
-<tr class="even">
 <td align="center">0.355</td>
 <td align="center">0.365</td>
 <td align="center">0.36</td>
 <td align="center">36</td>
 <td align="center">3</td>
+<td align="center">0.7136</td>
+<td align="center">0.7694</td>
+</tr>
+<tr class="even">
+<td align="center">0.745</td>
+<td align="center">0.755</td>
+<td align="center">0.75</td>
+<td align="center">75</td>
+<td align="center">3</td>
 <td align="center">-0.7274</td>
-<td align="center">0.2061</td>
+<td align="center">1.0397</td>
 </tr>
 </tbody>
 </table>
@@ -645,26 +645,26 @@ with the interval
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.0752 -0.6600  0.0058  0.7071  3.3708 </span></span>
+<span><span class="co">#&gt; -2.8953 -0.6209  0.0858  0.6729  3.4008 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  0.30605    0.04312   7.097 1.28e-12 ***</span></span>
-<span><span class="co">#&gt; x1          -0.60333    0.04531 -13.317  &lt; 2e-16 ***</span></span>
-<span><span class="co">#&gt; x2           0.44136    0.04385  10.066  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; (Intercept)  0.35460    0.08730   4.062 4.87e-05 ***</span></span>
+<span><span class="co">#&gt; x1          -0.65902    0.09482  -6.950 3.64e-12 ***</span></span>
+<span><span class="co">#&gt; x2           0.32880    0.09221   3.566 0.000363 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
-<span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)   </span></span>
-<span><span class="co">#&gt; (phi)  0.10994    0.04057    2.71  0.00673 **</span></span>
+<span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)  </span></span>
+<span><span class="co">#&gt; (phi)  0.15143    0.08202   1.846   0.0649 .</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -4035.2262 on 4 Df | AIC: 8078.4524 | BIC: 8098.0834 </span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.2393  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 35 (BFGS) </span></span>
-<span><span class="co">#&gt; Censoring: 809 interval | 65 left | 126 right</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -989.6966 on 4 Df | AIC: 1987.3932 | BIC: 2001.4790 </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.2264  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 29 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 198 interval | 14 left | 38 right</span></span></code></pre></div>
 <p>The summary output follows the <code>betareg</code> package style,
 showing separate coefficient tables for the mean and precision
 submodels, with Wald z-tests and
@@ -684,10 +684,10 @@ based on the standard normal distribution.</p>
 <th align="center">pseudo_r2</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="center">-4035.226</td>
-<td align="center">8078.452</td>
-<td align="center">8098.083</td>
-<td align="center">0.2393</td>
+<td align="center">-989.6966</td>
+<td align="center">1987.393</td>
+<td align="center">2001.479</td>
+<td align="center">0.2264</td>
 </tr></tbody>
 </table>
 </div>
@@ -714,7 +714,7 @@ can compare them using information criteria:</p>
 <col width="16%">
 <col width="12%">
 <col width="10%">
-<col width="12%">
+<col width="11%">
 <col width="11%">
 <col width="12%">
 <col width="12%">
@@ -733,102 +733,102 @@ can compare them using information criteria:</p>
 <tbody>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.3061</td>
-<td align="center">0.0431</td>
-<td align="center">7.0970</td>
+<td align="center">0.3546</td>
+<td align="center">0.0873</td>
+<td align="center">4.0619</td>
 <td align="center">0.0000</td>
-<td align="center">0.2215</td>
-<td align="center">0.3906</td>
+<td align="center">0.1835</td>
+<td align="center">0.5257</td>
 <td align="center">logit</td>
 </tr>
 <tr class="even">
 <td align="center">x1</td>
-<td align="center">-0.6033</td>
-<td align="center">0.0453</td>
-<td align="center">-13.3171</td>
+<td align="center">-0.6590</td>
+<td align="center">0.0948</td>
+<td align="center">-6.9505</td>
 <td align="center">0.0000</td>
-<td align="center">-0.6921</td>
-<td align="center">-0.5145</td>
+<td align="center">-0.8449</td>
+<td align="center">-0.4732</td>
 <td align="center">logit</td>
 </tr>
 <tr class="odd">
 <td align="center">x2</td>
-<td align="center">0.4414</td>
-<td align="center">0.0438</td>
-<td align="center">10.0663</td>
-<td align="center">0.0000</td>
-<td align="center">0.3554</td>
-<td align="center">0.5273</td>
+<td align="center">0.3288</td>
+<td align="center">0.0922</td>
+<td align="center">3.5657</td>
+<td align="center">0.0004</td>
+<td align="center">0.1481</td>
+<td align="center">0.5095</td>
 <td align="center">logit</td>
 </tr>
 <tr class="even">
 <td align="center">(phi)</td>
-<td align="center">0.1099</td>
-<td align="center">0.0406</td>
-<td align="center">2.7101</td>
-<td align="center">0.0067</td>
-<td align="center">0.0304</td>
-<td align="center">0.1895</td>
+<td align="center">0.1514</td>
+<td align="center">0.0820</td>
+<td align="center">1.8463</td>
+<td align="center">0.0649</td>
+<td align="center">-0.0093</td>
+<td align="center">0.3122</td>
 <td align="center">logit</td>
 </tr>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.1866</td>
-<td align="center">0.0262</td>
-<td align="center">7.1224</td>
+<td align="center">0.2180</td>
+<td align="center">0.0532</td>
+<td align="center">4.0969</td>
 <td align="center">0.0000</td>
-<td align="center">0.1352</td>
-<td align="center">0.2379</td>
+<td align="center">0.1137</td>
+<td align="center">0.3223</td>
 <td align="center">probit</td>
 </tr>
 <tr class="even">
 <td align="center">x1</td>
-<td align="center">-0.3652</td>
-<td align="center">0.0266</td>
-<td align="center">-13.7108</td>
+<td align="center">-0.3964</td>
+<td align="center">0.0548</td>
+<td align="center">-7.2312</td>
 <td align="center">0.0000</td>
-<td align="center">-0.4175</td>
-<td align="center">-0.3130</td>
+<td align="center">-0.5038</td>
+<td align="center">-0.2890</td>
 <td align="center">probit</td>
 </tr>
 <tr class="odd">
 <td align="center">x2</td>
-<td align="center">0.2669</td>
-<td align="center">0.0261</td>
-<td align="center">10.2177</td>
-<td align="center">0.0000</td>
-<td align="center">0.2157</td>
-<td align="center">0.3181</td>
+<td align="center">0.1955</td>
+<td align="center">0.0547</td>
+<td align="center">3.5745</td>
+<td align="center">0.0004</td>
+<td align="center">0.0883</td>
+<td align="center">0.3026</td>
 <td align="center">probit</td>
 </tr>
 <tr class="even">
 <td align="center">(phi)</td>
-<td align="center">0.1118</td>
-<td align="center">0.0405</td>
-<td align="center">2.7603</td>
-<td align="center">0.0058</td>
-<td align="center">0.0324</td>
-<td align="center">0.1913</td>
+<td align="center">0.1539</td>
+<td align="center">0.0819</td>
+<td align="center">1.8794</td>
+<td align="center">0.0602</td>
+<td align="center">-0.0066</td>
+<td align="center">0.3144</td>
 <td align="center">probit</td>
 </tr>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.2765</td>
-<td align="center">0.0409</td>
-<td align="center">6.7671</td>
-<td align="center">0.0000</td>
-<td align="center">0.1965</td>
-<td align="center">0.3566</td>
+<td align="center">0.3062</td>
+<td align="center">0.0824</td>
+<td align="center">3.7164</td>
+<td align="center">0.0002</td>
+<td align="center">0.1447</td>
+<td align="center">0.4677</td>
 <td align="center">cauchit</td>
 </tr>
 <tr class="even">
 <td align="center">x1</td>
-<td align="center">-0.5595</td>
-<td align="center">0.0493</td>
-<td align="center">-11.3589</td>
+<td align="center">-0.6286</td>
+<td align="center">0.1100</td>
+<td align="center">-5.7153</td>
 <td align="center">0.0000</td>
-<td align="center">-0.6561</td>
-<td align="center">-0.4630</td>
+<td align="center">-0.8441</td>
+<td align="center">-0.4130</td>
 <td align="center">cauchit</td>
 </tr>
 </tbody>
@@ -849,31 +849,31 @@ can compare them using information criteria:</p>
 <tbody>
 <tr class="odd">
 <td align="left">logit</td>
-<td align="center">-4035.226</td>
-<td align="center">8078.452</td>
-<td align="center">8098.083</td>
-<td align="center">0.2393</td>
+<td align="center">-989.6966</td>
+<td align="center">1987.393</td>
+<td align="center">2001.479</td>
+<td align="center">0.2264</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
-<td align="center">-4035.685</td>
-<td align="center">8079.370</td>
-<td align="center">8099.001</td>
-<td align="center">0.2383</td>
+<td align="center">-989.8231</td>
+<td align="center">1987.646</td>
+<td align="center">2001.732</td>
+<td align="center">0.2229</td>
 </tr>
 <tr class="odd">
 <td align="left">cauchit</td>
-<td align="center">-4035.500</td>
-<td align="center">8079.000</td>
-<td align="center">8098.631</td>
-<td align="center">0.1918</td>
+<td align="center">-989.7611</td>
+<td align="center">1987.522</td>
+<td align="center">2001.608</td>
+<td align="center">0.1804</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
-<td align="center">-4037.563</td>
-<td align="center">8083.126</td>
-<td align="center">8102.757</td>
-<td align="center">0.1824</td>
+<td align="center">-989.7198</td>
+<td align="center">1987.439</td>
+<td align="center">2001.525</td>
+<td align="center">0.1437</td>
 </tr>
 </tbody>
 </table>
@@ -907,22 +907,22 @@ package):</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.3222</td>
+<td align="center">0.2019</td>
 </tr>
 <tr class="even">
-<td align="center">0.6343</td>
+<td align="center">0.5675</td>
 </tr>
 <tr class="odd">
-<td align="center">0.5825</td>
+<td align="center">0.5638</td>
 </tr>
 <tr class="even">
-<td align="center">0.5148</td>
+<td align="center">0.6297</td>
 </tr>
 <tr class="odd">
-<td align="center">0.5031</td>
+<td align="center">0.6795</td>
 </tr>
 <tr class="even">
-<td align="center">0.4115</td>
+<td align="center">0.5084</td>
 </tr>
 </tbody>
 </table>
@@ -939,22 +939,22 @@ package):</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.1152</td>
+<td align="center">0.0867</td>
 </tr>
 <tr class="even">
-<td align="center">0.1224</td>
+<td align="center">0.1320</td>
 </tr>
 <tr class="odd">
-<td align="center">0.1283</td>
+<td align="center">0.1323</td>
 </tr>
 <tr class="even">
-<td align="center">0.1317</td>
+<td align="center">0.1254</td>
 </tr>
 <tr class="odd">
-<td align="center">0.1319</td>
+<td align="center">0.1171</td>
 </tr>
 <tr class="even">
-<td align="center">0.1277</td>
+<td align="center">0.1344</td>
 </tr>
 </tbody>
 </table>
@@ -972,74 +972,74 @@ package):</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.0007</td>
-<td align="center">0.0170</td>
-<td align="center">0.1779</td>
-<td align="center">0.6024</td>
-<td align="center">0.8964</td>
+<td align="center">0.0000</td>
+<td align="center">0.0006</td>
+<td align="center">0.0329</td>
+<td align="center">0.3130</td>
+<td align="center">0.7400</td>
 </tr>
 <tr class="even">
-<td align="center">0.0711</td>
-<td align="center">0.3148</td>
-<td align="center">0.7508</td>
-<td align="center">0.9675</td>
-<td align="center">0.9980</td>
+<td align="center">0.0335</td>
+<td align="center">0.2024</td>
+<td align="center">0.6326</td>
+<td align="center">0.9348</td>
+<td align="center">0.9943</td>
 </tr>
 <tr class="odd">
-<td align="center">0.0435</td>
-<td align="center">0.2311</td>
-<td align="center">0.6578</td>
-<td align="center">0.9398</td>
-<td align="center">0.9947</td>
+<td align="center">0.0322</td>
+<td align="center">0.1974</td>
+<td align="center">0.6255</td>
+<td align="center">0.9323</td>
+<td align="center">0.9940</td>
 </tr>
 <tr class="even">
-<td align="center">0.0208</td>
-<td align="center">0.1444</td>
-<td align="center">0.5288</td>
-<td align="center">0.8860</td>
-<td align="center">0.9856</td>
+<td align="center">0.0624</td>
+<td align="center">0.2999</td>
+<td align="center">0.7476</td>
+<td align="center">0.9688</td>
+<td align="center">0.9982</td>
 </tr>
 <tr class="odd">
-<td align="center">0.0181</td>
-<td align="center">0.1318</td>
-<td align="center">0.5060</td>
-<td align="center">0.8745</td>
-<td align="center">0.9833</td>
+<td align="center">0.0979</td>
+<td align="center">0.3959</td>
+<td align="center">0.8302</td>
+<td align="center">0.9855</td>
+<td align="center">0.9995</td>
 </tr>
 <tr class="even">
-<td align="center">0.0048</td>
-<td align="center">0.0565</td>
-<td align="center">0.3311</td>
-<td align="center">0.7601</td>
-<td align="center">0.9538</td>
+<td align="center">0.0168</td>
+<td align="center">0.1306</td>
+<td align="center">0.5167</td>
+<td align="center">0.8863</td>
+<td align="center">0.9865</td>
 </tr>
 <tr class="odd">
-<td align="center">0.1348</td>
-<td align="center">0.4660</td>
-<td align="center">0.8689</td>
+<td align="center">0.0231</td>
+<td align="center">0.1596</td>
+<td align="center">0.5678</td>
+<td align="center">0.9096</td>
 <td align="center">0.9905</td>
-<td align="center">0.9997</td>
 </tr>
 <tr class="even">
-<td align="center">0.1221</td>
-<td align="center">0.4392</td>
-<td align="center">0.8517</td>
-<td align="center">0.9880</td>
-<td align="center">0.9996</td>
+<td align="center">0.1981</td>
+<td align="center">0.5958</td>
+<td align="center">0.9385</td>
+<td align="center">0.9980</td>
+<td align="center">1.0000</td>
 </tr>
 <tr class="odd">
-<td align="center">0.0319</td>
-<td align="center">0.1895</td>
-<td align="center">0.6011</td>
-<td align="center">0.9185</td>
-<td align="center">0.9915</td>
+<td align="center">0.1001</td>
+<td align="center">0.4013</td>
+<td align="center">0.8341</td>
+<td align="center">0.9862</td>
+<td align="center">0.9995</td>
 </tr>
 <tr class="even">
-<td align="center">0.0288</td>
-<td align="center">0.1777</td>
-<td align="center">0.5834</td>
-<td align="center">0.9111</td>
-<td align="center">0.9902</td>
+<td align="center">0.0088</td>
+<td align="center">0.0860</td>
+<td align="center">0.4218</td>
+<td align="center">0.8340</td>
+<td align="center">0.9755</td>
 </tr>
 </tbody>
 </table>
@@ -1060,23 +1060,23 @@ approximation:</p>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="center">0.2215</td>
-<td align="center">0.3906</td>
+<td align="center">0.1835</td>
+<td align="center">0.5257</td>
 </tr>
 <tr class="even">
 <td align="left">x1</td>
-<td align="center">-0.6921</td>
-<td align="center">-0.5145</td>
+<td align="center">-0.8449</td>
+<td align="center">-0.4732</td>
 </tr>
 <tr class="odd">
 <td align="left">x2</td>
-<td align="center">0.3554</td>
-<td align="center">0.5273</td>
+<td align="center">0.1481</td>
+<td align="center">0.5095</td>
 </tr>
 <tr class="even">
 <td align="left">(phi)</td>
-<td align="center">0.0304</td>
-<td align="center">0.1895</td>
+<td align="center">-0.0093</td>
+<td align="center">0.3122</td>
 </tr>
 </tbody>
 </table>
@@ -1091,18 +1091,18 @@ approximation:</p>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="center">0.2215</td>
-<td align="center">0.3906</td>
+<td align="center">0.1835</td>
+<td align="center">0.5257</td>
 </tr>
 <tr class="even">
 <td align="left">x1</td>
-<td align="center">-0.6921</td>
-<td align="center">-0.5145</td>
+<td align="center">-0.8449</td>
+<td align="center">-0.4732</td>
 </tr>
 <tr class="odd">
 <td align="left">x2</td>
-<td align="center">0.3554</td>
-<td align="center">0.5273</td>
+<td align="center">0.1481</td>
+<td align="center">0.5095</td>
 </tr>
 </tbody>
 </table>
@@ -1135,7 +1135,7 @@ simulation.</p>
 </h3>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2222</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">250</span></span>
 <span><span class="va">dat_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
 <span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
@@ -1183,100 +1183,76 @@ simulation.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.265</td>
-<td align="center">0.275</td>
-<td align="center">0.27</td>
-<td align="center">27</td>
-<td align="center">3</td>
-<td align="center">-0.3381</td>
-<td align="center">-0.8235</td>
-<td align="center">0</td>
-<td align="center">0.0306</td>
-<td align="center">-1.1222</td>
-</tr>
-<tr class="even">
-<td align="center">0.175</td>
-<td align="center">0.185</td>
-<td align="center">0.18</td>
-<td align="center">18</td>
-<td align="center">3</td>
-<td align="center">0.9392</td>
-<td align="center">-1.7563</td>
-<td align="center">0</td>
-<td align="center">0.1938</td>
-<td align="center">-0.2891</td>
-</tr>
-<tr class="odd">
 <td align="center">0.000</td>
 <td align="center">0.005</td>
 <td align="center">0.00</td>
 <td align="center">0</td>
 <td align="center">1</td>
-<td align="center">1.7377</td>
-<td align="center">-1.3148</td>
+<td align="center">-0.3381</td>
+<td align="center">0.7980</td>
 <td align="center">1</td>
-<td align="center">-0.4283</td>
-<td align="center">0.3479</td>
+<td align="center">-0.1859</td>
+<td align="center">1.7165</td>
 </tr>
 <tr class="even">
-<td align="center">0.525</td>
+<td align="center">0.000</td>
+<td align="center">0.005</td>
+<td align="center">0.00</td>
+<td align="center">0</td>
+<td align="center">1</td>
+<td align="center">0.9392</td>
+<td align="center">-2.2067</td>
+<td align="center">0</td>
+<td align="center">-1.1473</td>
+<td align="center">0.8539</td>
+</tr>
+<tr class="odd">
+<td align="center">0.985</td>
+<td align="center">0.995</td>
+<td align="center">0.99</td>
+<td align="center">99</td>
+<td align="center">3</td>
+<td align="center">1.7377</td>
+<td align="center">0.0134</td>
+<td align="center">0</td>
+<td align="center">0.3364</td>
+<td align="center">0.9417</td>
+</tr>
+<tr class="even">
 <td align="center">0.535</td>
-<td align="center">0.53</td>
-<td align="center">53</td>
+<td align="center">0.545</td>
+<td align="center">0.54</td>
+<td align="center">54</td>
 <td align="center">3</td>
 <td align="center">0.6963</td>
-<td align="center">-0.8196</td>
-<td align="center">0</td>
-<td align="center">0.3694</td>
-<td align="center">0.2811</td>
+<td align="center">0.2765</td>
+<td align="center">1</td>
+<td align="center">2.1178</td>
+<td align="center">0.1317</td>
 </tr>
 <tr class="odd">
-<td align="center">0.085</td>
-<td align="center">0.095</td>
-<td align="center">0.09</td>
-<td align="center">9</td>
+<td align="center">0.515</td>
+<td align="center">0.525</td>
+<td align="center">0.52</td>
+<td align="center">52</td>
 <td align="center">3</td>
 <td align="center">0.4623</td>
-<td align="center">-0.1183</td>
+<td align="center">-0.8707</td>
 <td align="center">1</td>
-<td align="center">0.0553</td>
-<td align="center">-1.2184</td>
+<td align="center">0.5450</td>
+<td align="center">-0.3795</td>
 </tr>
 <tr class="even">
-<td align="center">0.955</td>
-<td align="center">0.965</td>
-<td align="center">0.96</td>
-<td align="center">96</td>
+<td align="center">0.005</td>
+<td align="center">0.015</td>
+<td align="center">0.01</td>
+<td align="center">1</td>
 <td align="center">3</td>
 <td align="center">-0.3151</td>
-<td align="center">-0.0648</td>
+<td align="center">-1.0969</td>
 <td align="center">1</td>
-<td align="center">0.7169</td>
-<td align="center">-0.5613</td>
-</tr>
-<tr class="odd">
-<td align="center">0.165</td>
-<td align="center">0.175</td>
-<td align="center">0.17</td>
-<td align="center">17</td>
-<td align="center">3</td>
-<td align="center">0.1927</td>
-<td align="center">-0.9985</td>
-<td align="center">0</td>
-<td align="center">-0.2222</td>
-<td align="center">0.4225</td>
-</tr>
-<tr class="even">
-<td align="center">0.385</td>
-<td align="center">0.395</td>
-<td align="center">0.39</td>
-<td align="center">39</td>
-<td align="center">3</td>
-<td align="center">1.1307</td>
-<td align="center">0.6330</td>
-<td align="center">1</td>
-<td align="center">1.2509</td>
-<td align="center">-1.5492</td>
+<td align="center">-0.4672</td>
+<td align="center">-0.8259</td>
 </tr>
 <tr class="odd">
 <td align="center">0.005</td>
@@ -1284,23 +1260,47 @@ simulation.</p>
 <td align="center">0.01</td>
 <td align="center">1</td>
 <td align="center">3</td>
-<td align="center">1.9764</td>
-<td align="center">-0.4887</td>
+<td align="center">0.1927</td>
+<td align="center">1.8391</td>
 <td align="center">0</td>
-<td align="center">-1.8699</td>
-<td align="center">0.3679</td>
+<td align="center">-1.2001</td>
+<td align="center">-0.1784</td>
 </tr>
 <tr class="even">
-<td align="center">0.515</td>
-<td align="center">0.525</td>
-<td align="center">0.52</td>
-<td align="center">52</td>
+<td align="center">0.035</td>
+<td align="center">0.045</td>
+<td align="center">0.04</td>
+<td align="center">4</td>
+<td align="center">3</td>
+<td align="center">1.1307</td>
+<td align="center">-1.3548</td>
+<td align="center">0</td>
+<td align="center">-0.6740</td>
+<td align="center">-0.9092</td>
+</tr>
+<tr class="odd">
+<td align="center">0.315</td>
+<td align="center">0.325</td>
+<td align="center">0.32</td>
+<td align="center">32</td>
+<td align="center">3</td>
+<td align="center">1.9764</td>
+<td align="center">0.6912</td>
+<td align="center">1</td>
+<td align="center">0.9831</td>
+<td align="center">0.0286</td>
+</tr>
+<tr class="even">
+<td align="center">0.825</td>
+<td align="center">0.835</td>
+<td align="center">0.83</td>
+<td align="center">83</td>
 <td align="center">3</td>
 <td align="center">1.2071</td>
-<td align="center">-1.3548</td>
-<td align="center">1</td>
-<td align="center">-0.2813</td>
-<td align="center">-1.6754</td>
+<td align="center">0.2571</td>
+<td align="center">0</td>
+<td align="center">0.6295</td>
+<td align="center">-0.2415</td>
 </tr>
 </tbody>
 </table>
@@ -1324,27 +1324,27 @@ simulation.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Quantile residuals:</span></span>
 <span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
-<span><span class="co">#&gt; -3.6111 -0.6344  0.0131  0.6654  3.2463 </span></span>
+<span><span class="co">#&gt; -3.2736 -0.5585  0.0259  0.6191  2.5197 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  0.27141    0.04245   6.394 1.62e-10 ***</span></span>
-<span><span class="co">#&gt; x1          -0.54553    0.04375 -12.468  &lt; 2e-16 ***</span></span>
-<span><span class="co">#&gt; x2           0.17226    0.04141   4.160 3.18e-05 ***</span></span>
+<span><span class="co">#&gt; (Intercept)  0.31884    0.08541   3.733 0.000189 ***</span></span>
+<span><span class="co">#&gt; x1          -0.48246    0.08961  -5.384 7.28e-08 ***</span></span>
+<span><span class="co">#&gt; x2           0.23905    0.08270   2.890 0.003847 ** </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Phi coefficients (precision model with logit link):</span></span>
 <span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
-<span><span class="co">#&gt; (Intercept)  0.24653    0.04233   5.823 5.77e-09 ***</span></span>
-<span><span class="co">#&gt; z1          -0.72230    0.04507 -16.028  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; (Intercept)  0.33336    0.08621   3.867  0.00011 ***</span></span>
+<span><span class="co">#&gt; z1          -0.81256    0.09204  -8.829  &lt; 2e-16 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Log-likelihood: -3922.2430 on 5 Df | AIC: 7854.4861 | BIC: 7879.0249 </span></span>
-<span><span class="co">#&gt; Pseudo R-squared: 0.1159  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 44 (BFGS) </span></span>
-<span><span class="co">#&gt; Censoring: 744 interval | 105 left | 151 right</span></span></code></pre></div>
+<span><span class="co">#&gt; Log-likelihood: -936.0499 on 5 Df | AIC: 1882.0998 | BIC: 1899.7071 </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1164  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 34 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 181 interval | 23 left | 46 right</span></span></code></pre></div>
 <p>Notice the <code>(phi)_</code> prefix in the precision coefficient
 names, following the <code>betareg</code> convention.</p>
 </div>
@@ -1355,19 +1355,19 @@ names, following the <code>betareg</code> convention.</p>
 <code class="sourceCode R"><span><span class="co"># Full parameter vector</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       (Intercept)                x1                x2 (phi)_(Intercept) </span></span>
-<span><span class="co">#&gt;            0.2714           -0.5455            0.1723            0.2465 </span></span>
+<span><span class="co">#&gt;            0.3188           -0.4825            0.2390            0.3334 </span></span>
 <span><span class="co">#&gt;          (phi)_z1 </span></span>
-<span><span class="co">#&gt;           -0.7223</span></span>
+<span><span class="co">#&gt;           -0.8126</span></span>
 <span></span>
 <span><span class="co"># Mean submodel only</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; (Intercept)          x1          x2 </span></span>
-<span><span class="co">#&gt;      0.2714     -0.5455      0.1723</span></span>
+<span><span class="co">#&gt;      0.3188     -0.4825      0.2390</span></span>
 <span></span>
 <span><span class="co"># Precision submodel only</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; (phi)_(Intercept)          (phi)_z1 </span></span>
-<span><span class="co">#&gt;            0.2465           -0.7223</span></span>
+<span><span class="co">#&gt;            0.3334           -0.8126</span></span>
 <span></span>
 <span><span class="co"># Variance-covariance matrix for the mean submodel</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -1381,21 +1381,21 @@ names, following the <code>betareg</code> convention.</p>
 <tbody>
 <tr class="odd">
 <td align="left">(Intercept)</td>
-<td align="center">0.0018</td>
-<td align="center">-0.0001</td>
-<td align="center">0.0000</td>
+<td align="center">0.0073</td>
+<td align="center">-3e-04</td>
+<td align="center">0.0002</td>
 </tr>
 <tr class="even">
 <td align="left">x1</td>
-<td align="center">-0.0001</td>
-<td align="center">0.0019</td>
-<td align="center">0.0000</td>
+<td align="center">-0.0003</td>
+<td align="center">8e-03</td>
+<td align="center">0.0001</td>
 </tr>
 <tr class="odd">
 <td align="left">x2</td>
-<td align="center">0.0000</td>
-<td align="center">0.0000</td>
-<td align="center">0.0017</td>
+<td align="center">0.0002</td>
+<td align="center">1e-04</td>
+<td align="center">0.0068</td>
 </tr>
 </tbody>
 </table>
@@ -1416,15 +1416,15 @@ names, following the <code>betareg</code> convention.</p>
 <span>  <span class="va">e</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">est_var</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
 <col width="22%">
-<col width="11%">
+<col width="12%">
 <col width="9%">
-<col width="11%">
 <col width="10%">
-<col width="11%">
-<col width="11%">
+<col width="10%">
+<col width="12%">
+<col width="12%">
 <col width="9%">
 </colgroup>
 <thead><tr class="header">
@@ -1440,102 +1440,102 @@ names, following the <code>betareg</code> convention.</p>
 <tbody>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.2714</td>
-<td align="center">0.0424</td>
-<td align="center">6.3938</td>
-<td align="center">0</td>
-<td align="center">0.1882</td>
-<td align="center">0.3546</td>
+<td align="center">0.3188</td>
+<td align="center">0.0854</td>
+<td align="center">3.7332</td>
+<td align="center">0.0002</td>
+<td align="center">0.1514</td>
+<td align="center">0.4862</td>
 <td align="center">logit</td>
 </tr>
 <tr class="even">
 <td align="center">x1</td>
-<td align="center">-0.5455</td>
-<td align="center">0.0438</td>
-<td align="center">-12.4682</td>
-<td align="center">0</td>
-<td align="center">-0.6313</td>
-<td align="center">-0.4598</td>
+<td align="center">-0.4825</td>
+<td align="center">0.0896</td>
+<td align="center">-5.3841</td>
+<td align="center">0.0000</td>
+<td align="center">-0.6581</td>
+<td align="center">-0.3068</td>
 <td align="center">logit</td>
 </tr>
 <tr class="odd">
 <td align="center">x2</td>
-<td align="center">0.1723</td>
-<td align="center">0.0414</td>
-<td align="center">4.1599</td>
-<td align="center">0</td>
-<td align="center">0.0911</td>
-<td align="center">0.2534</td>
+<td align="center">0.2390</td>
+<td align="center">0.0827</td>
+<td align="center">2.8904</td>
+<td align="center">0.0038</td>
+<td align="center">0.0770</td>
+<td align="center">0.4011</td>
 <td align="center">logit</td>
 </tr>
 <tr class="even">
 <td align="center">(phi)_(Intercept)</td>
-<td align="center">0.2465</td>
-<td align="center">0.0423</td>
-<td align="center">5.8234</td>
-<td align="center">0</td>
-<td align="center">0.1636</td>
-<td align="center">0.3295</td>
+<td align="center">0.3334</td>
+<td align="center">0.0862</td>
+<td align="center">3.8668</td>
+<td align="center">0.0001</td>
+<td align="center">0.1644</td>
+<td align="center">0.5023</td>
 <td align="center">logit</td>
 </tr>
 <tr class="odd">
 <td align="center">(phi)_z1</td>
-<td align="center">-0.7223</td>
-<td align="center">0.0451</td>
-<td align="center">-16.0277</td>
-<td align="center">0</td>
-<td align="center">-0.8106</td>
-<td align="center">-0.6340</td>
+<td align="center">-0.8126</td>
+<td align="center">0.0920</td>
+<td align="center">-8.8286</td>
+<td align="center">0.0000</td>
+<td align="center">-0.9930</td>
+<td align="center">-0.6322</td>
 <td align="center">logit</td>
 </tr>
 <tr class="even">
 <td align="center">(Intercept)</td>
-<td align="center">0.1675</td>
-<td align="center">0.0260</td>
-<td align="center">6.4315</td>
-<td align="center">0</td>
-<td align="center">0.1165</td>
-<td align="center">0.2186</td>
+<td align="center">0.1972</td>
+<td align="center">0.0524</td>
+<td align="center">3.7601</td>
+<td align="center">0.0002</td>
+<td align="center">0.0944</td>
+<td align="center">0.3000</td>
 <td align="center">probit</td>
 </tr>
 <tr class="odd">
 <td align="center">x1</td>
-<td align="center">-0.3352</td>
-<td align="center">0.0262</td>
-<td align="center">-12.8011</td>
-<td align="center">0</td>
-<td align="center">-0.3865</td>
-<td align="center">-0.2839</td>
+<td align="center">-0.2980</td>
+<td align="center">0.0541</td>
+<td align="center">-5.5038</td>
+<td align="center">0.0000</td>
+<td align="center">-0.4041</td>
+<td align="center">-0.1919</td>
 <td align="center">probit</td>
 </tr>
 <tr class="even">
 <td align="center">x2</td>
-<td align="center">0.1056</td>
-<td align="center">0.0253</td>
-<td align="center">4.1771</td>
-<td align="center">0</td>
-<td align="center">0.0561</td>
-<td align="center">0.1552</td>
+<td align="center">0.1477</td>
+<td align="center">0.0505</td>
+<td align="center">2.9237</td>
+<td align="center">0.0035</td>
+<td align="center">0.0487</td>
+<td align="center">0.2467</td>
 <td align="center">probit</td>
 </tr>
 <tr class="odd">
 <td align="center">(phi)_(Intercept)</td>
-<td align="center">0.2467</td>
-<td align="center">0.0423</td>
-<td align="center">5.8291</td>
-<td align="center">0</td>
-<td align="center">0.1638</td>
-<td align="center">0.3297</td>
+<td align="center">0.3326</td>
+<td align="center">0.0862</td>
+<td align="center">3.8571</td>
+<td align="center">0.0001</td>
+<td align="center">0.1636</td>
+<td align="center">0.5015</td>
 <td align="center">probit</td>
 </tr>
 <tr class="even">
 <td align="center">(phi)_z1</td>
-<td align="center">-0.7229</td>
-<td align="center">0.0451</td>
-<td align="center">-16.0344</td>
-<td align="center">0</td>
-<td align="center">-0.8112</td>
-<td align="center">-0.6345</td>
+<td align="center">-0.8131</td>
+<td align="center">0.0920</td>
+<td align="center">-8.8379</td>
+<td align="center">0.0000</td>
+<td align="center">-0.9934</td>
+<td align="center">-0.6327</td>
 <td align="center">probit</td>
 </tr>
 </tbody>
@@ -1556,31 +1556,31 @@ names, following the <code>betareg</code> convention.</p>
 <tbody>
 <tr class="odd">
 <td align="left">logit</td>
-<td align="center">-3922.243</td>
-<td align="center">7854.486</td>
-<td align="center">7879.025</td>
-<td align="center">0.1159</td>
+<td align="center">-936.0499</td>
+<td align="center">1882.100</td>
+<td align="center">1899.707</td>
+<td align="center">0.1164</td>
 </tr>
 <tr class="even">
 <td align="left">probit</td>
-<td align="center">-3922.227</td>
-<td align="center">7854.455</td>
-<td align="center">7878.994</td>
-<td align="center">0.1216</td>
+<td align="center">-935.9539</td>
+<td align="center">1881.908</td>
+<td align="center">1899.515</td>
+<td align="center">0.1211</td>
 </tr>
 <tr class="odd">
 <td align="left">cauchit</td>
-<td align="center">-3923.161</td>
-<td align="center">7856.323</td>
-<td align="center">7880.862</td>
-<td align="center">0.0902</td>
+<td align="center">-936.7522</td>
+<td align="center">1883.504</td>
+<td align="center">1901.112</td>
+<td align="center">0.0957</td>
 </tr>
 <tr class="even">
 <td align="left">cloglog</td>
-<td align="center">-3922.296</td>
-<td align="center">7854.593</td>
-<td align="center">7879.132</td>
-<td align="center">0.0898</td>
+<td align="center">-935.6783</td>
+<td align="center">1881.357</td>
+<td align="center">1898.964</td>
+<td align="center">0.0667</td>
 </tr>
 </tbody>
 </table>
@@ -1606,7 +1606,7 @@ predictive validation.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span>
 <span><span class="va">boot_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span></span>
 <span>  <span class="va">fit_fixed</span>,</span>
-<span>  R <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  R <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  ci_type <span class="op">=</span> <span class="st">"bca"</span>,</span>
 <span>  keep_draws <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -1640,50 +1640,50 @@ predictive validation.</p>
 <tbody>
 <tr class="odd">
 <td align="center">(Intercept)</td>
-<td align="center">0.3061</td>
-<td align="center">0.0416</td>
-<td align="center">0.2373</td>
-<td align="center">0.4106</td>
-<td align="center">0.0062</td>
-<td align="center">0.0137</td>
-<td align="center">0.2215</td>
-<td align="center">0.3906</td>
+<td align="center">0.3546</td>
+<td align="center">0.0982</td>
+<td align="center">0.1799</td>
+<td align="center">0.5024</td>
+<td align="center">0.0318</td>
+<td align="center">0.0217</td>
+<td align="center">0.1835</td>
+<td align="center">0.5257</td>
 <td align="center">0.95</td>
 </tr>
 <tr class="even">
 <td align="center">x1</td>
-<td align="center">-0.6033</td>
-<td align="center">0.0424</td>
-<td align="center">-0.6863</td>
-<td align="center">-0.5387</td>
-<td align="center">0.0059</td>
-<td align="center">0.0045</td>
-<td align="center">-0.6921</td>
-<td align="center">-0.5145</td>
+<td align="center">-0.6590</td>
+<td align="center">0.1044</td>
+<td align="center">-0.8166</td>
+<td align="center">-0.4950</td>
+<td align="center">0.0227</td>
+<td align="center">0.0378</td>
+<td align="center">-0.8449</td>
+<td align="center">-0.4732</td>
 <td align="center">0.95</td>
 </tr>
 <tr class="odd">
 <td align="center">x2</td>
-<td align="center">0.4414</td>
-<td align="center">0.0421</td>
-<td align="center">0.3645</td>
-<td align="center">0.5091</td>
-<td align="center">0.0105</td>
-<td align="center">0.0032</td>
-<td align="center">0.3554</td>
-<td align="center">0.5273</td>
+<td align="center">0.3288</td>
+<td align="center">0.1088</td>
+<td align="center">0.1484</td>
+<td align="center">0.5288</td>
+<td align="center">0.0259</td>
+<td align="center">0.0321</td>
+<td align="center">0.1481</td>
+<td align="center">0.5095</td>
 <td align="center">0.95</td>
 </tr>
 <tr class="even">
 <td align="center">(phi)</td>
-<td align="center">0.1099</td>
-<td align="center">0.0395</td>
-<td align="center">0.0307</td>
-<td align="center">0.1714</td>
-<td align="center">0.0093</td>
-<td align="center">0.0038</td>
-<td align="center">0.0304</td>
-<td align="center">0.1895</td>
+<td align="center">0.1514</td>
+<td align="center">0.0913</td>
+<td align="center">0.0439</td>
+<td align="center">0.3120</td>
+<td align="center">0.0113</td>
+<td align="center">0.0194</td>
+<td align="center">-0.0093</td>
+<td align="center">0.3122</td>
 <td align="center">0.95</td>
 </tr>
 </tbody>
@@ -1706,7 +1706,7 @@ predictive validation.</p>
 <span>  model <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"response"</span>,</span>
 <span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  n_sim <span class="op">=</span> <span class="fl">120</span>,</span>
+<span>  n_sim <span class="op">=</span> <span class="fl">60</span>,</span>
 <span>  keep_draws <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">ame</span><span class="op">)</span></span></code></pre></div>
@@ -1719,7 +1719,7 @@ predictive validation.</p>
 <col width="13%">
 <col width="9%">
 <col width="13%">
-<col width="8%">
+<col width="6%">
 </colgroup>
 <thead><tr class="header">
 <th align="center">variable</th>
@@ -1734,23 +1734,23 @@ predictive validation.</p>
 <tbody>
 <tr class="odd">
 <td align="center">x1</td>
-<td align="center">-0.1321</td>
-<td align="center">0.0091</td>
-<td align="center">-0.1485</td>
-<td align="center">-0.1132</td>
+<td align="center">-0.1425</td>
+<td align="center">0.0170</td>
+<td align="center">-0.1735</td>
+<td align="center">-0.1058</td>
 <td align="center">mean</td>
 <td align="center">response</td>
-<td align="center">1000</td>
+<td align="center">250</td>
 </tr>
 <tr class="even">
 <td align="center">x2</td>
-<td align="center">0.0966</td>
-<td align="center">0.0085</td>
-<td align="center">0.0764</td>
-<td align="center">0.1125</td>
+<td align="center">0.0711</td>
+<td align="center">0.0203</td>
+<td align="center">0.0310</td>
+<td align="center">0.1029</td>
 <td align="center">mean</td>
 <td align="center">response</td>
-<td align="center">1000</td>
+<td align="center">250</td>
 </tr>
 </tbody>
 </table>
@@ -1775,52 +1775,52 @@ predictive validation.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.1754</td>
-<td align="center">0.0657</td>
-<td align="center">0.0386</td>
-<td align="center">0.0288</td>
-<td align="center">0.0235</td>
-<td align="center">0.0201</td>
-</tr>
-<tr class="even">
-<td align="center">0.0218</td>
+<td align="center">0.3600</td>
+<td align="center">0.0758</td>
+<td align="center">0.0406</td>
+<td align="center">0.0289</td>
+<td align="center">0.0228</td>
 <td align="center">0.0190</td>
-<td align="center">0.0139</td>
-<td align="center">0.0117</td>
-<td align="center">0.0104</td>
-<td align="center">0.0095</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0321</td>
-<td align="center">0.0249</td>
-<td align="center">0.0176</td>
-<td align="center">0.0145</td>
-<td align="center">0.0127</td>
-<td align="center">0.0115</td>
 </tr>
 <tr class="even">
-<td align="center">0.0516</td>
-<td align="center">0.0342</td>
-<td align="center">0.0230</td>
-<td align="center">0.0185</td>
-<td align="center">0.0159</td>
-<td align="center">0.0142</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0559</td>
-<td align="center">0.0360</td>
-<td align="center">0.0240</td>
+<td align="center">0.0393</td>
+<td align="center">0.0280</td>
 <td align="center">0.0192</td>
-<td align="center">0.0165</td>
-<td align="center">0.0146</td>
+<td align="center">0.0157</td>
+<td align="center">0.0136</td>
+<td align="center">0.0122</td>
+</tr>
+<tr class="odd">
+<td align="center">0.0403</td>
+<td align="center">0.0285</td>
+<td align="center">0.0195</td>
+<td align="center">0.0159</td>
+<td align="center">0.0137</td>
+<td align="center">0.0123</td>
 </tr>
 <tr class="even">
-<td align="center">0.1016</td>
-<td align="center">0.0509</td>
-<td align="center">0.0318</td>
-<td align="center">0.0246</td>
-<td align="center">0.0206</td>
-<td align="center">0.0180</td>
+<td align="center">0.0252</td>
+<td align="center">0.0205</td>
+<td align="center">0.0147</td>
+<td align="center">0.0122</td>
+<td align="center">0.0108</td>
+<td align="center">0.0098</td>
+</tr>
+<tr class="odd">
+<td align="center">0.0171</td>
+<td align="center">0.0155</td>
+<td align="center">0.0115</td>
+<td align="center">0.0097</td>
+<td align="center">0.0087</td>
+<td align="center">0.0080</td>
+</tr>
+<tr class="even">
+<td align="center">0.0587</td>
+<td align="center">0.0363</td>
+<td align="center">0.0240</td>
+<td align="center">0.0191</td>
+<td align="center">0.0163</td>
+<td align="center">0.0145</td>
 </tr>
 </tbody>
 </table>
@@ -1835,22 +1835,22 @@ predictive validation.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="center">0.4263</td>
+<td align="center">0.6136</td>
 </tr>
 <tr class="even">
-<td align="center">0.1260</td>
+<td align="center">0.1774</td>
 </tr>
 <tr class="odd">
-<td align="center">0.1605</td>
+<td align="center">0.1802</td>
 </tr>
 <tr class="even">
-<td align="center">0.2141</td>
+<td align="center">0.1340</td>
 </tr>
 <tr class="odd">
-<td align="center">0.2245</td>
+<td align="center">0.1044</td>
 </tr>
 <tr class="even">
-<td align="center">0.3163</td>
+<td align="center">0.2261</td>
 </tr>
 </tbody>
 </table>
@@ -1864,7 +1864,7 @@ predictive validation.</p>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">sim_fixed</span>,</span>
 <span>  k <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  repeats <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  repeats <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2</span>,</span>
 <span><span class="op">)</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">cv_res</span><span class="op">)</span></span></code></pre></div>
@@ -1895,110 +1895,110 @@ predictive validation.</p>
 <tr class="odd">
 <td align="center">1</td>
 <td align="center">1</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-4.0713</td>
-<td align="center">0.3472</td>
-<td align="center">0.3019</td>
+<td align="center">50</td>
+<td align="center">-4.0896</td>
+<td align="center">0.3338</td>
+<td align="center">0.2852</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">1</td>
 <td align="center">2</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-3.9984</td>
-<td align="center">0.3451</td>
-<td align="center">0.3019</td>
+<td align="center">50</td>
+<td align="center">-4.0065</td>
+<td align="center">0.3482</td>
+<td align="center">0.3080</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="odd">
 <td align="center">1</td>
 <td align="center">3</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-3.9235</td>
-<td align="center">0.3395</td>
-<td align="center">0.2997</td>
+<td align="center">50</td>
+<td align="center">-3.7595</td>
+<td align="center">0.3069</td>
+<td align="center">0.2693</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">1</td>
 <td align="center">4</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-4.0902</td>
-<td align="center">0.3311</td>
-<td align="center">0.2874</td>
+<td align="center">50</td>
+<td align="center">-3.9121</td>
+<td align="center">0.3660</td>
+<td align="center">0.3281</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="odd">
 <td align="center">1</td>
 <td align="center">5</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-4.1125</td>
-<td align="center">0.3420</td>
-<td align="center">0.2958</td>
+<td align="center">50</td>
+<td align="center">-4.0921</td>
+<td align="center">0.3834</td>
+<td align="center">0.3422</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">2</td>
 <td align="center">1</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-4.0795</td>
-<td align="center">0.3270</td>
-<td align="center">0.2892</td>
+<td align="center">50</td>
+<td align="center">-4.2336</td>
+<td align="center">0.3669</td>
+<td align="center">0.3191</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="odd">
 <td align="center">2</td>
 <td align="center">2</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-4.2062</td>
-<td align="center">0.3504</td>
-<td align="center">0.2972</td>
+<td align="center">50</td>
+<td align="center">-3.8826</td>
+<td align="center">0.3231</td>
+<td align="center">0.2829</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">2</td>
 <td align="center">3</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-4.1858</td>
-<td align="center">0.3248</td>
-<td align="center">0.2818</td>
+<td align="center">50</td>
+<td align="center">-3.8884</td>
+<td align="center">0.3151</td>
+<td align="center">0.2787</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="odd">
 <td align="center">2</td>
 <td align="center">4</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-3.8729</td>
-<td align="center">0.3457</td>
-<td align="center">0.3036</td>
+<td align="center">50</td>
+<td align="center">-4.0835</td>
+<td align="center">0.3745</td>
+<td align="center">0.3272</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">2</td>
 <td align="center">5</td>
-<td align="center">800</td>
 <td align="center">200</td>
-<td align="center">-3.8752</td>
-<td align="center">0.3578</td>
-<td align="center">0.3159</td>
+<td align="center">50</td>
+<td align="center">-3.8069</td>
+<td align="center">0.3697</td>
+<td align="center">0.3366</td>
 <td align="center">TRUE</td>
 <td align="center">NA</td>
 </tr>
@@ -2024,15 +2024,15 @@ predictive validation.</p>
 <tbody>
 <tr class="odd">
 <td align="center">log_score</td>
-<td align="center">-4.0404</td>
+<td align="center">-3.9755</td>
 </tr>
 <tr class="even">
 <td align="center">rmse_yt</td>
-<td align="center">0.3409</td>
+<td align="center">0.3488</td>
 </tr>
 <tr class="odd">
 <td align="center">mae_yt</td>
-<td align="center">0.2974</td>
+<td align="center">0.3077</td>
 </tr>
 </tbody>
 </table>

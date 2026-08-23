@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,9 +36,27 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.3/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.4" id="betaregscale-274">betaregscale 2.7.4<a class="anchor" aria-label="anchor" href="#betaregscale-274"></a></h2>
+<p>Resubmission addressing CRAN feedback on vignette build time (Uwe Ligges, 2026-08-23): <em>“Please reduce the vignette build timings … Otherwise we cannot afford checking the vignette regularly on CRAN.”</em> No change to the statistical methods or to the user-facing API.</p>
+<div class="section level3">
+<h3 id="vignette-build-time-2-7-4">Vignette build time<a class="anchor" aria-label="anchor" href="#vignette-build-time-2-7-4"></a></h3>
+<ul><li>
+<p>The vignettes now use smaller toy data sets and fewer resampling iterations. Total knit time for the four vignettes drops from 77.5s to 14.5s on the development machine (5.3x), and <code>checking re-building of vignette outputs</code> inside <code>R CMD check --as-cran</code> drops from 89s to 26s (3.4x). That step took 376s on the CRAN incoming check, so the expected saving there is around four and a half minutes. The source tarball also shrank from 1.35 MB to 1.09 MB.</p>
+<p>The dominant cost was a single chunk in <code>brs-intro.Rmd</code>, 45.1s of the 77.5s total: a bootstrap with <code>ci_type = "bca"</code> on 1000 observations. BCa obtains its acceleration constant from a leave-one-out jackknife, so that call performed 1000 model fits for the jackknife on top of the 100 bootstrap replicates. The sample size for that vignette is now 250 and the replicate count 30.</p>
+<p>Other reductions: sample sizes in <code>brs-intro.Rmd</code> (1000 to 200/250), <code>brs-advanced-workflows.Rmd</code> (260 to 150, and the mixed-effects example from 1200 to 250 observations) and <code>brs-mm.Rmd</code> (5 groups of 200 to 12 groups of 20, which is also a more natural design for illustrating random effects); bootstrap replicates (80/100/120 to 30); marginal-effect simulation draws (120/160 to 60); and cross-validation repeats (5 to 2). All vignettes still knit without warnings.</p>
+</li>
+<li><p><code>brs-advanced-workflows.Rmd</code> computed its bootstrap twice (once for the table, once again with <code>ci_type = "bca"</code> for the forest plot) and its average marginal effects twice. Both are now computed once, with <code>keep_draws = TRUE</code>, and the plots reuse them. Dropping the redundant BCa call also removes its leave-one-out jackknife. BCa remains demonstrated in <code>brs-intro.Rmd</code>.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-2-7-4">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-4"></a></h3>
+<ul><li>
+<code><a href="../reference/brs_bootstrap.html">?brs_bootstrap</a></code> gains a section on the cost of <code>ci_type = "bca"</code>. The leave-one-out jackknife behind the acceleration constant requires <code>R + n</code> model fits rather than <code>R</code>, so the run time is governed by the sample size rather than by the number of replicates. This was not documented, and it is easy to hit unexpectedly on a large sample.</li>
+</ul><hr></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.3" id="betaregscale-273">betaregscale 2.7.3<a class="anchor" aria-label="anchor" href="#betaregscale-273"></a></h2>
 <p>This release makes no change to the user-facing API. It improves the numerical conditioning of the interval-censored likelihood, removes an unused C++ backend, and collects packaging and documentation cleanups for CRAN submission.</p>

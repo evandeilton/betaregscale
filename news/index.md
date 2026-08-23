@@ -1,5 +1,56 @@
 # Changelog
 
+## betaregscale 2.7.4
+
+Resubmission addressing CRAN feedback on vignette build time (Uwe
+Ligges, 2026-08-23): *“Please reduce the vignette build timings …
+Otherwise we cannot afford checking the vignette regularly on CRAN.”* No
+change to the statistical methods or to the user-facing API.
+
+### Vignette build time
+
+- The vignettes now use smaller toy data sets and fewer resampling
+  iterations. Total knit time for the four vignettes drops from 77.5s to
+  14.5s on the development machine (5.3x), and
+  `checking re-building of vignette outputs` inside
+  `R CMD check --as-cran` drops from 89s to 26s (3.4x). That step took
+  376s on the CRAN incoming check, so the expected saving there is
+  around four and a half minutes. The source tarball also shrank from
+  1.35 MB to 1.09 MB.
+
+  The dominant cost was a single chunk in `brs-intro.Rmd`, 45.1s of the
+  77.5s total: a bootstrap with `ci_type = "bca"` on 1000 observations.
+  BCa obtains its acceleration constant from a leave-one-out jackknife,
+  so that call performed 1000 model fits for the jackknife on top of the
+  100 bootstrap replicates. The sample size for that vignette is now 250
+  and the replicate count 30.
+
+  Other reductions: sample sizes in `brs-intro.Rmd` (1000 to 200/250),
+  `brs-advanced-workflows.Rmd` (260 to 150, and the mixed-effects
+  example from 1200 to 250 observations) and `brs-mm.Rmd` (5 groups of
+  200 to 12 groups of 20, which is also a more natural design for
+  illustrating random effects); bootstrap replicates (80/100/120 to 30);
+  marginal-effect simulation draws (120/160 to 60); and cross-validation
+  repeats (5 to 2). All vignettes still knit without warnings.
+
+- `brs-advanced-workflows.Rmd` computed its bootstrap twice (once for
+  the table, once again with `ci_type = "bca"` for the forest plot) and
+  its average marginal effects twice. Both are now computed once, with
+  `keep_draws = TRUE`, and the plots reuse them. Dropping the redundant
+  BCa call also removes its leave-one-out jackknife. BCa remains
+  demonstrated in `brs-intro.Rmd`.
+
+### Documentation
+
+- [`?brs_bootstrap`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+  gains a section on the cost of `ci_type = "bca"`. The leave-one-out
+  jackknife behind the acceleration constant requires `R + n` model fits
+  rather than `R`, so the run time is governed by the sample size rather
+  than by the number of replicates. This was not documented, and it is
+  easy to hit unexpectedly on a large sample.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.7.3
 
 This release makes no change to the user-facing API. It improves the

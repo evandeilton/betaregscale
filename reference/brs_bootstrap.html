@@ -13,7 +13,7 @@ variable-dispersion) objects are supported; "brsmm" is not supported.'><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@ variable-dispersion) objects are supported; "brsmm" is not supported.'><meta pro
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Parametric bootstrap confidence intervals for brs models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.3/R/bootstrap.R" class="external-link"><code>R/bootstrap.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/bootstrap.R" class="external-link"><code>R/bootstrap.R</code></a></small>
       <div class="d-none name"><code>brs_bootstrap.Rd</code></div>
     </div>
 
@@ -87,7 +87,7 @@ variable-dispersion) objects are supported; <code>"brsmm"</code> is not supporte
 <dt id="arg-ci-type">ci_type<a class="anchor" aria-label="anchor" href="#arg-ci-type"></a></dt>
 <dd><p>Character: type of confidence interval. One of
 <code>"percentile"</code> (default), <code>"basic"</code>, <code>"normal"</code>,
-or <code>"bca"</code>.</p></dd>
+or <code>"bca"</code>. See the section on the cost of <code>"bca"</code> below.</p></dd>
 
 
 <dt id="arg-max-tries">max_tries<a class="anchor" aria-label="anchor" href="#arg-max-tries"></a></dt>
@@ -132,6 +132,20 @@ the bootstrap distribution of each parameter.</p>
 
 <ul><li><p><code>print(brs_bootstrap)</code>: Print method for bootstrap results</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="cost-of-ci-type-bca-">Cost of <code>ci_type = "bca"</code><a class="anchor" aria-label="anchor" href="#cost-of-ci-type-bca-"></a></h2>
+
+
+<p>The bias-corrected and accelerated interval needs an acceleration constant,
+which is obtained here by a leave-one-out jackknife. That requires <code>n</code>
+additional model fits, one per observation, on top of the <code>R</code> bootstrap
+replicates: the total is <code>R + n</code> fits rather than <code>R</code>. The cost is
+therefore driven by the sample size, not by <code>R</code>, and grows quickly –
+for <code>n = 1000</code> the jackknife alone dominates the run time by an order of
+magnitude. The other three interval types need only the <code>R</code> replicates.
+Prefer <code>"percentile"</code> or <code>"basic"</code> for exploratory work on large
+samples, and reserve <code>"bca"</code> for a final result.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="confint.brs.html">confint.brs</a></code> for Wald intervals;

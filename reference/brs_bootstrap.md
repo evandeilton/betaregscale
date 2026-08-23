@@ -38,7 +38,8 @@ print(x, ...)
 - ci_type:
 
   Character: type of confidence interval. One of `"percentile"`
-  (default), `"basic"`, `"normal"`, or `"bca"`.
+  (default), `"basic"`, `"normal"`, or `"bca"`. See the section on the
+  cost of `"bca"` below.
 
 - max_tries:
 
@@ -81,6 +82,18 @@ empirical quantiles of the bootstrap distribution of each parameter.
 ## Methods (by generic)
 
 - `print(brs_bootstrap)`: Print method for bootstrap results
+
+## Cost of `ci_type = "bca"`
+
+The bias-corrected and accelerated interval needs an acceleration
+constant, which is obtained here by a leave-one-out jackknife. That
+requires `n` additional model fits, one per observation, on top of the
+`R` bootstrap replicates: the total is `R + n` fits rather than `R`. The
+cost is therefore driven by the sample size, not by `R`, and grows
+quickly – for `n = 1000` the jackknife alone dominates the run time by
+an order of magnitude. The other three interval types need only the `R`
+replicates. Prefer `"percentile"` or `"basic"` for exploratory work on
+large samples, and reserve `"bca"` for a final result.
 
 ## See also
 
