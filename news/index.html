@@ -217,7 +217,7 @@
 <h3 id="new-features-2-6-4">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-4"></a></h3>
 <ul><li>Extended <code><a href="../reference/brsmm.html">brsmm()</a></code> to support multivariate random effects in the mean predictor, including random intercept + random slope specifications such as <code>random = ~ 1 + x | group</code>.</li>
 <li>Added multivariate Laplace approximation in the Eigen C++ backend for group-specific latent vectors and covariance matrix handling via packed lower-Cholesky parameterization.</li>
-<li>Added <code>brsmm_group_modes_eigen()</code> to compute posterior modes of group random effects for general random-effects dimension.</li>
+<li>Added <code><a href="../reference/brsmm_group_modes_eigen.html">brsmm_group_modes_eigen()</a></code> to compute posterior modes of group random effects for general random-effects dimension.</li>
 <li>Added generic model-comparison methods <code><a href="../reference/anova.brs.html">anova.brs()</a></code> and <code><a href="../reference/anova.brsmm.html">anova.brsmm()</a></code> for likelihood-ratio workflow across <code>brs</code> and <code>brsmm</code> candidates.</li>
 <li>Added <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> and <code><a href="../reference/print.brsmm_re_study.html">print.brsmm_re_study()</a></code> for numeric random-effects diagnostics (covariance/correlation, shrinkage, normality checks).</li>
 </ul></div>
