@@ -2,14 +2,18 @@
 # ggplot2 autoplot methods
 # ============================================================================ #
 
-#' Register S3 methods for ggplot2::autoplot
-#'
+# Register the S3 methods for ggplot2::autoplot without taking a dependency on
+# ggplot2 being attached. This block only emits NAMESPACE directives: it must not
+# use the "_PACKAGE" sentinel, which would make roxygen2 treat it as a second
+# package-level documentation block and duplicate the package help page sections.
 #' @rawNamespace S3method(autoplot, brs)
 #' @rawNamespace S3method(autoplot, brs_bootstrap)
 #' @rawNamespace S3method(autoplot, brs_marginaleffects)
 #' @rawNamespace S3method(autoplot, brsmm)
+#' @name register_autoplot_methods
 #' @keywords internal
-"_PACKAGE"
+#' @noRd
+NULL
 
 #' ggplot2 autoplot for brs models
 #'

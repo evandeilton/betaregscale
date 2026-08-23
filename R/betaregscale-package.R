@@ -58,11 +58,6 @@
 #'     observations between the boundaries.}
 #' }
 #'
-#' @seealso
-#' Useful links: Package source \url{https://github.com/evandeilton/betaregscale};
-#' report bugs at \url{https://github.com/evandeilton/betaregscale/issues}.
-#'
-#' @author José Evandeilton Lopes \email{evandeilton@@gmail.com}
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
