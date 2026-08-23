@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,27 +89,27 @@
 <p><code>betaregscale</code> provides a frequentist, maximum-likelihood framework tailored specifically for bounded scale data. It introduces two major methodological advancements:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Mean-Dispersion (MD) Parameterization:</strong> Reparameterizes the beta distribution in terms of the conditional mean <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu \in (0,1)</annotation></semantics></math> and a proportional dispersion parameter <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sigma \in (0,1)</annotation></semantics></math>, both directly interpretable and modelable via covariates.</p></li>
-<li><p><strong>Interval-Censored Likelihood:</strong> Properly treats each discrete scale point as interval-censored data, integrating the beta PDF over the uncertainty bounds implied by the instrument’s resolution. A score of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>*</mo></msup><annotation encoding="application/x-tex">y^*</annotation></semantics></math> on a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>-point scale is treated as <span class="math inline">$y^\*/K - 1/(2K); y^\*/K + 1/(2K)$</span>.</p></li>
+<li><p><strong>Interval-Censored Likelihood:</strong> Properly treats each discrete scale point as interval-censored data, integrating the beta PDF over the uncertainty bounds implied by the instrument’s resolution. A score of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>y</mi><mo>*</mo></msup><annotation encoding="application/x-tex">y^*</annotation></semantics></math> on a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>-point scale is treated as <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msup><mi>y</mi><mo>*</mo></msup><mi>/</mi><mi>K</mi><mo>−</mo><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.278em"></mspace><msup><mi>y</mi><mo>*</mo></msup><mi>/</mi><mi>K</mi><mo>+</mo><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[y^*/K - 1/(2K),\; y^*/K + 1/(2K)]</annotation></semantics></math>.</p></li>
 </ol>
-<p>The package features a compiled <strong>C++ backend</strong> for analytical gradient computation, and provides a mixed-effects extension (<code><a href="reference/brsmm.html">brsmm()</a></code>) via multivariate <strong>Laplace approximation</strong> for repeated measures and multi-centre data.</p>
+<p>The package features a compiled <strong>C++ backend</strong> for analytical gradient computation, and provides a mixed-effects extension (<code><a href="reference/brsmm.html">brsmm()</a></code>) for repeated measures and multi-centre data, with three integration methods for the random-effects likelihood — multivariate <strong>Laplace approximation</strong> (default), <strong>adaptive Gauss-Hermite quadrature</strong> and <strong>quasi-Monte Carlo</strong> — all available for arbitrary random-effects structures.</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
+<p><code>betaregscale</code> is currently under review for CRAN. Until it is accepted, install the development version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Stable version from CRAN</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"betaregscale"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Development version from GitHub</span></span>
-<span><span class="co"># install.packages("remotes")</span></span>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"evandeilton/betaregscale"</span><span class="op">)</span></span></code></pre></div>
+<p>Once the package is on CRAN:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"betaregscale"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="usage-examples">Usage Examples<a class="anchor" aria-label="anchor" href="#usage-examples"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># =============================================================================</span></span>
 <span><span class="co"># betaregscale — Clinical Workflow: NRS-101 Pain Score Modelling</span></span>
 <span><span class="co"># =============================================================================</span></span>
@@ -287,7 +287,7 @@
 <span>  scores <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">60</span>, <span class="fl">70</span>, <span class="fl">80</span>, <span class="fl">90</span>, <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 500 patients × 11 score bins</span></span>
+<span><span class="co"># 1000 patients × 11 score bins</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">prob_scores</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Probability profile for the first 10 patients</span></span>
@@ -362,6 +362,7 @@ g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}
 \log L_j(\boldsymbol{\theta}) \approx Q_j(\hat{\mathbf{b}}_j) + \frac{q_b}{2}\log(2\pi) - \frac{1}{2}\log|H_j|
 </annotation></semantics></math></p>
 <p>where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>b</mi></msub><annotation encoding="application/x-tex">q_b</annotation></semantics></math> is the random-effects dimension, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><annotation encoding="application/x-tex">\hat{\mathbf{b}}_j</annotation></semantics></math> is the posterior mode, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>j</mi></msub><mo>=</mo><mi>−</mi><msup><mi>∇</mi><mn>2</mn></msup><msub><mi>Q</mi><mi>j</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)</annotation></semantics></math>.</p>
+<p>For higher accuracy, <code>int_method = "aghq"</code> replaces the Laplace step with adaptive Gauss-Hermite quadrature on a Cartesian grid centred at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝐛</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><annotation encoding="application/x-tex">\hat{\mathbf{b}}_j</annotation></semantics></math> and scaled by <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>H</mi><mi>j</mi><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msubsup><annotation encoding="application/x-tex">H_j^{-1/2}</annotation></semantics></math>, and <code>int_method = "qmc"</code> uses importance sampling from a Gaussian proposal along a Halton low-discrepancy sequence. Both work for any <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mi>b</mi></msub><annotation encoding="application/x-tex">q_b</annotation></semantics></math>; Laplace remains the default.</p>
 <hr>
 </div>
 </div>
@@ -369,6 +370,11 @@ g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}
 <h2 id="s3-interface-summary">S3 Interface Summary<a class="anchor" aria-label="anchor" href="#s3-interface-summary"></a>
 </h2>
 <table class="table">
+<colgroup>
+<col width="23%">
+<col width="38%">
+<col width="38%">
+</colgroup>
 <thead><tr>
 <th>Generic</th>
 <th align="center"><code>brs</code></th>
@@ -412,6 +418,11 @@ g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}
 <td align="center">✓</td>
 </tr>
 <tr>
+<td><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code></td>
+<td align="center">✓</td>
+<td align="center">✓</td>
+</tr>
+<tr>
 <td><code><a href="reference/ranef.html">ranef()</a></code></td>
 <td align="center">—</td>
 <td align="center">✓</td>
@@ -424,7 +435,7 @@ g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}
 <tr>
 <td><code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code></td>
 <td align="center">✓</td>
-<td align="center">—</td>
+<td align="center">✓</td>
 </tr>
 <tr>
 <td><code><a href="reference/brs_marginaleffects.html">brs_marginaleffects()</a></code></td>
@@ -440,6 +451,13 @@ g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}
 <td><code><a href="reference/brs_cv.html">brs_cv()</a></code></td>
 <td align="center">✓</td>
 <td align="center">—</td>
+</tr>
+<tr>
+<td>
+<code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code>, <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>
+</td>
+<td align="center">✓</td>
+<td align="center">✓</td>
 </tr>
 <tr>
 <td><code><a href="reference/brs_table.html">brs_table()</a></code></td>
@@ -489,7 +507,7 @@ g(\mu_i) = \mathbf{x}_i^\top \boldsymbol{\beta}, \qquad h(\sigma_i) = \mathbf{z}
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>If you use <code>betaregscale</code> in a publication, please cite:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"betaregscale"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>

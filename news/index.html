@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.7.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,6 +40,52 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.7.3" id="betaregscale-273">betaregscale 2.7.3<a class="anchor" aria-label="anchor" href="#betaregscale-273"></a></h2>
+<p>This release makes no change to the user-facing API. It improves the numerical conditioning of the interval-censored likelihood, removes an unused C++ backend, and collects packaging and documentation cleanups for CRAN submission.</p>
+<div class="section level3">
+<h3 id="numerical-accuracy-2-7-3">Numerical accuracy<a class="anchor" aria-label="anchor" href="#numerical-accuracy-2-7-3"></a></h3>
+<ul><li>The interval probability <code>P(lo &lt; Y &lt; hi)</code> that underlies every interval-censored observation is no longer always computed from lower-tail beta CDF values. When both endpoints lie in the upper tail (<code>lo + hi &gt; 1</code>, common when the fitted mean is close to 1) the difference is now taken between upper-tail (survival) probabilities, so both terms stay small and the subtraction no longer suffers catastrophic cancellation. The two forms are identical in exact arithmetic; the new one is strictly better conditioned in floating point.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-2-7-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-3"></a></h3>
+<ul><li>Removed two stale help pages, <code>man/brsmm_loglik_eigen.Rd</code> and <code>man/brsmm_group_modes_eigen.Rd</code>, that documented <code>brsmm_loglik_eigen()</code> and <code>brsmm_group_modes_eigen()</code>. Those objects do not exist: the Eigen entry points are registered as the internal <code>.brsmm_loglik_eigen</code> and <code>.brsmm_group_modes_eigen</code>. <code>R CMD check</code> reported both as code/documentation mismatches.</li>
+<li>Removed a Dropbox conflict copy of <code>.Rbuildignore</code> that had been committed by mistake and was being shipped in the source tarball, where <code>R CMD check</code> flagged it as a hidden file with a non-portable name.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="packaging-2-7-3">Packaging<a class="anchor" aria-label="anchor" href="#packaging-2-7-3"></a></h3>
+<ul><li>
+<code>DESCRIPTION</code> no longer sets <code>LazyData: true</code>. The package ships no <code>data/</code> directory, so <code>R CMD build</code> was already reporting “Omitted ‘LazyData’ from DESCRIPTION”.</li>
+<li>
+<code>betareg</code> was removed from <code>Suggests</code>. It is not used by any function, test or vignette; the package is only mentioned in prose when describing the output style of <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</li>
+<li>
+<code>src/Makevars</code> and <code>src/Makevars.win</code> no longer request the OpenMP compiler and linker flags (<code>$(SHLIB_OPENMP_CXXFLAGS)</code>). No translation unit in <code>src/</code> contains an OpenMP directive, so the flags added portability risk without any parallelism.</li>
+<li>
+<code>TODO.md</code>, a development-only file, is now listed in <code>.Rbuildignore</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-2-7-3">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-7-3"></a></h3>
+<ul><li>
+<code>NEWS.md</code> records under 2.7.0 the extension of <code>int_method = "aghq"</code> and <code>int_method = "qmc"</code> to multivariate random effects, which had been implemented but never announced. The 2.6.8 heading, which had been concatenated onto the end of the 2.6.9 entry, is now a separate section.</li>
+<li>
+<code>README.md</code>: the S3 interface table marked <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> as unavailable for <code>brsmm</code> objects although <code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> is registered, exported and documented; it is now marked as available, and the missing <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> and extractor (<code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code>, <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>) rows were added.</li>
+<li>
+<code>README.md</code>: the score-probability example described its output as “500 patients” while the accompanying simulation creates 1000.</li>
+<li>
+<code>README.md</code>: the installation section presented <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> as the stable route while the package is still under CRAN review; GitHub installation is now listed first.</li>
+<li>
+<code>README.md</code>: the package summary and the mixed-effects section described the random-effects likelihood as Laplace-only, omitting the AGHQ and QMC methods.</li>
+<li>
+<code>README.md</code>: fixed the interval-censoring notation, which rendered as a semicolon-separated list rather than a closed interval.</li>
+<li>The package help page (<code><a href="../reference/betaregscale-package.html">?betaregscale</a></code>) showed its “Useful links” section twice and listed the maintainer a third time below the author list. The cause was a block in <code>R/autoplot.R</code> that used the <code>"_PACKAGE"</code> sentinel purely to emit <code>@rawNamespace</code> directives, which made roxygen2 treat it as a second package-level documentation block; it now uses <code>@noRd</code> and contributes only the NAMESPACE directives (<code>NAMESPACE</code> is unchanged). A hand-written <code>@seealso</code>/<code>@author</code> pair in <code>R/betaregscale-package.R</code> that duplicated what roxygen2 already derives from <code>Authors@R</code>, <code>URL</code> and <code>BugReports</code> was removed.</li>
+<li>
+<code>DESCRIPTION</code> now lists the GitHub repository in <code>URL</code> alongside the pkgdown site.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="internal-2-7-3">Internal<a class="anchor" aria-label="anchor" href="#internal-2-7-3"></a></h3>
+<ul><li>Removed the unused Armadillo mixed-effects backend from <code>src/loglik.cpp</code> (<code>betaregscale_loglik_mixed_laplace_cpp()</code>, <code>betaregscale_group_modes_cpp()</code> and the <code>build_group_index()</code> / <code>group_Q()</code> / <code>golden_max_group()</code> / <code>laplace_group()</code> helpers, 267 lines). It was reachable from no R code, test or vignette: <code><a href="../reference/brsmm.html">brsmm()</a></code> uses the Eigen backend exclusively. <code>RcppExports</code> were regenerated and the two corresponding help pages removed.</li>
+</ul><hr></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.1" id="betaregscale-271">betaregscale 2.7.1<a class="anchor" aria-label="anchor" href="#betaregscale-271"></a></h2>
 <p>This is a maintenance release focused on correctness, numerical robustness, and performance. It carries the fixes from a deep audit of the C++ backends and the R interface. No user-facing API changes.</p>
 <div class="section level3">
@@ -71,7 +117,7 @@
 <ul><li>Extracted a shared C++ header (<code>src/brs_common.h</code>) to remove duplicated code between the Armadillo and Eigen backends, and documented the numerical tolerance constants.</li>
 <li>The Eigen backend reuses a single pre-allocated workspace vector when forming the numerical Hessian.</li>
 <li>
-<code>src/Makevars</code> and <code>src/Makevars.win</code> no longer define <code>-DARMA_NO_DEBUG</code>, enabling Armadillo bounds checking during development.</li>
+<code>src/Makevars</code> and <code>src/Makevars.win</code> no longer define <code>-DARMA_NO_DEBUG</code>, enabling Armadillo bounds checking.</li>
 <li>The internal <code>.brsmm_loglik_eigen</code> entry point is exported with a leading dot to keep it out of the public namespace.</li>
 </ul><hr></div>
 </div>
@@ -80,6 +126,12 @@
 <div class="section level3">
 <h3 id="new-features-2-7-0">New features<a class="anchor" aria-label="anchor" href="#new-features-2-7-0"></a></h3>
 <ul><li>
+<code><a href="../reference/brsmm.html">brsmm()</a></code> now supports the <code>"aghq"</code> and <code>"qmc"</code> integration methods with <strong>multivariate</strong> random effects. Previously both were restricted to a single random-effects dimension and <code><a href="../reference/brsmm.html">brsmm()</a></code> raised an error for <code>random = ~ 1 + x | group</code> unless <code>int_method = "laplace"</code>. The Eigen backend now builds a Cartesian adaptive Gauss-Hermite grid and prime-based multidimensional Halton sequences of the required dimension, so all three integration methods are available for any random-effects structure.
+<ul><li>For <code>int_method = "aghq"</code> the grid has <code>n_points^q_re</code> nodes; <code><a href="../reference/brsmm.html">brsmm()</a></code> stops with an informative message if that exceeds 500,000, suggesting a smaller <code>n_points</code> or <code>int_method = "qmc"</code>.</li>
+<li>
+<code>int_method = "qmc"</code> supports up to 50 random-effects dimensions.</li>
+</ul></li>
+<li>
 <code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> and <code><a href="../reference/autoplot.brs.html">autoplot.brs()</a></code> gain three new arguments:
 <ul><li>
 <code>theme</code>: accepts any ggplot2 theme object or function (default <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">ggplot2::theme_minimal()</a></code>), replacing the hardcoded theme in all 8 internal <code>brsmm</code> and 4 internal <code>brs</code> plot helpers.</li>
@@ -128,11 +180,14 @@
 <li>Translated remaining Portuguese text into English in the mixed-effects vignette (<code>vignettes/brs-mm.Rmd</code>).</li>
 <li>Corrected <code><a href="../reference/ranef.html">ranef()</a></code> usage in vignettes to correctly call the generic function.</li>
 <li>Fixed mathematical formulas rendering in <code>README.md</code> to be fully compatible with GitHub Markdown, and updated <code>pkgdown</code> site build configuration to load <code>betaregscale</code> appropriately during vignette setups.</li>
-<li>Minor mathematical formatting and typographical fixes (e.g., en-dashes for page ranges) in <code>README.md</code> references.# betaregscale 2.6.8</li>
-</ul></div>
+<li>Minor mathematical formatting and typographical fixes (e.g., en-dashes for page ranges) in <code>README.md</code> references.</li>
+</ul><hr></div>
 </div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="2.6.8" id="betaregscale-268">betaregscale 2.6.8<a class="anchor" aria-label="anchor" href="#betaregscale-268"></a></h2>
 <div class="section level3">
-<h3 id="new-features-2-6-9">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-9"></a></h3>
+<h3 id="new-features-2-6-8">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-8"></a></h3>
 <ul><li>Completed S3 method standardization for <code>brsmm</code> (mixed-effects) objects to mirror the interface of <code>brs</code> (fixed-effects) objects:
 <ul><li>Added missing extractors: <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, and <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>.</li>
 <li>Upgraded <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> to support conditional <code>"deviance"</code>, <code>"rqr"</code> (randomized quantile residuals), <code>"weighted"</code>, and <code>"sweighted"</code> options.</li>
@@ -142,11 +197,11 @@
 <li>Modified package helper functions <code><a href="../reference/brs_gof.html">brs_gof()</a></code> and <code><a href="../reference/brs_est.html">brs_est()</a></code> to compute GOF properties and estimates directly from both <code>brs</code> and <code>brsmm</code> objects respectively.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="improvements-2-6-9">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-9"></a></h3>
+<h3 id="improvements-2-6-8">Improvements<a class="anchor" aria-label="anchor" href="#improvements-2-6-8"></a></h3>
 <ul><li>Standardized <code><a href="../reference/print.brsmm.html">print.brsmm()</a></code> to explicitly display mean, precision, and random-effect coefficient blocks side-by-side, mirroring the verbose visual style of <code><a href="../reference/print.brs.html">print.brs()</a></code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="documentation-2-6-9">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-6-9"></a></h3>
+<h3 id="documentation-2-6-8">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-6-8"></a></h3>
 <ul><li>
 <strong>Complete <code>@examples</code> audit</strong>: added runnable <code>\donttest{}</code> examples to all ~30 previously undocumented exported functions, including all S3 methods for <code>brs</code> and <code>brsmm</code> objects (<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>, <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code>, <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code>, <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code>, <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="../reference/ranef.html">ranef()</a></code>, <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>).</li>
 <li>
@@ -217,7 +272,7 @@
 <h3 id="new-features-2-6-4">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-4"></a></h3>
 <ul><li>Extended <code><a href="../reference/brsmm.html">brsmm()</a></code> to support multivariate random effects in the mean predictor, including random intercept + random slope specifications such as <code>random = ~ 1 + x | group</code>.</li>
 <li>Added multivariate Laplace approximation in the Eigen C++ backend for group-specific latent vectors and covariance matrix handling via packed lower-Cholesky parameterization.</li>
-<li>Added <code><a href="../reference/brsmm_group_modes_eigen.html">brsmm_group_modes_eigen()</a></code> to compute posterior modes of group random effects for general random-effects dimension.</li>
+<li>Added <code>brsmm_group_modes_eigen()</code> to compute posterior modes of group random effects for general random-effects dimension.</li>
 <li>Added generic model-comparison methods <code><a href="../reference/anova.brs.html">anova.brs()</a></code> and <code><a href="../reference/anova.brsmm.html">anova.brsmm()</a></code> for likelihood-ratio workflow across <code>brs</code> and <code>brsmm</code> candidates.</li>
 <li>Added <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> and <code><a href="../reference/print.brsmm_re_study.html">print.brsmm_re_study()</a></code> for numeric random-effects diagnostics (covariance/correlation, shrinkage, normality checks).</li>
 </ul></div>
@@ -262,7 +317,7 @@
 <div class="section level3">
 <h3 id="new-features-2-6-0">New features<a class="anchor" aria-label="anchor" href="#new-features-2-6-0"></a></h3>
 <ul><li>Added <code><a href="../reference/brsmm.html">brsmm()</a></code> for mixed-effects beta interval regression with Gaussian random intercepts (<code>random = ~ 1 | group</code>) using Laplace-approximated marginal likelihood.</li>
-<li>Added C++ mixed-model likelihood core: <code><a href="../reference/dot-brsmm_loglik_laplace_cpp.html">.brsmm_loglik_laplace_cpp()</a></code> and <code><a href="../reference/dot-brsmm_group_modes_cpp.html">.brsmm_group_modes_cpp()</a></code>.</li>
+<li>Added C++ mixed-model likelihood core: <code>.brsmm_loglik_laplace_cpp()</code> and <code>.brsmm_group_modes_cpp()</code>.</li>
 <li>Added a first S3 interface for <code>brsmm</code> objects: <code>print</code>, <code>summary</code>, <code>coef</code>, <code>vcov</code>, <code>logLik</code>, <code>AIC</code>, <code>BIC</code>, <code>nobs</code>, <code>fitted</code>, <code>predict</code>, and <code>residuals</code>.</li>
 </ul></div>
 <div class="section level3">
@@ -315,7 +370,7 @@
 <ul><li>
 <strong>API Overhaul</strong>: All exported functions have been renamed to use the compact <code>brs_</code> prefix for consistency and ease of typing.
 <ul><li>
-<code>betaregscale()</code> -&gt; <code><a href="../reference/brs.html">brs()</a></code>
+<code><a href="../reference/betaregscale-package.html">betaregscale()</a></code> -&gt; <code><a href="../reference/brs.html">brs()</a></code>
 </li>
 <li>
 <code>betaregscale_fit()</code> -&gt; <code><a href="../reference/brs_fit_fixed.html">brs_fit_fixed()</a></code>
@@ -368,7 +423,7 @@
 <h2 class="pkg-version" data-toc-text="2.2.0" id="betaregscale-220">betaregscale 2.2.0<a class="anchor" aria-label="anchor" href="#betaregscale-220"></a></h2>
 <div class="section level3">
 <h3 id="breaking-changes-2-2-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-2-0"></a></h3>
-<ul><li><p><strong><code>type</code> argument removed</strong>: The deprecated <code>type</code> argument has been completely removed from all functions: <code>check_response()</code>, <code>prepare_data()</code>, <code>betaregscale()</code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, and internal helpers <code><a href="../reference/compute_start.html">compute_start()</a></code>, <code>.extract_response()</code>, <code>.build_simulated_response()</code>, and <code>.compute_endpoints()</code>. The midpoint interval geometry (<code>type = "m"</code>) is now the only option and is hardcoded internally. Users who previously relied on <code>type = "l"</code> or <code>type = "r"</code> should use <code>prepare_data()</code> to supply custom left/right endpoints instead.</p></li>
+<ul><li><p><strong><code>type</code> argument removed</strong>: The deprecated <code>type</code> argument has been completely removed from all functions: <code>check_response()</code>, <code>prepare_data()</code>, <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, and internal helpers <code><a href="../reference/compute_start.html">compute_start()</a></code>, <code>.extract_response()</code>, <code>.build_simulated_response()</code>, and <code>.compute_endpoints()</code>. The midpoint interval geometry (<code>type = "m"</code>) is now the only option and is hardcoded internally. Users who previously relied on <code>type = "l"</code> or <code>type = "r"</code> should use <code>prepare_data()</code> to supply custom left/right endpoints instead.</p></li>
 <li><p><strong>Renamed <code>bs_prepare()</code> to <code>prepare_data()</code></strong>: The data preparation function has been renamed to <code>prepare_data()</code> to be more descriptive and consistent with the package’s verb-based API. The returned data frame now carries the <code>is_prepared</code> attribute instead of <code>bs_prepared</code>.</p></li>
 </ul><hr></div>
 </div>
@@ -379,7 +434,7 @@
 <ul><li>
 <p><strong><code>delta</code> argument in simulation functions</strong>: <code>betaregscale_simulate()</code> and <code>betaregscale_simulate_z()</code> gain a <code>delta</code> argument (default <code>NULL</code>) that forces all simulated observations to a specific censoring type: 0 (exact), 1 (left), 2 (right), or 3 (interval). This enables targeted Monte Carlo studies where the analyst controls the censoring structure.</p>
 <p>When <code>delta</code> is non-NULL, the actual simulated values (<code>y_raw = rbeta(n, a, b)</code>) are preserved on the scale grid, and the forced censoring indicator is passed to <code>check_response()</code> as a vector. This ensures that each observation retains its covariate-driven variation with observation-specific endpoints.</p>
-<p>The returned data frame carries <code>attr(, "bs_prepared") = TRUE</code> so that <code>betaregscale()</code>, <code>betaregscale_loglik()</code>, and all fitting functions use the pre-computed <code>left</code>, <code>right</code>, <code>yt</code>, and <code>delta</code> columns directly, bypassing the automatic boundary classification. Without this attribute, the fitting pipeline would re-classify the response from the <code>y</code> column alone, which would ignore the forced delta.</p>
+<p>The returned data frame carries <code>attr(, "bs_prepared") = TRUE</code> so that <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>, <code>betaregscale_loglik()</code>, and all fitting functions use the pre-computed <code>left</code>, <code>right</code>, <code>yt</code>, and <code>delta</code> columns directly, bypassing the automatic boundary classification. Without this attribute, the fitting pipeline would re-classify the response from the <code>y</code> column alone, which would ignore the forced delta.</p>
 </li>
 <li>
 <p><strong><code>delta</code> argument in <code>check_response()</code></strong>: accepts an integer vector of pre-specified censoring indicators, overriding the automatic boundary-based classification on a per-observation basis. The endpoint formulas adapt to non-boundary observations:</p>
@@ -421,11 +476,11 @@
 <p><strong>Simulation with forced <code>delta = 1</code> or <code>delta = 2</code></strong>: the internal <code>.build_simulated_response()</code> helper previously replaced all y values with boundary values (<code>y_grid = rep(0, n)</code> for delta = 1, <code>y_grid = rep(ncuts, n)</code> for delta = 2). This produced degenerate data where every observation had identical endpoints (e.g., all <code>left = 0.995, right = 0.99999</code> for delta = 2), destroying all covariate-driven variation and making regression fitting impossible.</p>
 <p>The fix preserves the actual simulated grid values (<code>y_grid = round(y_raw * ncuts)</code>) and passes a forced delta vector to <code>check_response()</code>, which computes observation-specific endpoints using the actual y values.</p>
 </li>
-<li><p><strong>Missing <code>"bs_prepared"</code> attribute on simulation output</strong>: when <code>delta</code> was forced, the simulation functions did not mark the output with <code>attr(, "bs_prepared") = TRUE</code>. As a result, <code>betaregscale()</code> would re-classify the response via <code>check_response()</code>, silently overwriting the forced delta with automatic boundary rules. The attribute is now set correctly.</p></li>
+<li><p><strong>Missing <code>"bs_prepared"</code> attribute on simulation output</strong>: when <code>delta</code> was forced, the simulation functions did not mark the output with <code>attr(, "bs_prepared") = TRUE</code>. As a result, <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code> would re-classify the response via <code>check_response()</code>, silently overwriting the forced delta with automatic boundary rules. The attribute is now set correctly.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="deprecations-2-1-1">Deprecations<a class="anchor" aria-label="anchor" href="#deprecations-2-1-1"></a></h3>
-<ul><li>The <code>type</code> parameter (<code>"m"</code>, <code>"l"</code>, <code>"r"</code>) is deprecated across all functions: <code>betaregscale()</code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, <code>check_response()</code>, and <code>prepare_data()</code>. Use <code>prepare_data()</code> to control interval geometry instead. The parameter still works but emits a deprecation warning when passed explicitly.</li>
+<ul><li>The <code>type</code> parameter (<code>"m"</code>, <code>"l"</code>, <code>"r"</code>) is deprecated across all functions: <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>, <code>betaregscale_fit()</code>, <code>betaregscale_fit_z()</code>, <code>betaregscale_loglik()</code>, <code>betaregscale_loglik_z()</code>, <code>betaregscale_simulate()</code>, <code>betaregscale_simulate_z()</code>, <code>check_response()</code>, and <code>prepare_data()</code>. Use <code>prepare_data()</code> to control interval geometry instead. The parameter still works but emits a deprecation warning when passed explicitly.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -433,7 +488,7 @@
 <div class="section level3">
 <h3 id="new-features-2-0-1">New features<a class="anchor" aria-label="anchor" href="#new-features-2-0-1"></a></h3>
 <ul><li>
-<strong><code>bs_prepare()</code> data preprocessing</strong>: new analyst-facing function that validates, classifies censoring, and rescales raw data before model fitting. Supports four flexible input modes: score-only, score + explicit delta, interval endpoints with NA patterns, and analyst-supplied left/right bounds. Prepared data is automatically detected by <code>betaregscale()</code>.</li>
+<strong><code>bs_prepare()</code> data preprocessing</strong>: new analyst-facing function that validates, classifies censoring, and rescales raw data before model fitting. Supports four flexible input modes: score-only, score + explicit delta, interval endpoints with NA patterns, and analyst-supplied left/right bounds. Prepared data is automatically detected by <code><a href="../reference/betaregscale-package.html">betaregscale()</a></code>.</li>
 <li>Internal helper <code>.extract_response()</code> enables transparent detection of <code>bs_prepare()</code>-processed data across all fitting, log-likelihood, and starting-value functions.</li>
 <li>
 <code>censoring_summary()</code> now also accepts data frames from <code>bs_prepare()</code>.</li>

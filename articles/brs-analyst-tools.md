@@ -170,8 +170,8 @@ kbl10(me_mean)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | -0.1035 |  0.0178   | -0.1339  | -0.0675  | mean  | response | 220 |
-|    x2    | 0.0734  |  0.0188   |  0.0360  |  0.1071  | mean  | response | 220 |
+|    x1    | -0.1035 |   0.019   | -0.1335  | -0.0577  | mean  | response | 220 |
+|    x2    | 0.0734  |   0.019   |  0.0316  |  0.1091  | mean  | response | 220 |
 
 ``` r
 
@@ -189,7 +189,7 @@ kbl10(me_precision)
 
 | variable |   ame   | std.error | ci.lower | ci.upper |   model   | type |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:---------:|:----:|:---:|
-|    z1    | -0.3361 |  0.0835   | -0.4781  | -0.1413  | precision | link | 220 |
+|    z1    | -0.3361 |  0.0906   | -0.4878  | -0.1538  | precision | link | 220 |
 
 ### 4) Predict score probabilities
 

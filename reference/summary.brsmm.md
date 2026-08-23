@@ -48,7 +48,7 @@ fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 s <- summary(fit)
 s$coefficients$mean
 #>               Estimate Std. Error    z value  Pr(>|z|)
-#> (Intercept)  0.4213505  0.9436722  0.4465009 0.6552355
-#> x1          -0.3374768  0.5737245 -0.5882210 0.5563840
+#> (Intercept)  0.4211170  0.7997014  0.5265928 0.5984764
+#> x1          -0.3373007  0.4881841 -0.6909294 0.4896099
 # }
 ```

@@ -46,27 +46,36 @@ methodological advancements:
 2.  **Interval-Censored Likelihood:** Properly treats each discrete
     scale point as interval-censored data, integrating the beta PDF over
     the uncertainty bounds implied by the instrument’s resolution. A
-    score of $`y^*`$ on a $`K`$-point scale is treated as \$y^\\/K -
-    1/(2K); y^\\/K + 1/(2K)\$.
+    score of $`y^*`$ on a $`K`$-point scale is treated as
+    $`[y^*/K - 1/(2K),\; y^*/K + 1/(2K)]`$.
 
 The package features a compiled **C++ backend** for analytical gradient
 computation, and provides a mixed-effects extension
 ([`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md))
-via multivariate **Laplace approximation** for repeated measures and
-multi-centre data.
+for repeated measures and multi-centre data, with three integration
+methods for the random-effects likelihood — multivariate **Laplace
+approximation** (default), **adaptive Gauss-Hermite quadrature** and
+**quasi-Monte Carlo** — all available for arbitrary random-effects
+structures.
 
 ------------------------------------------------------------------------
 
 ## Installation
 
+`betaregscale` is currently under review for CRAN. Until it is accepted,
+install the development version from GitHub:
+
 ``` r
 
-# Stable version from CRAN
-install.packages("betaregscale")
-
-# Development version from GitHub
 # install.packages("remotes")
 remotes::install_github("evandeilton/betaregscale")
+```
+
+Once the package is on CRAN:
+
+``` r
+
+install.packages("betaregscale")
 ```
 
 ------------------------------------------------------------------------
@@ -252,7 +261,7 @@ prob_scores <- brs_predict_scoreprob(
   scores = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
 )
 
-# 500 patients × 11 score bins
+# 1000 patients × 11 score bins
 dim(prob_scores)
 
 # Probability profile for the first 10 patients
@@ -347,6 +356,13 @@ The intractable group marginal likelihood is approximated via Laplace:
 where $`q_b`$ is the random-effects dimension, $`\hat{\mathbf{b}}_j`$ is
 the posterior mode, and $`H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)`$.
 
+For higher accuracy, `int_method = "aghq"` replaces the Laplace step
+with adaptive Gauss-Hermite quadrature on a Cartesian grid centred at
+$`\hat{\mathbf{b}}_j`$ and scaled by $`H_j^{-1/2}`$, and
+`int_method = "qmc"` uses importance sampling from a Gaussian proposal
+along a Halton low-discrepancy sequence. Both work for any $`q_b`$;
+Laplace remains the default.
+
 ------------------------------------------------------------------------
 
 ## S3 Interface Summary
@@ -360,12 +376,14 @@ the posterior mode, and $`H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)`$.
 | [`confint()`](https://rdrr.io/r/stats/confint.html) | ✓ | ✓ |
 | [`predict()`](https://rdrr.io/r/stats/predict.html) | ✓ | ✓ |
 | [`residuals()`](https://rdrr.io/r/stats/residuals.html) (RQR, response, pearson) | ✓ | ✓ |
+| [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | ✓ | ✓ |
 | [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md) | — | ✓ |
 | [`anova()`](https://rdrr.io/r/stats/anova.html) | ✓ | ✓ |
-| [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) | ✓ | — |
+| [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) | ✓ | ✓ |
 | [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md) | ✓ | — |
 | [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md) | ✓ | — |
 | [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md) | ✓ | — |
+| [`logLik()`](https://rdrr.io/r/stats/logLik.html), [`AIC()`](https://rdrr.io/r/stats/AIC.html), [`BIC()`](https://rdrr.io/r/stats/AIC.html), [`nobs()`](https://rdrr.io/r/stats/nobs.html), [`fitted()`](https://rdrr.io/r/stats/fitted.values.html), [`formula()`](https://rdrr.io/r/stats/formula.html), [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) | ✓ | ✓ |
 | [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md) | ✓ | ✓ |
 
 ------------------------------------------------------------------------

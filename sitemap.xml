@@ -43,8 +43,6 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_sim.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_table.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm.html</loc></url>
-<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_group_modes_eigen.html</loc></url>
-<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_loglik_eigen.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brsmm.html</loc></url>
@@ -56,8 +54,6 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_grad_variable_cpp.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_loglik_fixed_cpp.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brs_loglik_variable_cpp.html</loc></url>
-<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brsmm_group_modes_cpp.html</loc></url>
-<url><loc>https://evandeilton.github.io/betaregscale/reference/dot-brsmm_loglik_laplace_cpp.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-check_class.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-check_class_mm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/dot-mu_links.html</loc></url>

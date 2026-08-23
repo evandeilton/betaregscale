@@ -1,5 +1,112 @@
 # Changelog
 
+## betaregscale 2.7.3
+
+This release makes no change to the user-facing API. It improves the
+numerical conditioning of the interval-censored likelihood, removes an
+unused C++ backend, and collects packaging and documentation cleanups
+for CRAN submission.
+
+### Numerical accuracy
+
+- The interval probability `P(lo < Y < hi)` that underlies every
+  interval-censored observation is no longer always computed from
+  lower-tail beta CDF values. When both endpoints lie in the upper tail
+  (`lo + hi > 1`, common when the fitted mean is close to 1) the
+  difference is now taken between upper-tail (survival) probabilities,
+  so both terms stay small and the subtraction no longer suffers
+  catastrophic cancellation. The two forms are identical in exact
+  arithmetic; the new one is strictly better conditioned in floating
+  point.
+
+### Bug fixes
+
+- Removed two stale help pages, `man/brsmm_loglik_eigen.Rd` and
+  `man/brsmm_group_modes_eigen.Rd`, that documented
+  `brsmm_loglik_eigen()` and `brsmm_group_modes_eigen()`. Those objects
+  do not exist: the Eigen entry points are registered as the internal
+  `.brsmm_loglik_eigen` and `.brsmm_group_modes_eigen`. `R CMD check`
+  reported both as code/documentation mismatches.
+- Removed a Dropbox conflict copy of `.Rbuildignore` that had been
+  committed by mistake and was being shipped in the source tarball,
+  where `R CMD check` flagged it as a hidden file with a non-portable
+  name.
+
+### Packaging
+
+- `DESCRIPTION` no longer sets `LazyData: true`. The package ships no
+  `data/` directory, so `R CMD build` was already reporting “Omitted
+  ‘LazyData’ from DESCRIPTION”.
+- `betareg` was removed from `Suggests`. It is not used by any function,
+  test or vignette; the package is only mentioned in prose when
+  describing the output style of
+  [`summary()`](https://rdrr.io/r/base/summary.html).
+- `src/Makevars` and `src/Makevars.win` no longer request the OpenMP
+  compiler and linker flags (`$(SHLIB_OPENMP_CXXFLAGS)`). No translation
+  unit in `src/` contains an OpenMP directive, so the flags added
+  portability risk without any parallelism.
+- `TODO.md`, a development-only file, is now listed in `.Rbuildignore`.
+
+### Documentation
+
+- `NEWS.md` records under 2.7.0 the extension of `int_method = "aghq"`
+  and `int_method = "qmc"` to multivariate random effects, which had
+  been implemented but never announced. The 2.6.8 heading, which had
+  been concatenated onto the end of the 2.6.9 entry, is now a separate
+  section.
+- `README.md`: the S3 interface table marked
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  as unavailable for `brsmm` objects although
+  [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
+  is registered, exported and documented; it is now marked as available,
+  and the missing
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) and extractor
+  ([`logLik()`](https://rdrr.io/r/stats/logLik.html),
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html),
+  [`BIC()`](https://rdrr.io/r/stats/AIC.html),
+  [`nobs()`](https://rdrr.io/r/stats/nobs.html),
+  [`fitted()`](https://rdrr.io/r/stats/fitted.values.html),
+  [`formula()`](https://rdrr.io/r/stats/formula.html),
+  [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html)) rows
+  were added.
+- `README.md`: the score-probability example described its output as
+  “500 patients” while the accompanying simulation creates 1000.
+- `README.md`: the installation section presented
+  [`install.packages()`](https://rdrr.io/r/utils/install.packages.html)
+  as the stable route while the package is still under CRAN review;
+  GitHub installation is now listed first.
+- `README.md`: the package summary and the mixed-effects section
+  described the random-effects likelihood as Laplace-only, omitting the
+  AGHQ and QMC methods.
+- `README.md`: fixed the interval-censoring notation, which rendered as
+  a semicolon-separated list rather than a closed interval.
+- The package help page
+  ([`?betaregscale`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md))
+  showed its “Useful links” section twice and listed the maintainer a
+  third time below the author list. The cause was a block in
+  `R/autoplot.R` that used the `"_PACKAGE"` sentinel purely to emit
+  `@rawNamespace` directives, which made roxygen2 treat it as a second
+  package-level documentation block; it now uses `@noRd` and contributes
+  only the NAMESPACE directives (`NAMESPACE` is unchanged). A
+  hand-written `@seealso`/`@author` pair in `R/betaregscale-package.R`
+  that duplicated what roxygen2 already derives from `Authors@R`, `URL`
+  and `BugReports` was removed.
+- `DESCRIPTION` now lists the GitHub repository in `URL` alongside the
+  pkgdown site.
+
+### Internal
+
+- Removed the unused Armadillo mixed-effects backend from
+  `src/loglik.cpp` (`betaregscale_loglik_mixed_laplace_cpp()`,
+  `betaregscale_group_modes_cpp()` and the `build_group_index()` /
+  `group_Q()` / `golden_max_group()` / `laplace_group()` helpers, 267
+  lines). It was reachable from no R code, test or vignette:
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  uses the Eigen backend exclusively. `RcppExports` were regenerated and
+  the two corresponding help pages removed.
+
+------------------------------------------------------------------------
+
 ## betaregscale 2.7.1
 
 This is a maintenance release focused on correctness, numerical
@@ -79,8 +186,7 @@ the C++ backends and the R interface. No user-facing API changes.
 - The Eigen backend reuses a single pre-allocated workspace vector when
   forming the numerical Hessian.
 - `src/Makevars` and `src/Makevars.win` no longer define
-  `-DARMA_NO_DEBUG`, enabling Armadillo bounds checking during
-  development.
+  `-DARMA_NO_DEBUG`, enabling Armadillo bounds checking.
 - The internal `.brsmm_loglik_eigen` entry point is exported with a
   leading dot to keep it out of the public namespace.
 
@@ -90,6 +196,21 @@ the C++ backends and the R interface. No user-facing API changes.
 
 ### New features
 
+- [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  now supports the `"aghq"` and `"qmc"` integration methods with
+  **multivariate** random effects. Previously both were restricted to a
+  single random-effects dimension and
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  raised an error for `random = ~ 1 + x | group` unless
+  `int_method = "laplace"`. The Eigen backend now builds a Cartesian
+  adaptive Gauss-Hermite grid and prime-based multidimensional Halton
+  sequences of the required dimension, so all three integration methods
+  are available for any random-effects structure.
+  - For `int_method = "aghq"` the grid has `n_points^q_re` nodes;
+    [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+    stops with an informative message if that exceeds 500,000,
+    suggesting a smaller `n_points` or `int_method = "qmc"`.
+  - `int_method = "qmc"` supports up to 50 random-effects dimensions.
 - [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
   and
   [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
@@ -182,7 +303,11 @@ CRAN release: 2026-02-25
   configuration to load `betaregscale` appropriately during vignette
   setups.
 - Minor mathematical formatting and typographical fixes (e.g., en-dashes
-  for page ranges) in `README.md` references.# betaregscale 2.6.8
+  for page ranges) in `README.md` references.
+
+------------------------------------------------------------------------
+
+## betaregscale 2.6.8
 
 ### New features
 
@@ -365,10 +490,8 @@ CRAN release: 2026-02-25
 - Added multivariate Laplace approximation in the Eigen C++ backend for
   group-specific latent vectors and covariance matrix handling via
   packed lower-Cholesky parameterization.
-- Added
-  [`brsmm_group_modes_eigen()`](https://evandeilton.github.io/betaregscale/reference/brsmm_group_modes_eigen.md)
-  to compute posterior modes of group random effects for general
-  random-effects dimension.
+- Added `brsmm_group_modes_eigen()` to compute posterior modes of group
+  random effects for general random-effects dimension.
 - Added generic model-comparison methods
   [`anova.brs()`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
   and
@@ -461,10 +584,8 @@ CRAN release: 2026-02-25
   for mixed-effects beta interval regression with Gaussian random
   intercepts (`random = ~ 1 | group`) using Laplace-approximated
   marginal likelihood.
-- Added C++ mixed-model likelihood core:
-  [`.brsmm_loglik_laplace_cpp()`](https://evandeilton.github.io/betaregscale/reference/dot-brsmm_loglik_laplace_cpp.md)
-  and
-  [`.brsmm_group_modes_cpp()`](https://evandeilton.github.io/betaregscale/reference/dot-brsmm_group_modes_cpp.md).
+- Added C++ mixed-model likelihood core: `.brsmm_loglik_laplace_cpp()`
+  and `.brsmm_group_modes_cpp()`.
 - Added a first S3 interface for `brsmm` objects: `print`, `summary`,
   `coef`, `vcov`, `logLik`, `AIC`, `BIC`, `nobs`, `fitted`, `predict`,
   and `residuals`.
@@ -545,7 +666,8 @@ CRAN release: 2026-02-25
 
 - **API Overhaul**: All exported functions have been renamed to use the
   compact `brs_` prefix for consistency and ease of typing.
-  - `betaregscale()` -\>
+  - [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md)
+    -\>
     [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
   - `betaregscale_fit()` -\>
     [`brs_fit_fixed()`](https://evandeilton.github.io/betaregscale/reference/brs_fit_fixed.md)
@@ -584,8 +706,9 @@ CRAN release: 2026-02-25
 
 - **`type` argument removed**: The deprecated `type` argument has been
   completely removed from all functions: `check_response()`,
-  `prepare_data()`, `betaregscale()`, `betaregscale_fit()`,
-  `betaregscale_fit_z()`, `betaregscale_loglik()`,
+  `prepare_data()`,
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
+  `betaregscale_fit()`, `betaregscale_fit_z()`, `betaregscale_loglik()`,
   `betaregscale_loglik_z()`, `betaregscale_simulate()`,
   `betaregscale_simulate_z()`, and internal helpers
   [`compute_start()`](https://evandeilton.github.io/betaregscale/reference/compute_start.md),
@@ -621,11 +744,12 @@ CRAN release: 2026-02-25
   covariate-driven variation with observation-specific endpoints.
 
   The returned data frame carries `attr(, "bs_prepared") = TRUE` so that
-  `betaregscale()`, `betaregscale_loglik()`, and all fitting functions
-  use the pre-computed `left`, `right`, `yt`, and `delta` columns
-  directly, bypassing the automatic boundary classification. Without
-  this attribute, the fitting pipeline would re-classify the response
-  from the `y` column alone, which would ignore the forced delta.
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
+  `betaregscale_loglik()`, and all fitting functions use the
+  pre-computed `left`, `right`, `yt`, and `delta` columns directly,
+  bypassing the automatic boundary classification. Without this
+  attribute, the fitting pipeline would re-classify the response from
+  the `y` column alone, which would ignore the forced delta.
 
 - **`delta` argument in `check_response()`**: accepts an integer vector
   of pre-specified censoring indicators, overriding the automatic
@@ -671,7 +795,8 @@ CRAN release: 2026-02-25
 
 - **Missing `"bs_prepared"` attribute on simulation output**: when
   `delta` was forced, the simulation functions did not mark the output
-  with `attr(, "bs_prepared") = TRUE`. As a result, `betaregscale()`
+  with `attr(, "bs_prepared") = TRUE`. As a result,
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md)
   would re-classify the response via `check_response()`, silently
   overwriting the forced delta with automatic boundary rules. The
   attribute is now set correctly.
@@ -679,8 +804,9 @@ CRAN release: 2026-02-25
 ### Deprecations
 
 - The `type` parameter (`"m"`, `"l"`, `"r"`) is deprecated across all
-  functions: `betaregscale()`, `betaregscale_fit()`,
-  `betaregscale_fit_z()`, `betaregscale_loglik()`,
+  functions:
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md),
+  `betaregscale_fit()`, `betaregscale_fit_z()`, `betaregscale_loglik()`,
   `betaregscale_loglik_z()`, `betaregscale_simulate()`,
   `betaregscale_simulate_z()`, `check_response()`, and `prepare_data()`.
   Use `prepare_data()` to control interval geometry instead. The
@@ -696,7 +822,8 @@ CRAN release: 2026-02-25
   model fitting. Supports four flexible input modes: score-only, score +
   explicit delta, interval endpoints with NA patterns, and
   analyst-supplied left/right bounds. Prepared data is automatically
-  detected by `betaregscale()`.
+  detected by
+  [`betaregscale()`](https://evandeilton.github.io/betaregscale/reference/betaregscale-package.md).
 - Internal helper `.extract_response()` enables transparent detection of
   `bs_prepare()`-processed data across all fitting, log-likelihood, and
   starting-value functions.

@@ -64,7 +64,7 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 confint(fit, model = "mean")
 #>                 2.5 %    97.5 %
-#> (Intercept) -1.428213 2.2709139
-#> x1          -1.461956 0.7870026
+#> (Intercept) -1.146269 1.9885030
+#> x1          -1.294124 0.6195225
 # }
 ```
