@@ -13,7 +13,7 @@ AIC(object, ..., k = 2)
 
 - object:
 
-  A fitted `"betaregscale"` object.
+  A fitted `"brs"` object.
 
 - ...:
 

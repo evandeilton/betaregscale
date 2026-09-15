@@ -13,7 +13,7 @@ BIC(object, ...)
 
 - object:
 
-  A fitted `"betaregscale"` object.
+  A fitted `"brs"` object.
 
 - ...:
 

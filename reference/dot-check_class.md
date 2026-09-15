@@ -1,6 +1,6 @@
-# Validate a betaregscale object
+# Validate a brs object
 
-Validate a betaregscale object
+Validate a brs object
 
 ## Usage
 

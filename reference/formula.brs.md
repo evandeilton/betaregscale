@@ -13,7 +13,7 @@ formula(x, ...)
 
 - x:
 
-  A fitted `"betaregscale"` object.
+  A fitted `"brs"` object.
 
 - ...:
 
@@ -45,6 +45,6 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 formula(fit)
 #> y ~ x1
-#> <environment: 0x557d039dd800>
+#> <environment: 0x5605a8a38d50>
 # }
 ```

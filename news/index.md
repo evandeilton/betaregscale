@@ -2,6 +2,8 @@
 
 ## betaregscale 2.7.4
 
+CRAN release: 2026-08-23
+
 Resubmission addressing CRAN feedback on vignette build time (Uwe
 Ligges, 2026-08-23): *“Please reduce the vignette build timings …
 Otherwise we cannot afford checking the vignette regularly on CRAN.”* No

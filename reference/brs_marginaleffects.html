@@ -38,7 +38,7 @@ mean or precision submodel of a fitted "brs" object.'><meta property="og:image" 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Marginal effects for brs models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.4/R/marginaleffects.R" class="external-link"><code>R/marginaleffects.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/marginaleffects.R" class="external-link"><code>R/marginaleffects.R</code></a></small>
       <div class="d-none name"><code>brs_marginaleffects.Rd</code></div>
     </div>
 
@@ -121,12 +121,16 @@ stores AME simulation draws in attribute <code>"ame_draws"</code>.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>AMEs are computed by finite differences on predictions:
+    <p>AMEs for a numeric covariate are computed by a central difference on
+predictions, with the step size scaled by the covariate's standard
+deviation:
 $$
 \mathrm{AME}_j = \frac{1}{n}\sum_{i=1}^{n}
-\frac{\hat{g}_i(x_{ij} + h) - \hat{g}_i(x_{ij})}{h},
+\frac{\hat{g}_i(x_{ij} + h_j) - \hat{g}_i(x_{ij} - h_j)}{2 h_j},
+\qquad h_j = h \cdot \max(\mathrm{sd}(x_{\cdot j}), 1),
 $$
-where \(\hat{g}_i\) is the selected prediction scale.</p>
+where \(\hat{g}_i\) is the selected prediction scale and <code>h</code> is
+the (small) base step supplied by the caller.</p>
 <p>For binary covariates coded as <code>0/1</code>, the effect is computed as the
 average discrete difference \(\hat{g}(x_j=1)-\hat{g}(x_j=0)\).</p>
 <p>If <code>interval = TRUE</code>, uncertainty is approximated by asymptotic

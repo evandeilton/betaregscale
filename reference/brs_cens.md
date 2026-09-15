@@ -5,13 +5,16 @@ model or a response matrix produced by
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
 The summary includes:
 
-1.  Bar chart of censoring type counts
+1.  Bar chart of censoring-type counts, with percentage labels
+    (censoring burden).
 
-2.  Histogram of midpoint responses colored by censoring type
+2.  Boxplot (with jittered points) of the midpoint response \\y_t\\ by
+    censoring type.
 
-3.  Interval plot showing \\\[l_i, u_i\]\\ segments
+3.  Boxplot of interval width (\\u_i - l_i\\) by censoring type.
 
-4.  Proportion table of censoring types
+4.  Ordered interval map: \\\[l_i, u_i\]\\ segments for a sample of
+    observations, colored by censoring type.
 
 ## Usage
 

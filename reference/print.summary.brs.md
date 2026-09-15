@@ -13,7 +13,7 @@ print(x, digits = max(3, getOption("digits") - 3), ...)
 
 - x:
 
-  A `"summary.betaregscale"` object.
+  A `"summary.brs"` object.
 
 - digits:
 

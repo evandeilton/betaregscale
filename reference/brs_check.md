@@ -93,8 +93,10 @@ A numeric matrix with \\n\\ rows and 5 columns:
 
 - `yt`:
 
-  Midpoint approximation \\y_t\\ for starting-value computation (does
-  not enter the likelihood).
+  Midpoint approximation \\y_t\\ for starting-value computation. Also
+  enters the likelihood directly as the density argument for exact
+  observations (\\\delta = 0\\); for censored observations only
+  `left`/`right` enter the likelihood.
 
 - `y`:
 
@@ -153,8 +155,11 @@ The midpoint approximation `yt` is computed as:
 
 - \\y_t = y / K\\ when \\y\\ is on the integer scale.
 
-This value is used exclusively as an initialization aid for
-starting-value computation and does not enter the likelihood.
+This value is used as an initialization aid for starting-value
+computation. It also enters the likelihood directly for exact/uncensored
+observations (\\\delta = 0\\), where the contribution is the beta
+density evaluated at \\y_t\\; for censored observations (\\\delta \in
+\\1,2,3\\\\) only `left`/`right` enter the likelihood, not `yt`.
 
 **Interaction with the fitting pipeline**:
 

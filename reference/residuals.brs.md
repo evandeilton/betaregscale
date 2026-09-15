@@ -17,7 +17,7 @@ residuals(
 
 - object:
 
-  A fitted `"betaregscale"` object.
+  A fitted `"brs"` object.
 
 - type:
 

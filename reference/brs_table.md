@@ -1,7 +1,8 @@
 # Compare fitted brs models in a single table
 
-Builds a comparison table for one or more fitted `"brs"` objects,
-summarizing fit statistics and (optionally) censoring composition.
+Builds a comparison table for one or more fitted `"brs"` or `"brsmm"`
+objects, summarizing fit statistics and (optionally) censoring
+composition. Models of both classes may be mixed in the same call.
 
 ## Usage
 
@@ -20,12 +21,12 @@ brs_table(
 
 - ...:
 
-  Fitted `"brs"` objects passed individually.
+  Fitted `"brs"` or `"brsmm"` objects passed individually.
 
 - models:
 
-  Optional list of fitted `"brs"` objects. Use either `...` or `models`,
-  not both.
+  Optional list of fitted `"brs"` or `"brsmm"` objects. Use either `...`
+  or `models`, not both.
 
 - include_censoring:
 

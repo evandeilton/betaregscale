@@ -160,17 +160,17 @@ fit_mm
 #> 
 #> Coefficients (mean model with logit link):
 #> (Intercept)          x1 
-#>      0.4211     -0.3373 
+#>      0.4212     -0.3374 
 #> 
 #> Phi coefficients (precision model with logit link):
 #> (Intercept) 
-#>     -0.5806 
+#>     -0.5805 
 #> 
 #> Random-effects parameters:
 #> logSD.(Intercept)|id 
-#>              -0.6276 
+#>              -0.6277 
 #> 
-#> Random SD: 0.5339 
+#> Random SD: 0.5338 
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 20  | Groups: 4 

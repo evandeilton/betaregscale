@@ -122,7 +122,7 @@ Interval-censored: the standard case for
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Transform and validate a scale-derived response variable</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v2.7.4/R/check-response.R" class="external-link"><code>R/check-response.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/check-response.R" class="external-link"><code>R/check-response.R</code></a></small>
       <div class="d-none name"><code>brs_check.Rd</code></div>
     </div>
 
@@ -222,7 +222,10 @@ around each scale point.</p></dd>
 
   <dt><code>yt</code></dt>
 <dd><p>Midpoint approximation \(y_t\) for
-    starting-value computation (does not enter the likelihood).</p></dd>
+    starting-value computation. Also enters the likelihood
+    directly as the density argument for exact observations
+    (\(\delta = 0\)); for censored observations only
+    <code>left</code>/<code>right</code> enter the likelihood.</p></dd>
 
   <dt><code>y</code></dt>
 <dd><p>Original response value (preserved unchanged).</p></dd>
@@ -255,8 +258,12 @@ specific censoring type in Monte Carlo studies.</p>
 likelihood.</p>
 <p>The midpoint approximation <code>yt</code> is computed as:</p><ul><li><p>\(y_t = y\) when \(y \in (0, 1)\) (continuous data).</p></li>
 <li><p>\(y_t = y / K\) when \(y\) is on the integer scale.</p></li>
-</ul><p>This value is used exclusively as an initialization aid for
-starting-value computation and does not enter the likelihood.</p>
+</ul><p>This value is used as an initialization aid for starting-value
+computation. It also enters the likelihood directly for
+exact/uncensored observations (\(\delta = 0\)), where the
+contribution is the beta density evaluated at \(y_t\); for
+censored observations (\(\delta \in \{1,2,3\}\)) only
+<code>left</code>/<code>right</code> enter the likelihood, not <code>yt</code>.</p>
 <p><strong>Interaction with the fitting pipeline</strong>:</p>
 <p>This function is called internally by <code>.extract_response()</code>
   when the data does <em>not</em> carry the <code>"is_prepared"</code>

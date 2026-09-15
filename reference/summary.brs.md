@@ -13,7 +13,7 @@ summary(object, ...)
 
 - object:
 
-  A fitted `"betaregscale"` object.
+  A fitted `"brs"` object.
 
 - ...:
 
@@ -21,7 +21,7 @@ summary(object, ...)
 
 ## Value
 
-A list of class `"summary.betaregscale"`.
+A list of class `"summary.brs"`.
 
 ## See also
 
@@ -47,7 +47,7 @@ fit <- brs(y ~ x1, data = prep)
 s <- summary(fit)
 s$coefficients$mean
 #>              Estimate Std. Error    z value  Pr(>|z|)
-#> (Intercept)  0.255100  0.8643918  0.2951208 0.7679016
+#> (Intercept)  0.255100  0.8643917  0.2951208 0.7679016
 #> x1          -0.220206  0.5411949 -0.4068885 0.6840899
 # }
 ```

@@ -76,8 +76,13 @@ using the estimated coefficients (on the link scale) and the original
 design. The model is then re-fitted with
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
 Replicates that fail to converge are discarded; if the number of
-successful replicates is too low, a warning is issued. Intervals are the
-empirical quantiles of the bootstrap distribution of each parameter.
+successful replicates is too low, a warning is issued. Intervals are
+computed from the bootstrap distribution of each parameter, with the
+method controlled by `ci_type`: `"percentile"` (default) uses the raw
+empirical quantiles; `"basic"` uses reflected empirical quantiles;
+`"normal"` uses a normal approximation from the bootstrap standard error
+(no quantiles); `"bca"` uses bias-corrected-and-accelerated adjusted
+quantiles.
 
 ## Methods (by generic)
 
@@ -125,12 +130,12 @@ print(boot)
 #>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 
 #> 
 #>     parameter   estimate   se_boot   ci_lower   ci_upper mcse_lower mcse_upper
-#> 1 (Intercept)  0.2551000 0.7772708 -0.8231021 1.93714710  0.1651500 0.15824661
-#> 2          x1 -0.2202060 0.4898420 -1.3384456 0.50989157  0.1751015 0.08461005
+#> 1 (Intercept)  0.2551000 0.7772708 -0.8231021 1.93714712  0.1651500 0.15824662
+#> 2          x1 -0.2202060 0.4898420 -1.3384456 0.50989158  0.1751015 0.08461005
 #> 3       (phi) -0.3929144 0.3259027 -1.2359624 0.05417615  0.1536645 0.12221656
 #>   wald_lower wald_upper level
-#> 1 -1.4390767  1.9492767  0.95
-#> 2 -1.2809286  0.8405165  0.95
+#> 1 -1.4390767  1.9492766  0.95
+#> 2 -1.2809285  0.8405165  0.95
 #> 3 -0.9343775  0.1485488  0.95
 # }
 ```

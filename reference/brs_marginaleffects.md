@@ -74,10 +74,13 @@ analysis metadata.
 
 ## Details
 
-AMEs are computed by finite differences on predictions: \$\$
-\mathrm{AME}\_j = \frac{1}{n}\sum\_{i=1}^{n} \frac{\hat{g}\_i(x\_{ij} +
-h) - \hat{g}\_i(x\_{ij})}{h}, \$\$ where \\\hat{g}\_i\\ is the selected
-prediction scale.
+AMEs for a numeric covariate are computed by a central difference on
+predictions, with the step size scaled by the covariate's standard
+deviation: \$\$ \mathrm{AME}\_j = \frac{1}{n}\sum\_{i=1}^{n}
+\frac{\hat{g}\_i(x\_{ij} + h_j) - \hat{g}\_i(x\_{ij} - h_j)}{2 h_j},
+\qquad h_j = h \cdot \max(\mathrm{sd}(x\_{\cdot j}), 1), \$\$ where
+\\\hat{g}\_i\\ is the selected prediction scale and `h` is the (small)
+base step supplied by the caller.
 
 For binary covariates coded as `0/1`, the effect is computed as the
 average discrete difference \\\hat{g}(x_j=1)-\hat{g}(x_j=0)\\.

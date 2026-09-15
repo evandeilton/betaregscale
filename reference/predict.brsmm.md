@@ -41,7 +41,10 @@ predict(
 
 ## Value
 
-Numeric vector.
+Numeric vector, except when `type = "quantile"` and `at` has length
+greater than 1, in which case a numeric matrix with one column per
+requested quantile (named `q_<value>`, e.g. `"q_0.5"`) and one row per
+observation.
 
 ## See also
 
@@ -66,8 +69,8 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 head(predict(fit))
 #>         1         2         3         4         5         6 
-#> 0.3855977 0.3093508 0.3855977 0.3093508 0.3855977 0.5713454 
+#> 0.3856147 0.3093481 0.3856147 0.3093481 0.3856147 0.5713120 
 head(predict(fit, type = "precision"))
-#> [1] 0.3587956 0.3587956 0.3587956 0.3587956 0.3587956 0.3587956
+#> [1] 0.3588126 0.3588126 0.3588126 0.3588126 0.3588126 0.3588126
 # }
 ```

@@ -13,7 +13,7 @@ fitted(object, type = c("mu", "phi"), ...)
 
 - object:
 
-  A fitted `"betaregscale"` object.
+  A fitted `"brs"` object.
 
 - type:
 

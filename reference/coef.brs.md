@@ -13,7 +13,7 @@ coef(object, model = c("full", "mean", "precision"), ...)
 
 - object:
 
-  A fitted `"betaregscale"` object.
+  A fitted `"brs"` object.
 
 - model:
 
