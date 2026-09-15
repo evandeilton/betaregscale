@@ -39,8 +39,8 @@ advancements:
 
 2.  **Interval-Censored Likelihood:** Properly treats each discrete scale point as
     interval-censored data, integrating the beta PDF over the uncertainty bounds
-    implied by the instrument's resolution. A score of $y^*$ on a $K$-point scale
-    is treated as $[y^*/K - 1/(2K),\; y^*/K + 1/(2K)]$.
+    implied by the instrument's resolution. A score of $y^{\ast}$ on a $K$-point scale
+    is treated as $[y^{\ast}/K - 1/(2K),\; y^{\ast}/K + 1/(2K)]$.
 
 The package features a compiled **C++ backend** for analytical gradient computation,
 and provides a mixed-effects extension (`brsmm()`) for repeated measures and
@@ -308,8 +308,8 @@ The default link for both is logit, ensuring $\mu_i, \sigma_i \in (0,1)$.
 
 ### Interval-Censored Likelihood
 
-A raw NRS-101 score $y_i^* \in \{0, 1, \ldots, 100\}$ is mapped to
-$y_i = y_i^*/100$ with interval $[l_i, u_i] = [y_i - 0.005,\, y_i + 0.005]$.
+A raw NRS-101 score $y_i^{\ast} \in \{0, 1, \ldots, 100\}$ is mapped to
+$y_i = y_i^{\ast}/100$ with interval $[l_i, u_i] = [y_i - 0.005,\, y_i + 0.005]$.
 
 Let $\delta_i \in \{0,1,2,3\}$ encode the censoring type. The complete
 log-likelihood is:
