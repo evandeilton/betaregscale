@@ -7,12 +7,12 @@
 \method{summary}{brs}(object, ...)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{...}{Ignored.}
 }
 \value{
-A list of class \code{"summary.betaregscale"}.
+A list of class \code{"summary.brs"}.
 }
 \description{
 Summarize a fitted model (betareg style)

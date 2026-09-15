@@ -7,7 +7,7 @@
 \method{vcov}{brs}(object, model = c("full", "mean", "precision"), ...)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{model}{Character: which component (\code{"full"},
 \code{"mean"}, or \code{"precision"}).}

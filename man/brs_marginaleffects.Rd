@@ -54,12 +54,16 @@ Computes average marginal effects (AME) for numeric covariates in the
 mean or precision submodel of a fitted \code{"brs"} object.
 }
 \details{
-AMEs are computed by finite differences on predictions:
+AMEs for a numeric covariate are computed by a central difference on
+predictions, with the step size scaled by the covariate's standard
+deviation:
 \deqn{
 \mathrm{AME}_j = \frac{1}{n}\sum_{i=1}^{n}
-\frac{\hat{g}_i(x_{ij} + h) - \hat{g}_i(x_{ij})}{h},
+\frac{\hat{g}_i(x_{ij} + h_j) - \hat{g}_i(x_{ij} - h_j)}{2 h_j},
+\qquad h_j = h \cdot \max(\mathrm{sd}(x_{\cdot j}), 1),
 }
-where \eqn{\hat{g}_i} is the selected prediction scale.
+where \eqn{\hat{g}_i} is the selected prediction scale and \code{h} is
+the (small) base step supplied by the caller.
 
 For binary covariates coded as \code{0/1}, the effect is computed as the
 average discrete difference \eqn{\hat{g}(x_j=1)-\hat{g}(x_j=0)}.

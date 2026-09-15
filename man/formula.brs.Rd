@@ -7,7 +7,7 @@
 \method{formula}{brs}(x, ...)
 }
 \arguments{
-\item{x}{A fitted \code{"betaregscale"} object.}
+\item{x}{A fitted \code{"brs"} object.}
 
 \item{...}{Ignored.}
 }

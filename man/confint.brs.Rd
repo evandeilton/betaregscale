@@ -13,7 +13,7 @@
 )
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{parm}{Character or integer: which parameters. If missing,
 all parameters are returned.}

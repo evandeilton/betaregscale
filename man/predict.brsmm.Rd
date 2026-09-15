@@ -26,7 +26,10 @@ predictions (default 0.5).}
 \item{...}{Currently ignored.}
 }
 \value{
-Numeric vector.
+Numeric vector, except when \code{type = "quantile"} and
+  \code{at} has length greater than 1, in which case a numeric matrix
+  with one column per requested quantile (named \code{q_<value>}, e.g.
+  \code{"q_0.5"}) and one row per observation.
 }
 \description{
 Predict from a brsmm model

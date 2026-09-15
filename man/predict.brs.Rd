@@ -13,7 +13,7 @@
 )
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{newdata}{Optional data frame for prediction.}
 

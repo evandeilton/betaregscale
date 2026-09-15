@@ -7,7 +7,7 @@
 \method{coef}{brs}(object, model = c("full", "mean", "precision"), ...)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{model}{Character: which component to return.
 \code{"full"} (default) returns all parameters,

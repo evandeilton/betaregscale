@@ -338,6 +338,61 @@ plot.brsmm <- function(x,
       theme_obj
   }
 
+  # B1: Q-Q plot of random-effect modes
+  if (7L %in% which) {
+    re <- x$random$mode_b
+    if (!is.matrix(re)) {
+      re <- matrix(as.numeric(re),
+        ncol = 1L,
+        dimnames = list(names(re), x$random$terms[1L])
+      )
+    }
+    for (ci in seq_len(ncol(re))) {
+      term_label <- colnames(re)[ci]
+      df_qq <- data.frame(value = re[, ci])
+      plots[[length(plots) + 1L]] <- ggplot2::ggplot(df_qq, ggplot2::aes(sample = .data$value)) +
+        ggplot2::stat_qq(color = "gray40", size = 1) +
+        ggplot2::stat_qq_line(linetype = "dashed", color = "red") +
+        ggplot2::labs(
+          title = paste0(panel_title(7L), "\n(", term_label, ")"),
+          subtitle = panel_subtitle(),
+          x = "Theoretical quantiles", y = "Sample quantiles"
+        ) +
+        theme_obj
+    }
+  }
+
+  # B2: Caterpillar dotchart of random-effect modes
+  if (8L %in% which) {
+    re <- x$random$mode_b
+    if (!is.matrix(re)) {
+      re <- matrix(as.numeric(re),
+        ncol = 1L,
+        dimnames = list(names(re), x$random$terms[1L])
+      )
+    }
+    for (ci in seq_len(ncol(re))) {
+      term_label <- colnames(re)[ci]
+      df_cat <- data.frame(
+        rowname = rownames(re),
+        value = re[, ci],
+        stringsAsFactors = FALSE
+      )
+      plots[[length(plots) + 1L]] <- ggplot2::ggplot(
+        df_cat,
+        ggplot2::aes(x = .data$value, y = stats::reorder(.data$rowname, .data$value))
+      ) +
+        ggplot2::geom_point(color = "gray40", size = 1) +
+        ggplot2::geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
+        ggplot2::labs(
+          title = paste0(panel_title(8L), "\n(", term_label, ")"),
+          subtitle = panel_subtitle(),
+          x = "Random-effect mode", y = ""
+        ) +
+        theme_obj
+    }
+  }
+
   np <- length(plots)
   if (np == 1L) {
     print(plots[[1L]])

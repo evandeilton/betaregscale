@@ -7,7 +7,7 @@
 \method{AIC}{brs}(object, ..., k = 2)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{...}{Ignored.}
 

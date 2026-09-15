@@ -5,12 +5,15 @@
 #' Compare fitted brs models in a single table
 #'
 #' @description
-#' Builds a comparison table for one or more fitted \code{"brs"} objects,
-#' summarizing fit statistics and (optionally) censoring composition.
+#' Builds a comparison table for one or more fitted \code{"brs"} or
+#' \code{"brsmm"} objects, summarizing fit statistics and (optionally)
+#' censoring composition. Models of both classes may be mixed in the same
+#' call.
 #'
-#' @param ... Fitted \code{"brs"} objects passed individually.
-#' @param models Optional list of fitted \code{"brs"} objects.
-#'   Use either \code{...} or \code{models}, not both.
+#' @param ... Fitted \code{"brs"} or \code{"brsmm"} objects passed
+#'   individually.
+#' @param models Optional list of fitted \code{"brs"} or \code{"brsmm"}
+#'   objects. Use either \code{...} or \code{models}, not both.
 #' @param include_censoring Logical; include censoring counts/proportions.
 #'   Default is \code{TRUE}.
 #' @param sort_by Character; optional sort criterion:
@@ -73,7 +76,7 @@ brs_table <- function(...,
   if (is.null(models)) {
     models <- dots
   }
-  if (inherits(models, "brs")) {
+  if (inherits(models, c("brs", "brsmm"))) {
     models <- list(models)
   }
   if (!is.list(models) || length(models) == 0L) {
@@ -97,7 +100,9 @@ brs_table <- function(...,
 
   rows <- lapply(seq_along(models), function(i) {
     obj <- models[[i]]
-    .check_class(obj)
+    if (!inherits(obj, c("brs", "brsmm"))) {
+      stop("Expected a 'brs' or 'brsmm' object.", call. = FALSE)
+    }
 
     base_row <- data.frame(
       model = nm[i],

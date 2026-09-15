@@ -61,10 +61,13 @@ Produces a visual summary of the censoring structure in a fitted
 \code{"brs"} model or a response matrix produced by
 \code{\link{brs_check}}.  The summary includes:
 \enumerate{
-  \item Bar chart of censoring type counts
-  \item Histogram of midpoint responses colored by censoring type
-  \item Interval plot showing \eqn{[l_i, u_i]} segments
-  \item Proportion table of censoring types
+  \item Bar chart of censoring-type counts, with percentage labels
+    (censoring burden).
+  \item Boxplot (with jittered points) of the midpoint response
+    \eqn{y_t} by censoring type.
+  \item Boxplot of interval width (\eqn{u_i - l_i}) by censoring type.
+  \item Ordered interval map: \eqn{[l_i, u_i]} segments for a sample
+    of observations, colored by censoring type.
 }
 }
 \examples{

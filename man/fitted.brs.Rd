@@ -7,7 +7,7 @@
 \method{fitted}{brs}(object, type = c("mu", "phi"), ...)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{type}{Character: \code{"mu"} (default) or \code{"phi"}.}
 

@@ -7,7 +7,7 @@
 \method{print}{summary.brs}(x, digits = max(3, getOption("digits") - 3), ...)
 }
 \arguments{
-\item{x}{A \code{"summary.betaregscale"} object.}
+\item{x}{A \code{"summary.brs"} object.}
 
 \item{digits}{Number of digits.}
 

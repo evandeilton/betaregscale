@@ -18,8 +18,13 @@
 #' the estimated coefficients (on the link scale) and the original
 #' design. The model is then re-fitted with \code{\link{brs}}. Replicates
 #' that fail to converge are discarded; if the number of successful replicates
-#' is too low, a warning is issued. Intervals are the empirical quantiles of
-#' the bootstrap distribution of each parameter.
+#' is too low, a warning is issued. Intervals are computed from the bootstrap
+#' distribution of each parameter, with the method controlled by
+#' \code{ci_type}: \code{"percentile"} (default) uses the raw empirical
+#' quantiles; \code{"basic"} uses reflected empirical quantiles;
+#' \code{"normal"} uses a normal approximation from the bootstrap standard
+#' error (no quantiles); \code{"bca"} uses bias-corrected-and-accelerated
+#' adjusted quantiles.
 #'
 #' @section Cost of \code{ci_type = "bca"}:
 #' The bias-corrected and accelerated interval needs an acceleration constant,

@@ -10,7 +10,7 @@
 
 # -- Class validation helper ------------------------------------------------ #
 
-#' Validate a betaregscale object
+#' Validate a brs object
 #' @param x Object to validate.
 #' @param call. Logical; passed to \code{stop()}.
 #' @keywords internal
@@ -55,7 +55,7 @@
 
 #' Extract model coefficients
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param model  Character: which component to return.
 #'   \code{"full"} (default) returns all parameters,
 #'   \code{"mean"} returns only the mean-model coefficients,
@@ -102,7 +102,7 @@ coef.brs <- function(object,
 
 #' Variance-covariance matrix of estimated coefficients
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param model  Character: which component (\code{"full"},
 #'   \code{"mean"}, or \code{"precision"}).
 #' @param ... Ignored.
@@ -177,7 +177,7 @@ vcov.brs <- function(object,
 
 #' Extract log-likelihood
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param ... Ignored.
 #'
 #' @return An object of class \code{"logLik"} with attributes
@@ -218,7 +218,7 @@ logLik.brs <- function(object, ...) {
 
 #' Akaike information criterion
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param ... Ignored.
 #' @param k    Penalty per parameter (default 2).
 #'
@@ -254,7 +254,7 @@ AIC.brs <- function(object, ..., k = 2) {
 
 #' Bayesian information criterion
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param ... Ignored.
 #'
 #' @return Scalar BIC value.
@@ -289,7 +289,7 @@ BIC.brs <- function(object, ...) {
 
 #' Number of observations
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param ... Ignored.
 #'
 #' @return Integer: number of observations.
@@ -323,7 +323,7 @@ nobs.brs <- function(object, ...) {
 
 #' Extract model formula
 #'
-#' @param x A fitted \code{"betaregscale"} object.
+#' @param x A fitted \code{"brs"} object.
 #' @param ... Ignored.
 #'
 #' @return The formula used to fit the model.
@@ -358,7 +358,7 @@ formula.brs <- function(x, ...) {
 
 #' Extract design matrix
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param model  Character: \code{"mean"} (default) or
 #'   \code{"precision"}.
 #' @param ... Ignored.
@@ -414,10 +414,10 @@ model.matrix.brs <- function(object,
 
 #' Summarize a fitted model (betareg style)
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param ...    Ignored.
 #'
-#' @return A list of class \code{"summary.betaregscale"}.
+#' @return A list of class \code{"summary.brs"}.
 #'
 #' @seealso \code{\link{brs}}, \code{\link{print.summary.brs}},
 #'   \code{\link{brs_est}}, \code{\link{brs_gof}}
@@ -515,7 +515,7 @@ summary.brs <- function(object, ...) {
 
 #' Print a model summary (betareg style)
 #'
-#' @param x A \code{"summary.betaregscale"} object.
+#' @param x A \code{"summary.brs"} object.
 #' @param digits Number of digits.
 #' @param ... Passed to \code{printCoefmat}.
 #'
@@ -622,7 +622,7 @@ print.summary.brs <- function(x,
 
 #' Print a fitted model (brief betareg style)
 #'
-#' @param x      A fitted \code{"betaregscale"} object.
+#' @param x      A fitted \code{"brs"} object.
 #' @param digits Number of significant digits.
 #' @param ... Included for consistency with generic methods. Currently
 #'   passed to internal methods where applicable.
@@ -676,7 +676,7 @@ print.brs <- function(x,
 
 #' Extract fitted values
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param type   Character: \code{"mu"} (default) or \code{"phi"}.
 #' @param ...    Currently ignored.
 #'
@@ -722,7 +722,7 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 
 #' Extract residuals
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param type   Residual type. One of \code{"response"} (default),
 #'   \code{"pearson"}, \code{"deviance"}, \code{"rqr"} (randomized
 #'   quantile), \code{"weighted"}, or \code{"sweighted"}.
@@ -875,7 +875,7 @@ residuals.brs <- function(object,
 #' Computes Wald confidence intervals for model parameters using the
 #' normal approximation.
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param parm   Character or integer: which parameters. If missing,
 #'   all parameters are returned.
 #' @param level  Confidence level (default 0.95).
@@ -934,7 +934,7 @@ confint.brs <- function(object, parm, level = 0.95,
 
 #' Predict from a fitted model
 #'
-#' @param object  A fitted \code{"betaregscale"} object.
+#' @param object  A fitted \code{"brs"} object.
 #' @param newdata Optional data frame for prediction.
 #' @param type    Prediction type: \code{"response"} (default),
 #'   \code{"link"}, \code{"precision"}, \code{"variance"}, or
@@ -1113,7 +1113,7 @@ brs_gof <- function(object) {
 
 #' Coefficient estimates with inference
 #'
-#' @param object A fitted \code{"betaregscale"} object.
+#' @param object A fitted \code{"brs"} object.
 #' @param alpha  Significance level (default 0.05).
 #'
 #' @return Data frame of estimates, standard errors, z-values, and
@@ -1293,6 +1293,8 @@ brs_coef <- function(fit, alpha = 0.05) {
 #' @rdname brs_hessian
 #' @export
 brs_hessian <- function(object) {
-  .check_class(object)
+  if (!inherits(object, c("brs", "brsmm"))) {
+    stop("Expected a 'brs' or 'brsmm' object.", call. = FALSE)
+  }
   object$hessian
 }

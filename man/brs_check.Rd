@@ -40,7 +40,10 @@ A numeric matrix with \eqn{n} rows and 5 columns:
   \item{\code{right}}{Upper endpoint \eqn{u_i} on \eqn{(0, 1)},
     clamped to \eqn{[\epsilon, 1 - \epsilon]}.}
   \item{\code{yt}}{Midpoint approximation \eqn{y_t} for
-    starting-value computation (does not enter the likelihood).}
+    starting-value computation. Also enters the likelihood
+    directly as the density argument for exact observations
+    (\eqn{\delta = 0}); for censored observations only
+    \code{left}/\code{right} enter the likelihood.}
   \item{\code{y}}{Original response value (preserved unchanged).}
   \item{\code{delta}}{Censoring indicator: 0 = exact (density),
     1 = left-censored \eqn{F(u)}, 2 = right-censored
@@ -135,8 +138,12 @@ The midpoint approximation \code{yt} is computed as:
   \item \eqn{y_t = y} when \eqn{y \in (0, 1)} (continuous data).
   \item \eqn{y_t = y / K} when \eqn{y} is on the integer scale.
 }
-This value is used exclusively as an initialization aid for
-starting-value computation and does not enter the likelihood.
+This value is used as an initialization aid for starting-value
+computation. It also enters the likelihood directly for
+exact/uncensored observations (\eqn{\delta = 0}), where the
+contribution is the beta density evaluated at \eqn{y_t}; for
+censored observations (\eqn{\delta \in \{1,2,3\}}) only
+\code{left}/\code{right} enter the likelihood, not \code{yt}.
 
 \strong{Interaction with the fitting pipeline}:
 

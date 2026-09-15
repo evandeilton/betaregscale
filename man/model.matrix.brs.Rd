@@ -7,7 +7,7 @@
 \method{model.matrix}{brs}(object, model = c("mean", "precision"), ...)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{model}{Character: \code{"mean"} (default) or
 \code{"precision"}.}

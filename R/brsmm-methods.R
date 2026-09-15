@@ -451,7 +451,10 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
 #'   predictions (default 0.5).
 #' @param ... Currently ignored.
 #'
-#' @return Numeric vector.
+#' @return Numeric vector, except when \code{type = "quantile"} and
+#'   \code{at} has length greater than 1, in which case a numeric matrix
+#'   with one column per requested quantile (named \code{q_<value>}, e.g.
+#'   \code{"q_0.5"}) and one row per observation.
 #'
 #' @seealso \code{\link{brsmm}}, \code{\link{fitted.brsmm}},
 #'   \code{\link{brs_predict_scoreprob}}

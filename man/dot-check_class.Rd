@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{.check_class}
 \alias{.check_class}
-\title{Validate a betaregscale object}
+\title{Validate a brs object}
 \usage{
 .check_class(x, call. = FALSE)
 }
@@ -12,6 +12,6 @@
 \item{call.}{Logical; passed to \code{stop()}.}
 }
 \description{
-Validate a betaregscale object
+Validate a brs object
 }
 \keyword{internal}

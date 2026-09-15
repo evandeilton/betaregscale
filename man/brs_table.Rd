@@ -14,10 +14,11 @@ brs_table(
 )
 }
 \arguments{
-\item{...}{Fitted \code{"brs"} objects passed individually.}
+\item{...}{Fitted \code{"brs"} or \code{"brsmm"} objects passed
+individually.}
 
-\item{models}{Optional list of fitted \code{"brs"} objects.
-Use either \code{...} or \code{models}, not both.}
+\item{models}{Optional list of fitted \code{"brs"} or \code{"brsmm"}
+objects. Use either \code{...} or \code{models}, not both.}
 
 \item{include_censoring}{Logical; include censoring counts/proportions.
 Default is \code{TRUE}.}
@@ -33,8 +34,10 @@ Default is \code{TRUE}.}
 A data frame with one row per model.
 }
 \description{
-Builds a comparison table for one or more fitted \code{"brs"} objects,
-summarizing fit statistics and (optionally) censoring composition.
+Builds a comparison table for one or more fitted \code{"brs"} or
+\code{"brsmm"} objects, summarizing fit statistics and (optionally)
+censoring composition. Models of both classes may be mixed in the same
+call.
 }
 \examples{
 \donttest{

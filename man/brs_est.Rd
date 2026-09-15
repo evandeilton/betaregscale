@@ -7,7 +7,7 @@
 brs_est(object, alpha = 0.05)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{alpha}{Significance level (default 0.05).}
 }

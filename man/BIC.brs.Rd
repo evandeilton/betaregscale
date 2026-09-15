@@ -7,7 +7,7 @@
 \method{BIC}{brs}(object, ...)
 }
 \arguments{
-\item{object}{A fitted \code{"betaregscale"} object.}
+\item{object}{A fitted \code{"brs"} object.}
 
 \item{...}{Ignored.}
 }

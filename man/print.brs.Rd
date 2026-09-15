@@ -7,7 +7,7 @@
 \method{print}{brs}(x, digits = max(3, getOption("digits") - 3), ...)
 }
 \arguments{
-\item{x}{A fitted \code{"betaregscale"} object.}
+\item{x}{A fitted \code{"brs"} object.}
 
 \item{digits}{Number of significant digits.}
 
