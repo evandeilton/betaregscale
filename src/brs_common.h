@@ -41,9 +41,9 @@ inline double inv_link(double eta, int code) {
   case 3: return 1.0 - std::exp(-std::exp(eta));
   case 4: return std::exp(eta);
   case 5:
-    // sqrt link: g(phi)=sqrt(phi) => g^{-1}(eta)=eta^2.
-    // BUG-H05: eta<0 gives same |value| but wrong gradient sign; clamp to 0.
-    return eta >= 0.0 ? eta * eta : 0.0;
+    // sqrt link: g^{-1}(eta) = eta^2 for eta >= 0, 0 below (sign-correct gradient);
+    // NaN propagates (as pmax(eta, 0)^2 in R).
+    return eta >= 0.0 ? eta * eta : (std::isnan(eta) ? eta : 0.0);
   case 6:
     // inverse link: g^{-1}(eta) = 1/eta.
     // BUG-C01: for |eta|~0 we must return a finite POSITIVE value (dispersion
@@ -63,20 +63,17 @@ inline double inv_link(double eta, int code) {
 // repar = 1: precision phi > 0
 // repar = 2: mean-variance phi in (0, 1)
 // repar = 0: direct shape parameter, enforce positivity
+// +-Inf map to the bounds; NaN propagates (obs_loglik then gives LOG_PENALTY).
 inline double clamp_phi_by_repar(double phi, int repar) {
-  if (!std::isfinite(phi)) return (repar == 2) ? (1.0 - EPS_UNIT) : MAX_SHAPE;
   if (repar == 2) return clamp(phi, EPS_UNIT, 1.0 - EPS_UNIT);
   return clamp(phi, EPS_UNIT, MAX_SHAPE);
 }
 
 // Clamp the first parameter: the mean in (0, 1) for repar 1/2, the shape p > 0
 // for repar 0 (a (0, 1) clamp there capped p at 1 - EPS_UNIT). Mirror: R .clamp_mu_by_repar().
+// +-Inf map to the bounds; NaN propagates (obs_loglik then gives LOG_PENALTY).
 inline double clamp_mu_by_repar(double mu, int repar) {
-  if (repar == 0) {
-    if (!std::isfinite(mu)) return MAX_SHAPE;
-    return clamp(mu, EPS_UNIT, MAX_SHAPE);
-  }
-  if (!std::isfinite(mu)) return 1.0 - EPS_UNIT;
+  if (repar == 0) return clamp(mu, EPS_UNIT, MAX_SHAPE);
   return clamp(mu, EPS_UNIT, 1.0 - EPS_UNIT);
 }
 

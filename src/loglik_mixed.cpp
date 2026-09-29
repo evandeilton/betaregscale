@@ -4,8 +4,8 @@
 // Inner mode of h(b) = sum_i l_i + log prior: Levenberg–Marquardt Newton on
 // chain-rule derivatives in the linear predictor (brs_deriv.h), warm-started
 // from the previous call. Gradients differentiate each approximation itself
-// (implicit-function theorem for the mode, eigen-perturbation for the
-// quadrature scaling). A group whose curvature is not positive definite at the
+// (implicit-function theorem for the mode, divided differences for the
+// symmetric-root quadrature scaling C^-1/2). A group whose curvature is not positive definite at the
 // mode contributes LOG_PENALTY (no eigenvalue floor). The R names of the two
 // original exports are kept from the Eigen backend.
 
@@ -202,7 +202,7 @@ inline bool chol_solve(const arma::mat &A, const arma::vec &g, arma::vec &x) {
 }
 
 // Symmetric eigen-decomposition with canonical eigenvector signs (largest
-// |component| positive: QMC then does not depend on the LAPACK in use).
+// |component| positive); results use only sign-free quantities (C^-1, C^-1/2).
 inline bool sym_eig(const arma::mat &C, arma::vec &ev, arma::mat &V) {
   if (!C.is_finite()) return false;
   if (!arma::eig_sym(ev, V, C)) return false;
@@ -528,15 +528,17 @@ inline MixedSetup mixed_setup(const arma::vec &param, const arma::mat &X,
   return m;
 }
 
-// Quadrature scaling S = V diag(ev^-1/2) and logdet_S = -0.5 sum log ev.
+// Quadrature scaling: symmetric root S = C^-1/2 = V diag(ev^-1/2) V' (unique and
+// smooth in C, so independent of eigenvector signs/order); logdet_S = -0.5 sum log ev.
 inline void curvature_scaling(const ModeResult &mr, int q, arma::mat &S,
                               double &logdet_S) {
-  S.set_size(q, q);
+  S.zeros(q, q);
   double sl = 0.0;
-  for (int j = 0; j < q; ++j) {
-    const double sj = std::sqrt(1.0 / mr.ev(j));
-    for (int i = 0; i < q; ++i) S(i, j) = mr.V(i, j) * sj;
-    sl += std::log(mr.ev(j));
+  for (int k = 0; k < q; ++k) {
+    const double sk = std::sqrt(1.0 / mr.ev(k));
+    for (int j = 0; j < q; ++j)
+      for (int i = 0; i < q; ++i) S(i, j) += mr.V(i, k) * sk * mr.V(j, k);
+    sl += std::log(mr.ev(k));
   }
   logdet_S = -0.5 * sl;
 }
@@ -670,23 +672,19 @@ Rcpp::List brsmm_mode_diag_cpp(const arma::vec &param, const arma::mat &X,
 
 // ---------------------------------------------------------------- gradient --
 
-// dS for S = V diag(ev^-1/2) under a symmetric dC (first-order eigen
-// perturbation); pairs of numerically equal eigenvalues carry no rotation.
+// dS of S = C^-1/2 under a symmetric dC (Daleckii–Krein divided differences of
+// f(x) = x^-1/2): V'dS V = -A_ij s_i^2 s_j^2 / (s_i + s_j), A = V'dC V, s = ev^-1/2;
+// no division by eigenvalue gaps, so it is stable for close eigenvalues.
 inline arma::mat dS_of(const arma::mat &V, const arma::vec &ev, const arma::mat &dC) {
   const int q = (int)ev.n_elem;
   const arma::mat A = V.t() * dC * V;
-  arma::mat dS(q, q);
-  for (int j = 0; j < q; ++j) {
-    const double s = 1.0 / std::sqrt(ev(j));
-    arma::vec col = (-0.5 * A(j, j) * s / ev(j)) * V.col(j);
-    for (int i = 0; i < q; ++i) {
-      const double gap = ev(j) - ev(i);
-      if (i != j && std::abs(gap) > 1e-10 * (std::abs(ev(i)) + std::abs(ev(j))))
-        col += (s * A(i, j) / gap) * V.col(i);
-    }
-    dS.col(j) = col;
-  }
-  return dS;
+  arma::vec sv(q);
+  for (int k = 0; k < q; ++k) sv(k) = 1.0 / std::sqrt(ev(k));
+  arma::mat M(q, q);
+  for (int j = 0; j < q; ++j)
+    for (int i = 0; i < q; ++i)
+      M(i, j) = -A(i, j) * sv(i) * sv(i) * sv(j) * sv(j) / (sv(i) + sv(j));
+  return V * M * V.t();
 }
 
 // Gradient in [beta, gamma, theta_re]: per perturbation t, dm = C^-1 u and
