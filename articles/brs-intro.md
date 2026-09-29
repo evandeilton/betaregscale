@@ -15,7 +15,7 @@ but rather represents a range: after rescaling to $`(0,1)`$, the
 observation is treated as interval-censored in $`[0.55,0.65]`$. The
 package uses the beta distribution to model such data, building a
 complete likelihood that supports mixed censoring types within the same
-dataset.
+dataset (Lopes, 2023).
 
 ## Installation
 
@@ -31,7 +31,42 @@ remotes::install_github("evandeilton/betaregscale")
 library(betaregscale)
 ```
 
-## Censoring types
+## The score scale and `ncuts`
+
+`ncuts` is $`K`$, the **maximum score**. Scores run over
+$`0, 1, \ldots, K`$, so the scale has $`K + 1`$ categories: an NRS-11
+pain scale (0 to 10) has `ncuts = 10`, a 0 to 100 scale `ncuts = 100`.
+The lowest score is the left border and the highest the right border of
+the scale.
+
+A scale that starts at 1 must be shifted to start at 0. A Likert item 1
+to 5 becomes 0 to 4, with `ncuts = 4`:
+
+``` r
+
+likert <- c(1, 2, 3, 5, 4, 1)
+kbl10(brs_check(likert - 1, ncuts = 4))
+```
+
+| left  | right |  yt  |  y  | delta |
+|:-----:|:-----:|:----:|:---:|:-----:|
+| 0.000 | 0.125 | 0.00 |  0  |   1   |
+| 0.125 | 0.375 | 0.25 |  1  |   3   |
+| 0.375 | 0.625 | 0.50 |  2  |   3   |
+| 0.875 | 1.000 | 1.00 |  4  |   2   |
+| 0.625 | 0.875 | 0.75 |  3  |   3   |
+| 0.000 | 0.125 | 0.00 |  0  |   1   |
+
+Without the shift, category 1 would be read as an interior score and the
+lower border of the scale would be a category that nobody can choose:
+
+``` r
+
+brs_check(likert, ncuts = 5)[, "delta"]
+#> [1] 3 3 3 2 3 3
+```
+
+## Likelihood and censoring types
 
 The complete likelihood supports four censoring types, automatically
 classified by
@@ -47,19 +82,44 @@ classified by
 where $`f(\cdot)`$ and $`F(\cdot)`$ are the beta density and CDF,
 $`[l_i,u_i]`$ are the interval endpoints, and $`(a_i,b_i)`$ are the beta
 shape parameters derived from $`\mu_i`$ and $`\phi_i`$ via the chosen
-reparameterization.
+reparameterization. The likelihood is the product
+
+``` math
+L(\beta,\gamma)=\prod_{i=1}^n f(y_i)^{I(\delta_i=0)}\,F(u_i)^{I(\delta_i=1)}
+\,\{1-F(l_i)\}^{I(\delta_i=2)}\,\{F(u_i)-F(l_i)\}^{I(\delta_i=3)}.
+```
+
+This is the complete likelihood of Lopes (2023). The table of censoring
+types in the dissertation swaps the labels $`\delta=1`$ and
+$`\delta=2`$; the package follows its equation. The cells are fixed by
+the scale, not by the observed value, so the censoring is
+non-informative.
 
 ## Interval construction
 
-Scale observations are mapped to $`(0,1)`$ with midpoint uncertainty
-intervals:
+A score $`s`$ is mapped to a cell of $`(0,1)`$. The direction of the
+uncertainty interval is set by `interval` (the cases $`m`$, $`r`$ and
+$`l`$ of Lopes, 2023):
 
-``` math
-y_t=y/K,\quad\text{interval }[y_t-h/K,y_t+h/K]
-```
+| `interval`        | cell of score $`s`$ | latent score of $`y^*\in(0,1)`$ |
+|:------------------|:--------------------|:--------------------------------|
+| `"mid"` (default) | $`[s-h,\,s+h]/K`$   | $`Ky^*`$                        |
+| `"right"`         | $`[s,\,s+1]/(K+1)`$ | $`(K+1)y^*`$                    |
+| `"left"`          | $`[s,\,s+1]/(K+1)`$ | $`(K+1)y^*-1`$                  |
 
-where $`K`$ is the number of scale categories (`ncuts`) and $`h`$ is the
-half-width (`lim`, default **0.5**).
+$`K`$ is the maximum score (`ncuts`) and $`h`$ the half-width (`lim`,
+default **0.5**, used by `"mid"` only). The $`K+1`$ cells of `"right"`
+and `"left"` are equal and partition $`[0,1]`$; this normalisation is a
+package choice (the dissertation divides by $`K`$). `"right"` and
+`"left"` give the same fit and differ only in `predict(type = "score")`.
+The three directions are different coarsening models, so
+[`anova()`](https://rdrr.io/r/stats/anova.html) refuses to compare them.
+
+The borders need no special transformation: score 0 is left-censored and
+score $`K`$ right-censored, and endpoints are only clamped to
+$`[10^{-5},1-10^{-5}]`$ as a numerical guard. The fit therefore does not
+depend on the sample size, unlike the $`\{y(n-1)/R+1/2\}/n`$
+transformation of Smithson and Verkuilen (2006).
 
 ``` r
 
@@ -79,7 +139,40 @@ kbl10(cr)
 
 The `delta` column shows that $`y=0`$ is left-censored ($`\delta=1`$),
 $`y=10`$ is right-censored ($`\delta=2`$), and all interior values are
-interval-censored ($`\delta=3`$).
+interval-censored ($`\delta=3`$). The same scores with right-direction
+cells:
+
+``` r
+
+kbl10(brs_check(y_example, ncuts = 10, interval = "right"))
+```
+
+|  left  | right  |   yt   |  y  | delta |
+|:------:|:------:|:------:|:---:|:-----:|
+| 0.0000 | 0.0909 | 0.0455 |  0  |   1   |
+| 0.2727 | 0.3636 | 0.3182 |  3  |   3   |
+| 0.4545 | 0.5455 | 0.5000 |  5  |   3   |
+| 0.6364 | 0.7273 | 0.6818 |  7  |   3   |
+| 0.9091 | 1.0000 | 0.9545 | 10  |   2   |
+
+Values already in $`(0,1)`$ are exact observations ($`\delta=0`$), one
+observation at a time. Input that mixes such values with scores
+$`\geq 1`$ is ambiguous and gives a warning:
+
+``` r
+
+kbl10(brs_check(c(0.3, 5, 10), ncuts = 10))
+#> Warning: The response mixes values in (0, 1) with values >= 1: values in (0, 1)
+#> are taken as exact (delta = 0), the others as scores on 0..ncuts. Rescale the
+#> data if the (0, 1) values are scores (half-point scores: use y * 2 and ncuts *
+#> 2).
+```
+
+| left | right | yt  |  y   | delta |
+|:----:|:-----:|:---:|:----:|:-----:|
+| 0.30 | 0.30  | 0.3 | 0.3  |   0   |
+| 0.45 | 0.55  | 0.5 | 5.0  |   3   |
+| 0.95 | 1.00  | 1.0 | 10.0 |   2   |
 
 ## Data preparation with `brs_prep()`
 
@@ -135,7 +228,11 @@ kbl10(brs_prep(d2, ncuts = 100))
 ### Mode 3: Interval endpoints with NA patterns
 
 When the analyst provides `left` and/or `right` columns, censoring is
-inferred from the NA pattern:
+inferred from the NA pattern. Bounds are on the latent score scale and
+must lie in $`[-0.5, K+0.5]`$ under `"mid"` ($`[0,K+1]`$ and $`[-1,K]`$
+under `"right"` and `"left"`). An interval that reaches 0 or 1 on the
+unit scale becomes left- or right-censored; one that reaches both covers
+the whole scale, carries no information and gives a warning.
 
 ``` r
 
@@ -158,7 +255,7 @@ kbl10(brs_prep(d3, ncuts = 100))
 ### Mode 4: Analyst-supplied intervals
 
 When the analyst provides `y`, `left`, and `right` simultaneously, their
-endpoints are used directly (rescaled by $`K`$):
+endpoints are used directly (rescaled by $`K`$ under `"mid"`):
 
 ``` r
 
@@ -320,6 +417,46 @@ The summary output follows the `betareg` package style, showing separate
 coefficient tables for the mean and precision submodels, with Wald
 z-tests and $`p`$-values based on the standard normal distribution.
 
+### Estimation and fit diagnostics
+
+[`optim()`](https://rdrr.io/r/stats/optim.html) (BFGS) maximises the
+log-likelihood, evaluated in C++. The gradient and, by default, the
+Hessian use the chain rule on the two linear predictors, with
+per-observation derivatives by Richardson central differences
+(`hessian_method = "cpp"`; `"numDeriv"` is also available). Standard
+errors come from the inverse of the negative Hessian; no generalised
+inverse is used.
+[`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+also accepts `start` and `control` (merged into `list(maxit = 5000)`).
+
+After the fit,
+[`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+checks the result and stores the numbers:
+
+``` r
+
+str(fit_fixed$diagnostics[c("grad_gain", "grad_step", "min_eig_scaled", "hessian_nd", "n_clamped")])
+#> List of 5
+#>  $ grad_gain     : num 3.06e-10
+#>  $ grad_step     : num 2.15e-05
+#>  $ min_eig_scaled: num 0.709
+#>  $ hessian_nd    : logi TRUE
+#>  $ n_clamped     : int 0
+```
+
+Each problem gives a one-line warning:
+
+| Warning | Meaning | What to do |
+|:---|:---|:---|
+| model matrix is rank deficient (error) | aliased columns | remove the named columns |
+| model matrix is nearly collinear | condition number above $`10^4`$ | drop, combine or centre the named columns |
+| Gradient not ~0 at the estimate | a Newton step would still gain more than 0.01 in log-likelihood | refit with `method = "L-BFGS-B"`; rescale covariates whose scales differ widely (the message says so) |
+| Hessian near-singular or not negative definite | a direction is nearly flat (not identified, or covariates on very different scales) | [`vcov()`](https://rdrr.io/r/stats/vcov.html) gives `NA` where it cannot estimate; rescale, use LR tests or the bootstrap, simplify |
+| observations on the clamp boundary | means or shapes at $`10^{-5}`$ or $`1-10^{-5}`$, e.g. a group entirely at one border | merge sparse groups or drop the separating covariate |
+
+The classic case of the last two is a data set where every observation
+is censored on the same side: the likelihood has no finite maximum.
+
 ### Goodness of fit
 
 ``` r
@@ -381,6 +518,17 @@ kbl10(gof_table)
 | cloglog | -989.7198 | 1987.439 | 2001.525 |  0.1437   |
 
 ### Residual diagnostics
+
+[`residuals()`](https://rdrr.io/r/stats/residuals.html) offers several
+types. Randomized quantile residuals (`type = "rqr"`, Dunn and Smyth,
+1996) draw $`u_i`$ uniformly on $`(F(l_i),F(u_i))`$ (or $`(0,F(u_i))`$,
+$`(F(l_i),1)`$ at the borders) and return $`\Phi^{-1}(u_i)`$: they are
+standard normal under the model whatever the censoring, and are the
+recommended type. Pearson, deviance and weighted residuals are evaluated
+at the cell centre (the midpoint convention of Lopes, 2023) and are
+unreliable at the borders of the scale.
+[`summary()`](https://rdrr.io/r/base/summary.html) draws the quantile
+residuals without changing the RNG state.
 
 The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
 provides six diagnostic panels. By default, the first four are shown:
@@ -691,6 +839,17 @@ predictive validation.
 
 ### Parametric bootstrap confidence intervals
 
+Each replicate draws a new response from the fitted model and refits the
+original formula on a copy of the data. Each row keeps its observation
+mechanism: exact values stay continuous, scores are re-coarsened on the
+fit’s grid, and analyst thresholds from
+[`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+are kept as fixed, non-informative thresholds (the censoring type is
+re-drawn by the side of them where the new value falls). Refits start
+from the fitted estimate. Failed replicates are counted and printed. Use
+`R` of at least 199 in practice; `ci_type = "bca"` costs one extra refit
+per observation.
+
 ``` r
 
 set.seed(101)
@@ -698,7 +857,7 @@ boot_ci <- brs_bootstrap(
   fit_fixed,
   R = 30,
   level = 0.95,
-  ci_type = "bca",
+  ci_type = "percentile",
   keep_draws = TRUE
 )
 kbl10(head(boot_ci, 10))
@@ -706,17 +865,17 @@ kbl10(head(boot_ci, 10))
 
 | parameter | estimate | se_boot | ci_lower | ci_upper | mcse_lower | mcse_upper | wald_lower | wald_upper | level |
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| (Intercept) | 0.3546 | 0.0982 | 0.1799 | 0.5024 | 0.0318 | 0.0217 | 0.1835 | 0.5257 | 0.95 |
-| x1 | -0.6590 | 0.1044 | -0.8166 | -0.4950 | 0.0227 | 0.0378 | -0.8449 | -0.4732 | 0.95 |
-| x2 | 0.3288 | 0.1088 | 0.1484 | 0.5288 | 0.0259 | 0.0321 | 0.1481 | 0.5095 | 0.95 |
-| (phi) | 0.1514 | 0.0913 | 0.0439 | 0.3120 | 0.0113 | 0.0194 | -0.0093 | 0.3122 | 0.95 |
+| (Intercept) | 0.3546 | 0.0982 | 0.1768 | 0.5276 | 0.0291 | 0.0298 | 0.1835 | 0.5257 | 0.95 |
+| x1 | -0.6590 | 0.1044 | -0.8213 | -0.4645 | 0.0213 | 0.0344 | -0.8449 | -0.4732 | 0.95 |
+| x2 | 0.3288 | 0.1088 | 0.1437 | 0.5298 | 0.0244 | 0.0287 | 0.1481 | 0.5095 | 0.95 |
+| (phi) | 0.1514 | 0.0913 | 0.0432 | 0.3201 | 0.0101 | 0.0193 | -0.0093 | 0.3122 | 0.95 |
 
 ``` r
 
 autoplot.brs_bootstrap(
   boot_ci,
   type = "ci_forest",
-  title = "Bootstrap (BCa) vs Wald intervals"
+  title = "Bootstrap (percentile) vs Wald intervals"
 )
 ```
 
@@ -851,26 +1010,29 @@ The following standard S3 methods are available for objects of class
 | [`formula()`](https://rdrr.io/r/stats/formula.html) | Model formula |
 | `model.matrix(model=)` | Design matrix (mean or precision) |
 | [`fitted()`](https://rdrr.io/r/stats/fitted.values.html) | Fitted mean values |
-| `residuals(type=)` | Residuals: response, pearson, rqr, weighted, sweighted |
-| `predict(type=)` | Predictions: response, link, precision, variance, quantile |
+| `residuals(type=)` | Residuals: response, pearson, deviance, rqr, weighted, sweighted |
+| `predict(type=)` | Predictions: response, link, precision, variance, quantile, score, expected_score |
 | `plot(gg=)` | Diagnostic plots (base R or ggplot2) |
 
 ## Reparameterizations
 
 The package supports three reparameterizations of the beta distribution,
-controlled by the `repar` argument:
+controlled by the `repar` argument. Each models different parameters, so
+the admissible links differ; the first link of each cell is the default.
 
-**Direct (`repar = 0`):** Shape parameters $`a=\mu`$ and $`b=\phi`$ are
-used directly. This is rarely used in practice.
+| `repar` | parameters | shapes $`(a,b)`$ | `link` | `link_phi` |
+|:---|:---|:---|:---|:---|
+| 0 | shapes $`p,q>0`$ | $`(p,q)`$ | log, sqrt | log, sqrt |
+| 1 | mean $`\mu`$, precision $`\phi>0`$ | $`(\mu\phi,(1-\mu)\phi)`$ | logit, probit, cauchit, cloglog | log, sqrt |
+| 2 | mean $`\mu`$, dispersion $`\phi\in(0,1)`$ | $`(\mu(1-\phi)/\phi,(1-\mu)(1-\phi)/\phi)`$ | logit, probit, cauchit, cloglog | logit, probit, cauchit, cloglog |
 
-**Precision (`repar = 1`, Ferrari & Cribari-Neto, 2004):** The mean
-$`\mu\in(0,1)`$ and precision $`\phi>0`$ yield $`a=\mu\phi`$ and
-$`b=(1-\mu)\phi`$. Higher $`\phi`$ means less variability.
-
-**Mean–variance (`repar = 2`):** The mean $`\mu\in(0,1)`$ and dispersion
-$`\phi\in(0,1)`$ yield $`a=\mu(1-\phi)/\phi`$ and
-$`b=(1-\mu)(1-\phi)/\phi`$. Here $`\phi`$ acts as a coefficient of
-variation: smaller $`\phi`$ means less variability.
+In every scheme $`E[Y]=a/(a+b)`$ and
+$`\mathrm{Var}[Y]=E[Y](1-E[Y])/(1+a+b)`$. Under `repar = 1` this is
+$`\mu(1-\mu)/(1+\phi)`$ (Ferrari and Cribari-Neto, 2004); under
+`repar = 2` it is $`\phi\,\mu(1-\mu)`$, so the dispersion is
+$`\phi=1/(1+a+b)`$, the variance relative to its maximum $`\mu(1-\mu)`$
+(not a coefficient of variation). Under `repar = 0` the first parameter
+is the shape $`p`$ and the mean is $`p/(p+q)`$.
 
 ``` r
 
@@ -886,6 +1048,14 @@ brs_repar(mu = 0.5, phi = 0.1, repar = 2)
 ```
 
 ## References
+
+- Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
+  Master’s dissertation, Universidade Federal do Paraná, Curitiba.
+  <https://hdl.handle.net/1884/86624>.
+
+- Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
+  *Journal of Computational and Graphical Statistics*, **5**(3),
+  236–244.
 
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
   modelling rates and proportions. *Journal of Applied Statistics*,

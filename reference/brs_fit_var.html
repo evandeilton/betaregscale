@@ -106,7 +106,8 @@ shape/precision).</p></dd>
 
 
 <dt id="arg-ncuts">ncuts<a class="anchor" aria-label="anchor" href="#arg-ncuts"></a></dt>
-<dd><p>Number of scale categories. <code>NULL</code> (default) uses the
+<dd><p>Integer \(K\), the maximum score: the scale is
+\(0, 1, \ldots, K\) (\(K + 1\) categories). <code>NULL</code> (default) uses the
 value stored by <code><a href="brs_prep.html">brs_prep</a></code> in <code>attr(data, "ncuts")</code>,
 or 100 when <code>data</code> was not prepared. A value that differs from
 the stored one is ignored with a warning (the endpoints were built

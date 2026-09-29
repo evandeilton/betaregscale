@@ -1,8 +1,8 @@
-# Reparameterize (mu, phi) into beta shape parameters
+# Beta shape parameters from the parameters of each scheme
 
-Converts a mean–dispersion pair \\(\mu, \phi)\\ to the shape parameters
-\\(a, b)\\ of the beta distribution under one of three
-reparameterization schemes.
+Converts the pair `(mu, phi)` of one of three parameterisations into the
+shapes \\(a, b)\\ of the beta density \\f(y) = y^{a - 1}(1 - y)^{b -
+1}/B(a, b)\\, \\0 \< y \< 1\\.
 
 ## Usage
 
@@ -14,50 +14,46 @@ brs_repar(mu, phi, repar = 2L)
 
 - mu:
 
-  Numeric vector: the first parameter. The mean, in \\(0, 1)\\, for
-  `repar = 1, 2`; the shape \\p \> 0\\ for `repar = 0`.
+  Numeric vector: the first parameter, i.e. the mean in \\(0, 1)\\ for
+  `repar = 1, 2` and the shape \\p \> 0\\ for `repar = 0`.
 
 - phi:
 
-  Numeric vector (or scalar): the second parameter (precision \\\phi \>
-  0\\, dispersion \\\phi \in (0, 1)\\, or shape \\q \> 0\\).
+  Numeric vector (or scalar): the second parameter, i.e. the precision
+  \\\phi \> 0\\, the dispersion \\\phi \in (0, 1)\\ or the shape \\q \>
+  0\\.
 
 - repar:
 
-  Integer (0, 1, or 2) selecting the scheme.
+  Integer (0, 1 or 2) selecting the scheme (default 2).
 
 ## Value
 
-A `data.frame` with columns `shape1` and `shape2`.
+A `data.frame` with columns `shape1` (\\a\\) and `shape2` (\\b\\), one
+row per element of the recycled inputs.
 
 ## Details
 
-The three schemes are:
+|  |  |  |  |  |
+|----|----|----|----|----|
+| `repar` | `mu`, `phi` | \\(a, b)\\ | \\E\[Y\]\\ | \\\mathrm{Var}\[Y\]\\ |
+| 0 | shapes \\p, q \> 0\\ | \\(p, q)\\ | \\p/(p + q)\\ | \\pq/\\(p + q)^2 (p + q + 1)\\\\ |
+| 1 | mean \\\mu \in (0, 1)\\, precision \\\phi \> 0\\ | \\(\mu\phi, (1 - \mu)\phi)\\ | \\\mu\\ | \\\mu(1 - \mu)/(1 + \phi)\\ |
+| 2 | mean \\\mu \in (0, 1)\\, dispersion \\\phi \in (0, 1)\\ | \\(\mu\tau, (1 - \mu)\tau)\\, \\\tau = (1 - \phi)/\phi\\ | \\\mu\\ | \\\phi\\\mu(1 - \mu)\\ |
 
-- `repar = 0`:
+The three describe the same family: \\a + b\\ is the precision, and the
+dispersion of `repar = 2` is \$\$\phi = \frac{\mathrm{Var}\[Y\]}{\mu(1 -
+\mu)} = \frac{1}{1 + a + b},\$\$ the share of the largest possible
+variance \\\mu(1 - \mu)\\, which is approached as \\a + b \to 0\\. It is
+not a coefficient of variation.
 
-  Shapes: \\a = p,\\ b = q\\ with \\p, q \> 0\\ (the first argument is
-  \\p\\, the second \\q\\). Both parameters live on \\(0, \infty)\\ and
-  the mean is \\E\[Y\] = p / (p + q)\\. Regression directly on the
-  shapes is a package extension: the dissertation presents the \\(p,
-  q)\\ form (its eq. `eqn_beta_p1`) and builds the regression models on
-  the two reparameterizations below.
-
-- `repar = 1`:
-
-  Ferrari–Cribari-Neto (dissertation "parametrização 1", eq.
-  `eqn_beta_p2`): \\a = \mu\phi,\\ b = (1 - \mu)\phi\\, where \\\mu \in
-  (0, 1)\\ is the mean and \\\phi \> 0\\ acts as a precision parameter.
-
-- `repar = 2`:
-
-  Mean–dispersion (dissertation "parametrização 2", eq. `eqn_beta_p3`):
-  \\a = \mu(1-\phi)/\phi,\\ b = (1-\mu)(1-\phi)/\phi\\, where \\\mu \in
-  (0, 1)\\ is the mean and \\\phi \in (0,1)\\ is a dispersion parameter
-  (\\Var\[Y\] = \phi\\\mu(1-\mu)\\).
-
-The admissible link functions follow from these domains; see the
-'Reparameterizations and links' section of
+In Lopes (2023) these are eq. `eqn_beta_p1` (shapes \\p, q\\),
+"parametrizacao 1" (Ferrari and Cribari-Neto, 2004; eq. `eqn_beta_p2`)
+and "parametrizacao 2" (Bayer, 2011; eq. `eqn_beta_p3`), where the
+dispersion is written \\\sigma\\. The package names the second parameter
+`phi` in every scheme. Regression on the shapes (`repar = 0`) is a
+package extension. Admissible links per scheme: section
+'Reparameterizations and links' of
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
 
 ## References
@@ -66,26 +62,48 @@ Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
 Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
 https://hdl.handle.net/1884/86624.
 
-Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
-of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
-Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ), Short-Form
-McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale (CPGS),
-Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of Intermittent
-and Constant Osteoarthritis Pain (ICOAP). Arthritis Care and Research,
-63(S11), S240-S252.
-[doi:10.1002/acr.20543](https://doi.org/10.1002/acr.20543)
+Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
+modelling rates and proportions. *Journal of Applied Statistics*,
+**31**(7), 799–815.
+[doi:10.1080/0266476042000214501](https://doi.org/10.1080/0266476042000214501)
 
-Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
-comparing Numerical Rating Scales, Verbal Rating Scales, and Visual
-Analogue Scales for assessment of pain intensity in adults: a systematic
-literature review. Journal of Pain and Symptom Management, 41(6),
-1073-1093.
-[doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
+Bayer, F. M. (2011). *Modelagem e inferencia em regressao beta*. PhD
+thesis, Universidade Federal de Pernambuco.
 
 ## Examples
 
 ``` r
-brs_repar(mu = 0.5, phi = 0.2, repar = 2)
+# One beta distribution in the three parameterisations: shapes (6, 14)
+brs_repar(mu = 0.3, phi = 20, repar = 1)      # mean 0.3, precision 20
 #>   shape1 shape2
-#> 1      2      2
+#> 1      6     14
+brs_repar(mu = 0.3, phi = 1 / 21, repar = 2)  # mean 0.3, dispersion 1/(1 + 20)
+#>   shape1 shape2
+#> 1      6     14
+brs_repar(mu = 6, phi = 14, repar = 0)        # shapes p = 6, q = 14
+#>   shape1 shape2
+#> 1      6     14
+
+# Back from shapes: mean, precision a + b, dispersion 1 / (1 + a + b)
+sh <- brs_repar(mu = 0.3, phi = 20, repar = 1)
+c(mean = sh$shape1 / (sh$shape1 + sh$shape2),
+  precision = sh$shape1 + sh$shape2,
+  dispersion = 1 / (1 + sh$shape1 + sh$shape2))
+#>        mean   precision  dispersion 
+#>  0.30000000 20.00000000  0.04761905 
+
+# E[Y] and Var[Y] agree across parameterisations: 0.3 and 0.21 / 21 = 0.01
+mu <- 0.3
+c(var_repar1 = mu * (1 - mu) / (1 + 20),
+  var_repar2 = mu * (1 - mu) * (1 / 21),
+  var_shapes = 6 * 14 / ((6 + 14)^2 * (6 + 14 + 1)))
+#> var_repar1 var_repar2 var_shapes 
+#>       0.01       0.01       0.01 
+
+# Vectorised: one row per observation
+brs_repar(mu = c(0.2, 0.5, 0.8), phi = 0.1, repar = 2)
+#>   shape1 shape2
+#> 1    1.8    7.2
+#> 2    4.5    4.5
+#> 3    7.2    1.8
 ```

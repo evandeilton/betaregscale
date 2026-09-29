@@ -12,7 +12,8 @@ outcomes.
 This vignette covers:
 
 1.  full model mathematics;
-2.  estimation by marginal maximum likelihood (Laplace approximation);
+2.  estimation by marginal maximum likelihood (Laplace, adaptive
+    quadrature or quasi-Monte Carlo);
 3.  practical use of all current `brsmm` methods;
 4.  inferential and validation workflows, including parameter recovery.
 
@@ -119,6 +120,31 @@ maximizes the approximated $`\ell(\theta)`$ with
 [`stats::optim()`](https://rdrr.io/r/stats/optim.html), and computes
 group-level posterior modes $`\hat{\mathbf{b}}_j`$. For $`q_b = 1`$,
 this reduces to the scalar random-intercept formula.
+
+### Other integration methods and estimation details
+
+- `int_method = "aghq"`: adaptive Gauss-Hermite quadrature with
+  `n_points` nodes per dimension, placed at
+  $`\hat{\mathbf{b}}_j+\sqrt{2}\,H_j^{-1/2}\mathbf{z}`$ with the
+  symmetric square root $`H_j^{-1/2}`$ (`n_points`$`^{q_b}`$ nodes in
+  total, at most 500000).
+- `int_method = "qmc"`: importance sampling from
+  $`\mathcal{N}(\hat{\mathbf{b}}_j, H_j^{-1})`$ with `qmc_points` Halton
+  points. It is deterministic and, with two or more random effects,
+  underestimates the log-likelihood (about $`-0.05`$ at 1024 points);
+  prefer `"aghq"` for up to three random effects.
+
+The inner mode is found by a Levenberg-Marquardt Newton method,
+warm-started from the previous evaluation (the cache is cleared at the
+start of each fit). A group whose curvature is not positive definite at
+its mode adds the penalty value, and
+[`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+warns when that happens at the estimate.
+[`optim()`](https://rdrr.io/r/stats/optim.html) receives the compiled
+gradient of the chosen approximation (chain rule on the linear predictor
+and implicit-function theorem at the modes), and the Hessian behind
+[`vcov()`](https://rdrr.io/r/stats/vcov.html) is a Richardson central
+difference of that gradient (`hessian_method = "cpp"`).
 
 ## Simulating clustered scale data
 
@@ -267,6 +293,13 @@ summary(fit_mm_rs)
 #> Censoring: 212 interval | 8 left | 20 right
 ```
 
+The random-effects block of
+[`summary()`](https://rdrr.io/r/base/summary.html) reports standard
+deviations and the correlation, with 95% intervals built on the log
+scale (SD) and the $`\mathrm{atanh}`$ scale (correlation) and mapped
+back; it gives no test. The same numbers are in
+`summary(fit_mm_rs)$varcorr`.
+
 Covariance structure of random effects:
 
 ``` r
@@ -319,6 +352,24 @@ now allows for a dedicated study of the random effects focusing on:
 - empirical distribution of modes by group;
 - empirical shrinkage intensity;
 - specific visual diagnostics for the random components.
+
+The intraclass correlation reported by
+[`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
+is the correlation of $`\mathrm{logit}(Y)`$ between two observations of
+the same group with the same covariates. With $`m(b)=\psi(a)-\psi(b)`$
+and $`v(b)=\psi_1(a)+\psi_1(b)`$ (mean and variance of
+$`\mathrm{logit}\,Y`$ for $`Y\sim\mathrm{Beta}(a,b)`$, with the shapes
+at random effect $`b`$),
+``` math
+\mathrm{ICC}=\frac{\mathrm{Var}_b[m(b)]}{\mathrm{Var}_b[m(b)]+E_b[v(b)]},
+```
+computed by Gauss-Hermite quadrature over $`b\sim N(0,\,w^\top D w)`$
+and averaged over the observations. It uses the beta level-1 variance:
+the logistic value $`\pi^2/3`$ of binary models does not describe a beta
+response. The moments of $`\mathrm{logit}(Y)`$ can be infinite (probit
+link with $`\sigma_b^2\geq 1/2`$, cloglog link, or a very large
+$`\sigma_b`$); the ICC is then `NA` with a warning, because its value
+would be set by the numerical clamp of the mean.
 
 ``` r
 
@@ -478,13 +529,22 @@ dim(vc)
 #> [1] 4 4
 
 sm <- summary(fit_mm)
-kbl10(sm$coefficients)
+kbl10(sm$coefficients$mean)
 ```
 
-|  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error |
-|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| (Intercept) | 0.3683 | 0.1543 | 2.3872 | 0.017 | -0.1594 | 0.0848 | -1.8802 | 0.0601 | -0.7973 | 0.2928 |
-| x1 | 0.6330 | 0.0947 | 6.6865 | 0.000 | -0.1594 | 0.0848 | -1.8802 | 0.0601 | -0.7973 | 0.2928 |
+|             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:------------|:--------:|:----------:|:-------:|:-----------:|
+| (Intercept) |  0.3683  |   0.1543   | 2.3872  |    0.017    |
+| x1          |  0.6330  |   0.0947   | 6.6865  |    0.000    |
+
+``` r
+
+kbl10(sm$varcorr)
+```
+
+|      term      | type | estimate | lower  | upper  | se_transformed |
+|:--------------:|:----:|:--------:|:------:|:------:|:--------------:|
+| SD (Intercept) |  sd  |  0.4505  | 0.2538 | 0.7997 |     0.2928     |
 
 ``` r
 
@@ -681,21 +741,34 @@ kbl10(
 ### Wald tests (from `summary`)
 
 [`summary.brsmm()`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)
-reports Wald $`z`$-tests for each parameter:
+reports Wald $`z`$-tests for the fixed effects:
 ``` math
 z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
 ```
+It gives no test for the random effects: a $`z`$-test of
+$`\log\sigma_b`$ tests $`\sigma_b=1`$, and $`\sigma_b=0`$ lies on the
+boundary. Their SD and correlation come with intervals only; test a
+variance component with the likelihood-ratio test below.
 
 ``` r
 
 sm <- summary(fit_mm)
-kbl10(sm$coefficients)
+kbl10(sm$coefficients$mean)
 ```
 
-|  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error |
-|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| (Intercept) | 0.3683 | 0.1543 | 2.3872 | 0.017 | -0.1594 | 0.0848 | -1.8802 | 0.0601 | -0.7973 | 0.2928 |
-| x1 | 0.6330 | 0.0947 | 6.6865 | 0.000 | -0.1594 | 0.0848 | -1.8802 | 0.0601 | -0.7973 | 0.2928 |
+|             | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:------------|:--------:|:----------:|:-------:|:-----------:|
+| (Intercept) |  0.3683  |   0.1543   | 2.3872  |    0.017    |
+| x1          |  0.6330  |   0.0947   | 6.6865  |    0.000    |
+
+``` r
+
+kbl10(sm$coefficients$precision)
+```
+
+|                    | Estimate | Std. Error | z value | Pr(\>\|z\|) |
+|:-------------------|:--------:|:----------:|:-------:|:-----------:|
+| (phi)\_(Intercept) | -0.1594  |   0.0848   | -1.8802 |   0.0601    |
 
 ### Evolutionary scheme and Likelihood Ratio (LR) test selection
 
@@ -706,12 +779,25 @@ A practical workflow of increasing complexity:
 2.  `brsmm(..., random = ~ 1 | id)`: random intercept;
 3.  `brsmm(..., random = ~ 1 + x1 | id)`: random intercept + slope.
 
-In the first jump (`brs` to `brsmm` with intercept), the hypothesis
-$`\sigma_b^2 = 0`$ lies on the boundary of the parameter space. Thus,
-the classical asymptotic $`\chi^2`$ reference distribution should be
-interpreted with caution. In the second jump (intercept to intercept +
-slope), the Likelihood Ratio (LR) test with a $`\chi^2`$ distribution is
-commonly used as a practical diagnostic for goodness-of-fit gains.
+In both jumps the added variance lies on the boundary of the parameter
+space under $`H_0`$, so the likelihood ratio does not follow
+$`\chi^2_d`$. With one added random-effect term the reference is the
+mixture $`\frac12\chi^2_{d-1}+\frac12\chi^2_d`$:
+$`\frac12\chi^2_0+\frac12\chi^2_1`$ from `brs` to the random intercept,
+$`\frac12\chi^2_1+\frac12\chi^2_2`$ from the intercept to intercept +
+slope (Self and Liang, 1987; Stram and Lee, 1994).
+[`anova()`](https://rdrr.io/r/stats/anova.html) uses it for these rows
+and explains it in its heading; the naive $`\chi^2_d`$ p-value is about
+twice as large.
+
+When a variance is essentially zero,
+[`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+warns “Variance component at the boundary” (log SD below $`-6`$, or a
+log-likelihood gain below $`10^{-3}`$ over the same fit without the
+term). If that gain is negative, the message adds that SD $`\approx 0`$
+has a higher log-likelihood: the fit stopped short of the maximum. The
+Wald standard error of that log SD is meaningless; rely on the
+likelihood-ratio test.
 
 ``` r
 
@@ -727,17 +813,17 @@ fit_brs <- brs(
 # fit_mm_rs : random = ~ 1 + x1 | id
 
 tab_lr <- anova(fit_brs, fit_mm, fit_mm_rs, test = "Chisq")
-kbl10(
-  data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL),
-  digits = 4
-)
+tab_lr
+#> Likelihood-ratio comparison of brs/brsmm models
+#> Rows M2, M3: one added random effect (variance on the boundary); Pr(>Chisq) from the chi-bar-square mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df).
+#> 
+#>            Df  logLik    AIC    BIC   Chisq Chi Df Pr(>Chisq)    
+#> M1 (brs)    3 -1014.9 2035.8 2046.3                              
+#> M2 (brsmm)  4 -1008.2 2024.5 2038.4 13.3331      1  0.0001304 ***
+#> M3 (brsmm)  6 -1007.1 2026.1 2047.0  2.3625      2  0.2155887    
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
-
-|   model    | Df  |  logLik   |   AIC    |   BIC    |  Chisq  | Chi.Df | Pr..Chisq. |
-|:----------:|:---:|:---------:|:--------:|:--------:|:-------:|:------:|:----------:|
-|  M1 (brs)  |  3  | -1014.913 | 2035.826 | 2046.268 |   NA    |   NA   |     NA     |
-| M2 (brsmm) |  4  | -1008.247 | 2024.493 | 2038.416 | 13.3331 |   1    |   0.0001   |
-| M3 (brsmm) |  6  | -1007.066 | 2026.131 | 2047.015 | 2.3625  |   2    |   0.2156   |
 
 Operational decision rule (analytical):
 
@@ -862,6 +948,14 @@ devtools::test(filter = "brsmm")
 ```
 
 ## References
+
+Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+likelihood estimators and likelihood ratio tests under nonstandard
+conditions. *Journal of the American Statistical Association*, 82(398),
+605-610.
+
+Stram, D. O., and Lee, J. W. (1994). Variance components testing in the
+longitudinal mixed effects model. *Biometrics*, 50(4), 1171-1177.
 
 Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
 modelling rates and proportions. *Journal of Applied Statistics*, 31(7),

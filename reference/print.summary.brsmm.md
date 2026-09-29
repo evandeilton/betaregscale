@@ -55,7 +55,7 @@ print(summary(fit))
 #> 
 #> Randomized Quantile Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -1.9839 -0.4877 -0.1679  0.6965  2.1287 
+#> -2.7260 -0.4934 -0.1681  0.6929  2.0620 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)

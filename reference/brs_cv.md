@@ -72,22 +72,26 @@ literature review. Journal of Pain and Symptom Management, 41(6),
 ## Examples
 
 ``` r
-# \donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10),
-  x2 = rep(c(0, 0, 1, 1), 5)
-)
-prep <- brs_prep(dat, ncuts = 100)
-#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
-cv <- brs_cv(y ~ x1, data = prep, k = 3, repeats = 1)
-cv
+# Synthetic NRS-11 scores: 4 groups x 3 times. Simulated, not real data.
+set.seed(3)
+nrs <- expand.grid(id = 1:40, time = c("6h", "12h", "24h"))
+nrs$group <- factor(paste0("g", (nrs$id - 1) %% 4 + 1))
+eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + c(0, -0.1, 0.05, 0.1)[nrs$group]
+shp <- brs_repar(mu = plogis(eta), phi = 0.3, repar = 2)
+nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+
+# 3-fold CV of two nested models, time only (m1) and time + group (m2);
+# log_score is the mean held-out log-likelihood contribution (higher is better)
+set.seed(5)
+cv1 <- brs_cv(y ~ time, data = nrs, k = 3, ncuts = 10)
+set.seed(5)
+cv2 <- brs_cv(y ~ time + group, data = nrs, k = 3, ncuts = 10)
+c(m1 = mean(cv1$log_score), m2 = mean(cv2$log_score))
+#>        m1        m2 
+#> -2.157497 -2.190544 
+cv2
 #>   repeat fold n_train n_test log_score   rmse_yt    mae_yt converged error
-#> 1      1    1      13      7 -5.043516 0.3461656 0.2731298      TRUE  <NA>
-#> 2      1    2      13      7 -6.352894 0.5101226 0.4564249      TRUE  <NA>
-#> 3      1    3      14      6 -4.660798 0.3340391 0.3019972      TRUE  <NA>
-# }
+#> 1      1    1      80     40 -2.073336 0.2592196 0.2187621      TRUE  <NA>
+#> 2      1    2      80     40 -2.256562 0.3123485 0.2750955      TRUE  <NA>
+#> 3      1    3      80     40 -2.241734 0.2697334 0.2188253      TRUE  <NA>
 ```

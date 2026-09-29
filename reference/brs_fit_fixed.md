@@ -51,7 +51,8 @@ brs_fit_fixed(
 
 - ncuts:
 
-  Number of scale categories. `NULL` (default) uses the value stored by
+  Integer \\K\\, the maximum score: the scale is \\0, 1, \ldots, K\\
+  (\\K + 1\\ categories). `NULL` (default) uses the value stored by
   [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
   in `attr(data, "ncuts")`, or 100 when `data` was not prepared. A value
   that differs from the stored one is ignored with a warning (the

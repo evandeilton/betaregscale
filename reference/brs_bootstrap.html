@@ -141,6 +141,8 @@ instrument) the bootstrap is conservative, and for Mode 2 rows with a
 forced \(\delta\) (a threshold built from the score itself, which is
 informative) it is only an approximation. The response must be a variable
 (not an expression such as <code>I(y / 10)</code>).</p>
+<p>Each refit starts from the estimate of <code>object</code> and uses the compiled
+Hessian (<code>hessian_method = "cpp"</code>), so replicates are cheap.</p>
 <p>Replicates that fail (refit error, non-convergence, non-finite estimates)
 are discarded and counted: attributes <code>"n_failed"</code> and
 <code>"fail_rate"</code>, also printed. Intervals are computed from the bootstrap
@@ -181,33 +183,43 @@ samples, and reserve <code>"bca"</code> for a final result.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">20</span>, <span class="fl">50</span>, <span class="fl">75</span>, <span class="fl">90</span>, <span class="fl">100</span>, <span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">45</span>,</span></span>
-<span class="r-in"><span>    <span class="fl">10</span>, <span class="fl">40</span>, <span class="fl">55</span>, <span class="fl">70</span>, <span class="fl">85</span>, <span class="fl">25</span>, <span class="fl">35</span>, <span class="fl">65</span>, <span class="fl">80</span>, <span class="fl">15</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span>,</span></span>
-<span class="r-in"><span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">prep</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">dat</span>, ncuts <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18</span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu">brs_bootstrap</span><span class="op">(</span><span class="va">fit</span>, R <span class="op">=</span> <span class="fl">50</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Synthetic NRS-11 scores at 6h, 12h, 24h (time is a factor)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nrs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"6h"</span>, <span class="st">"12h"</span>, <span class="st">"24h"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"6h"</span>, <span class="st">"12h"</span>, <span class="st">"24h"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.3</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.75</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">[</span><span class="va">nrs</span><span class="op">$</span><span class="va">time</span><span class="op">]</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nrs</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">nrs</span><span class="op">)</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape1</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span>, data <span class="op">=</span> <span class="va">nrs</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Percentile intervals from 30 parametric replicates (use R &gt;= 199 in practice)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bt</span> <span class="op">&lt;-</span> <span class="fu">brs_bootstrap</span><span class="op">(</span><span class="va">fit</span>, R <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bt</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap confidence intervals</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Level: 0.95 | CI: percentile | Successful replicates: 30 / 30 | Attempts: 30 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Failed replicates: 0 (0.0% of attempts)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     parameter   estimate   se_boot  ci_lower   ci_upper mcse_lower mcse_upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept)  0.2551000 0.7772939 -0.823157 1.93714879  0.1651623  0.1582552</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          x1 -0.2202060 0.4898478 -1.338458 0.50992598  0.1751059  0.0846197</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       (phi) -0.3929144 0.3259095 -1.236067 0.05416969  0.1537064  0.1222129</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parameter   estimate   se_boot    ci_lower   ci_upper mcse_lower mcse_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -1.2953746 0.2011046 -1.71296642 -0.9501425 0.07569263 0.04900518</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     time12h  0.7657720 0.2290701  0.29264721  1.1319112 0.05329737 0.09006074</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     time24h  0.3854151 0.2849472 -0.06794233  0.8036531 0.04243362 0.04330853</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       (phi) -0.8166662 0.1422067 -1.12895854 -0.6751089 0.03337507 0.01822655</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   wald_lower wald_upper level</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -1.4390767  1.9492766  0.95</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -1.2809286  0.8405165  0.95</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.9343775  0.1485488  0.95</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -1.6863745 -0.9043747  0.95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.2513386  1.2802054  0.95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.1363913  0.9072215  0.95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -1.0759353 -0.5573970  0.95</span>
+<span class="r-in"><span><span class="co"># Bootstrap next to Wald limits, and the bootstrap/Wald SE ratio</span></span></span>
+<span class="r-in"><span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"parameter"</span>, <span class="st">"ci_lower"</span>, <span class="st">"ci_upper"</span>, <span class="st">"wald_lower"</span>, <span class="st">"wald_upper"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">bt</span><span class="op">)</span><span class="op">[</span>, <span class="va">cols</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     parameter    ci_lower   ci_upper wald_lower wald_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -1.71296642 -0.9501425 -1.6863745 -0.9043747</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     time12h  0.29264721  1.1319112  0.2513386  1.2802054</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     time24h -0.06794233  0.8036531 -0.1363913  0.9072215</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       (phi) -1.12895854 -0.6751089 -1.0759353 -0.5573970</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">bt</span><span class="op">$</span><span class="va">se_boot</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)     time12h     time24h       (phi) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        1.01        0.87        1.07        1.08 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

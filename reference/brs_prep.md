@@ -1,31 +1,28 @@
 # Pre-process analyst data for beta interval regression
 
-Validates and transforms raw data into the format required by
-[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
-The analyst can supply data in several ways:
+Turns analyst data into the cells \\\[l_i, u_i\]\\ and censoring types
+\\\delta_i\\ used by
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) and
+[`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md).
+Scores run over \\0, 1, \ldots, K\\ with \\K =\\ `ncuts` the maximum;
+shift a scale that starts at 1 (a Likert item 1–5 becomes 0–4,
+`ncuts = 4`). Four input modes are recognised per row:
 
-1.  **Minimal (Mode 1)**: only the score `y`. Censoring is inferred
-    automatically: \\y = 0 \to \delta = 1\\, \\y = K \to \delta = 2\\,
-    \\0 \< y \< K \to \delta = 3\\, \\y \in (0, 1) \to \delta = 0\\ (per
-    observation, as in
-    [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md);
-    a warning flags input that mixes values in \\(0, 1)\\ with values
-    \\\ge 1\\).
+1.  **Score only** (`y`): the cell of the score and \\\delta\\ from the
+    score, exactly as
+    [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
+    (0 \\\to\\ 1, \\K\\ \\\to\\ 2, otherwise 3; a value in \\(0, 1)\\
+    \\\to\\ 0, per observation).
 
-2.  **Classic (Mode 2)**: `y` + explicit `delta`. The analyst declares
-    the censoring type; interval endpoints are computed using the actual
-    `y` value.
+2.  **Score and `delta`**: the analyst's censoring type, with the cell
+    of the score.
 
-3.  **Interval (Mode 3)**: `left` and/or `right` columns (on the
-    original scale). Censoring is inferred from the NA pattern.
+3.  **Bounds only** (`left` and/or `right`, `y` missing): an interval,
+    or a one-sided censoring when one bound is `NA`.
 
-4.  **Full (Mode 4)**: `y`, `left`, and `right` together. The analyst's
-    own endpoints are rescaled directly to \\(0, 1)\\. A row whose
-    bounds reach both borders covers the whole scale and carries no
-    information: it is kept (\\\delta = 3\\) with a warning suggesting
-    its removal.
+4.  **Score and both bounds**: the analyst's interval.
 
-All covariate columns are preserved unchanged in the output.
+Covariate columns are kept unchanged.
 
 ## Usage
 
@@ -46,7 +43,7 @@ brs_prep(
 
 - data:
 
-  Data frame containing the response variable and covariates.
+  Data frame with the response columns and covariates.
 
 - y:
 
@@ -54,121 +51,100 @@ brs_prep(
 
 - delta:
 
-  Character: name of the censoring indicator column (default `"delta"`).
-  Values must be in `{0, 1, 2, 3}`.
+  Character: name of the censoring-type column (default `"delta"`);
+  values in `{0, 1, 2, 3}` or `NA`.
 
-- left:
+- left, right:
 
-  Character: name of the left-endpoint column (default `"left"`).
-
-- right:
-
-  Character: name of the right-endpoint column (default `"right"`).
+  Character: names of the lower and upper bound columns (defaults
+  `"left"`, `"right"`), on the latent score scale.
 
 - ncuts:
 
-  Integer: number of scale categories (default 100).
+  Integer \\K\\: the maximum score (default 100); the scale is \\0, 1,
+  \ldots, K\\ (\\K + 1\\ categories). Must be at least the largest `y`;
+  bounds may reach the latent range given in Details.
 
 - lim:
 
   Numeric in \\(0, 0.5\]\\: half-width of the score cell under
-  `interval = "mid"` (default 0.5). Used only when constructing
-  intervals from `y` alone; see
+  `interval = "mid"` (default 0.5); see
   [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
 
 - interval:
 
   Direction of the uncertainty interval, `"mid"` (default), `"right"` or
-  `"left"`; see the section 'Interval direction' of
+  `"left"`; see
   [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
-  Mode 1/2 cells follow it. Analyst endpoints \\L\\ (Modes 3/4) are
-  bounds on the latent score of that direction (the scale of
-  `predict(type = "score")`), must lie in \\\[-0.5, K + 0.5\]\\, \\\[0,
-  K + 1\]\\ or \\\[-1, K\]\\, and map to \\L / K\\, \\L / (K + 1)\\ or
-  \\(L + 1) / (K + 1)\\; so \\\[s - 0.5, s + 0.5\]\\, \\\[s, s + 1\]\\
-  and \\\[s - 1, s\]\\ all give the cell of score \\s\\. Without an
-  analyst `delta`, an interval reaching 0 (or 1) on the unit scale is
-  left- (or right-) censored.
 
 ## Value
 
-A `data.frame` with the following columns appended or replaced:
-
-- `left`:
-
-  Lower endpoint on \\(0, 1)\\.
-
-- `right`:
-
-  Upper endpoint on \\(0, 1)\\.
-
-- `yt`:
-
-  Cell centre (point summary) on \\(0, 1)\\.
-
-- `y`:
-
-  Original scale value (preserved for reference).
-
-- `delta`:
-
-  Censoring indicator: 0 = exact, 1 = left, 2 = right, 3 = interval.
-
-Covariate columns are preserved. The output carries attributes
-`"is_prepared"` (`TRUE`), `"ncuts"`, `"lim"` and `"interval"`, which
+A data frame with columns `left`, `right` (cell on \\(0, 1)\\), `yt`
+(cell centre), `y` (score, or the filled latent score for rows without
+one) and `delta`, followed by the covariates. Attributes `"is_prepared"`
+(`TRUE`), `"ncuts"`, `"lim"` and `"interval"` are reused by
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) and
-[`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
-reuse (an explicit different value is ignored with a warning).
+[`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md);
+an explicit different value there is ignored with a warning.
 
 ## Details
 
-**Priority rule**: if `delta` is provided (non-`NA`), it takes
-precedence over all automatic classification rules. When `delta` is
-`NA`, the function infers the censoring type from the pattern of `left`,
-`right`, and `y`:
+A non-missing `delta` always wins. Otherwise the type comes from the
+pattern of `left`, `right` and `y` (here \\K = 10\\,
+`interval = "mid"`):
 
-|        |         |      |         |                              |                     |
-|--------|---------|------|---------|------------------------------|---------------------|
-| `left` | `right` | `y`  | `delta` | Interpretation               | Inferred \\\delta\\ |
-| `NA`   | 5       | `NA` | `NA`    | Left-censored (below 5)      | 1                   |
-| 20     | `NA`    | `NA` | `NA`    | Right-censored (above 20)    | 2                   |
-| 30     | 45      | `NA` | `NA`    | Interval-censored \[30, 45\] | 3                   |
-| `NA`   | `NA`    | 50   | `NA`    | Exact observation            | 0                   |
-| `NA`   | `NA`    | 50   | 3       | Analyst says interval        | 3                   |
-| `NA`   | `NA`    | 0    | 1       | Analyst says left-censored   | 1                   |
-| `NA`   | `NA`    | 99   | 2       | Analyst says right-censored  | 2                   |
+|              |         |      |                                       |            |
+|--------------|---------|------|---------------------------------------|------------|
+| `left`       | `right` | `y`  | cell on \\(0, 1)\\                    | \\\delta\\ |
+| `NA`         | 3       | `NA` | \\\[\epsilon, 0.3\]\\ (below 3)       | 1          |
+| 7            | `NA`    | `NA` | \\\[0.7, 1 - \epsilon\]\\ (above 7)   | 2          |
+| 2            | 5       | `NA` | \\\[0.2, 0.5\]\\                      | 3          |
+| 4            | 6       | 5    | \\\[0.4, 0.6\]\\ (analyst interval)   | 3          |
+| -0.5         | 4       | `NA` | \\\[\epsilon, 0.4\]\\ (reaches 0)     | 1          |
+| 3            | 10.5    | `NA` | \\\[0.3, 1 - \epsilon\]\\ (reaches 1) | 2          |
+| (no columns) |         | 5    | \\\[0.45, 0.55\]\\ (Mode 1)           | 3          |
+| `NA`         | `NA`    | 5    | 0.5 (exact reading)                   | 0          |
+| `NA`         | `NA`    | 0    | \\\[\epsilon, 0.05\]\\                | 1          |
+| `NA`         | `NA`    | 10   | \\\[0.95, 1 - \epsilon\]\\            | 2          |
 
-When `y`, `left`, and `right` are all present for the same observation,
-the analyst's `left`/`right` values are used directly (rescaled by \\K
-=\\ `ncuts`) and `delta` is set to 3 (interval-censored) unless the
-analyst supplied `delta` explicitly.
+When the data have `left`/`right` columns, a row that gives only an
+interior score (both bounds `NA`) is an exact value at the cell centre,
+with a density contribution; without those columns the same score is
+interval-censored (Mode 1). An analyst interval that reaches 0 (or 1) on
+the unit scale is left- (or right-) censored; one that reaches both
+borders covers the whole scale, stays \\\delta = 3\\ and gives a
+warning, since such a row carries no information about the parameters. A
+row with neither a score nor a bound is an error (a `delta` alone
+defines no interval).
 
-**Endpoint formulas for Mode 2 (y + explicit delta)**:
+Score-based rows (Modes 1 and 2) use the cells of `interval`, as in
+[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md):
+\\\[s - \mathrm{lim}, s + \mathrm{lim}\]/K\\ for `"mid"`, \\\[s, s +
+1\]/(K + 1)\\ for `"right"`/`"left"`; a forced \\\delta = 1\\ keeps
+\\u_s\\ and a forced \\\delta = 2\\ keeps \\l_s\\. Analyst bounds \\L\\
+(Modes 3 and 4) are values of the latent score of the chosen direction
+(the scale of `predict(type = "score")`) and map to \\L/K\\ (`"mid"`),
+\\L/(K + 1)\\ (`"right"`) or \\(L + 1)/(K + 1)\\ (`"left"`), so that the
+dissertation's intervals \\\[s - 0.5, s + 0.5\]\\, \\\[s, s + 1\]\\ and
+\\\[s - 1, s\]\\ all give the cell of score \\s\\. They must lie in the
+latent range of the direction: \\\[-0.5, K + 0.5\]\\ (`"mid"`), \\\[0,
+K + 1\]\\ (`"right"`) or \\\[-1, K\]\\ (`"left"`); a bound outside it is
+an error. Rows with no score get `y` = the latent score of their cell
+centre, so that
+[`model.frame()`](https://rdrr.io/r/stats/model.frame.html) keeps them.
 
-When the analyst supplies `delta` explicitly, the endpoint computation
-uses the actual `y` value to produce observation-specific bounds. This
-is the same logic used by
-[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
-with a user-supplied `delta` vector:
-
-|  |  |  |  |
-|----|----|----|----|
-| \\\delta\\ | Condition | \\l_i\\ (left) | \\u_i\\ (right) |
-| 0 | (any) | \\y / K\\ | \\y / K\\ |
-| 1 | \\y = 0\\ | \\\epsilon\\ | \\\mathrm{lim} / K\\ |
-| 1 | \\y \neq 0\\ | \\\epsilon\\ | \\(y + \mathrm{lim}) / K\\ |
-| 2 | \\y = K\\ | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
-| 2 | \\y \neq K\\ | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
-| 3 | type `"m"` | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
-
-**Consistency warnings**: when the analyst supplies `delta` values that
-are unusual for the given `y` (e.g., \\\delta = 1\\ but \\y \neq 0\\),
-the function emits a warning but proceeds. This is by design for Monte
-Carlo workflows where forced delta on non-boundary observations is
-intentional.
-
-All endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\ with
-\\\epsilon = 10^{-5}\\.
+Endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\, \\\epsilon =
+10^{-5}\\ (why this replaces the edge-effect transformation of Lopes,
+2023: section 'Scale change and borders' of
+[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)).
+A \\\delta = 3\\ row with `left >= right` is an error (zero probability;
+use \\\delta = 0\\), and so is a cell the clamp squeezes to zero width
+(the message tells whether `ncuts` is too large for the cells or the
+analyst interval lies inside the clamp). As in
+[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md),
+values in \\(0, 1)\\ mixed with values \\\ge 1\\ give one warning.
+Unusual combinations, e.g. \\\delta = 1\\ with \\y \neq 0\\, give a
+warning but are kept.
 
 ## References
 
@@ -176,120 +152,83 @@ Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
 Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
 https://hdl.handle.net/1884/86624.
 
-Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
-of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
-Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ), Short-Form
-McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale (CPGS),
-Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of Intermittent
-and Constant Osteoarthritis Pain (ICOAP). Arthritis Care and Research,
-63(S11), S240-S252.
-[doi:10.1002/acr.20543](https://doi.org/10.1002/acr.20543)
-
-Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011). Studies
-comparing Numerical Rating Scales, Verbal Rating Scales, and Visual
-Analogue Scales for assessment of pain intensity in adults: a systematic
-literature review. Journal of Pain and Symptom Management, 41(6),
-1073-1093.
-[doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
-
 ## See also
 
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
-for the automatic classification of raw scale scores;
+for the cells and the automatic classification;
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) for
 fitting the model.
 
 ## Examples
 
 ``` r
-# --- Mode 1: y only (automatic classification, like brs_check) ---
-d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
+# Mode 1: score only; delta from the score (0 -> 1, K -> 2, else 3)
+d1 <- data.frame(y = c(0, 3, 10), x = c(1.2, 0.4, -0.3))
 brs_prep(d1, ncuts = 10)
+#> brs_prep: n = 3 | exact = 0, left = 1, right = 1, interval = 1
+#>      left   right      yt  y delta    x
+#> 1 0.00001 0.05000 0.00001  0     1  1.2
+#> 2 0.25000 0.35000 0.30000  3     3  0.4
+#> 3 0.95000 0.99999 0.99999 10     2 -0.3
+
+# Mode 2: score + analyst delta (the same score read as exact and as a cell)
+d2 <- data.frame(y = c(4, 4), delta = c(0, 3))
+brs_prep(d2, ncuts = 10)
+#> brs_prep: n = 2 | exact = 1, left = 0, right = 0, interval = 1
+#>   left right  yt y delta
+#> 1 0.40  0.40 0.4 4     0
+#> 2 0.35  0.45 0.4 4     3
+
+# Mode 3: only left and/or right bounds (NA pattern gives delta)
+d3 <- data.frame(left = c(NA, 7, 2), right = c(3, NA, 5))
+brs_prep(d3, ncuts = 10)
+#> brs_prep: n = 3 | exact = 0, left = 1, right = 1, interval = 1
+#>    left   right   yt   y delta
+#> 1 1e-05 0.30000 0.15 1.5     1
+#> 2 7e-01 0.99999 0.85 8.5     2
+#> 3 2e-01 0.50000 0.35 3.5     3
+
+# Mode 4: score with analyst bounds (used as given, divided by K)
+d4 <- data.frame(y = 5, left = 4, right = 6)
+brs_prep(d4, ncuts = 10)
+#> brs_prep: n = 1 | exact = 0, left = 0, right = 0, interval = 1
+#>   left right  yt y delta
+#> 1  0.4   0.6 0.5 5     3
+
+# An analyst interval reaching a border is one-sided censoring
+brs_prep(data.frame(left = c(-0.5, 3), right = c(4, 10.5)), ncuts = 10)
+#> brs_prep: n = 2 | exact = 0, left = 1, right = 1, interval = 0
+#>    left   right    yt    y delta
+#> 1 1e-05 0.40000 0.175 1.75     1
+#> 2 3e-01 0.99999 0.675 6.75     2
+
+# A Likert item 1-5: shift it to 0-4, so that ncuts = 4 is the maximum
+lk <- data.frame(item = c(1, 2, 5, 3, 4), x = c(0.1, 0.5, 0.9, 0.3, 0.7))
+brs_prep(data.frame(y = lk$item - 1, x = lk$x), ncuts = 4)
 #> brs_prep: n = 5 | exact = 0, left = 1, right = 1, interval = 3
-#>      left   right      yt  y delta         x1
-#> 1 0.00001 0.05000 0.00001  0     1 -0.7956434
-#> 2 0.25000 0.35000 0.30000  3     3 -0.5847379
-#> 3 0.45000 0.55000 0.50000  5     3  0.5348066
-#> 4 0.65000 0.75000 0.70000  7     3 -0.5306958
-#> 5 0.95000 0.99999 0.99999 10     2  0.1306995
+#>      left   right      yt y delta   x
+#> 1 0.00001 0.12500 0.00001 0     1 0.1
+#> 2 0.12500 0.37500 0.25000 1     3 0.5
+#> 3 0.87500 0.99999 0.99999 4     2 0.9
+#> 4 0.37500 0.62500 0.50000 2     3 0.3
+#> 5 0.62500 0.87500 0.75000 3     3 0.7
 
-# --- Mode 2: y + explicit delta ---
-d2 <- data.frame(
-  y = d1$y,
-  delta = c(0, 3, 3, 3, 0), # Force interval-censoring for 3,5,7
-  x1 = d1$x1
-)
-brs_prep(d2, ncuts = 100)
-#> brs_prep: n = 5 | exact = 2, left = 0, right = 0, interval = 3
-#>      left   right    yt  y delta         x1
-#> 1 0.00001 0.00001 1e-05  0     0 -0.7956434
-#> 2 0.02500 0.03500 3e-02  3     3 -0.5847379
-#> 3 0.04500 0.05500 5e-02  5     3  0.5348066
-#> 4 0.06500 0.07500 7e-02  7     3 -0.5306958
-#> 5 0.10000 0.10000 1e-01 10     0  0.1306995
-
-# --- Mode 3: left/right with NA patterns ---
-d3 <- data.frame(
-  left = c(NA, 20, 30, NA),
-  right = c(5, NA, 45, NA),
-  y = c(NA, NA, NA, 50),
-  x1 = d1$x1[1:4]
-)
-brs_prep(d3, ncuts = 100)
-#> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
-#>    left   right    yt    y delta         x1
-#> 1 1e-05 0.05000 0.025  2.5     1 -0.7956434
-#> 2 2e-01 0.99999 0.600 60.0     2 -0.5847379
-#> 3 3e-01 0.45000 0.375 37.5     3  0.5348066
-#> 4 5e-01 0.50000 0.500 50.0     0 -0.5306958
-
-# --- Mode 4: y + left + right (analyst-supplied intervals) ---
-d4 <- data.frame(
-  y = c(50, 75),
-  left = c(48, 73),
-  right = c(52, 77),
-  x1 = rnorm(2)
-)
-brs_prep(d4, ncuts = 100)
-#> brs_prep: n = 2 | exact = 0, left = 0, right = 0, interval = 2
-#>   left right   yt  y delta        x1
-#> 1 0.48  0.52 0.50 50     3 0.8770613
-#> 2 0.73  0.77 0.75 75     3 0.5578939
-
-# --- Fitting after prep ---
-# \donttest{
-dat5 <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10)
-)
-prep5 <- brs_prep(dat5, ncuts = 100)
-#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
-fit5 <- brs(y ~ x1, data = prep5)
-summary(fit5)
+# Right-direction cells [s, s + 1] / 11; the choice is stored as attributes
+p <- brs_prep(d1, ncuts = 10, interval = "right")
+#> brs_prep: n = 3 | exact = 0, left = 1, right = 1, interval = 1
+p[, c("left", "right", "delta")]
+#>        left      right delta
+#> 1 0.0000100 0.09090909     1
+#> 2 0.2727273 0.36363636     3
+#> 3 0.9090909 0.99999000     2
+attributes(p)[c("ncuts", "lim", "interval")]
+#> $ncuts
+#> [1] 10
 #> 
-#> Call:
-#> brs(formula = y ~ x1, data = prep5)
+#> $lim
+#> [1] 0.5
 #> 
-#> Quantile residuals:
-#>     Min      1Q  Median      3Q     Max 
-#> -2.2451 -0.4798  0.0673  0.5350  2.5252 
+#> $interval
+#> [1] "right"
 #> 
-#> Coefficients (mean model with logit link):
-#>             Estimate Std. Error z value Pr(>|z|)
-#> (Intercept)   0.2551     0.8644   0.295    0.768
-#> x1           -0.2202     0.5412  -0.407    0.684
-#> 
-#> Phi coefficients (precision model with logit link):
-#>       Estimate Std. Error z value Pr(>|z|)
-#> (phi)  -0.3929     0.2763  -1.422    0.155
-#> ---
-#> Log-likelihood: -92.6521 on 3 Df | AIC: 191.3041 | BIC: 194.2913 
-#> Pseudo R-squared: 0.0029  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 15 (BFGS) 
-#> Censoring: 18 interval | 1 left | 1 right 
-#> 
-# }
 ```

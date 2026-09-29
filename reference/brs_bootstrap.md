@@ -96,6 +96,9 @@ and for Mode 2 rows with a forced \\\delta\\ (a threshold built from the
 score itself, which is informative) it is only an approximation. The
 response must be a variable (not an expression such as `I(y / 10)`).
 
+Each refit starts from the estimate of `object` and uses the compiled
+Hessian (`hessian_method = "cpp"`), so replicates are cheap.
+
 Replicates that fail (refit error, non-convergence, non-finite
 estimates) are discarded and counted: attributes `"n_failed"` and
 `"fail_rate"`, also printed. Intervals are computed from the bootstrap
@@ -136,31 +139,41 @@ fitting.
 ## Examples
 
 ``` r
-# \donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10),
-  x2 = rep(c(0, 0, 1, 1), 5)
-)
-prep <- brs_prep(dat, ncuts = 100)
-#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
-fit <- brs(y ~ x1, data = prep)
-boot <- brs_bootstrap(fit, R = 50, level = 0.95)
-print(boot)
+# Synthetic NRS-11 scores at 6h, 12h, 24h (time is a factor)
+set.seed(3)
+nrs <- data.frame(time = factor(rep(c("6h", "12h", "24h"), each = 40),
+                                levels = c("6h", "12h", "24h")))
+shp <- brs_repar(mu = plogis(-1.3 + c(0, 0.75, 0.3)[nrs$time]), phi = 0.3)
+nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+fit <- brs(y ~ time, data = nrs, ncuts = 10)
+
+# Percentile intervals from 30 parametric replicates (use R >= 199 in practice)
+set.seed(4)
+bt <- brs_bootstrap(fit, R = 30)
+bt
 #> Bootstrap confidence intervals
-#>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 
+#>   Level: 0.95 | CI: percentile | Successful replicates: 30 / 30 | Attempts: 30 
 #>   Failed replicates: 0 (0.0% of attempts)
 #> 
-#>     parameter   estimate   se_boot  ci_lower   ci_upper mcse_lower mcse_upper
-#> 1 (Intercept)  0.2551000 0.7772939 -0.823157 1.93714879  0.1651623  0.1582552
-#> 2          x1 -0.2202060 0.4898478 -1.338458 0.50992598  0.1751059  0.0846197
-#> 3       (phi) -0.3929144 0.3259095 -1.236067 0.05416969  0.1537064  0.1222129
+#>     parameter   estimate   se_boot    ci_lower   ci_upper mcse_lower mcse_upper
+#> 1 (Intercept) -1.2953746 0.2011046 -1.71296642 -0.9501425 0.07569263 0.04900518
+#> 2     time12h  0.7657720 0.2290701  0.29264721  1.1319112 0.05329737 0.09006074
+#> 3     time24h  0.3854151 0.2849472 -0.06794233  0.8036531 0.04243362 0.04330853
+#> 4       (phi) -0.8166662 0.1422067 -1.12895854 -0.6751089 0.03337507 0.01822655
 #>   wald_lower wald_upper level
-#> 1 -1.4390767  1.9492766  0.95
-#> 2 -1.2809286  0.8405165  0.95
-#> 3 -0.9343775  0.1485488  0.95
-# }
+#> 1 -1.6863745 -0.9043747  0.95
+#> 2  0.2513386  1.2802054  0.95
+#> 3 -0.1363913  0.9072215  0.95
+#> 4 -1.0759353 -0.5573970  0.95
+# Bootstrap next to Wald limits, and the bootstrap/Wald SE ratio
+cols <- c("parameter", "ci_lower", "ci_upper", "wald_lower", "wald_upper")
+as.data.frame(bt)[, cols]
+#>     parameter    ci_lower   ci_upper wald_lower wald_upper
+#> 1 (Intercept) -1.71296642 -0.9501425 -1.6863745 -0.9043747
+#> 2     time12h  0.29264721  1.1319112  0.2513386  1.2802054
+#> 3     time24h -0.06794233  0.8036531 -0.1363913  0.9072215
+#> 4       (phi) -1.12895854 -0.6751089 -1.0759353 -0.5573970
+round(bt$se_boot / sqrt(diag(vcov(fit))), 2)
+#> (Intercept)     time12h     time24h       (phi) 
+#>        1.01        0.87        1.07        1.08 
 ```

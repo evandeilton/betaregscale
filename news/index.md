@@ -309,6 +309,49 @@ and “Interval direction”.
   cast to an integer (undefined behaviour: rejected with a misleading
   message on x86-64, silently read as an exact observation on arm64).
 
+### Documentation
+
+- Help pages aligned with Lopes (2023) and checked against the code: the
+  complete likelihood with the four censoring types (the dissertation’s
+  table swaps `delta = 1` and `2`; the package follows its equation),
+  the three parameterisations with their links, mean and variance
+  (`repar = 2` dispersion is `1 / (1 + a + b)`, not a coefficient of
+  variation), the interval directions, the border handling that replaces
+  the dissertation’s edge transformation, the residual types, estimation
+  (chain-rule gradient and Hessian) and a “Fit diagnostics” section
+  explaining each warning.
+- `ncuts` is documented as `K`, the maximum score (scale `0..K`, `K + 1`
+  categories); a scale that starts at 1 (Likert 1-5) is shifted to 0-4.
+- New help pages for [`summary()`](https://rdrr.io/r/base/summary.html),
+  [`confint()`](https://rdrr.io/r/stats/confint.html) and
+  [`anova()`](https://rdrr.io/r/stats/anova.html) (Wald, LRT and the
+  chi-bar-square mixture);
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  documents the integration methods, the gradient and the boundary
+  diagnostics.
+- New examples, runnable without `\donttest`: a synthetic NRS-11 study
+  (times x groups), the four
+  [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  modes and a Likert item, one simulation per parameterisation, random
+  intercept and slope with
+  [`anova()`](https://rdrr.io/r/stats/anova.html), bootstrap with a
+  factor, cross-validation, marginal effects.
+- Vignettes rewritten where they disagreed with the code: likelihood,
+  directions, parameterisations, diagnostics, residuals (brs-intro); a
+  Monte Carlo study in the dissertation’s design
+  (brs-advanced-workflows); ICC, SD/Corr intervals and the
+  chi-bar-square test (brs-mm); marginal effects and score probabilities
+  (brs-analyst-tools). The intro vignette uses a percentile bootstrap
+  instead of BCa, which lowers the build time.
+- README: removed the claims of an analytical gradient, of new
+  methodology (the parameterisation is Bayer, 2011) and of exactly
+  normal quantile residuals; `ncuts` wording fixed; references added.
+  The package page attributes the M1/M2/M3 comparison to the
+  dissertation’s study.
+- [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  accepts a bound or score column that is entirely `NA` (logical in R)
+  as numeric `NA` instead of stopping.
+
 ## betaregscale 2.7.4
 
 CRAN release: 2026-08-23

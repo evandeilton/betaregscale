@@ -60,21 +60,25 @@ sample size.
 ### Average marginal effects (AME)
 
 [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)
-computes AME by finite differences:
+computes AME by central finite differences:
 
 ``` math
-\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h)-\hat g_i(x_{ij})}{h},
+\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h_j)-\hat g_i(x_{ij}-h_j)}{2h_j},
+\qquad h_j=h\max\{\mathrm{sd}(x_j),1\},
 ```
 
-with $`\hat g_i`$ on the requested prediction scale (`response` or
-`link`). For binary covariates $`x_j\in\{0,1\}`$, it uses the discrete
-contrast $`\hat g(x_j=1)-\hat g(x_j=0)`$.
+with $`\hat g_i`$ on the requested prediction scale (`response`, the
+mean $`E[Y]`$, or `link`) and $`h=10^{-5}`$ by default. Only numeric
+covariates are used; code a factor as 0/1 dummies to get its contrast.
+For binary covariates $`x_j\in\{0,1\}`$, it uses the discrete contrast
+$`\hat g(x_j=1)-\hat g(x_j=0)`$.
 
 ### Score-scale probabilities
 
-For integer scores $`s\in\{0,\dots,K\}`$,
+For integer scores $`s\in\{0,\dots,K\}`$ ($`K`$ = `ncuts`, the maximum
+score),
 [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
-computes:
+computes, under `interval = "mid"`:
 
 ``` math
 P(Y=s)=
@@ -85,8 +89,12 @@ F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), & 1\le s\le K-1.
 \end{cases}
 ```
 
-These probabilities are directly aligned with interval geometry on the
-original instrument scale.
+Under `"right"` and `"left"` the cells are $`[s,s+1]/(K+1)`$, so
+$`P(Y=s)=F((s+1)/(K+1))-F(s/(K+1))`$ with $`F(0)=0`$ and $`F(1)=1`$. The
+probabilities sum to 1 whenever the cells partition $`[0,1]`$ (always
+for `"right"`/`"left"`, and for `"mid"` with `lim = 0.5`). They are
+directly aligned with interval geometry on the original instrument
+scale.
 
 ### Cross-validation log score
 

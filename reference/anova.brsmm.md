@@ -1,6 +1,14 @@
-# Model comparison by analysis of deviance (LR test) for \`brsmm\`
+# Likelihood-ratio comparison involving mixed models
 
-Model comparison by analysis of deviance (LR test) for \`brsmm\`
+[`anova()`](https://rdrr.io/r/stats/anova.html) for `"brsmm"` fits: the
+same table as
+[`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md),
+with the chi-bar-square mixture \\\frac12\chi^2\_{df-1} +
+\frac12\chi^2\_{df}\\ for rows that add one random-effect term, whose
+variance is on the boundary under \\H_0\\. This is the test to use for a
+variance component: the Wald statistic of its log standard deviation is
+not meaningful (see
+[`summary.brsmm`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)).
 
 ## Usage
 
@@ -17,57 +25,48 @@ anova(object, ..., test = c("Chisq", "none"))
 
 - ...:
 
-  Additional fitted `"brsmm"` and/or `"brs"` models to compare.
+  Further fitted `"brsmm"` and/or `"brs"` models.
 
 - test:
 
-  Character; `"Chisq"` (default) or `"none"`.
+  `"Chisq"` (default) or `"none"`.
 
 ## Value
 
-An object of class `"anova"` and `"data.frame"` with model-wise
-log-likelihood, information criteria, and (optionally) LR test columns.
+An object of class `"anova"`; see
+[`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md).
 
 ## References
 
-Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
-Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
-https://hdl.handle.net/1884/86624.
-
-Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
-modelling rates and proportions. *Journal of Applied Statistics*,
-**31**(7), 799–815.
-[doi:10.1080/0266476042000214501](https://doi.org/10.1080/0266476042000214501)
+Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+likelihood estimators and likelihood ratio tests under nonstandard
+conditions. *Journal of the American Statistical Association*,
+**82**(398), 605–610.
+[doi:10.1080/01621459.1987.10478472](https://doi.org/10.1080/01621459.1987.10478472)
 
 ## See also
 
+[`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md),
 [`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md),
-[`logLik.brsmm`](https://evandeilton.github.io/betaregscale/reference/logLik.brsmm.md),
-[`AIC.brsmm`](https://evandeilton.github.io/betaregscale/reference/AIC.brsmm.md),
-[`BIC.brsmm`](https://evandeilton.github.io/betaregscale/reference/BIC.brsmm.md)
+[`summary.brsmm`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)
 
 ## Examples
 
 ``` r
-# \donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10),
-  id = factor(rep(1:4, each = 5))
-)
-prep <- brs_prep(dat, ncuts = 100)
-#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
-m1 <- brs(y ~ 1, data = prep)
-m2 <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
-anova(m1, m2)
+set.seed(11)
+g <- 20
+d <- data.frame(id = factor(rep(1:g, each = 8)), x = runif(8 * g))
+shp <- brs_repar(plogis(-0.4 + d$x + rnorm(g, sd = 0.6)[d$id]), phi = 0.25)
+d$y <- round(10 * rbeta(nrow(d), shp$shape1, shp$shape2))
+m0 <- brs(y ~ x, data = d, ncuts = 10)
+m1 <- brsmm(y ~ x, random = ~ 1 | id, data = d, ncuts = 10)
+anova(m0, m1)  # Pr(>Chisq) = half the chi2(1) tail
 #> Likelihood-ratio comparison of brs/brsmm models
 #> Rows M2: one added random effect (variance on the boundary); Pr(>Chisq) from the chi-bar-square mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df).
 #> 
-#>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)
-#> M1 (brs)    2 -92.735 189.47 191.46                         
-#> M2 (brsmm)  4 -92.183 192.37 196.35 1.1029      2     0.4349
-# }
+#>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)    
+#> M1 (brs)    3 -370.88 747.76 756.99                             
+#> M2 (brsmm)  4 -363.94 735.88 748.18 13.883      1  9.725e-05 ***
+#> ---
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 ```

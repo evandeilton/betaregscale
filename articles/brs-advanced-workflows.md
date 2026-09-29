@@ -72,6 +72,14 @@ kbl10(
 |:---:|:-----:|:----:|:-----:|:--------:|
 | 150 |   0   |  9   |  10   |   131    |
 
+[`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+coarsens each draw exactly as the likelihood assumes, so the censoring
+is non-informative. Its `delta` argument can force one type on every
+row; `delta = 1` or `2` censors each row at the cell of its own score,
+which is informative censoring with no finite MLE, and
+[`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+warns. Leave `delta = NULL` for studies of the estimator.
+
 ## 2) Fixed-effects candidate set and model ranking
 
 ``` r
@@ -159,11 +167,16 @@ kbl10(ame_mu)
 |    x1    | 0.1366  |  0.0221   |  0.0964  |  0.176   | mean  | response | 150 |
 |    x2    | -0.0770 |  0.0248   | -0.1196  |  -0.020  | mean  | response | 150 |
 
-[`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
-also offers `ci_type = "bca"`, demonstrated in the introductory
-vignette. Bear in mind that BCa derives its acceleration constant from a
-leave-one-out jackknife and therefore costs `R + n` model fits instead
-of `R`; see
+Each bootstrap replicate draws a new response at the fitted shapes and
+refits the original formula on a copy of the data, so factors,
+transformations and prepared data keep their structure; each row keeps
+its observation mechanism (exact, score, or analyst thresholds, which
+are treated as fixed and non-informative). Refits start from the fitted
+estimate and use the compiled Hessian. Failed replicates are counted in
+the printed header. `ci_type = "bca"` is also available: with parametric
+resampling and a leave-one-out jackknife it is an approximation (a
+warning says so once per session) and costs `R + n` fits instead of `R`;
+see
 [`?brs_bootstrap`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md).
 
 ``` r
@@ -277,14 +290,17 @@ fit_ri <- brsmm(y ~ x1 + x2, random = ~ 1 | id, data = dmm, repar = 2)
 fit_rs <- brsmm(y ~ x1 + x2, random = ~ 1 + x1 | id, data = dmm, repar = 2)
 
 tab_lr <- anova(fit_brs, fit_ri, fit_rs, test = "Chisq")
-kbl10(data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL))
+tab_lr
+#> Likelihood-ratio comparison of brs/brsmm models
+#> Rows M2, M3: one added random effect (variance on the boundary); Pr(>Chisq) from the chi-bar-square mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df).
+#> 
+#>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)   
+#> M1 (brs)    4 -1057.0 2122.1 2136.1                            
+#> M2 (brsmm)  5 -1054.1 2118.2 2135.8 5.8355      1   0.007853 **
+#> M3 (brsmm)  7 -1052.2 2118.3 2143.0 3.8718      2   0.096701 . 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
-
-|   model    | Df  |  logLik   |   AIC    |   BIC    | Chisq  | Chi.Df | Pr..Chisq. |
-|:----------:|:---:|:---------:|:--------:|:--------:|:------:|:------:|:----------:|
-|  M1 (brs)  |  4  | -1057.029 | 2122.058 | 2136.144 |   NA   |   NA   |     NA     |
-| M2 (brsmm) |  5  | -1054.111 | 2118.223 | 2135.830 | 5.8355 |   1    |   0.0079   |
-| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8718 |   2    |   0.0967   |
 
 ### 6.3 Model choice by LLR/LRT (ANOVA)
 
@@ -300,11 +316,19 @@ In nested comparisons, the test statistic is:
 LR=2\{\ell(\hat\theta_{\text{complex}})-\ell(\hat\theta_{\text{simple}})\}
 ```
 
-For the first step (`M0 -> M1`), the null hypothesis involves variance
-components located at the boundary of the parameter space
-($`\sigma_b^2=0`$); therefore, p-values should be interpreted with
-caution. For the `M1 -> M2` step, the chi-square approximation is robust
-and often used as a practical decision aid.
+Both steps add one random-effect term whose variance is on the boundary
+of the parameter space under $`H_0`$ ($`\sigma^2=0`$). The reference
+distribution is then the mixture
+$`\frac12\chi^2_{d-1}+\frac12\chi^2_{d}`$ (Self and Liang, 1987; Stram
+and Lee, 1994): $`\frac12\chi^2_0+\frac12\chi^2_1`$ for `M0 -> M1` and
+$`\frac12\chi^2_1+\frac12\chi^2_2`$ for `M1 -> M2`, where the slope adds
+a variance and a covariance.
+[`anova()`](https://rdrr.io/r/stats/anova.html) uses it for such rows
+and says so in its heading; the naive $`\chi^2_d`$ p-value would be too
+large. A term that adds almost nothing to the likelihood is also flagged
+by
+[`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+(“Variance component at the boundary”).
 
 ``` r
 
@@ -388,7 +412,72 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 
 ![](brs-advanced-workflows_files/figure-html/ranef-plots-1.png)
 
-## 8) Practical decision checklist
+## 8) A Monte Carlo study (design of Lopes, 2023, ch. 3)
+
+A simulation study is a loop of
+[`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+and
+[`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+over a fixed design. The code below mirrors the dissertation’s design
+with a smaller grid: repar 2 with logit links, `interval = "mid"`, two
+scale lengths ($`K=10`$ and $`K=100`$), two sample sizes and three
+dispersion levels, 200 replicates per cell. It takes under a minute, so
+it is not run here.
+
+``` r
+
+R <- 200L
+beta <- c(0.5, 0.2, -0.7)
+grid <- expand.grid(sigma = c(0.08, 0.2, 0.4), n = c(100L, 500L), K = c(10L, 100L))
+one_cell <- function(sigma, n, K) {
+  set.seed(1000 + n + K + round(100 * sigma))
+  d <- data.frame(x1 = rnorm(n), x2 = rbinom(n, 1, 0.5))   # fixed design
+  truth <- c(beta, qlogis(sigma))
+  est <- se <- matrix(NA_real_, R, 4)
+  for (r in seq_len(R)) {
+    s <- brs_sim(~ x1 + x2, data = d, beta = beta, phi = qlogis(sigma), ncuts = K)
+    f <- tryCatch(brs(y ~ x1 + x2, data = s), error = function(e) NULL)
+    if (is.null(f) || f$convergence != 0L) next
+    est[r, ] <- coef(f)
+    se[r, ] <- sqrt(diag(vcov(f)))
+  }
+  ok <- stats::complete.cases(est, se)
+  err <- est[ok, ] - rep(truth, each = sum(ok))
+  data.frame(sigma, n, K, par = c("b0", "b1", "b2", "logit_sigma"),
+             bias = colMeans(err), rmse = sqrt(colMeans(err^2)),
+             cover = colMeans(abs(err) <= qnorm(0.975) * se[ok, ]))
+}
+res <- do.call(rbind, Map(one_cell, grid$sigma, grid$n, grid$K))
+```
+
+Results for the slope $`\beta_1=0.2`$ and for $`\mathrm{logit}(\sigma)`$
+(bias, root mean squared error and coverage of the 95% Wald interval,
+with the default compiled Hessian; `hessian_method = "numDeriv"` gives
+the same coverages):
+
+| $`K`$ | $`n`$ | $`\sigma`$ | $`\beta_1`$ bias | RMSE | cover | $`\mathrm{logit}\,\sigma`$ bias | RMSE | cover |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 10 | 100 | 0.08 | 0.003 | 0.057 | 0.925 | -0.047 | 0.160 | 0.920 |
+| 10 | 100 | 0.20 | 0.009 | 0.092 | 0.925 | -0.038 | 0.146 | 0.945 |
+| 10 | 100 | 0.40 | -0.011 | 0.127 | 0.945 | -0.024 | 0.141 | 0.945 |
+| 10 | 500 | 0.08 | 0.000 | 0.029 | 0.920 | -0.013 | 0.067 | 0.930 |
+| 10 | 500 | 0.20 | 0.005 | 0.039 | 0.975 | -0.004 | 0.061 | 0.945 |
+| 10 | 500 | 0.40 | -0.003 | 0.060 | 0.945 | -0.013 | 0.059 | 0.945 |
+| 100 | 100 | 0.08 | -0.003 | 0.055 | 0.955 | -0.047 | 0.132 | 0.965 |
+| 100 | 100 | 0.20 | 0.006 | 0.097 | 0.930 | -0.043 | 0.138 | 0.935 |
+| 100 | 100 | 0.40 | 0.014 | 0.113 | 0.940 | -0.046 | 0.131 | 0.935 |
+| 100 | 500 | 0.08 | 0.002 | 0.031 | 0.920 | -0.012 | 0.064 | 0.930 |
+| 100 | 500 | 0.20 | 0.001 | 0.040 | 0.945 | -0.003 | 0.059 | 0.955 |
+| 100 | 500 | 0.40 | 0.008 | 0.063 | 0.930 | -0.004 | 0.057 | 0.940 |
+
+With 200 replicates the Monte Carlo standard error of a coverage near
+0.95 is about 0.015. The slopes are unbiased at both scale lengths; the
+dispersion is slightly underestimated at $`n=100`$ (about $`-0.04`$ on
+the logit scale, a third of its RMSE) and the bias vanishes at
+$`n=500`$. A coarse scale ($`K=10`$) costs little precision relative to
+$`K=100`$.
+
+## 9) Practical decision checklist
 
 - Start with `brs` candidates (`link`, `repar`) and rank them using
   [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md).
@@ -402,8 +491,24 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
 - For random slopes, always inspect
   [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
   and the associated random-effects plots.
+- Read the one-line warnings of
+  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)/[`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  (gradient, Hessian, clamps, variance at the boundary) before any Wald
+  statement; `fit$diagnostics` keeps the numbers.
 
 ## References
+
+Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
+Master’s dissertation, Universidade Federal do Paraná, Curitiba.
+<https://hdl.handle.net/1884/86624>.
+
+Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+likelihood estimators and likelihood ratio tests under nonstandard
+conditions. *Journal of the American Statistical Association*, 82(398),
+605-610.
+
+Stram, D. O., and Lee, J. W. (1994). Variance components testing in the
+longitudinal mixed effects model. *Biometrics*, 50(4), 1171-1177.
 
 Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
 modelling rates and proportions. *Journal of Applied Statistics*, 31(7),

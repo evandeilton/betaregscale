@@ -1,11 +1,12 @@
 # Fit a mixed-effects beta interval regression model
 
-Fits a beta interval-censored mixed model with Gaussian random
-intercepts/slopes using marginal maximum likelihood. The implementation
-supports random-effects formulas such as `~ 1 | group` and
-`~ 1 + x | group`, and offers three integration methods for the random
-effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
-(AGHQ), and Quasi-Monte Carlo (QMC).
+Beta interval regression
+([`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md))
+with Gaussian random effects in the linear predictor of the first
+parameter (the mean, or the shape \\p\\ under `repar = 0`), fitted by
+marginal maximum likelihood. `random = ~ 1 | id` gives a random
+intercept per group, `~ 1 + x | id` a random intercept and slope with a
+free correlation.
 
 ## Usage
 
@@ -34,141 +35,175 @@ brsmm(
 
 - formula:
 
-  Model formula. Supports one- or two-part formulas: `y ~ x1 + x2` or
-  `y ~ x1 + x2 | z1 + z2`.
+  Model formula: `y ~ x1 + x2` or `y ~ x1 + x2 | z1 + z2` (see
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 - random:
 
-  Random-effects specification of the form `~ terms | group`, e.g.
-  `~ 1 | id` or `~ 1 + x | id`.
+  Random-effects formula `~ terms | group`, e.g. `~ 1 | id` or
+  `~ 1 + x | id`.
 
 - data:
 
-  Data frame.
+  Data frame (raw scores, or the output of
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)).
 
-- link:
+- link, link_phi:
 
-  Link for the first parameter (the mean under `repar = 1, 2`; the shape
-  \\p\\ under `repar = 0`). `NULL` (default) selects the link implied by
-  `repar`; see the 'Reparameterizations and links' section of
-  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
-
-- link_phi:
-
-  Link for the second parameter; `NULL` (default) selects the link
-  implied by `repar`.
+  Links for the first and second parameter; `NULL` (default) selects
+  those implied by `repar` (see
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 - repar:
 
-  Beta reparameterization code (0, 1, 2); see
+  Parameterisation (0, 1 or 2); see
   [`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 - ncuts:
 
-  Number of categories on the original scale. `NULL` (default) uses
-  `attr(data, "ncuts")` from
+  Integer \\K\\: the maximum score (scale \\0, \ldots, K\\). `NULL`
+  (default) uses the value stored by
   [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
   or 100; an explicit different value is ignored with a warning.
 
 - lim:
 
-  Half-width of the score cell in \\(0, 0.5\]\\ (`interval = "mid"`
-  only). `NULL` (default) uses `attr(data, "lim")`, or 0.5; same rule as
-  `ncuts`.
+  Half-width of the cell in \\(0, 0.5\]\\ (`interval = "mid"` only);
+  `NULL` uses the stored value, or 0.5.
 
 - int_method:
 
-  Integration method: `"laplace"` (default), `"aghq"`, or `"qmc"`. AGHQ
-  and QMC centre the nodes at each group's mode and scale them by the
-  symmetric root of its curvature. With two or more random effects QMC
-  (a deterministic importance sampler on a Halton grid) underestimates
-  the log-likelihood: at 1024 points the error averaged -0.05 over 30
-  two-effect data sets. Prefer `"aghq"` when there are at most three
-  random effects.
+  `"laplace"` (default), `"aghq"` or `"qmc"`; see Details.
 
 - n_points:
 
-  Number of quadrature points for `int_method="aghq"`. Ignored for other
-  methods. Default is 11.
+  Nodes per dimension for `"aghq"` (default 11).
 
 - qmc_points:
 
-  Number of QMC points for `int_method="qmc"`. Default is 1024.
+  Halton points for `"qmc"` (default 1024).
 
 - start:
 
-  Optional numeric vector of starting values (`beta`, `gamma`, and
-  packed lower-Cholesky random parameters).
+  Optional starting vector: fixed effects, precision coefficients, then
+  the packed Cholesky parameters.
 
 - method:
 
-  Optimizer passed to [`optim`](https://rdrr.io/r/stats/optim.html).
+  `"BFGS"` (default) or `"L-BFGS-B"`.
 
 - hessian_method:
 
-  `"cpp"` (default), `"numDeriv"` or `"optim"`. `"cpp"` differentiates
-  the compiled gradient of the marginal log-likelihood (Richardson
-  central differences). That gradient, also passed to
-  [`optim`](https://rdrr.io/r/stats/optim.html), is the derivative of
-  the chosen approximation by the chain rule and the implicit-function
-  theorem at the group modes, with per-observation derivatives in the
-  linear predictor computed by central differences.
+  `"cpp"` (default; Richardson differences of the compiled gradient),
+  `"numDeriv"` or `"optim"`.
 
 - control:
 
-  Control list for [`optim`](https://rdrr.io/r/stats/optim.html); its
-  entries are merged into the default `list(maxit = 2000L)`, so
-  `control = list(reltol = 1e-10)` keeps `maxit = 2000`.
+  Control list for [`optim`](https://rdrr.io/r/stats/optim.html), merged
+  into the default `list(maxit = 2000L)`.
 
 - interval:
 
-  Direction of the uncertainty interval, `"mid"`, `"right"` or `"left"`
-  (see
-  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)).
-  `NULL` (default) uses `attr(data, "interval")`, or `"mid"`; same rule
-  as `ncuts`.
+  `"mid"`, `"right"` or `"left"` (see
+  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md));
+  `NULL` uses the stored value, or `"mid"`.
 
 ## Value
 
-An object of class `"brsmm"`. `diagnostics` holds the post-fit checks of
-[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
-(compiled gradient and the fit's Hessian, clamps) plus `re_boundary` and
-`re_gain`, the log-likelihood gain of each random-effect term over its
-removal, and `inner` (groups without a positive-definite mode, largest
-\\\|\nabla h\|\\ at the modes). A term with log SD below -6 or a gain
-below \\10^{-3}\\ is reported as a variance component on the boundary
-(test it with
-[`anova.brsmm`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md),
-chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
-design matrices are an error.
+An object of class `"brsmm"` with the components of a `"brs"` fit
+(`par`, `coefficients` with a `random` part, `value`, `hessian`,
+`diagnostics`, ...) and `random` (group variable, levels, conditional
+modes `mode_b`, `D`, `L` and the SDs `sd_b`), `ngroups`, `int_method`.
 
 ## Details
 
-The conditional contribution for each observation follows the same mixed
-censoring likelihood used by
-[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md):
+For group \\g\\ with observations \\i\\, the model is \$\$g_1(\mu\_{gi})
+= x\_{gi}^\top \beta + x\_{r,gi}^\top b_g, \qquad g_2(\phi\_{gi}) =
+z\_{gi}^\top \gamma, \qquad b_g \sim N(0, D),\$\$ with the censored
+contributions of
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
+The marginal log-likelihood is \\\sum_g \log \int \exp\\h_g(b)\\\\ db\\,
+where \\h_g(b) = \sum_i \ell\_{gi}(b) + \log \varphi(b; 0, D)\\. The
+integral is computed around the mode \\\hat b_g\\ of \\h_g\\, with \\H_g
+= -\partial^2 h_g / \partial b\\ \partial b^\top\\ there:
 
-1.  \\\delta=0\\: exact contribution via beta density,
+- `"laplace"`:
 
-2.  \\\delta=1\\: left-censored contribution via beta CDF,
+  \\h_g(\hat b_g) + \frac{q}{2}\log(2\pi) - \frac12 \log \|H_g\|\\;
+  fast, accurate when groups are not tiny.
 
-3.  \\\delta=2\\: right-censored contribution via survival CDF,
+- `"aghq"`:
 
-4.  \\\delta=3\\: interval contribution via CDF difference.
+  adaptive Gauss-Hermite quadrature: a product grid of `n_points` nodes
+  per dimension at \\\hat b_g + \sqrt{2}\\ H_g^{-1/2} z\\, with the
+  symmetric square root \\H_g^{-1/2}\\ (`n_points`\\^q\\ nodes, at most
+  500000).
 
-For group \\i\\, the random-effects vector \\\mathbf{b}\_i \sim
-N(\mathbf{0}, D)\\ is integrated out numerically.
+- `"qmc"`:
 
-- `"laplace"`: Uses a second-order Laplace approximation at the
-  conditional mode. Fast and generally accurate for \\n_i\\ large.
+  importance sampling from \\N(\hat b_g, H_g^{-1})\\ (nodes \\\hat b_g +
+  H_g^{-1/2} z\\) on `qmc_points` Halton points. It is deterministic
+  and, with two or more random effects, underestimates the
+  log-likelihood (about \\-0.05\\ at 1024 points in the package's
+  two-effect checks); prefer `"aghq"` for up to three random effects.
 
-- `"aghq"`: Adaptive Gauss-Hermite Quadrature. Uses `n_points`
-  quadrature nodes centered and scaled by the conditional mode and
-  curvature. More accurate than Laplace, especially for small \\n_i\\.
+The inner mode is found by a Levenberg–Marquardt Newton method,
+warm-started from the modes of the previous evaluation (the cache is
+cleared at the start of each fit). A group whose curvature is not
+positive definite at its mode adds the penalty value \\-10^6\\ instead
+of a silently regularised term, and `brsmm()` warns.
 
-- `"qmc"`: Quasi-Monte Carlo integration using a Halton sequence. Uses
-  `qmc_points` evaluation points. Suitable for high-dimensional
-  integration (future proofing) or checking robustness.
+\\D = LL^\top\\ is parameterised by its lower Cholesky factor: the log
+of each diagonal entry and the off-diagonal entries as they are
+(`(re_chol_logsd)_` and `(re_chol)_` in
+[`coef()`](https://rdrr.io/r/stats/coef.html)).
+[`summary.brsmm`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md)
+reports the standard deviations and correlations with intervals;
+[`brsmm_re_study`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
+the intraclass correlation.
+
+## Estimation
+
+[`optim`](https://rdrr.io/r/stats/optim.html) maximises the marginal
+log-likelihood with its compiled gradient: the derivative of the chosen
+approximation by the chain rule on the linear predictor and the
+implicit-function theorem at the group modes (including the movement of
+the quadrature nodes), with per-observation derivatives by central
+differences. The Hessian for
+[`vcov()`](https://rdrr.io/r/stats/vcov.html) (`hessian_method = "cpp"`,
+the default) is a Richardson central difference of that gradient.
+Starting values: `start` when given; otherwise those of
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) for
+the fixed effects and \\\log\\ of the between-group SD of the cell
+centres (at least 0.1) for the random effects.
+
+## Diagnostics
+
+The checks of
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+('Fit diagnostics') apply, with the compiled gradient (a central
+difference with step \\10^{-3}\\ if it is not finite). In addition:
+
+- “Variance component at the boundary”:
+
+  A random-effect term has log SD below \\-6\\, or raises the
+  log-likelihood by less than \\10^{-3}\\ over the same fit with that SD
+  at zero. Its variance is essentially zero; the standard error of its
+  log SD is meaningless. Test the term with
+  [`anova.brsmm`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md)
+  (chi-bar-square mixture) and drop it if not needed. When the gain is
+  negative the message adds that SD \\\approx 0\\ has a higher
+  log-likelihood: `optim` stopped short of the maximum.
+
+- “group(s) have no positive-definite random-effect mode”:
+
+  Those groups contribute the penalty value; the fit is not reliable.
+  Simplify the random-effects structure or check the data of those
+  groups.
+
+`fit$diagnostics` stores `re_boundary`, `re_gain` and `inner` (number of
+such groups, largest gradient norm at the modes). Rank-deficient
+fixed-effect or random-effect design matrices are an error.
 
 ## References
 
@@ -181,43 +216,101 @@ modelling rates and proportions. *Journal of Applied Statistics*,
 **31**(7), 799–815.
 [doi:10.1080/0266476042000214501](https://doi.org/10.1080/0266476042000214501)
 
+Pinheiro, J. C., and Bates, D. M. (1995). Approximations to the
+log-likelihood function in the nonlinear mixed-effects model. *Journal
+of Computational and Graphical Statistics*, **4**(1), 12–35.
+[doi:10.1080/10618600.1995.10474663](https://doi.org/10.1080/10618600.1995.10474663)
+
+## See also
+
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md),
+[`summary.brsmm`](https://evandeilton.github.io/betaregscale/reference/summary.brsmm.md),
+[`anova.brsmm`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md),
+[`brsmm_re_study`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md),
+[`ranef.brsmm`](https://evandeilton.github.io/betaregscale/reference/ranef.brsmm.md),
+[`predict.brsmm`](https://evandeilton.github.io/betaregscale/reference/predict.brsmm.md)
+
 ## Examples
 
 ``` r
-# \donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10),
-  id = factor(rep(1:4, each = 5))
-)
-prep <- brs_prep(dat, ncuts = 100)
-#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
-fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
-fit_mm
+# Synthetic NRS-11 scores (0-10) of 40 patients at 6h, 12h and 24h;
+# intercepts and time slopes vary by patient. Simulated, not real data.
+set.seed(21)
+nrs <- expand.grid(id = 1:40, time = c("6h", "12h", "24h"))
+nrs$tc <- c(-1, 0, 1)[nrs$time]                 # centred time for the slope
+b0 <- rnorm(40, sd = 0.8)
+b1 <- rnorm(40, sd = 0.5)
+eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + b0[nrs$id] + b1[nrs$id] * nrs$tc
+shp <- brs_repar(mu = plogis(eta), phi = 0.2, repar = 2)
+nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+
+# Random intercept per patient (Laplace): SD with its interval, no z-test
+m1 <- brsmm(y ~ time, random = ~ 1 | id, data = nrs, ncuts = 10)
+summary(m1)
 #> 
 #> Call:
-#> brsmm(formula = y ~ x1, random = ~1 | id, data = prep)
+#> brsmm(formula = y ~ time, random = ~1 | id, data = nrs, ncuts = 10)
+#> 
+#> Randomized Quantile Residuals:
+#>     Min      1Q  Median      3Q     Max 
+#> -2.4305 -0.6884  0.0513  0.6250  2.3968 
 #> 
 #> Coefficients (mean model with logit link):
-#> (Intercept)          x1 
-#>      0.4213     -0.3374 
+#>             Estimate Std. Error z value Pr(>|z|)    
+#> (Intercept)  -1.1663     0.2094  -5.570 2.55e-08 ***
+#> time12h       0.7683     0.2472   3.108  0.00188 ** 
+#> time24h       0.3025     0.2515   1.203  0.22896    
+#> ---
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
 #> Phi coefficients (precision model with logit link):
-#> (Intercept) 
-#>     -0.5806 
+#>             Estimate Std. Error z value Pr(>|z|)    
+#> (Intercept)  -1.0747     0.1715  -6.266 3.71e-10 ***
+#> ---
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Random-effects parameters:
-#> logSD.(Intercept)|id 
-#>              -0.6275 
-#> 
-#> Random SD: 0.5339 
+#> Random effects (SD and Corr; 95% Wald CI on the log / atanh scale; no tests, see anova()):
+#>                Estimate Lower  Upper
+#> SD (Intercept)   0.5607 0.315 0.9983
 #> ---
 #> Mixed beta interval model (Laplace)
-#> Observations: 20  | Groups: 4 
-#> Log-likelihood: -92.1831 
-#> Convergence code: 0 
-# }
+#> Observations: 120  | Groups: 40 
+#> Log-likelihood: -262.0285 on 5 Df | AIC: 534.0570 | BIC: 547.9945 
+#> Pseudo R-squared: 0.0669 
+#> Number of iterations: 28 (BFGS) 
+#> Censoring: 96 interval | 22 left | 2 right 
+#> 
+
+# Random intercept and slope: SDs and their correlation
+m2 <- brsmm(y ~ time, random = ~ 1 + tc | id, data = nrs, ncuts = 10)
+summary(m2)$varcorr
+#>                  term type  estimate      lower     upper se_transformed
+#> 1      SD (Intercept)   sd 0.6328837  0.3894570 1.0284620      0.2477255
+#> 2               SD tc   sd 0.5474364  0.2490143 1.2034916      0.4019135
+#> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083615 0.9748538      0.6672098
+head(ranef(m2))
+#>   (Intercept)         tc
+#> 1   0.3540762  0.1152133
+#> 2   0.1124897 -0.1982327
+#> 3   1.1300445  0.6532920
+#> 4  -0.2328539 -0.1960478
+#> 5   0.9638750  0.8034316
+#> 6   0.1412063  0.1006265
+
+# Is the slope needed? One added random term: the p-value uses the
+# mixture 1/2 chi2(1) + 1/2 chi2(2) (see the printed heading)
+anova(m1, m2)
+#> Likelihood-ratio comparison of brs/brsmm models
+#> Rows M2: one added random effect (variance on the boundary); Pr(>Chisq) from the chi-bar-square mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df).
+#> 
+#>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)  
+#> M1 (brsmm)  5 -262.03 534.06 547.99                           
+#> M2 (brsmm)  7 -259.15 532.30 551.81 5.7547      2    0.03636 *
+#> ---
+#> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# A known patient uses its conditional mode; a new one gets b = 0
+nd <- data.frame(time = "12h", tc = 0, id = c(1, 999))
+predict(m2, newdata = nd)
+#> [1] 0.4840601 0.3970295
 ```

@@ -40,7 +40,7 @@ compute_start(
 
 - ncuts:
 
-  Number of scale categories.
+  Maximum score \\K\\ (scale \\0, \ldots, K\\).
 
 - lim:
 

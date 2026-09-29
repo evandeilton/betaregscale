@@ -96,7 +96,7 @@ the observation is treated as interval-censored in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0.55</mn><mo>,</mo><mn>0.65</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0.55,0.65]</annotation></semantics></math>.
 The package uses the beta distribution to model such data, building a
 complete likelihood that supports mixed censoring types within the same
-dataset.</p>
+dataset (Lopes, 2023).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -109,7 +109,84 @@ dataset.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="censoring-types">Censoring types<a class="anchor" aria-label="anchor" href="#censoring-types"></a>
+<h2 id="the-score-scale-and-ncuts">The score scale and <code>ncuts</code><a class="anchor" aria-label="anchor" href="#the-score-scale-and-ncuts"></a>
+</h2>
+<p><code>ncuts</code> is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>,
+the <strong>maximum score</strong>. Scores run over
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">0, 1, \ldots, K</annotation></semantics></math>,
+so the scale has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K + 1</annotation></semantics></math>
+categories: an NRS-11 pain scale (0 to 10) has <code>ncuts = 10</code>,
+a 0 to 100 scale <code>ncuts = 100</code>. The lowest score is the left
+border and the highest the right border of the scale.</p>
+<p>A scale that starts at 1 must be shifted to start at 0. A Likert item
+1 to 5 becomes 0 to 4, with <code>ncuts = 4</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">likert</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="../reference/brs_check.html">brs_check</a></span><span class="op">(</span><span class="va">likert</span> <span class="op">-</span> <span class="fl">1</span>, ncuts <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="center">left</th>
+<th align="center">right</th>
+<th align="center">yt</th>
+<th align="center">y</th>
+<th align="center">delta</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.000</td>
+<td align="center">0.125</td>
+<td align="center">0.00</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+<tr class="even">
+<td align="center">0.125</td>
+<td align="center">0.375</td>
+<td align="center">0.25</td>
+<td align="center">1</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">0.375</td>
+<td align="center">0.625</td>
+<td align="center">0.50</td>
+<td align="center">2</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">0.875</td>
+<td align="center">1.000</td>
+<td align="center">1.00</td>
+<td align="center">4</td>
+<td align="center">2</td>
+</tr>
+<tr class="odd">
+<td align="center">0.625</td>
+<td align="center">0.875</td>
+<td align="center">0.75</td>
+<td align="center">3</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">0.000</td>
+<td align="center">0.125</td>
+<td align="center">0.00</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+</tbody>
+</table>
+<p>Without the shift, category 1 would be read as an interior score and
+the lower border of the scale would be a category that nobody can
+choose:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_check.html">brs_check</a></span><span class="op">(</span><span class="va">likert</span>, ncuts <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">[</span>, <span class="st">"delta"</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] 3 3 3 2 3 3</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="likelihood-and-censoring-types">Likelihood and censoring types<a class="anchor" aria-label="anchor" href="#likelihood-and-censoring-types"></a>
 </h2>
 <p>The complete likelihood supports four censoring types, automatically
 classified by <code><a href="../reference/brs_check.html">brs_check()</a></code>:</p>
@@ -156,21 +233,85 @@ are the beta shape parameters derived from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_i</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϕ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\phi_i</annotation></semantics></math>
-via the chosen reparameterization.</p>
+via the chosen reparameterization. The likelihood is the product</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo>,</mo><mi>γ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mspace width="0.167em"></mspace><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">}</mo><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">{</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">}</mo><mrow><mi>I</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">L(\beta,\gamma)=\prod_{i=1}^n f(y_i)^{I(\delta_i=0)}\,F(u_i)^{I(\delta_i=1)}
+\,\{1-F(l_i)\}^{I(\delta_i=2)}\,\{F(u_i)-F(l_i)\}^{I(\delta_i=3)}.</annotation></semantics></math></p>
+<p>This is the complete likelihood of Lopes (2023). The table of
+censoring types in the dissertation swaps the labels
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\delta=1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta=2</annotation></semantics></math>;
+the package follows its equation. The cells are fixed by the scale, not
+by the observed value, so the censoring is non-informative.</p>
 </div>
 <div class="section level2">
 <h2 id="interval-construction">Interval construction<a class="anchor" aria-label="anchor" href="#interval-construction"></a>
 </h2>
-<p>Scale observations are mapped to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>
-with midpoint uncertainty intervals:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>=</mo><mi>y</mi><mi>/</mi><mi>K</mi><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">interval </mtext><mspace width="0.333em"></mspace></mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>y</mi><mi>t</mi></msub><mo>−</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo>,</mo><msub><mi>y</mi><mi>t</mi></msub><mo>+</mo><mi>h</mi><mi>/</mi><mi>K</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">y_t=y/K,\quad\text{interval }[y_t-h/K,y_t+h/K]</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
-is the number of scale categories (<code>ncuts</code>) and
+<p>A score
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+is mapped to a cell of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>.
+The direction of the uncertainty interval is set by
+<code>interval</code> (the cases
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>l</mi><annotation encoding="application/x-tex">l</annotation></semantics></math>
+of Lopes, 2023):</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left"><code>interval</code></th>
+<th align="left">cell of score
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+</th>
+<th align="left">latent score of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>y</mi><mo>*</mo></msup><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y^*\in(0,1)</annotation></semantics></math>
+</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">
+<code>"mid"</code> (default)</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mo>−</mo><mi>h</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>s</mi><mo>+</mo><mi>h</mi><mo stretchy="false" form="postfix">]</mo><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">[s-h,\,s+h]/K</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><msup><mi>y</mi><mo>*</mo></msup></mrow><annotation encoding="application/x-tex">Ky^*</annotation></semantics></math></td>
+</tr>
+<tr class="even">
+<td align="left"><code>"right"</code></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>s</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">[s,\,s+1]/(K+1)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msup><mi>y</mi><mo>*</mo></msup></mrow><annotation encoding="application/x-tex">(K+1)y^*</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>"left"</code></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mo>,</mo><mspace width="0.167em"></mspace><mi>s</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">[s,\,s+1]/(K+1)</annotation></semantics></math></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msup><mi>y</mi><mo>*</mo></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">(K+1)y^*-1</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+is the maximum score (<code>ncuts</code>) and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
-is the half-width (<code>lim</code>, default <strong>0.5</strong>).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+the half-width (<code>lim</code>, default <strong>0.5</strong>, used by
+<code>"mid"</code> only). The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K+1</annotation></semantics></math>
+cells of <code>"right"</code> and <code>"left"</code> are equal and
+partition
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0,1]</annotation></semantics></math>;
+this normalisation is a package choice (the dissertation divides by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>).
+<code>"right"</code> and <code>"left"</code> give the same fit and
+differ only in <code>predict(type = "score")</code>. The three
+directions are different coarsening models, so <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>
+refuses to compare them.</p>
+<p>The borders need no special transformation: score 0 is left-censored
+and score
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+right-censored, and endpoints are only clamped to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><mo>,</mo><mn>1</mn><mo>−</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[10^{-5},1-10^{-5}]</annotation></semantics></math>
+as a numerical guard. The fit therefore does not depend on the sample
+size, unlike the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>y</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>R</mi><mo>+</mo><mn>1</mn><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">}</mo><mi>/</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">\{y(n-1)/R+1/2\}/n</annotation></semantics></math>
+transformation of Smithson and Verkuilen (2006).</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Illustrate brs_check with a 0-10 NRS scale</span></span>
 <span><span class="va">y_example</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">cr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_check.html">brs_check</a></span><span class="op">(</span><span class="va">y_example</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
@@ -229,7 +370,101 @@ is left-censored
 is right-censored
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\delta=2</annotation></semantics></math>),
 and all interior values are interval-censored
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\delta=3</annotation></semantics></math>).</p>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\delta=3</annotation></semantics></math>).
+The same scores with right-direction cells:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="../reference/brs_check.html">brs_check</a></span><span class="op">(</span><span class="va">y_example</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, interval <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="center">left</th>
+<th align="center">right</th>
+<th align="center">yt</th>
+<th align="center">y</th>
+<th align="center">delta</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.0000</td>
+<td align="center">0.0909</td>
+<td align="center">0.0455</td>
+<td align="center">0</td>
+<td align="center">1</td>
+</tr>
+<tr class="even">
+<td align="center">0.2727</td>
+<td align="center">0.3636</td>
+<td align="center">0.3182</td>
+<td align="center">3</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">0.4545</td>
+<td align="center">0.5455</td>
+<td align="center">0.5000</td>
+<td align="center">5</td>
+<td align="center">3</td>
+</tr>
+<tr class="even">
+<td align="center">0.6364</td>
+<td align="center">0.7273</td>
+<td align="center">0.6818</td>
+<td align="center">7</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">0.9091</td>
+<td align="center">1.0000</td>
+<td align="center">0.9545</td>
+<td align="center">10</td>
+<td align="center">2</td>
+</tr>
+</tbody>
+</table>
+<p>Values already in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,1)</annotation></semantics></math>
+are exact observations
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta=0</annotation></semantics></math>),
+one observation at a time. Input that mixes such values with scores
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\geq 1</annotation></semantics></math>
+is ambiguous and gives a warning:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="../reference/brs_check.html">brs_check</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: The response mixes values in (0, 1) with values &gt;= 1: values in (0, 1)</span></span>
+<span><span class="co">#&gt; are taken as exact (delta = 0), the others as scores on 0..ncuts. Rescale the</span></span>
+<span><span class="co">#&gt; data if the (0, 1) values are scores (half-point scores: use y * 2 and ncuts *</span></span>
+<span><span class="co">#&gt; 2).</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="center">left</th>
+<th align="center">right</th>
+<th align="center">yt</th>
+<th align="center">y</th>
+<th align="center">delta</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.30</td>
+<td align="center">0.30</td>
+<td align="center">0.3</td>
+<td align="center">0.3</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">0.45</td>
+<td align="center">0.55</td>
+<td align="center">0.5</td>
+<td align="center">5.0</td>
+<td align="center">3</td>
+</tr>
+<tr class="odd">
+<td align="center">0.95</td>
+<td align="center">1.00</td>
+<td align="center">1.0</td>
+<td align="center">10.0</td>
+<td align="center">2</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
 <h2 id="data-preparation-with-brs_prep">Data preparation with <code>brs_prep()</code><a class="anchor" aria-label="anchor" href="#data-preparation-with-brs_prep"></a>
@@ -243,7 +478,7 @@ and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <div class="section level3">
 <h3 id="mode-1-score-only-automatic">Mode 1: Score only (automatic)<a class="anchor" aria-label="anchor" href="#mode-1-score-only-automatic"></a>
 </h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Equivalent to brs_check - delta inferred from y</span></span>
 <span><span class="va">d1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span>, x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="../reference/brs_prep.html">brs_prep</a></span><span class="op">(</span><span class="va">d1</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -303,7 +538,7 @@ and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <div class="section level3">
 <h3 id="mode-2-score-explicit-censoring-indicator">Mode 2: Score + explicit censoring indicator<a class="anchor" aria-label="anchor" href="#mode-2-score-explicit-censoring-indicator"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Analyst specifies delta directly</span></span>
 <span><span class="va">d2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  y     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">0</span>, <span class="fl">99</span>, <span class="fl">50</span><span class="op">)</span>,</span>
@@ -360,8 +595,18 @@ and <code><a href="../reference/brs.html">brs()</a></code>.</p>
 <h3 id="mode-3-interval-endpoints-with-na-patterns">Mode 3: Interval endpoints with NA patterns<a class="anchor" aria-label="anchor" href="#mode-3-interval-endpoints-with-na-patterns"></a>
 </h3>
 <p>When the analyst provides <code>left</code> and/or <code>right</code>
-columns, censoring is inferred from the NA pattern:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+columns, censoring is inferred from the NA pattern. Bounds are on the
+latent score scale and must lie in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>0.5</mn><mo>,</mo><mi>K</mi><mo>+</mo><mn>0.5</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-0.5, K+0.5]</annotation></semantics></math>
+under <code>"mid"</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0,K+1]</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>1</mn><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-1,K]</annotation></semantics></math>
+under <code>"right"</code> and <code>"left"</code>). An interval that
+reaches 0 or 1 on the unit scale becomes left- or right-censored; one
+that reaches both covers the whole scale, carries no information and
+gives a warning.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  left  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
 <span>  right <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="cn">NA</span>, <span class="fl">45</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
@@ -420,8 +665,9 @@ columns, censoring is inferred from the NA pattern:</p>
 <p>When the analyst provides <code>y</code>, <code>left</code>, and
 <code>right</code> simultaneously, their endpoints are used directly
 (rescaled by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+under <code>"mid"</code>):</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  y     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">50</span>, <span class="fl">75</span><span class="op">)</span>,</span>
 <span>  left  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">48</span>, <span class="fl">73</span><span class="op">)</span>,</span>
@@ -464,7 +710,7 @@ columns, censoring is inferred from the NA pattern:</p>
 <p>Data processed by <code><a href="../reference/brs_prep.html">brs_prep()</a></code> is automatically detected
 by <code><a href="../reference/brs.html">brs()</a></code> - the internal <code><a href="../reference/brs_check.html">brs_check()</a></code> step is
 skipped:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
@@ -518,7 +764,7 @@ skipped:</p>
 </h3>
 <p>We simulate observations from a beta regression model with fixed
 dispersion, two covariates, and a logit link for the mean.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4255</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">250</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
@@ -629,7 +875,7 @@ with the interval
 <div class="section level3">
 <h3 id="fitting-the-model">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
 <span>  data     <span class="op">=</span> <span class="va">sim_fixed</span>,</span>
@@ -672,9 +918,86 @@ submodels, with Wald z-tests and
 based on the standard normal distribution.</p>
 </div>
 <div class="section level3">
+<h3 id="estimation-and-fit-diagnostics">Estimation and fit diagnostics<a class="anchor" aria-label="anchor" href="#estimation-and-fit-diagnostics"></a>
+</h3>
+<p><code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> (BFGS) maximises the log-likelihood, evaluated
+in C++. The gradient and, by default, the Hessian use the chain rule on
+the two linear predictors, with per-observation derivatives by
+Richardson central differences (<code>hessian_method = "cpp"</code>;
+<code>"numDeriv"</code> is also available). Standard errors come from
+the inverse of the negative Hessian; no generalised inverse is used.
+<code><a href="../reference/brs.html">brs()</a></code> also accepts <code>start</code> and
+<code>control</code> (merged into <code>list(maxit = 5000)</code>).</p>
+<p>After the fit, <code><a href="../reference/brs.html">brs()</a></code> checks the result and stores the
+numbers:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">$</span><span class="va">diagnostics</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grad_gain"</span>, <span class="st">"grad_step"</span>, <span class="st">"min_eig_scaled"</span>, <span class="st">"hessian_nd"</span>, <span class="st">"n_clamped"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 5</span></span>
+<span><span class="co">#&gt;  $ grad_gain     : num 3.06e-10</span></span>
+<span><span class="co">#&gt;  $ grad_step     : num 2.15e-05</span></span>
+<span><span class="co">#&gt;  $ min_eig_scaled: num 0.709</span></span>
+<span><span class="co">#&gt;  $ hessian_nd    : logi TRUE</span></span>
+<span><span class="co">#&gt;  $ n_clamped     : int 0</span></span></code></pre></div>
+<p>Each problem gives a one-line warning:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Warning</th>
+<th align="left">Meaning</th>
+<th align="left">What to do</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">model matrix is rank deficient (error)</td>
+<td align="left">aliased columns</td>
+<td align="left">remove the named columns</td>
+</tr>
+<tr class="even">
+<td align="left">model matrix is nearly collinear</td>
+<td align="left">condition number above
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^4</annotation></semantics></math>
+</td>
+<td align="left">drop, combine or centre the named columns</td>
+</tr>
+<tr class="odd">
+<td align="left">Gradient not ~0 at the estimate</td>
+<td align="left">a Newton step would still gain more than 0.01 in
+log-likelihood</td>
+<td align="left">refit with <code>method = "L-BFGS-B"</code>; rescale
+covariates whose scales differ widely (the message says so)</td>
+</tr>
+<tr class="even">
+<td align="left">Hessian near-singular or not negative definite</td>
+<td align="left">a direction is nearly flat (not identified, or
+covariates on very different scales)</td>
+<td align="left">
+<code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> gives <code>NA</code> where it
+cannot estimate; rescale, use LR tests or the bootstrap, simplify</td>
+</tr>
+<tr class="odd">
+<td align="left">observations on the clamp boundary</td>
+<td align="left">means or shapes at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><annotation encoding="application/x-tex">10^{-5}</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">1-10^{-5}</annotation></semantics></math>,
+e.g. a group entirely at one border</td>
+<td align="left">merge sparse groups or drop the separating
+covariate</td>
+</tr>
+</tbody>
+</table>
+<p>The classic case of the last two is a data set where every
+observation is censored on the same side: the likelihood has no finite
+maximum.</p>
+</div>
+<div class="section level3">
 <h3 id="goodness-of-fit">Goodness of fit<a class="anchor" aria-label="anchor" href="#goodness-of-fit"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="../reference/brs_gof.html">brs_gof</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -696,7 +1019,7 @@ based on the standard normal distribution.</p>
 </h3>
 <p>The package supports several link functions for the mean submodel. We
 can compare them using information criteria:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"probit"</span>, <span class="st">"cauchit"</span>, <span class="st">"cloglog"</span><span class="op">)</span></span>
 <span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">links</span>, <span class="va">links</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim_fixed</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -833,7 +1156,7 @@ can compare them using information criteria:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
@@ -881,21 +1204,36 @@ can compare them using information criteria:</p>
 <div class="section level3">
 <h3 id="residual-diagnostics">Residual diagnostics<a class="anchor" aria-label="anchor" href="#residual-diagnostics"></a>
 </h3>
+<p><code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> offers several types. Randomized quantile
+residuals (<code>type = "rqr"</code>, Dunn and Smyth, 1996) draw
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>u</mi><mi>i</mi></msub><annotation encoding="application/x-tex">u_i</annotation></semantics></math>
+uniformly on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(F(l_i),F(u_i))</annotation></semantics></math>
+(or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0,F(u_i))</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(F(l_i),1)</annotation></semantics></math>
+at the borders) and return
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">Φ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Phi^{-1}(u_i)</annotation></semantics></math>:
+they are standard normal under the model whatever the censoring, and are
+the recommended type. Pearson, deviance and weighted residuals are
+evaluated at the cell centre (the midpoint convention of Lopes, 2023)
+and are unreliable at the borders of the scale. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+draws the quantile residuals without changing the RNG state.</p>
 <p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method provides six diagnostic panels. By
 default, the first four are shown:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span>, caption <span class="op">=</span> <span class="cn">NULL</span>, gg <span class="op">=</span> <span class="cn">TRUE</span>, title <span class="op">=</span> <span class="cn">NULL</span>, theme <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/plot-fixed-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 <p>For ggplot2 output (requires the <strong>ggplot2</strong>
 package):</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_fixed</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/plot-fixed-gg-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fitted means</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>mu_hat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -926,7 +1264,7 @@ package):</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Conditional variance</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span></span>
@@ -958,7 +1296,7 @@ package):</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Quantile predictions</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_fixed</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.90</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -1049,7 +1387,7 @@ package):</p>
 </h3>
 <p>Wald confidence intervals based on the asymptotic normal
 approximation:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1080,7 +1418,7 @@ approximation:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_fixed</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1112,7 +1450,7 @@ approximation:</p>
 </h3>
 <p>The <code><a href="../reference/brs_cens.html">brs_cens()</a></code> function provides a visual and tabular
 overview of the censoring types in the fitted model:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_cens.html">brs_cens</a></span><span class="op">(</span><span class="va">fit_fixed</span>, gg <span class="op">=</span> <span class="cn">TRUE</span>, inform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/censoring-summary-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
@@ -1133,7 +1471,7 @@ simulation.</p>
 <div class="section level3">
 <h3 id="simulating-data-1">Simulating data<a class="anchor" aria-label="anchor" href="#simulating-data-1"></a>
 </h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2222</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">250</span></span>
 <span><span class="va">dat_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -1308,7 +1646,7 @@ simulation.</p>
 <div class="section level3">
 <h3 id="fitting-the-model-1">Fitting the model<a class="anchor" aria-label="anchor" href="#fitting-the-model-1"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
 <span>  data     <span class="op">=</span> <span class="va">sim_var</span>,</span>
@@ -1351,7 +1689,7 @@ names, following the <code>betareg</code> convention.</p>
 <div class="section level3">
 <h3 id="accessing-coefficients-by-submodel">Accessing coefficients by submodel<a class="anchor" aria-label="anchor" href="#accessing-coefficients-by-submodel"></a>
 </h3>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Full parameter vector</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       (Intercept)                x1                x2 (phi)_(Intercept) </span></span>
@@ -1403,7 +1741,7 @@ names, following the <code>betareg</code> convention.</p>
 <div class="section level3">
 <h3 id="comparing-link-functions-variable-dispersion">Comparing link functions (variable dispersion)<a class="anchor" aria-label="anchor" href="#comparing-link-functions-variable-dispersion"></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">links</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"probit"</span>, <span class="st">"cauchit"</span>, <span class="st">"cloglog"</span><span class="op">)</span></span>
 <span><span class="va">fits_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/setNames.html" class="external-link">setNames</a></span><span class="op">(</span><span class="va">links</span>, <span class="va">links</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">lnk</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim_var</span>, link <span class="op">=</span> <span class="va">lnk</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -1540,7 +1878,7 @@ names, following the <code>betareg</code> convention.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Goodness of fit</span></span>
 <span><span class="va">gof_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">fits_var</span>, <span class="va">brs_gof</span><span class="op">)</span><span class="op">)</span></span>
@@ -1588,7 +1926,7 @@ names, following the <code>betareg</code> convention.</p>
 <div class="section level3">
 <h3 id="diagnostics-for-variable-dispersion">Diagnostics for variable dispersion<a class="anchor" aria-label="anchor" href="#diagnostics-for-variable-dispersion"></a>
 </h3>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/plot-variable-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
@@ -1602,13 +1940,22 @@ predictive validation.</p>
 <div class="section level3">
 <h3 id="parametric-bootstrap-confidence-intervals">Parametric bootstrap confidence intervals<a class="anchor" aria-label="anchor" href="#parametric-bootstrap-confidence-intervals"></a>
 </h3>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<p>Each replicate draws a new response from the fitted model and refits
+the original formula on a copy of the data. Each row keeps its
+observation mechanism: exact values stay continuous, scores are
+re-coarsened on the fit’s grid, and analyst thresholds from
+<code><a href="../reference/brs_prep.html">brs_prep()</a></code> are kept as fixed, non-informative thresholds
+(the censoring type is re-drawn by the side of them where the new value
+falls). Refits start from the fitted estimate. Failed replicates are
+counted and printed. Use <code>R</code> of at least 199 in practice;
+<code>ci_type = "bca"</code> costs one extra refit per observation.</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span>
 <span><span class="va">boot_ci</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span></span>
 <span>  <span class="va">fit_fixed</span>,</span>
 <span>  R <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  ci_type <span class="op">=</span> <span class="st">"bca"</span>,</span>
+<span>  ci_type <span class="op">=</span> <span class="st">"percentile"</span>,</span>
 <span>  keep_draws <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">boot_ci</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -1642,10 +1989,10 @@ predictive validation.</p>
 <td align="center">(Intercept)</td>
 <td align="center">0.3546</td>
 <td align="center">0.0982</td>
-<td align="center">0.1799</td>
-<td align="center">0.5024</td>
-<td align="center">0.0318</td>
-<td align="center">0.0217</td>
+<td align="center">0.1768</td>
+<td align="center">0.5276</td>
+<td align="center">0.0291</td>
+<td align="center">0.0298</td>
 <td align="center">0.1835</td>
 <td align="center">0.5257</td>
 <td align="center">0.95</td>
@@ -1654,10 +2001,10 @@ predictive validation.</p>
 <td align="center">x1</td>
 <td align="center">-0.6590</td>
 <td align="center">0.1044</td>
-<td align="center">-0.8166</td>
-<td align="center">-0.4950</td>
-<td align="center">0.0227</td>
-<td align="center">0.0378</td>
+<td align="center">-0.8213</td>
+<td align="center">-0.4645</td>
+<td align="center">0.0213</td>
+<td align="center">0.0344</td>
 <td align="center">-0.8449</td>
 <td align="center">-0.4732</td>
 <td align="center">0.95</td>
@@ -1666,10 +2013,10 @@ predictive validation.</p>
 <td align="center">x2</td>
 <td align="center">0.3288</td>
 <td align="center">0.1088</td>
-<td align="center">0.1484</td>
-<td align="center">0.5288</td>
-<td align="center">0.0259</td>
-<td align="center">0.0321</td>
+<td align="center">0.1437</td>
+<td align="center">0.5298</td>
+<td align="center">0.0244</td>
+<td align="center">0.0287</td>
 <td align="center">0.1481</td>
 <td align="center">0.5095</td>
 <td align="center">0.95</td>
@@ -1678,28 +2025,28 @@ predictive validation.</p>
 <td align="center">(phi)</td>
 <td align="center">0.1514</td>
 <td align="center">0.0913</td>
-<td align="center">0.0439</td>
-<td align="center">0.3120</td>
-<td align="center">0.0113</td>
-<td align="center">0.0194</td>
+<td align="center">0.0432</td>
+<td align="center">0.3201</td>
+<td align="center">0.0101</td>
+<td align="center">0.0193</td>
 <td align="center">-0.0093</td>
 <td align="center">0.3122</td>
 <td align="center">0.95</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs_bootstrap.html">autoplot.brs_bootstrap</a></span><span class="op">(</span></span>
 <span>  <span class="va">boot_ci</span>,</span>
 <span>  type <span class="op">=</span> <span class="st">"ci_forest"</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"Bootstrap (BCa) vs Wald intervals"</span></span>
+<span>  title <span class="op">=</span> <span class="st">"Bootstrap (percentile) vs Wald intervals"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/bootstrap-forest-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="average-marginal-effects-ame">Average marginal effects (AME)<a class="anchor" aria-label="anchor" href="#average-marginal-effects-ame"></a>
 </h3>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">202</span><span class="op">)</span></span>
 <span><span class="va">ame</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span></span>
 <span>  <span class="va">fit_fixed</span>,</span>
@@ -1754,14 +2101,14 @@ predictive validation.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs_marginaleffects.html">autoplot.brs_marginaleffects</a></span><span class="op">(</span><span class="va">ame</span>, type <span class="op">=</span> <span class="st">"forest"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-intro_files/figure-html/marginaleffects-plot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="score-probabilities-on-the-original-scale">Score probabilities on the original scale<a class="anchor" aria-label="anchor" href="#score-probabilities-on-the-original-scale"></a>
 </h3>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prob_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_fixed</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu">kbl10</span><span class="op">(</span><span class="va">prob_scores</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -1824,7 +2171,7 @@ predictive validation.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>row_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">prob_scores</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">4</span></span>
@@ -1858,7 +2205,7 @@ predictive validation.</p>
 <div class="section level3">
 <h3 id="repeated-k-fold-cross-validation">Repeated k-fold cross-validation<a class="anchor" aria-label="anchor" href="#repeated-k-fold-cross-validation"></a>
 </h3>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">303</span><span class="op">)</span> <span class="co"># For cross-validation reproducibility</span></span>
 <span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
 <span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>,</span>
@@ -2004,7 +2351,7 @@ predictive validation.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>    metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rmse_yt"</span>, <span class="st">"mae_yt"</span><span class="op">)</span>,</span>
@@ -2103,13 +2450,13 @@ precision)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>residuals(type=)</code></td>
-<td align="left">Residuals: response, pearson, rqr, weighted,
+<td align="left">Residuals: response, pearson, deviance, rqr, weighted,
 sweighted</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>predict(type=)</code></td>
 <td align="left">Predictions: response, link, precision, variance,
-quantile</td>
+quantile, score, expected_score</td>
 </tr>
 <tr class="even">
 <td align="left"><code>plot(gg=)</code></td>
@@ -2122,38 +2469,78 @@ quantile</td>
 <h2 id="reparameterizations">Reparameterizations<a class="anchor" aria-label="anchor" href="#reparameterizations"></a>
 </h2>
 <p>The package supports three reparameterizations of the beta
-distribution, controlled by the <code>repar</code> argument:</p>
-<p><strong>Direct (<code>repar = 0</code>):</strong> Shape parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi></mrow><annotation encoding="application/x-tex">a=\mu</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=\phi</annotation></semantics></math>
-are used directly. This is rarely used in practice.</p>
-<p><strong>Precision (<code>repar = 1</code>, Ferrari &amp;
-Cribari-Neto, 2004):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
-and precision
+distribution, controlled by the <code>repar</code> argument. Each models
+different parameters, so the admissible links differ; the first link of
+each cell is the default.</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"><code>repar</code></th>
+<th align="left">parameters</th>
+<th align="left">shapes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a,b)</annotation></semantics></math>
+</th>
+<th align="left"><code>link</code></th>
+<th align="left"><code>link_phi</code></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">0</td>
+<td align="left">shapes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>,</mo><mi>q</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">p,q&gt;0</annotation></semantics></math>
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>,</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(p,q)</annotation></semantics></math></td>
+<td align="left">log, sqrt</td>
+<td align="left">log, sqrt</td>
+</tr>
+<tr class="even">
+<td align="left">1</td>
+<td align="left">mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>,
+precision
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\phi&gt;0</annotation></semantics></math>
-yield
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a=\mu\phi</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)\phi</annotation></semantics></math>.
-Higher
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
-means less variability.</p>
-<p><strong>Mean–variance (<code>repar = 2</code>):</strong> The mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu\in(0,1)</annotation></semantics></math>
-and dispersion
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mi>ϕ</mi><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mu\phi,(1-\mu)\phi)</annotation></semantics></math></td>
+<td align="left">logit, probit, cauchit, cloglog</td>
+<td align="left">log, sqrt</td>
+</tr>
+<tr class="odd">
+<td align="left">2</td>
+<td align="left">mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>,
+dispersion
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi\in(0,1)</annotation></semantics></math>
-yield
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">a=\mu(1-\phi)/\phi</annotation></semantics></math>
+</td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mu(1-\phi)/\phi,(1-\mu)(1-\phi)/\phi)</annotation></semantics></math></td>
+<td align="left">logit, probit, cauchit, cloglog</td>
+<td align="left">logit, probit, cauchit, cloglog</td>
+</tr>
+</tbody>
+</table>
+<p>In every scheme
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>Y</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>a</mi><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E[Y]=a/(a+b)</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>ϕ</mi></mrow><annotation encoding="application/x-tex">b=(1-\mu)(1-\phi)/\phi</annotation></semantics></math>.
-Here
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
-acts as a coefficient of variation: smaller
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
-means less variability.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">[</mo><mi>Y</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>Y</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>Y</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{Var}[Y]=E[Y](1-E[Y])/(1+a+b)</annotation></semantics></math>.
+Under <code>repar = 1</code> this is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>ϕ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu(1-\mu)/(1+\phi)</annotation></semantics></math>
+(Ferrari and Cribari-Neto, 2004); under <code>repar = 2</code> it is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mspace width="0.167em"></mspace><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi\,\mu(1-\mu)</annotation></semantics></math>,
+so the dispersion is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>=</mo><mn>1</mn><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi=1/(1+a+b)</annotation></semantics></math>,
+the variance relative to its maximum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu(1-\mu)</annotation></semantics></math>
+(not a coefficient of variation). Under <code>repar = 0</code> the first
+parameter is the shape
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+and the mean is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>+</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p/(p+q)</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Precision parameterization: mu = 0.5, phi = 10 (high precision)</span></span>
 <span><span class="fu"><a href="../reference/brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">0.5</span>, phi <span class="op">=</span> <span class="fl">10</span>, repar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   shape1 shape2</span></span>
@@ -2168,6 +2555,12 @@ means less variability.</p>
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ul>
+<li><p>Lopes, J. E. (2023). <em>Modelos de regressão beta para dados de
+escala</em>. Master’s dissertation, Universidade Federal do Paraná,
+Curitiba. <a href="https://hdl.handle.net/1884/86624" class="external-link uri">https://hdl.handle.net/1884/86624</a>.</p></li>
+<li><p>Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile
+residuals. <em>Journal of Computational and Graphical Statistics</em>,
+<strong>5</strong>(3), 236–244.</p></li>
 <li><p>Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression
 for modelling rates and proportions. <em>Journal of Applied
 Statistics</em>, <strong>31</strong>(7), 799–815. DOI:

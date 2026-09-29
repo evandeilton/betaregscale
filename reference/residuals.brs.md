@@ -1,6 +1,9 @@
-# Extract residuals
+# Residuals of a fitted beta interval model
 
-Extract residuals
+Residuals of a `"brs"` fit. Randomized quantile residuals
+(`type = "rqr"`) use the censoring of each observation and are the
+recommended ones; the other types are evaluated at one point of the cell
+(see Details).
 
 ## Usage
 
@@ -21,9 +24,8 @@ residuals(
 
 - type:
 
-  Residual type. One of `"response"` (default), `"pearson"`,
-  `"deviance"`, `"rqr"` (randomized quantile), `"weighted"`, or
-  `"sweighted"`.
+  Residual type: `"response"` (default), `"pearson"`, `"deviance"`,
+  `"rqr"`, `"weighted"` or `"sweighted"`.
 
 - ...:
 
@@ -31,31 +33,82 @@ residuals(
 
 ## Value
 
-Numeric vector of residuals.
+Numeric vector of residuals, one per observation.
 
 ## Details
 
-All residuals are computed from the fitted shapes \\(a, b)\\ and the
-mean \\E\[Y\] = a / (a + b)\\ (so they are consistent across
-reparameterizations). For Pearson residuals the variance is
+Let \\(a_i, b_i)\\ be the fitted shapes, \\\hat\mu_i = a_i/(a_i + b_i)\\
+the fitted mean and \\V_i\\ the fitted variance
+([`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md)).
+All types except `"rqr"` use \\y_i =\\ `yt`, the centre of the cell:
+\\s/K\\ under `interval = "mid"`, so that the border scores sit at
+\\10^{-5}\\ and \\1 - 10^{-5}\\, and \\(s + 0.5)/(K + 1)\\ under
+`"right"`/`"left"`; exact values are used as they are. This is the
+midpoint convention of Lopes (2023, "Analise de residuos"); it makes
+these residuals unreliable at the borders of the scale.
 
-- repar = 1 (precision):
+- `"response"`:
 
-  V = mu(1 - mu) / (1 + phi)
+  \\y_i - \hat\mu_i\\.
 
-- repar = 2 (mean-variance):
+- `"pearson"`:
 
-  V = mu(1 - mu) \* phi
+  \\(y_i - \hat\mu_i)/\sqrt{V_i}\\. Lopes (2023) writes \\V_i\\ as
+  \\\mu(1 - \mu)/(1 + \phi)\\ (parameterisation 1); it is the same
+  variance under every `repar`.
 
-- repar = 0 (shapes):
+- `"deviance"`:
 
-  V = pq / ((p + q)^2 (p + q + 1))
+  \\\mathrm{sign}(y_i - \hat\mu_i) \sqrt{\|2\\\ell_i(y_i) -
+  \ell_i(\hat\mu_i)\\\|}\\, where \\\ell_i(m)\\ is the beta log-density
+  at \\y_i\\ with mean \\m\\ and precision \\a_i + b_i\\ (Ferrari and
+  Cribari-Neto, 2004). The saturated mean is taken as \\y_i\\, as in
+  betareg. For a small precision (U- or J-shaped densities)
+  \\\ell_i(y_i)\\ can be below \\\ell_i(\hat\mu_i)\\; the absolute value
+  is then used and only the sign carries information.
 
-The weighted and sweighted residuals use \\y^\* = \mathrm{logit}(y)\\,
-\\\mu^\* = \psi(a) - \psi(b)\\ and \\v = \psi'(a) + \psi'(b)\\
-(Espinheira, Ferrari and Cribari-Neto, 2008), with the precision \\a +
-b\\. Deviance residuals compare the fit with a saturated model that has
-mean \\y\\ and the same precision \\a + b\\.
+- `"rqr"`:
+
+  \\\Phi^{-1}(u_i)\\, with \\u_i\\ uniform on \\(F(l_i), F(u_i))\\ for
+  \\\delta_i = 3\\, on \\(0, F(u_i))\\ for \\\delta_i = 1\\ and on
+  \\(F(l_i), 1)\\ for \\\delta_i = 2\\, and \\u_i = F(y_i)\\ for exact
+  values (Dunn and Smyth, 1996); \\u_i\\ is kept in \\\[10^{-10}, 1 -
+  10^{-10}\]\\. They are standard normal under the model whatever the
+  censoring. They are random: set a seed to reproduce them;
+  [`summary()`](https://rdrr.io/r/base/summary.html) draws them without
+  changing the caller's RNG state.
+
+- `"weighted"`, `"sweighted"`:
+
+  \\(y_i^\* - \mu_i^\*)/ \sqrt{(a_i + b_i) v_i}\\ and \\(y_i^\* -
+  \mu_i^\*)/\sqrt{v_i}\\, with \\y_i^\* = \mathrm{logit}(y_i)\\,
+  \\\mu_i^\* = \psi(a_i) - \psi(b_i)\\ and \\v_i = \psi'(a_i) +
+  \psi'(b_i)\\ (Espinheira, Ferrari and Cribari-Neto, 2008).
+
+Lopes (2023) also recommends the adjusted quantile residuals of Pereira
+(2019), which are not implemented.
+
+## References
+
+Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
+Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
+https://hdl.handle.net/1884/86624.
+
+Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
+*Journal of Computational and Graphical Statistics*, **5**(3), 236–244.
+
+Espinheira, P. L., Ferrari, S. L. P., and Cribari-Neto, F. (2008). On
+beta regression residuals. *Journal of Applied Statistics*, **35**(4),
+407–419.
+
+Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
+modelling rates and proportions. *Journal of Applied Statistics*,
+**31**(7), 799–815.
+[doi:10.1080/0266476042000214501](https://doi.org/10.1080/0266476042000214501)
+
+Pereira, G. H. A. (2019). On quantile residuals in beta regression.
+*Communications in Statistics - Simulation and Computation*, **48**(1),
+302–316.
 
 ## See also
 
@@ -66,21 +119,24 @@ mean \\y\\ and the same precision \\a + b\\.
 ## Examples
 
 ``` r
-# \donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10)
-)
-prep <- brs_prep(dat, ncuts = 100)
-#> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
-fit <- brs(y ~ x1, data = prep)
-head(residuals(fit))
-#> [1] -0.50871261 -0.40380411 -0.30872261  0.04619589  0.24127739  0.44619589
-head(residuals(fit, type = "pearson"))
-#>          1          2          3          4          5          6 
-#> -1.6029039 -1.2776185 -0.9727549  0.1461618  0.7602416  1.4117443 
-# }
+# Synthetic NRS-11 scores: 3 post-operative times. Simulated, not real data.
+set.seed(2023)
+nrs <- data.frame(time = factor(rep(c("6h", "12h", "24h"), each = 80),
+                                levels = c("6h", "12h", "24h")))
+shp <- brs_repar(mu = plogis(-1.3 + c(0, 0.75, 0.3)[nrs$time]), phi = 0.3,
+                 repar = 2)
+nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+fit <- brs(y ~ time, data = nrs, ncuts = 10)
+
+# Randomized quantile residuals: approximately N(0, 1), borders included
+set.seed(1)
+r_q <- residuals(fit, type = "rqr")
+qqnorm(r_q); qqline(r_q)
+
+
+# Midpoint-based residuals are extreme at the border scores 0 and 10
+r_p <- residuals(fit, type = "pearson")
+tapply(r_p, cut(nrs$y, c(-1, 0, 9, 10), labels = c("0", "1-9", "10")), mean)
+#>          0        1-9         10 
+#> -1.0762665  0.2507079  2.5712711 
 ```

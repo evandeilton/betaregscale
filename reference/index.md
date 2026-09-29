@@ -27,13 +27,13 @@ Data simulation for Monte Carlo studies.
 Standard methods for fitted model objects of class brs.
 
 - [`anova(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
-  : Model comparison by analysis of deviance (LR test) for \`brs\`
+  : Likelihood-ratio comparison of nested beta interval models
 - [`coef(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.brs.md)
   : Extract model coefficients
 - [`vcov(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md)
   : Variance-covariance matrix of estimated coefficients
 - [`summary(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/summary.brs.md)
-  : Summarize a fitted model (betareg style)
+  : Summarize a fitted beta interval model
 - [`print(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.brs.md)
   : Print a fitted model (brief betareg style)
 - [`print(`*`<summary.brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/print.summary.brs.md)
@@ -53,7 +53,7 @@ Standard methods for fitted model objects of class brs.
 - [`fitted(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/fitted.brs.md)
   : Extract fitted values
 - [`residuals(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/residuals.brs.md)
-  : Extract residuals
+  : Residuals of a fitted beta interval model
 - [`predict(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/predict.brs.md)
   : Predict from a fitted model
 - [`confint(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/confint.brs.md)
@@ -66,7 +66,7 @@ Standard methods for fitted model objects of class brs.
 Standard methods for fitted model objects of class brsmm.
 
 - [`anova(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md)
-  : Model comparison by analysis of deviance (LR test) for \`brsmm\`
+  : Likelihood-ratio comparison involving mixed models
 - [`coef(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/coef.brsmm.md)
   : Extract coefficients from a brsmm fit
 - [`vcov(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/vcov.brsmm.md)
@@ -152,6 +152,6 @@ Functions for preparing response data and beta reparameterization.
 - [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
   : Pre-process analyst data for beta interval regression
 - [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
-  : Transform and validate a scale-derived response variable
+  : Map scale scores to intervals on (0, 1) and censoring types
 - [`brs_repar()`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md)
-  : Reparameterize (mu, phi) into beta shape parameters
+  : Beta shape parameters from the parameters of each scheme
