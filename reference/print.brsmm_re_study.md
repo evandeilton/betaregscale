@@ -62,12 +62,12 @@ print(rs)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.
-#>   (Intercept)                 0.5338
+#>   (Intercept)                 0.5339
 #> 
-#> ICC (logit(Y) scale, beta level-1 variance): 0.1806
+#> ICC (logit(Y) scale, beta level-1 variance): 0.1807
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)   0.5338    0.0011  0.4458          0.6976     0.824
+#>  (Intercept)   0.5339    0.0012   0.446          0.6976     0.824
 # }
 ```

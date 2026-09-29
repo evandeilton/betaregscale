@@ -590,7 +590,7 @@ summary(fit_var)
 #> ---
 #> Log-likelihood: -936.0499 on 5 Df | AIC: 1882.0998 | BIC: 1899.7071 
 #> Pseudo R-squared: 0.1164  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 40 (BFGS) 
+#> Number of iterations: 38 (BFGS) 
 #> Censoring: 181 interval | 23 left | 46 right
 ```
 
@@ -740,8 +740,8 @@ kbl10(ame)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | -0.1425 |  0.0170   | -0.1735  | -0.1058  | mean  | response | 250 |
-|    x2    | 0.0711  |  0.0203   |  0.0310  |  0.1029  | mean  | response | 250 |
+|    x1    | -0.1425 |  0.0175   | -0.1764  | -0.1123  | mean  | response | 250 |
+|    x2    | 0.0711  |  0.0184   |  0.0378  |  0.1055  | mean  | response | 250 |
 
 ``` r
 

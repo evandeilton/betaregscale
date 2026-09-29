@@ -1,12 +1,13 @@
-# C++ log-likelihood for fixed-dispersion beta interval regression
+# C++ Hessian for the fixed-dispersion log-likelihood
 
-Total log-likelihood with a single dispersion parameter (last element of
-`param`); all four censoring types.
+Chain rule on the linear predictors: blocks `crossprod(X, w_mm * X)`,
+`crossprod(X, w_mp)` and `sum(w_pp)`, with per-observation second
+derivatives by Richardson central differences (17 evaluations).
 
 ## Usage
 
 ``` r
-.brs_loglik_fixed_cpp(
+.brs_hessian_fixed_cpp(
   param,
   X,
   y_left,
@@ -51,4 +52,4 @@ Total log-likelihood with a single dispersion parameter (last element of
 
 ## Value
 
-Scalar log-likelihood value.
+Symmetric matrix of order `ncol(X) + 1` (log-likelihood scale).

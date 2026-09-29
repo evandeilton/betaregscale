@@ -13,12 +13,14 @@ brs_fit_var(
   data,
   link = NULL,
   link_phi = NULL,
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   ncuts = NULL,
   lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  interval = NULL
+  interval = NULL,
+  start = NULL,
+  control = list()
 )
 ```
 
@@ -50,7 +52,8 @@ brs_fit_var(
 
 - hessian_method:
 
-  Character: `"numDeriv"` or `"optim"`.
+  Character: `"cpp"` (default), `"numDeriv"` or `"optim"` (see
+  [`brs_fit_fixed`](https://evandeilton.github.io/betaregscale/reference/brs_fit_fixed.md)).
 
 - ncuts:
 
@@ -85,6 +88,18 @@ brs_fit_var(
   `NULL` (default) uses `attr(data, "interval")` from
   [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
   or `"mid"`; same rule as `ncuts`.
+
+- start:
+
+  Optional numeric vector of starting values (mean coefficients, then
+  dispersion coefficients). `NULL` (default) uses
+  [`compute_start()`](https://evandeilton.github.io/betaregscale/reference/compute_start.md).
+  Refits (bootstrap, jackknife) pass the parent estimate here.
+
+- control:
+
+  Control list for [`optim`](https://rdrr.io/r/stats/optim.html); its
+  entries are merged into the default `list(maxit = 5000L)`.
 
 ## Value
 

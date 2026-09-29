@@ -156,8 +156,8 @@ kbl10(ame_mu)
 
 | variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
 |:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | 0.1366  |  0.0196   |  0.1024  |  0.1679  | mean  | response | 150 |
-|    x2    | -0.0770 |  0.0255   | -0.1252  | -0.0330  | mean  | response | 150 |
+|    x1    | 0.1366  |  0.0221   |  0.0964  |  0.176   | mean  | response | 150 |
+|    x2    | -0.0770 |  0.0248   | -0.1196  |  -0.020  | mean  | response | 150 |
 
 [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
 also offers `ci_type = "bca"`, demonstrated in the introductory
@@ -284,7 +284,7 @@ kbl10(data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL))
 |:----------:|:---:|:---------:|:--------:|:--------:|:------:|:------:|:----------:|
 |  M1 (brs)  |  4  | -1057.029 | 2122.058 | 2136.144 |   NA   |   NA   |     NA     |
 | M2 (brsmm) |  5  | -1054.111 | 2118.223 | 2135.830 | 5.8355 |   1    |   0.0079   |
-| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8716 |   2    |   0.0967   |
+| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8718 |   2    |   0.0967   |
 
 ### 6.3 Model choice by LLR/LRT (ANOVA)
 
@@ -325,7 +325,7 @@ kbl10(tab_lr_df)
 |:----------:|:---:|:---------:|:--------:|:--------:|:------:|:------:|:----------:|:--------:|
 |  M1 (brs)  |  4  | -1057.029 | 2122.058 | 2136.144 |   NA   |   NA   |     NA     | baseline |
 | M2 (brsmm) |  5  | -1054.111 | 2118.223 | 2135.830 | 5.8355 |   1    |   0.0079   | baseline |
-| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8716 |   2    |   0.0967   | baseline |
+| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8718 |   2    |   0.0967   | baseline |
 
 ## 7) Random-effects study (numeric + visual)
 
@@ -340,21 +340,21 @@ print(rs)
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.  Corr
 #>   (Intercept)                 0.3240
-#>   x1                          0.2200  0.9991
+#>   x1                          0.2200  0.9992
 #> 
 #> ICC (logit(Y) scale, beta level-1 variance): 0.0804
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)    0.324   -0.0043  0.2795          0.7441    0.1585
-#>           x1    0.220   -0.0029  0.1897          0.7435    0.1585
+#>  (Intercept)    0.324   -0.0044  0.2795          0.7441    0.1585
+#>           x1    0.220   -0.0030  0.1897          0.7436    0.1585
 kbl10(rs$summary)
 ```
 
 |    term     | sd_model | mean_mode | sd_mode | shrinkage_ratio | shapiro_p |
 |:-----------:|:--------:|:---------:|:-------:|:---------------:|:---------:|
-| (Intercept) |  0.324   |  -0.0043  | 0.2795  |     0.7441      |  0.1585   |
-|     x1      |  0.220   |  -0.0029  | 0.1897  |     0.7435      |  0.1585   |
+| (Intercept) |  0.324   |  -0.0044  | 0.2795  |     0.7441      |  0.1585   |
+|     x1      |  0.220   |  -0.0030  | 0.1897  |     0.7436      |  0.1585   |
 
 ``` r
 
@@ -373,8 +373,8 @@ kbl10(rs$Corr)
 
 |             | (Intercept) |   x1   |
 |:------------|:-----------:|:------:|
-| (Intercept) |   1.0000    | 0.9991 |
-| x1          |   0.9991    | 1.0000 |
+| (Intercept) |   1.0000    | 0.9992 |
+| x1          |   0.9992    | 1.0000 |
 
 ``` r
 

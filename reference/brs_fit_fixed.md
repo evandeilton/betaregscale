@@ -15,10 +15,12 @@ brs_fit_fixed(
   link_phi = NULL,
   ncuts = NULL,
   lim = NULL,
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  interval = NULL
+  interval = NULL,
+  start = NULL,
+  control = list()
 )
 ```
 
@@ -65,10 +67,11 @@ brs_fit_fixed(
 
 - hessian_method:
 
-  Character: `"numDeriv"` (default) or `"optim"`. With `"numDeriv"` the
-  Hessian is computed after convergence using
-  [`hessian`](https://rdrr.io/pkg/numDeriv/man/hessian.html), which is
-  typically more accurate than the built-in optim Hessian.
+  Character: `"cpp"` (default), `"numDeriv"` or `"optim"`. `"cpp"` uses
+  the compiled chain-rule Hessian (per-observation second derivatives in
+  the linear predictors); `"numDeriv"` differentiates the log-likelihood
+  with [`hessian`](https://rdrr.io/pkg/numDeriv/man/hessian.html);
+  `"optim"` keeps the optimizer's own approximation.
 
 - repar:
 
@@ -87,6 +90,18 @@ brs_fit_fixed(
   `NULL` (default) uses `attr(data, "interval")` from
   [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
   or `"mid"`; same rule as `ncuts`.
+
+- start:
+
+  Optional numeric vector of starting values (mean coefficients, then
+  dispersion coefficients). `NULL` (default) uses
+  [`compute_start()`](https://evandeilton.github.io/betaregscale/reference/compute_start.md).
+  Refits (bootstrap, jackknife) pass the parent estimate here.
+
+- control:
+
+  Control list for [`optim`](https://rdrr.io/r/stats/optim.html); its
+  entries are merged into the default `list(maxit = 5000L)`.
 
 ## Value
 

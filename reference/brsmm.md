@@ -24,7 +24,7 @@ brsmm(
   qmc_points = 1024L,
   start = NULL,
   method = c("BFGS", "L-BFGS-B"),
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   control = list(maxit = 2000L),
   interval = NULL
 )
@@ -78,7 +78,13 @@ brsmm(
 
 - int_method:
 
-  Integration method: `"laplace"` (default), `"aghq"`, or `"qmc"`.
+  Integration method: `"laplace"` (default), `"aghq"`, or `"qmc"`. AGHQ
+  and QMC centre the nodes at each group's mode and scale them by the
+  symmetric root of its curvature. With two or more random effects QMC
+  (a deterministic importance sampler on a Halton grid) underestimates
+  the log-likelihood: at 1024 points the error averaged -0.05 over 30
+  two-effect data sets. Prefer `"aghq"` when there are at most three
+  random effects.
 
 - n_points:
 
@@ -100,7 +106,13 @@ brsmm(
 
 - hessian_method:
 
-  `"numDeriv"` (default) or `"optim"`.
+  `"cpp"` (default), `"numDeriv"` or `"optim"`. `"cpp"` differentiates
+  the compiled gradient of the marginal log-likelihood (Richardson
+  central differences). That gradient, also passed to
+  [`optim`](https://rdrr.io/r/stats/optim.html), is the derivative of
+  the chosen approximation by the chain rule and the implicit-function
+  theorem at the group modes, with per-observation derivatives in the
+  linear predictor computed by central differences.
 
 - control:
 
@@ -120,11 +132,12 @@ brsmm(
 
 An object of class `"brsmm"`. `diagnostics` holds the post-fit checks of
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
-(gradient by central differences with step \\10^{-3}\\, Hessian, clamps)
-plus `re_boundary` and `re_gain`, the log-likelihood gain of each
-random-effect term over its removal. A term with log SD below -6 or a
-gain below \\10^{-3}\\ is reported as a variance component on the
-boundary (test it with
+(compiled gradient and the fit's Hessian, clamps) plus `re_boundary` and
+`re_gain`, the log-likelihood gain of each random-effect term over its
+removal, and `inner` (groups without a positive-definite mode, largest
+\\\|\nabla h\|\\ at the modes). A term with log SD below -6 or a gain
+below \\10^{-3}\\ is reported as a variance component on the boundary
+(test it with
 [`anova.brsmm`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md),
 chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
 design matrices are an error.
@@ -190,17 +203,17 @@ fit_mm
 #> 
 #> Coefficients (mean model with logit link):
 #> (Intercept)          x1 
-#>      0.4212     -0.3374 
+#>      0.4213     -0.3374 
 #> 
 #> Phi coefficients (precision model with logit link):
 #> (Intercept) 
-#>     -0.5805 
+#>     -0.5806 
 #> 
 #> Random-effects parameters:
 #> logSD.(Intercept)|id 
-#>              -0.6278 
+#>              -0.6275 
 #> 
-#> Random SD: 0.5338 
+#> Random SD: 0.5339 
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 20  | Groups: 4 

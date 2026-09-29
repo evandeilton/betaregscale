@@ -75,7 +75,7 @@ random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
 <span>  qmc_points <span class="op">=</span> <span class="fl">1024L</span>,</span>
 <span>  start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BFGS"</span>, <span class="st">"L-BFGS-B"</span><span class="op">)</span>,</span>
-<span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numDeriv"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
+<span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cpp"</span>, <span class="st">"numDeriv"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">2000L</span><span class="op">)</span>,</span>
 <span>  interval <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -130,7 +130,12 @@ or 100; an explicit different value is ignored with a warning.</p></dd>
 
 <dt id="arg-int-method">int_method<a class="anchor" aria-label="anchor" href="#arg-int-method"></a></dt>
 <dd><p>Integration method: <code>"laplace"</code> (default),
-<code>"aghq"</code>, or <code>"qmc"</code>.</p></dd>
+<code>"aghq"</code>, or <code>"qmc"</code>. AGHQ and QMC centre the nodes at each
+group's mode and scale them by the symmetric root of its curvature. With
+two or more random effects QMC (a deterministic importance sampler on a
+Halton grid) underestimates the log-likelihood: at 1024 points the error
+averaged -0.05 over 30 two-effect data sets. Prefer <code>"aghq"</code> when
+there are at most three random effects.</p></dd>
 
 
 <dt id="arg-n-points">n_points<a class="anchor" aria-label="anchor" href="#arg-n-points"></a></dt>
@@ -153,7 +158,13 @@ Default is 1024.</p></dd>
 
 
 <dt id="arg-hessian-method">hessian_method<a class="anchor" aria-label="anchor" href="#arg-hessian-method"></a></dt>
-<dd><p><code>"numDeriv"</code> (default) or <code>"optim"</code>.</p></dd>
+<dd><p><code>"cpp"</code> (default), <code>"numDeriv"</code> or
+<code>"optim"</code>. <code>"cpp"</code> differentiates the compiled gradient of the
+marginal log-likelihood (Richardson central differences). That gradient,
+also passed to <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>, is the derivative of the chosen
+approximation by the chain rule and the implicit-function theorem at the
+group modes, with per-observation derivatives in the linear predictor
+computed by central differences.</p></dd>
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
@@ -172,9 +183,11 @@ are merged into the default <code>list(maxit = 2000L)</code>, so
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>"brsmm"</code>. <code>diagnostics</code> holds the
-  post-fit checks of <code><a href="brs.html">brs</a></code> (gradient by central differences
-  with step \(10^{-3}\), Hessian, clamps) plus <code>re_boundary</code> and <code>re_gain</code>, the
-  log-likelihood gain of each random-effect term over its removal. A term
+  post-fit checks of <code><a href="brs.html">brs</a></code> (compiled gradient and the fit's
+  Hessian, clamps) plus <code>re_boundary</code> and <code>re_gain</code>, the
+  log-likelihood gain of each random-effect term over its removal, and
+  <code>inner</code> (groups without a positive-definite mode, largest
+  \(|\nabla h|\) at the modes). A term
   with log SD below -6 or a gain below \(10^{-3}\) is reported as a
   variance component on the boundary (test it with <code><a href="anova.brsmm.html">anova.brsmm</a></code>,
   chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
@@ -231,17 +244,17 @@ Beta regression for modelling rates and proportions.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (mean model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)          x1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4212     -0.3374 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4213     -0.3374 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.5805 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.5806 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random-effects parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> logSD.(Intercept)|id </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              -0.6278 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              -0.6275 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Random SD: 0.5338 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Random SD: 0.5339 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mixed beta interval model (Laplace)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Observations: 20  | Groups: 4 </span>

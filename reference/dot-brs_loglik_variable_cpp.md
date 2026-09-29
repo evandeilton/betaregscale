@@ -1,8 +1,7 @@
-# C++ log-likelihood for variable-dispersion beta interval regression with mixed censoring
+# C++ log-likelihood for variable-dispersion beta interval regression
 
-Computes the total log-likelihood for a beta regression model with
-interval-censored responses and observation-specific dispersion,
-supporting all four censoring types.
+Total log-likelihood with observation-specific dispersion `Z gamma`; all
+four censoring types.
 
 ## Usage
 
@@ -25,40 +24,27 @@ supporting all four censoring types.
 
 - param:
 
-  Numeric vector: first `ncol(X)` elements are beta coefficients, next
-  `ncol(Z)` elements are gamma (phi) coefficients.
+  Numeric vector: `ncol(X)` beta then `ncol(Z)` gamma.
 
-- X:
+- X, Z:
 
-  Design matrix for the mean submodel (n x p).
+  Design matrices of the mean (n x p) and dispersion (n x q).
 
-- Z:
+- y_left, y_right:
 
-  Design matrix for the dispersion submodel (n x q).
-
-- y_left:
-
-  Numeric vector of left interval endpoints on (0, 1).
-
-- y_right:
-
-  Numeric vector of right interval endpoints on (0, 1).
+  Interval endpoints on (0, 1).
 
 - yt:
 
-  Numeric vector of midpoint response on (0, 1).
+  Exact response on (0, 1) (used when `delta = 0`).
 
 - delta:
 
-  Integer vector of censoring indicators (0,1,2,3).
+  Integer censoring indicators (0,1,2,3).
 
-- link_mu_code:
+- link_mu_code, link_phi_code:
 
-  Integer code for the mean link function.
-
-- link_phi_code:
-
-  Integer code for the dispersion link function.
+  Integer link codes.
 
 - repar:
 

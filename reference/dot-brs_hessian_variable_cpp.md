@@ -1,12 +1,12 @@
-# C++ gradient for the variable-dispersion log-likelihood
+# C++ Hessian for the variable-dispersion log-likelihood
 
-Chain rule on the linear predictors: `crossprod(X, d_mu)` and
-`crossprod(Z, d_phi)` (see `.brs_grad_fixed_cpp`).
+Chain rule on the linear predictors: blocks `crossprod(X, w_mm * X)`,
+`crossprod(X, w_mp * Z)` and `crossprod(Z, w_pp * Z)`.
 
 ## Usage
 
 ``` r
-.brs_grad_variable_cpp(
+.brs_hessian_variable_cpp(
   param,
   X,
   Z,
@@ -52,4 +52,4 @@ Chain rule on the linear predictors: `crossprod(X, d_mu)` and
 
 ## Value
 
-Numeric gradient vector of length `ncol(X) + ncol(Z)`.
+Symmetric matrix of order `ncol(X) + ncol(Z)` (log-likelihood scale).

@@ -61,8 +61,10 @@ dispersion) based on the formula structure.</p>
 <span>  lim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2L</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BFGS"</span>, <span class="st">"L-BFGS-B"</span><span class="op">)</span>,</span>
-<span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numDeriv"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
-<span>  interval <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cpp"</span>, <span class="st">"numDeriv"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  start <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -120,8 +122,8 @@ rule as <code>ncuts</code>. Values below 0.5 warn (partial coarsening).</p></dd>
 
 
 <dt id="arg-hessian-method">hessian_method<a class="anchor" aria-label="anchor" href="#arg-hessian-method"></a></dt>
-<dd><p>Character: <code>"numDeriv"</code> or
-<code>"optim"</code>.</p></dd>
+<dd><p>Character: <code>"cpp"</code> (default),
+<code>"numDeriv"</code> or <code>"optim"</code> (see <code><a href="brs_fit_fixed.html">brs_fit_fixed</a></code>).</p></dd>
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
@@ -129,6 +131,18 @@ rule as <code>ncuts</code>. Values below 0.5 warn (partial coarsening).</p></dd>
 <code>"right"</code> or <code>"left"</code> (see <code><a href="brs_check.html">brs_check</a></code>).
 <code>NULL</code> (default) uses <code>attr(data, "interval")</code> from
 <code><a href="brs_prep.html">brs_prep</a></code>, or <code>"mid"</code>; same rule as <code>ncuts</code>.</p></dd>
+
+
+<dt id="arg-start">start<a class="anchor" aria-label="anchor" href="#arg-start"></a></dt>
+<dd><p>Optional numeric vector of starting values (mean
+coefficients, then dispersion coefficients). <code>NULL</code> (default) uses
+<code><a href="compute_start.html">compute_start()</a></code>. Refits (bootstrap, jackknife) pass the parent
+estimate here.</p></dd>
+
+
+<dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
+<dd><p>Control list for <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>; its entries
+are merged into the default <code>list(maxit = 5000L)</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
