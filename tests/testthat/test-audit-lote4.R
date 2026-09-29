@@ -65,14 +65,15 @@ test_that("L4-1b: edge grids: K = 1, K = 2, one score, one border, mixed proport
     u <- suppressMessages(brs_check(c(0.2, 0.7), ncuts = 10, interval = iv))
     expect_true(all(u[, "delta"] == 0) && all(u[, "left"] == c(0.2, 0.7)))
   }
-  # proportions mixed with scores: today's rule (fractional score) is kept
-  mx <- brs_check(c(0.3, 5), ncuts = 10)
-  expect_identical(unname(mx[, "delta"]), c(3, 3))
-  expect_equal(unname(mx[1, "right"]), 0.08, tolerance = 1e-10)
-  mxr <- brs_check(c(0.3, 5), ncuts = 10, interval = "right")
-  expect_equal(unname(mxr[1, c("left", "right")]), c(0.3, 1.3) / 11, tolerance = 1e-10)
+  # proportions mixed with scores: Lote 7 (M3) per-observation rule, as brs_prep()
+  expect_warning(mx <- brs_check(c(0.3, 5), ncuts = 10), "mixes values in \\(0, 1\\)")
+  expect_identical(unname(mx[, "delta"]), c(0, 3))
+  expect_equal(unname(mx[1, "right"]), 0.3, tolerance = 1e-10)
+  expect_warning(mxr <- brs_check(c(0.3, 5), ncuts = 10, interval = "right"), "mixes")
+  expect_equal(unname(mxr[1, c("left", "right")]), c(0.3, 0.3), tolerance = 1e-10)
   # forced delta = 0 makes a proportion exact
-  mx0 <- brs_check(c(0.3, 5), ncuts = 10, delta = c(0L, 3L), interval = "right")
+  mx0 <- suppressWarnings(
+    brs_check(c(0.3, 5), ncuts = 10, delta = c(0L, 3L), interval = "right"))
   expect_equal(unname(mx0[1, c("left", "right", "yt")]), rep(0.3, 3), tolerance = 1e-10)
 })
 
@@ -436,8 +437,9 @@ test_that("L4-12: brs_sim forced delta under 'right' keeps the score cells", {
   expect_true(all(s3$delta == 3L) && all(s3$y >= 1 & s3$y <= 9))
   expect_equal(s3$left, s3$y / 11, tolerance = 1e-10)
   expect_equal(s3$right, (s3$y + 1) / 11, tolerance = 1e-10)
-  s1 <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = -1.5, ncuts = 10,
-                interval = "left", delta = 1)
+  expect_warning(s1 <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = -1.5,
+                               ncuts = 10, interval = "left", delta = 1),
+                 "informative censoring")
   expect_true(all(s1$delta == 1L) && all(s1$left == .l4_eps))
   expect_equal(s1$right, pmin((s1$y + 1) / 11, 1 - .l4_eps), tolerance = 1e-10)
   s0 <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = -1.5, ncuts = 10,
@@ -477,9 +479,9 @@ test_that("L4-14: brs_prep checks analyst bounds on the latent range of the dire
                "outside the latent scale \\[-0.5, 10.5\\] for interval = 'mid'")
   expect_error(pm(data.frame(left = NA_real_, right = 11), "left"),
                "Column 'right'.*\\[-1, 10\\] for interval = 'left'")
-  # bounds at the ends of each range are accepted
-  expect_silent(pm(data.frame(left = -0.5, right = 10.5), "mid"))
-  expect_silent(pm(data.frame(left = -1, right = 10), "left"))
+  # bounds at the ends of each range are accepted (Lote 7: whole-scale rows warn)
+  expect_warning(pm(data.frame(left = -0.5, right = 10.5), "mid"), "covers the whole scale")
+  expect_warning(pm(data.frame(left = -1, right = 10), "left"), "covers the whole scale")
   # scores keep the 0..K rule
   expect_error(pm(data.frame(y = 11), "right"), "must be >= the maximum observed value")
 })
@@ -510,7 +512,8 @@ test_that("L4-16: analyst intervals reaching 0 or 1 become one-sided censoring",
   keep <- suppressMessages(brs_prep(
     data.frame(left = -0.5, right = 0.5, delta = 3), ncuts = 10))
   expect_identical(keep$delta, 3L)
-  whole <- suppressMessages(brs_prep(data.frame(left = -0.5, right = 10.5), ncuts = 10))
+  expect_warning(whole <- suppressMessages(brs_prep(data.frame(left = -0.5, right = 10.5),
+                                                   ncuts = 10)), "covers the whole scale")
   expect_identical(whole$delta, 3L)
 })
 

@@ -18,7 +18,9 @@
 #'     Censoring is inferred automatically:
 #'     \eqn{y = 0 \to \delta = 1}, \eqn{y = K \to \delta = 2},
 #'     \eqn{0 < y < K \to \delta = 3},
-#'     \eqn{y \in (0, 1) \to \delta = 0}.
+#'     \eqn{y \in (0, 1) \to \delta = 0} (per observation, as in
+#'     \code{\link{brs_check}}; a warning flags input that mixes values in
+#'     \eqn{(0, 1)} with values \eqn{\ge 1}).
 #'   \item \strong{Classic (Mode 2)}: \code{y} + explicit
 #'     \code{delta}. The analyst declares the censoring type;
 #'     interval endpoints are computed using the actual \code{y}
@@ -28,7 +30,9 @@
 #'     inferred from the NA pattern.
 #'   \item \strong{Full (Mode 4)}: \code{y}, \code{left}, and
 #'     \code{right} together. The analyst's own endpoints are
-#'     rescaled directly to \eqn{(0, 1)}.
+#'     rescaled directly to \eqn{(0, 1)}. A row whose bounds reach both
+#'     borders covers the whole scale and carries no information: it is
+#'     kept (\eqn{\delta = 3}) with a warning suggesting its removal.
 #' }
 #'
 #' All covariate columns are preserved unchanged in the output.
@@ -317,6 +321,8 @@ brs_prep <- function(data, y = "y", delta = "delta",
          "defines no interval).", call. = FALSE)
   }
 
+  # Same per-observation rule as brs_check(): warn once on mixed (0, 1)/scores
+  .brs_warn_mixed_unit(v_y)
   # Censoring type: the analyst's delta when given, else inferred per row
   auto <- is.na(v_delta)
   out_delta <- .infer_delta(v_y, v_left, v_right, K, has_lr_cols = has_left || has_right)
@@ -330,6 +336,15 @@ brs_prep <- function(data, y = "y", delta = "delta",
   open_hi <- both & auto & .brs_unit_from_latent(v_right, K, interval) >= 1
   out_delta[open_lo & !open_hi] <- 1L
   out_delta[open_hi & !open_lo] <- 2L
+  # Bounds reaching both borders: P ~ 1 whatever the parameters (no information)
+  whole <- both & .brs_unit_from_latent(v_left, K, interval) <= 0 &
+    .brs_unit_from_latent(v_right, K, interval) >= 1
+  if (any(whole)) {
+    warning("Observation(s) ", paste(which(whole), collapse = ", "),
+            ": the interval covers the whole scale (both bounds at the borders), ",
+            "so the row carries no information about the parameters; consider ",
+            "removing it.", call. = FALSE)
+  }
 
   ep <- .compute_endpoints(v_y, out_delta, v_left, v_right, K, lim, eps, interval)
   # Mode 3 rows have no observed score, but `y` is the formula response and

@@ -99,21 +99,7 @@ vcov.brsmm <- function(object,
   .check_class_mm(object)
   model <- match.arg(model)
 
-  V <- tryCatch(
-    solve(-object$hessian),
-    error = function(e) {
-      warning(
-        "Hessian is computationally singular; returning generalized inverse.",
-        call. = FALSE
-      )
-      if (requireNamespace("MASS", quietly = TRUE)) {
-        MASS::ginv(-object$hessian)
-      } else {
-        matrix(NA_real_, nrow(object$hessian), ncol(object$hessian))
-      }
-    }
-  )
-  rownames(V) <- colnames(V) <- names(object$par)
+  V <- .brs_vcov(object$hessian, names(object$par))
 
   p <- object$p
   q <- object$q
@@ -244,7 +230,7 @@ confint.brsmm <- function(object, parm, level = 0.95,
   model <- match.arg(model)
 
   cf <- coef(object, model = model)
-  se <- sqrt(pmax(diag(vcov(object, model = model)), 0))
+  se <- sqrt(diag(vcov(object, model = model)))
   z <- stats::qnorm(1 - (1 - level) / 2)
 
   ci <- cbind(cf - z * se, cf + z * se)
@@ -335,6 +321,15 @@ AIC.brsmm <- function(object, ..., k = 2) {
 
 
 #' BIC for brsmm models
+#'
+#' @description
+#' \eqn{-2\ell + \log(n)\,k} with \eqn{n} = the number of observations
+#' (\code{nobs(object)}), as \code{lme4} does, and \eqn{k} the number of
+#' parameters (fixed effects, precision and packed random-effect
+#' parameters). There is no single sample size for a mixed model: counting
+#' groups instead (\eqn{n = } \code{object$ngroups}) penalises more and is a
+#' common alternative, \code{-2 * logLik(object) + log(object$ngroups) * k}.
+#' Compare BIC values only between fits with the same convention.
 #'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param ... Currently ignored.
@@ -712,10 +707,25 @@ residuals.brsmm <- function(object, type = c(
 
 #' Summarize a fitted brsmm model
 #'
+#' @description
+#' Wald tests for the fixed effects. The random effects are reported as
+#' standard deviations and correlations (\code{varcorr}) with Wald intervals
+#' built on a transformed scale and mapped back: \eqn{\exp} of the interval
+#' for \eqn{\log SD}, \eqn{\tanh} of the interval for
+#' \eqn{\mathrm{atanh}(\rho)} (delta method from the packed Cholesky
+#' parameters). No test or p-value is given for them: a z-test of
+#' \eqn{\log SD} tests \eqn{SD = 1}, and \eqn{SD = 0} lies on the boundary;
+#' use \code{\link{anova.brsmm}} (chi-bar-square mixture) against the model
+#' without the term. The randomized quantile residuals are drawn without
+#' changing the caller's RNG state.
+#'
 #' @param object A fitted \code{"brsmm"} object.
+#' @param level Confidence level of the \code{varcorr} intervals.
 #' @param ... Currently ignored.
 #'
-#' @return Object of class \code{"summary.brsmm"}.
+#' @return Object of class \code{"summary.brsmm"}; \code{coefficients$random}
+#'   holds the packed Cholesky parameters (estimate and standard error only)
+#'   and \code{varcorr} the SD/correlation table.
 #'
 #' @seealso \code{\link{brsmm}}, \code{\link{print.summary.brsmm}},
 #'   \code{\link{brs_gof}}, \code{\link{brsmm_re_study}}
@@ -739,14 +749,14 @@ residuals.brsmm <- function(object, type = c(
 #' @method summary brsmm
 #' @importFrom stats pnorm residuals
 #' @export
-summary.brsmm <- function(object, ...) {
+summary.brsmm <- function(object, level = 0.95, ...) {
   .check_class_mm(object)
 
   V <- vcov(object, model = "full")
 
   # Setup arrays
   est <- object$par
-  se <- sqrt(pmax(diag(V), 0))
+  se <- sqrt(diag(V))
   z <- est / se
   p <- 2 * stats::pnorm(-abs(z))
 
@@ -762,10 +772,11 @@ summary.brsmm <- function(object, ...) {
   idx_re <- object$p + object$q + seq_len(object$k_re)
 
   # Check residuals (Prioritizing randomized quantile residuals for censored data)
-  rqr <- tryCatch(
+  # RQR draws leave the user's RNG state intact
+  rqr <- .brs_keep_seed(tryCatch(
     residuals(object, type = "rqr"),
     error = function(e) object$residuals
-  )
+  ))
 
   # Censoring summary
   delta <- object$delta
@@ -781,8 +792,10 @@ summary.brsmm <- function(object, ...) {
     coefficients = list(
       mean      = tab[idx_beta, , drop = FALSE],
       precision = tab[idx_gamma, , drop = FALSE],
-      random    = tab[idx_re, , drop = FALSE]
+      # Cholesky scale: no z/p (a z-test of log SD tests SD = 1)
+      random    = tab[idx_re, c("Estimate", "Std. Error"), drop = FALSE]
     ),
+    varcorr = .brsmm_varcorr(object, V[idx_re, idx_re, drop = FALSE], level),
     residuals = rqr,
     loglik = object$value,
     AIC = AIC(object),
@@ -880,16 +893,14 @@ print.summary.brsmm <- function(x,
   )
   cat("\n")
 
-  # Random effects
-  cat("Random-effects parameters (Cholesky scale):\n")
-  tab_re_display <- x$coefficients$random
-  rownames(tab_re_display) <- .pretty_re_names(rownames(tab_re_display))
-  stats::printCoefmat(tab_re_display,
-    digits = digits,
-    P.values = TRUE, has.Pvalue = TRUE,
-    signif.stars = TRUE,
-    ...
-  )
+  # Random effects: SD / Corr with transformed Wald intervals, no tests
+  vc <- x$varcorr
+  cat(sprintf(paste0("Random effects (SD and Corr; %s%% Wald CI on the log / ",
+                     "atanh scale; no tests, see anova()):\n"),
+              format(100 * attr(vc, "level"))))
+  vc_tab <- as.matrix(vc[, c("estimate", "lower", "upper")])
+  dimnames(vc_tab) <- list(vc$term, c("Estimate", "Lower", "Upper"))
+  print(round(vc_tab, digits))
 
   cat("---\n")
   cat("Mixed beta interval model (", method_name, ")\n", sep = "")
@@ -1062,4 +1073,110 @@ ranef <- function(object, ...) UseMethod("ranef")
 ranef.brsmm <- function(object, ...) {
   .check_class_mm(object)
   object$random$mode_b
+}
+
+
+#' SD and correlation of the random effects with transformed Wald intervals
+#'
+#' @description
+#' From the packed Cholesky parameters \eqn{\theta} (log-diagonal,
+#' off-diagonal as is): \eqn{D = LL^\top}, \eqn{SD_r = \sqrt{D_{rr}}},
+#' \eqn{\rho_{rs} = D_{rs}/(SD_r SD_s)}. Intervals are Wald intervals for
+#' \eqn{\log SD} and \eqn{\mathrm{atanh}\,\rho} (analytic Jacobian, delta
+#' method) mapped back by \eqn{\exp} and \eqn{\tanh}.
+#'
+#' @param object A \code{"brsmm"} fit.
+#' @param V_re Covariance matrix of the packed Cholesky parameters.
+#' @param level Confidence level.
+#' @return A data frame (term, type, estimate, lower, upper, se_transformed).
+#' @keywords internal
+#' @noRd
+.brsmm_varcorr <- function(object, V_re, level = 0.95) {
+  theta <- as.numeric(object$coefficients$random)
+  q <- object$q_re
+  nm <- object$random$terms
+  tr <- .brsmm_varcorr_transform(theta, q)
+  J <- .brsmm_varcorr_jacobian(theta, q)
+  # Only the parameters each quantity depends on: an NA elsewhere does not spread
+  se <- vapply(seq_len(nrow(J)), function(r) {
+    nz <- which(J[r, ] != 0)
+    sqrt(drop(J[r, nz] %*% V_re[nz, nz, drop = FALSE] %*% J[r, nz]))
+  }, numeric(1))
+  z <- stats::qnorm(1 - (1 - level) / 2)
+  n_sd <- q
+  is_sd <- seq_along(tr) <= n_sd
+  pairs <- if (q > 1L) which(lower.tri(diag(q)), arr.ind = TRUE) else NULL
+  terms <- c(
+    paste0("SD ", nm),
+    if (q > 1L) paste0("Corr ", nm[pairs[, 1L]], ",", nm[pairs[, 2L]])
+  )
+  back <- function(v) ifelse(is_sd, exp(v), tanh(v))
+  out <- data.frame(
+    term = terms,
+    type = ifelse(is_sd, "sd", "corr"),
+    estimate = back(tr),
+    lower = back(tr - z * se),
+    upper = back(tr + z * se),
+    se_transformed = se,
+    row.names = NULL,
+    stringsAsFactors = FALSE
+  )
+  attr(out, "level") <- level
+  out
+}
+
+# (log SD_1..q, atanh rho_rs for r > s) from the packed Cholesky parameters.
+.brsmm_varcorr_transform <- function(theta, q) {
+  L <- .brsmm_unpack_chol(theta, q)
+  D <- L %*% t(L)
+  sdv <- sqrt(diag(D))
+  out <- log(sdv)
+  if (q > 1L) {
+    pr <- which(lower.tri(D), arr.ind = TRUE)
+    out <- c(out, atanh(D[pr] / (sdv[pr[, 1L]] * sdv[pr[, 2L]])))
+  }
+  out
+}
+
+# Analytic Jacobian of .brsmm_varcorr_transform(): dD = dL L' + L dL'.
+.brsmm_varcorr_jacobian <- function(theta, q) {
+  L <- .brsmm_unpack_chol(theta, q)
+  D <- L %*% t(L)
+  dd <- diag(D)
+  pr <- if (q > 1L) which(lower.tri(D), arr.ind = TRUE) else matrix(0L, 0L, 2L)
+  rho <- if (q > 1L) D[pr] / sqrt(dd[pr[, 1L]] * dd[pr[, 2L]]) else numeric(0)
+  idx <- which(lower.tri(D, diag = TRUE), arr.ind = TRUE)
+  idx <- idx[order(idx[, 2L], idx[, 1L]), , drop = FALSE]  # column-wise packing
+  J <- matrix(0, q + nrow(pr), length(theta))
+  for (k in seq_along(theta)) {
+    i <- idx[k, 1L]
+    j <- idx[k, 2L]
+    dL <- matrix(0, q, q)
+    # Diagonal entries are exp(theta): d/dtheta = L_ii
+    dL[i, j] <- if (i == j) L[i, i] else 1
+    dD <- dL %*% t(L) + L %*% t(dL)
+    g_sd <- 0.5 * diag(dD) / dd
+    g_rho <- if (q > 1L) {
+      (dD[pr] / sqrt(dd[pr[, 1L]] * dd[pr[, 2L]]) -
+        rho / 2 * (diag(dD)[pr[, 1L]] / dd[pr[, 1L]] + diag(dD)[pr[, 2L]] / dd[pr[, 2L]])) /
+        (1 - rho^2)
+    } else {
+      numeric(0)
+    }
+    J[, k] <- c(g_sd, g_rho)
+  }
+  J
+}
+
+# Lower-triangular L from the column-wise packed Cholesky parameters.
+.brsmm_unpack_chol <- function(theta, q) {
+  L <- matrix(0, q, q)
+  k <- 1L
+  for (j in seq_len(q)) {
+    for (i in j:q) {
+      L[i, j] <- if (i == j) exp(theta[k]) else theta[k]
+      k <- k + 1L
+    }
+  }
+  L
 }

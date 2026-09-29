@@ -229,6 +229,8 @@ brs_fit_fixed <- function(formula, data,
   X <- stats::model.matrix(mtX, mf)
   n <- nrow(X)
   p <- ncol(X)
+  # Aliased columns stop here instead of a non-finite value inside optim
+  .brs_check_design(X, "mean")
 
   # Extract delta from brs_check output
   delta <- as.integer(Y[, "delta"])
@@ -296,9 +298,15 @@ brs_fit_fixed <- function(formula, data,
   # hatmu is the FIRST parameter (shape p under repar 0); E[Y] via .brs_mean().
   est <- opt$par
   eta_mu <- X %*% est[1:p]
+  mu_raw <- apply_inv_link(eta_mu, link)
+  phi_raw <- apply_inv_link(est[p + 1L], link_phi)
   # Same clamps as the compiled likelihood (src/brs_common.h).
-  hatmu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, link), repar)
-  hatphi <- .clamp_phi_by_repar(apply_inv_link(est[p + 1L], link_phi), repar)
+  hatmu <- .clamp_mu_by_repar(mu_raw, repar)
+  hatphi <- .clamp_phi_by_repar(phi_raw, repar)
+  # Gradient, Hessian and clamp checks at the estimate (warn + stored)
+  diagnostics <- .brs_fit_diagnostics(-gr_obj(est), opt$hessian, mu_raw, phi_raw,
+                                      repar, opt$convergence,
+                                      badly_scaled = .brs_badly_scaled(X))
   y_mid <- Y[, "yt"]
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
   resid <- as.numeric(y_mid - ey)
@@ -331,7 +339,8 @@ brs_fit_fixed <- function(formula, data,
     call             = cl,
     par              = est,
     coefficients     = coefficients,
-    value            = -opt$value,
+    # Exactly the log-likelihood at the returned estimate
+    value            = -fn_obj(opt$par),
     hessian          = opt$hessian,
     convergence      = opt$convergence,
     message          = opt$message,
@@ -360,7 +369,8 @@ brs_fit_fixed <- function(formula, data,
     lim              = lim,
     interval         = interval,
     method           = method,
-    optim_method     = method
+    optim_method     = method,
+    diagnostics      = diagnostics
   )
 
   class(result) <- "brs"
@@ -492,6 +502,9 @@ brs_fit_var <- function(formula, data,
   n <- nrow(X)
   p <- ncol(X)
   q <- ncol(Z)
+  # Aliased columns stop here instead of a non-finite value inside optim
+  .brs_check_design(X, "mean")
+  .brs_check_design(Z, "precision")
 
   # Extract delta from brs_check output
   delta <- as.integer(Y[, "delta"])
@@ -562,9 +575,15 @@ brs_fit_var <- function(formula, data,
   # `hatmu` is the FIRST parameter (see brs_fit_fixed); means via .brs_mean().
   eta_mu <- X %*% est[idx_beta]
   eta_phi <- Z %*% est[idx_zeta]
+  mu_raw <- apply_inv_link(eta_mu, link)
+  phi_raw <- apply_inv_link(eta_phi, link_phi)
   # Same clamps as the compiled likelihood (src/brs_common.h).
-  hatmu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, link), repar)
-  hatphi <- .clamp_phi_by_repar(apply_inv_link(eta_phi, link_phi), repar)
+  hatmu <- .clamp_mu_by_repar(mu_raw, repar)
+  hatphi <- .clamp_phi_by_repar(phi_raw, repar)
+  # Gradient, Hessian and clamp checks at the estimate (warn + stored)
+  diagnostics <- .brs_fit_diagnostics(-gr_obj(est), opt$hessian, mu_raw, phi_raw,
+                                      repar, opt$convergence,
+                                      badly_scaled = .brs_badly_scaled(X, Z))
   y_mid <- Y[, "yt"]
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
   resid <- as.numeric(y_mid - ey)
@@ -603,7 +622,8 @@ brs_fit_var <- function(formula, data,
     call             = cl,
     par              = est,
     coefficients     = coefficients,
-    value            = -opt$value,
+    # Exactly the log-likelihood at the returned estimate
+    value            = -fn_obj(opt$par),
     hessian          = opt$hessian,
     convergence      = opt$convergence,
     message          = opt$message,
@@ -635,7 +655,8 @@ brs_fit_var <- function(formula, data,
     lim              = lim,
     interval         = interval,
     method           = method,
-    optim_method     = method
+    optim_method     = method,
+    diagnostics      = diagnostics
   )
 
   class(result) <- "brs"
@@ -695,9 +716,28 @@ brs_fit_var <- function(formula, data,
 #' different coarsening models, so their log-likelihoods are not
 #' comparable; see \code{\link{brs_check}} and \code{\link{anova.brs}}.
 #'
+#' @section Fit diagnostics:
+#' Before optimisation, an exactly rank-deficient mean or precision model
+#' matrix is an error naming the aliased columns, and a nearly collinear one
+#' (condition number of the unit-column matrix above \eqn{10^4}) a warning.
+#' After it, \code{fit$diagnostics} stores the largest absolute gradient
+#' (\code{grad_norm}), the log-likelihood gain \eqn{\frac12 g^\top (-H)^{-1} g}
+#' of the Newton step left to the optimum (\code{grad_gain}) and that step in
+#' SE units (\code{grad_step}), the extreme eigenvalues of \eqn{-H} (\code{min_eig},
+#' \code{max_eig}, \code{min_eig_scaled} in correlation form,
+#' \code{hessian_nd}) and the number of observations whose mean, second
+#' parameter or beta shapes sit on the clamps of the likelihood
+#' (\code{n_clamped}, \code{clamped}). One-line warnings flag a gradient
+#' not \eqn{\approx 0} (gain above 0.01), a Hessian that is not negative
+#' definite, and clamped observations (possible non-identifiability, e.g.
+#' every observation left-censored). \code{\link{vcov.brs}} then returns
+#' \code{NA} for variances it cannot estimate instead of a generalised
+#' inverse.
+#'
 #' @inheritParams brs_fit_var
 #'
-#' @return An object of class \code{"brs"}.
+#' @return An object of class \code{"brs"}; \code{diagnostics} holds the
+#'   post-fit checks described above.
 #'
 #' @examples
 #' \donttest{

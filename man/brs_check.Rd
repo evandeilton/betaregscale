@@ -59,13 +59,17 @@ cell \eqn{[l_s, u_s]} of \eqn{(0, 1)} and to a censoring type
 \eqn{\delta} of the complete likelihood (dissertation, eq.
 \code{eqn_verossimilhanca_geral}): \eqn{\delta = 0} density
 \eqn{f(y)}, \eqn{\delta = 1} \eqn{F(u)}, \eqn{\delta = 2}
-\eqn{1 - F(l)}, \eqn{\delta = 3} \eqn{F(u) - F(l)}. A response entirely
-in \eqn{(0, 1)} is exact (\eqn{\delta = 0}).
+\eqn{1 - F(l)}, \eqn{\delta = 3} \eqn{F(u) - F(l)}. A value in
+\eqn{(0, 1)} is exact (\eqn{\delta = 0}), observation by observation.
 }
 \details{
-If every value is in \eqn{(0, 1)} and \code{delta} is \code{NULL}, all
-observations are exact. Otherwise each score gets its cell and, with
-\code{delta = NULL}, the type above. A user-supplied \code{delta} (the
+With \code{delta = NULL}, each value in \eqn{(0, 1)} is exact and each
+other value is a score with its cell and the type above; the same
+per-observation rule as \code{\link{brs_prep}}. Input that mixes values in
+\eqn{(0, 1)} with values \eqn{\ge 1} is ambiguous (proportions and scores
+side by side, or rescaled scores): a warning says which rule applied.
+Half-point scores (0, 0.5, 1, ...) are scores on a finer grid: use
+\code{y * 2} and \code{ncuts * 2}. A user-supplied \code{delta} (the
 mechanism \code{\link{brs_sim}} uses in Monte Carlo studies) forces the
 type per observation and keeps the cell endpoints of the score:
 \tabular{lll}{

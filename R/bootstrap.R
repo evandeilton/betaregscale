@@ -14,17 +14,39 @@
 #' variable-dispersion) objects are supported; \code{"brsmm"} is not supported.
 #'
 #' @details
-#' For each replicate, data are simulated via \code{\link{brs_sim}} using
-#' the estimated coefficients (on the link scale) and the original
-#' design. The model is then re-fitted with \code{\link{brs}}. Replicates
-#' that fail to converge are discarded; if the number of successful replicates
-#' is too low, a warning is issued. Intervals are computed from the bootstrap
+#' Each replicate draws a new response \eqn{y^*_i \sim \mathrm{Beta}(a_i, b_i)}
+#' at the fitted shapes of the rows used by the fit and substitutes it into a
+#' copy of \code{object$data}; covariates, factor levels, transformations and
+#' the formula stay those of the original fit, which is then re-fitted with
+#' \code{\link{brs}} under the same \code{ncuts}, \code{lim}, \code{interval},
+#' links, \code{repar} and optimizer. The observation mechanism of each row is
+#' reproduced: exact observations (\eqn{\delta = 0}) stay continuous; scores
+#' are re-coarsened on the fit's grid (the mapping of \code{\link{brs_sim}}).
+#' Rows whose bounds came from the analyst (\code{\link{brs_prep}} Modes 2--4,
+#' bounds that are not the cell of the row's score) keep their thresholds as
+#' fixed and non-informative (independent of \eqn{Y}), and \eqn{\delta} is
+#' re-drawn by the cell of the partition they induce where \eqn{y^*} falls:
+#' for an upper bound \eqn{c}, \eqn{y^* \le c} gives \eqn{\delta = 1} on
+#' \eqn{[\epsilon, c]}, otherwise \eqn{\delta = 2} on \eqn{[c, 1 - \epsilon]}
+#' (an interval \eqn{[l, u]} gives three cells). When the original design had
+#' more thresholds than a row records (e.g. Mode 4 intervals cut from a finer
+#' instrument) the bootstrap is conservative, and for Mode 2 rows with a
+#' forced \eqn{\delta} (a threshold built from the score itself, which is
+#' informative) it is only an approximation. The response must be a variable
+#' (not an expression such as \code{I(y / 10)}).
+#'
+#' Replicates that fail (refit error, non-convergence, non-finite estimates)
+#' are discarded and counted: attributes \code{"n_failed"} and
+#' \code{"fail_rate"}, also printed. Intervals are computed from the bootstrap
 #' distribution of each parameter, with the method controlled by
 #' \code{ci_type}: \code{"percentile"} (default) uses the raw empirical
 #' quantiles; \code{"basic"} uses reflected empirical quantiles;
 #' \code{"normal"} uses a normal approximation from the bootstrap standard
 #' error (no quantiles); \code{"bca"} uses bias-corrected-and-accelerated
-#' adjusted quantiles.
+#' adjusted quantiles. With parametric resampling and a nonparametric
+#' (leave-one-out) jackknife acceleration, \code{"bca"} is an approximation;
+#' a warning says so once per session, and failed jackknife refits are
+#' reported in \code{"n_jack_failed"}.
 #'
 #' @section Cost of \code{ci_type = "bca"}:
 #' The bias-corrected and accelerated interval needs an acceleration constant,
@@ -54,7 +76,8 @@
 #'   \code{wald_lower}, \code{wald_upper}, and \code{level}. The attribute
 #'   \code{"n_success"} gives the number of replicates that converged.
 #'   Additional attributes include \code{"R"}, \code{"n_attempted"},
-#'   \code{"ci_type"}, and optionally \code{"boot_draws"}.
+#'   \code{"n_failed"}, \code{"fail_rate"}, \code{"n_jack_failed"} (BCa
+#'   only), \code{"ci_type"}, and optionally \code{"boot_draws"}.
 #'
 #' @examples
 #' \donttest{
@@ -107,31 +130,12 @@ brs_bootstrap <- function(object,
     stop("'max_tries' must be a single integer >= R.", call. = FALSE)
   }
 
-  p <- object$p
-  q <- object$q
   par_orig <- object$par
-  formula <- object$formula
-  data <- object$data
-  link <- object$link
-  link_phi <- object$link_phi
-  ncuts <- object$ncuts
-  lim <- object$lim
-  repar <- object$repar
-  # Replicates are generated and refitted under the fit's own coarsening
-  interval <- .brs_interval_of(object)
+  # Rows, response and observation mechanism of the fit (once, not per replicate)
+  setup <- .brs_boot_setup(object)
 
   alpha <- 1 - level
   probs <- c(alpha / 2, 1 - alpha / 2)
-
-  # Build parameter vector for simulation: beta and phi (scalar) or zeta (vector)
-  beta <- par_orig[seq_len(p)]
-  if (q == 1L) {
-    phi <- par_orig[p + 1L]
-    zeta <- NULL
-  } else {
-    phi <- NULL
-    zeta <- par_orig[p + seq_len(q)]
-  }
 
   boot_par <- matrix(NA_real_, nrow = R, ncol = length(par_orig))
   n_ok <- 0L
@@ -139,38 +143,9 @@ brs_bootstrap <- function(object,
 
   while (n_ok < R && n_attempted < max_tries) {
     n_attempted <- n_attempted + 1L
-    # The parent fit already gave the advisory lim warnings: not once per replicate
-    sim_r <- tryCatch(
-      .brs_quiet_lim(brs_sim(
-        formula = formula,
-        data = data,
-        beta = beta,
-        phi = phi,
-        zeta = zeta,
-        link = link,
-        link_phi = link_phi,
-        ncuts = ncuts,
-        lim = lim,
-        repar = repar,
-        interval = interval
-      )),
-      error = function(e) NULL
-    )
-    if (is.null(sim_r)) next
-
-    fit_r <- tryCatch(
-      .brs_quiet_lim(brs(
-        formula = formula,
-        data = sim_r,
-        link = link,
-        link_phi = link_phi,
-        ncuts = ncuts,
-        lim = lim,
-        repar = repar,
-        interval = interval
-      )),
-      error = function(e) NULL
-    )
+    # Only the response changes; covariates, factors and formula stay the fit's own
+    data_r <- .brs_boot_data(setup, object)
+    fit_r <- .brs_refit(object, data_r)
     if (is.null(fit_r) || fit_r$convergence != 0L) next
     if (length(fit_r$par) != length(par_orig)) next
     if (any(!is.finite(fit_r$par))) next
@@ -205,9 +180,9 @@ brs_bootstrap <- function(object,
       rbind(q_lo, q_hi)
     },
     basic = {
+      # Lower basic limit = 2 theta - upper quantile (and vice versa): reversed MCSE
       for (j in seq_len(ncol(boot_par))) {
-        mcse_raw <- .boot_mcse_limits(boot_par[, j], probs = rev(1 - probs))
-        mcse[, j] <- mcse_raw
+        mcse[, j] <- .boot_mcse_limits(boot_par[, j], probs = rev(probs))
       }
       rbind(2 * par_orig - q_hi, 2 * par_orig - q_lo)
     },
@@ -215,19 +190,24 @@ brs_bootstrap <- function(object,
       rbind(par_orig - z * se_boot, par_orig + z * se_boot)
     },
     bca = {
+      .brs_warn_once("bca_approx", paste0(
+        "ci_type = \"bca\" is an approximation here: parametric resampling with a ",
+        "nonparametric (leave-one-out) jackknife acceleration. Shown once per session."
+      ))
       bca <- .boot_bca_ci(
         object = object,
         boot_par = boot_par,
         par_orig = par_orig,
-        probs = probs
+        probs = probs,
+        setup = setup
       )
       mcse <- bca$mcse
+      n_jack_failed <- bca$n_failed
       bca$ci
     }
   )
-  ci <- pmin(pmax(ci, -Inf), Inf)
   V_wald <- vcov(object, model = "full")
-  se_wald <- sqrt(pmax(diag(V_wald), 0))
+  se_wald <- sqrt(diag(V_wald))
   wald_ci <- rbind(par_orig - z * se_wald, par_orig + z * se_wald)
 
   out <- data.frame(
@@ -256,6 +236,10 @@ brs_bootstrap <- function(object,
   attr(out, "n_success") <- n_ok
   attr(out, "R") <- R
   attr(out, "n_attempted") <- n_attempted
+  # Failed replicates: simulation, refit error, non-convergence or bad estimates
+  attr(out, "n_failed") <- n_attempted - n_ok
+  attr(out, "fail_rate") <- (n_attempted - n_ok) / n_attempted
+  if (identical(ci_type, "bca")) attr(out, "n_jack_failed") <- n_jack_failed
   attr(out, "ci_type") <- ci_type
   if (keep_draws) {
     colnames(boot_par) <- names(par_orig)
@@ -277,8 +261,17 @@ print.brs_bootstrap <- function(x, ...) {
     "| CI:", attr(x, "ci_type"),
     "| Successful replicates:", attr(x, "n_success"), "/", attr(x, "R"),
     "| Attempts:", attr(x, "n_attempted"),
-    "\n\n"
+    "\n"
   )
+  nf <- attr(x, "n_failed")
+  if (!is.null(nf)) {
+    cat(sprintf("  Failed replicates: %d (%.1f%% of attempts)", nf,
+                100 * attr(x, "fail_rate")))
+    nj <- attr(x, "n_jack_failed")
+    if (!is.null(nj)) cat(" | Failed jackknife refits:", nj)
+    cat("\n")
+  }
+  cat("\n")
   print(as.data.frame(x))
   invisible(x)
 }
@@ -314,11 +307,12 @@ print.brs_bootstrap <- function(x, ...) {
   out
 }
 
-# BCa intervals with jackknife acceleration
-.boot_bca_ci <- function(object, boot_par, par_orig, probs) {
+# BCa intervals with jackknife acceleration (over the rows used by the fit)
+.boot_bca_ci <- function(object, boot_par, par_orig, probs, setup) {
   B <- nrow(boot_par)
   p <- ncol(boot_par)
-  n <- nrow(object$data)
+  rows <- setup$rows
+  n <- length(rows)
 
   # Bias-correction
   z0 <- vapply(seq_len(p), function(j) {
@@ -327,27 +321,14 @@ print.brs_bootstrap <- function(x, ...) {
     stats::qnorm(prop)
   }, numeric(1))
 
-  # Jackknife acceleration
+  # Jackknife acceleration: leave one fitted row out of the data (response included)
   jack <- matrix(NA_real_, nrow = n, ncol = p)
   for (i in seq_len(n)) {
-    d_i <- object$data[-i, , drop = FALSE]
-    # Leave-one-out refits: no advisory lim warning per refit
-    fit_i <- tryCatch(
-      .brs_quiet_lim(brs(
-        formula = object$formula,
-        data = d_i,
-        link = object$link,
-        link_phi = object$link_phi,
-        ncuts = object$ncuts,
-        lim = object$lim,
-        repar = object$repar,
-        interval = .brs_interval_of(object)
-      )),
-      error = function(e) NULL
-    )
+    fit_i <- .brs_refit(object, setup$data[-rows[i], , drop = FALSE])
     if (is.null(fit_i) || fit_i$convergence != 0L || length(fit_i$par) != p) next
     jack[i, ] <- fit_i$par
   }
+  n_failed <- sum(!stats::complete.cases(jack))
   a <- rep(0, p)
   for (j in seq_len(p)) {
     jj <- jack[, j]
@@ -370,5 +351,177 @@ print.brs_bootstrap <- function(x, ...) {
     ci[, j] <- as.numeric(stats::quantile(boot_par[, j], probs = adj, names = FALSE, na.rm = TRUE))
     mcse[, j] <- .boot_mcse_limits(boot_par[, j], probs = adj)
   }
-  list(ci = ci, mcse = mcse)
+  list(ci = ci, mcse = mcse, n_failed = n_failed)
+}
+
+
+# -- Refit and response simulation ---------------------------------------- #
+
+# THE refit of a brs model on new data (bootstrap replicates and jackknife):
+# the fit's own settings; advisory warnings muffled; NULL on error.
+.brs_refit <- function(object, data) {
+  meth <- if (is.null(object$method)) "BFGS" else object$method
+  tryCatch(
+    suppressMessages(.brs_quiet_advisory(brs(
+      formula = object$formula,
+      data = data,
+      link = object$link,
+      link_phi = object$link_phi,
+      ncuts = object$ncuts,
+      lim = object$lim,
+      repar = object$repar,
+      method = meth,
+      interval = .brs_interval_of(object)
+    ))),
+    error = function(e) NULL
+  )
+}
+
+#' Observation mechanism of a brs fit, for the parametric bootstrap
+#'
+#' @description
+#' Rows of \code{object$data} used by the fit, the response column (added to
+#' the data when it lives in the formula environment), fitted beta shapes, and
+#' the mechanism of each row: \code{"exact"} (\eqn{\delta = 0}, stays
+#' continuous), \code{"score"} (cell of a score on the fit's grid, re-coarsened
+#' with \code{ncuts}/\code{lim}/\code{interval}) or \code{"analyst"} (brs_prep
+#' thresholds that are not the cell of the row's score: thresholds kept, the
+#' new value reported by its side of them).
+#'
+#' @param object A \code{"brs"} fit.
+#' @return A list used by \code{.brs_boot_data()}.
+#' @keywords internal
+#' @noRd
+.brs_boot_setup <- function(object) {
+  data <- object$data
+  f <- Formula::as.Formula(object$formula)
+  lhs <- formula(f)[[2L]]
+  if (!is.name(lhs)) {
+    stop("brs_bootstrap() needs the response to be a variable (found '",
+         deparse(lhs), "' on the left-hand side); create that column first.",
+         call. = FALSE)
+  }
+  resp <- as.character(lhs)
+  # Materialise a response kept outside `data` (formula environment)
+  if (!resp %in% names(data)) {
+    v <- eval(lhs, data, environment(f))
+    if (length(v) != nrow(data)) {
+      stop("The response '", resp, "' does not match the rows of the fitted data.",
+           call. = FALSE)
+    }
+    data[[resp]] <- v
+  }
+  mf <- stats::model.frame(f, data = data)
+  rows <- match(rownames(mf), rownames(data))
+  if (anyNA(rows) || length(rows) != object$nobs) {
+    stop("Unable to align the fitted rows with `object$data`.", call. = FALSE)
+  }
+
+  prepared <- isTRUE(attr(data, "is_prepared")) &&
+    all(c("left", "right", "yt", "delta") %in% names(data))
+  K <- as.integer(object$ncuts)
+  interval <- .brs_interval_of(object)
+  Y <- object$Y
+  delta <- as.integer(object$delta)
+  mech <- ifelse(delta == 0L, "exact", "score")
+  if (prepared) {
+    # A censored row is a score row only if it is exactly the cell of its score
+    y <- as.numeric(Y[, "y"])
+    is_score <- delta != 0L & !is.na(y) & abs(y - round(y)) < 1e-8 &
+      y >= 0 & y <= K
+    same <- rep(FALSE, length(y))
+    if (any(is_score)) {
+      auto <- .brs_check_core(round(y[is_score]), ncuts = K, lim = object$lim,
+                              delta = NULL, interval = interval)
+      same[is_score] <- auto[, "delta"] == delta[is_score] &
+        abs(auto[, "left"] - Y[is_score, "left"]) < 1e-9 &
+        abs(auto[, "right"] - Y[is_score, "right"]) < 1e-9
+    }
+    mech[delta != 0L & !same] <- "analyst"
+  }
+
+  # Fitted shapes, clamped as in the compiled likelihood
+  n <- object$nobs
+  sh <- brs_repar(object$hatmu, rep_len(object$hatphi, n), repar = object$repar)
+  list(
+    data = data, rows = rows, resp = resp, prepared = prepared, mech = mech,
+    shape1 = pmin(pmax(sh$shape1, 1e-12), 1e8),
+    shape2 = pmin(pmax(sh$shape2, 1e-12), 1e8),
+    y_unit = as.numeric(Y[, "y"]) > 0 & as.numeric(Y[, "y"]) < 1,
+    left = as.numeric(Y[, "left"]), right = as.numeric(Y[, "right"]),
+    delta = delta, K = K, lim = object$lim, interval = interval
+  )
+}
+
+# One bootstrap data set: a new response for the fitted rows, same covariates.
+.brs_boot_data <- function(setup, object) {
+  eps <- 1e-5
+  n <- length(setup$rows)
+  ys <- stats::rbeta(n, setup$shape1, setup$shape2)
+  yc <- pmin(pmax(ys, eps), 1 - eps)
+  K <- setup$K
+  iv <- setup$interval
+  ex <- setup$mech == "exact"
+  sc <- setup$mech == "score"
+  an <- setup$mech == "analyst"
+  # Scores by the likelihood's own coarsening (Lote 4 mapping)
+  s <- .brs_score_from_unit(yc, K, iv)
+  data <- setup$data
+  rows <- setup$rows
+
+  if (!setup$prepared) {
+    # Raw data: exact rows stay in (0, 1), score rows get a new score
+    v <- data[[setup$resp]]
+    v[rows[ex]] <- yc[ex]
+    v[rows[sc]] <- s[sc]
+    data[[setup$resp]] <- v
+    return(data)
+  }
+
+  left <- setup$left
+  right <- setup$right
+  yt <- yc
+  d <- setup$delta
+  ycol <- ifelse(setup$y_unit, yc, .brs_latent_score(yc, K, iv))
+  left[ex] <- yc[ex]
+  right[ex] <- yc[ex]
+  if (any(sc)) {
+    cells <- .brs_check_core(s[sc], ncuts = K, lim = setup$lim, delta = NULL,
+                             interval = iv)
+    left[sc] <- cells[, "left"]
+    right[sc] <- cells[, "right"]
+    yt[sc] <- cells[, "yt"]
+    d[sc] <- as.integer(cells[, "delta"])
+    ycol[sc] <- s[sc]
+  }
+  if (any(an)) {
+    # Fixed analyst thresholds: report the side (or the interval) holding y*
+    l0 <- setup$left[an]
+    u0 <- setup$right[an]
+    d0 <- setup$delta[an]
+    y0 <- yc[an]
+    i1 <- d0 == 1L
+    i2 <- d0 == 2L
+    i3 <- d0 == 3L
+    cut <- ifelse(i2, l0, u0)
+    below <- (i1 & y0 <= cut) | (i2 & y0 < cut) | (i3 & y0 < l0)
+    above <- (i1 & y0 > cut) | (i2 & y0 >= cut) | (i3 & y0 > u0)
+    # below: [eps, lower threshold]; above: [upper threshold, 1 - eps]; else [l0, u0]
+    new_d <- ifelse(below, 1L, ifelse(above, 2L, 3L))
+    new_l <- ifelse(below, eps, ifelse(above, ifelse(i3, u0, cut), l0))
+    new_r <- ifelse(below, ifelse(i3, l0, cut), ifelse(above, 1 - eps, u0))
+    new_yt <- ifelse(new_d == 1L, new_r / 2,
+      ifelse(new_d == 2L, (new_l + 1) / 2, (new_l + new_r) / 2))
+    left[an] <- new_l
+    right[an] <- new_r
+    yt[an] <- new_yt
+    d[an] <- new_d
+    ycol[an] <- .brs_latent_score(new_yt, K, iv)
+  }
+  data[["left"]][rows] <- left
+  data[["right"]][rows] <- right
+  data[["yt"]][rows] <- yt
+  data[["delta"]][rows] <- d
+  data[[setup$resp]][rows] <- ycol
+  data
 }

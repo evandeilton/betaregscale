@@ -959,11 +959,12 @@ test_that("simulate delta=1 produces all left-censored observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- brs_sim(
+  # Lote 7: forcing one side on every row is informative censoring (warns)
+  expect_warning(sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 1
-  )
+  ), "informative censoring")
   expect_true(all(sim$delta == 1))
   # y values preserve simulated variation (not all forced to 0)
   expect_true(length(unique(sim$y)) > 1)
@@ -976,11 +977,12 @@ test_that("simulate delta=2 produces all right-censored observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- brs_sim(
+  # Lote 7: forcing one side on every row is informative censoring (warns)
+  expect_warning(sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 2, ncuts = 100L
-  )
+  ), "informative censoring")
   expect_true(all(sim$delta == 2))
   # y values preserve simulated variation (not all forced to 100)
   expect_true(length(unique(sim$y)) > 1)
@@ -1095,26 +1097,30 @@ test_that("simulate delta=1 -> betaregscale converges", {
   set.seed(42)
   n <- 200
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- brs_sim(
+  expect_warning(sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 1
-  )
-  fit <- brs(y ~ x1 + x2, data = sim)
+  ), "informative censoring")
+  # Lote 7: optim reports convergence but no finite MLE exists; the fit says so
+  fit <- suppressWarnings(brs(y ~ x1 + x2, data = sim))
   expect_equal(fit$convergence, 0L)
+  expect_gt(fit$diagnostics$n_clamped, 0L)
 })
 
 test_that("simulate delta=2 -> betaregscale converges", {
   set.seed(42)
   n <- 200
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  sim <- brs_sim(
+  expect_warning(sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 2
-  )
-  fit <- brs(y ~ x1 + x2, data = sim)
+  ), "informative censoring")
+  # Lote 7: optim reports convergence but no finite MLE exists; the fit says so
+  fit <- suppressWarnings(brs(y ~ x1 + x2, data = sim))
   expect_equal(fit$convergence, 0L)
+  expect_gt(fit$diagnostics$n_clamped, 0L)
 })
 
 # ============================================================================ #

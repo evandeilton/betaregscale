@@ -60,7 +60,8 @@ rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.}
 }
 \value{
-An object of class \code{"brs"}.
+An object of class \code{"brs"}; \code{diagnostics} holds the
+  post-fit checks described above.
 }
 \description{
 Unified interface that dispatches to \code{\link{brs_fit_fixed}}
@@ -114,6 +115,26 @@ likelihood and coefficients and differ only in the latent score read
 back by \code{predict(type = "score")} (one unit). The modes are
 different coarsening models, so their log-likelihoods are not
 comparable; see \code{\link{brs_check}} and \code{\link{anova.brs}}.
+}
+
+\section{Fit diagnostics}{
+
+Before optimisation, an exactly rank-deficient mean or precision model
+matrix is an error naming the aliased columns, and a nearly collinear one
+(condition number of the unit-column matrix above \eqn{10^4}) a warning.
+After it, \code{fit$diagnostics} stores the largest absolute gradient
+(\code{grad_norm}), the log-likelihood gain \eqn{\frac12 g^\top (-H)^{-1} g}
+of the Newton step left to the optimum (\code{grad_gain}) and that step in
+SE units (\code{grad_step}), the extreme eigenvalues of \eqn{-H} (\code{min_eig},
+\code{max_eig}, \code{min_eig_scaled} in correlation form,
+\code{hessian_nd}) and the number of observations whose mean, second
+parameter or beta shapes sit on the clamps of the likelihood
+(\code{n_clamped}, \code{clamped}). One-line warnings flag a gradient
+not \eqn{\approx 0} (gain above 0.01), a Hessian that is not negative
+definite, and clamped observations (possible non-identifiability, e.g.
+every observation left-censored). \code{\link{vcov.brs}} then returns
+\code{NA} for variances it cannot estimate instead of a generalised
+inverse.
 }
 
 \examples{

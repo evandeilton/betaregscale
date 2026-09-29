@@ -118,10 +118,23 @@
   invisible(lim)
 }
 
+# One warning when (0, 1) values and values >= 1 are mixed (ambiguous input).
+.brs_warn_mixed_unit <- function(y) {
+  if (any(y > 0 & y < 1, na.rm = TRUE) && any(y >= 1, na.rm = TRUE)) {
+    .brs_advisory(paste0(
+      "The response mixes values in (0, 1) with values >= 1: values in (0, 1) ",
+      "are taken as exact (delta = 0), the others as scores on 0..ncuts. ",
+      "Rescale the data if the (0, 1) values are scores (half-point scores: ",
+      "use y * 2 and ncuts * 2)."
+    ), class = "brs_mixed_advisory")
+  }
+  invisible(NULL)
+}
+
 # Advisory lim warning with its own class, so internal refits can muffle it.
 .brs_lim_warning <- function(...) {
   warning(structure(
-    class = c("brs_lim_advisory", "warning", "condition"),
+    class = c("brs_lim_advisory", "brs_advisory", "warning", "condition"),
     list(message = paste0(...), call = NULL)
   ))
 }
@@ -173,8 +186,8 @@
 #' \eqn{\delta} of the complete likelihood (dissertation, eq.
 #' \code{eqn_verossimilhanca_geral}): \eqn{\delta = 0} density
 #' \eqn{f(y)}, \eqn{\delta = 1} \eqn{F(u)}, \eqn{\delta = 2}
-#' \eqn{1 - F(l)}, \eqn{\delta = 3} \eqn{F(u) - F(l)}. A response entirely
-#' in \eqn{(0, 1)} is exact (\eqn{\delta = 0}).
+#' \eqn{1 - F(l)}, \eqn{\delta = 3} \eqn{F(u) - F(l)}. A value in
+#' \eqn{(0, 1)} is exact (\eqn{\delta = 0}), observation by observation.
 #'
 #' @section Interval direction:
 #' \code{interval} is the direction of the uncertainty interval around the
@@ -204,9 +217,13 @@
 #' with \eqn{l = l_K}, otherwise \eqn{\delta = 3}.
 #'
 #' @details
-#' If every value is in \eqn{(0, 1)} and \code{delta} is \code{NULL}, all
-#' observations are exact. Otherwise each score gets its cell and, with
-#' \code{delta = NULL}, the type above. A user-supplied \code{delta} (the
+#' With \code{delta = NULL}, each value in \eqn{(0, 1)} is exact and each
+#' other value is a score with its cell and the type above; the same
+#' per-observation rule as \code{\link{brs_prep}}. Input that mixes values in
+#' \eqn{(0, 1)} with values \eqn{\ge 1} is ambiguous (proportions and scores
+#' side by side, or rescaled scores): a warning says which rule applied.
+#' Half-point scores (0, 0.5, 1, ...) are scores on a finer grid: use
+#' \code{y * 2} and \code{ncuts * 2}. A user-supplied \code{delta} (the
 #' mechanism \code{\link{brs_sim}} uses in Monte Carlo studies) forces the
 #' type per observation and keeps the cell endpoints of the score:
 #' \tabular{lll}{
@@ -381,16 +398,18 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL,
     )
   }
 
+  # Per observation (as brs_prep()): values in (0, 1) are exact, others scores
+  is_unit_obs <- (y > 0 & y < 1)
+  .brs_warn_mixed_unit(y)
   # Censoring type from the score (before any clamp); a forced delta wins
   out_delta <- if (!is.null(delta)) {
     as.integer(delta)
   } else {
-    ifelse(y == 0L, 1L, ifelse(y == ncuts, 2L, 3L))
+    ifelse(is_unit_obs, 0L, ifelse(y == 0L, 1L, ifelse(y == ncuts, 2L, 3L)))
   }
 
   # Cell of each score for the chosen direction; exact values in (0, 1) stay
   cell <- .brs_cell(y, ncuts, lim, interval)
-  is_unit_obs <- (y > 0 & y < 1)
   pts_exact <- ifelse(is_unit_obs, y, cell$mid)
 
   # delta 1: [eps, u_s]; delta 2: [l_s, 1 - eps]; delta 3: [l_s, u_s]

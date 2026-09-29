@@ -15,7 +15,10 @@
 A list of class \code{"summary.brs"}.
 }
 \description{
-Summarize a fitted model (betareg style)
+Wald tables for the mean and precision coefficients (standard errors
+from \code{\link{vcov.brs}}, \code{NA} when not estimable) and the
+randomized quantile residuals, drawn without changing the caller's RNG
+state (\code{.Random.seed} is restored).
 }
 \examples{
 \donttest{

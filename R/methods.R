@@ -107,6 +107,12 @@ coef.brs <- function(object,
 #'   \code{"mean"}, or \code{"precision"}).
 #' @param ... Ignored.
 #'
+#' @details
+#' \eqn{(-H)^{-1}} with \eqn{H} the Hessian of the log-likelihood at the
+#' estimate. No generalised inverse is used: a singular Hessian gives an
+#' \code{NA} matrix, and negative or non-finite variances become \code{NA}
+#' (row and column); both cases warn (see \code{fit$diagnostics}).
+#'
 #' @return A square numeric matrix.
 #'
 #' @seealso \code{\link{brs}}, \code{\link{coef.brs}}, \code{\link{confint.brs}}
@@ -135,29 +141,8 @@ vcov.brs <- function(object,
   .check_class(object)
   model <- match.arg(model)
 
-  V <- tryCatch(
-    solve(-object$hessian),
-    error = function(e) {
-      if (requireNamespace("MASS", quietly = TRUE)) {
-        warning(
-          "Hessian is computationally singular; returning a generalized inverse. ",
-          "Standard errors may be unreliable.",
-          call. = FALSE
-        )
-        MASS::ginv(-object$hessian)
-      } else {
-        # QUAL-L05: inform user why SEs will be NA
-        warning(
-          "Hessian is computationally singular and package 'MASS' is not available ",
-          "for a generalized inverse. Install 'MASS' for approximate SEs. ",
-          "Returning NA variance matrix.",
-          call. = FALSE
-        )
-        matrix(NA_real_, nrow(object$hessian), ncol(object$hessian))
-      }
-    }
-  )
-  rownames(V) <- colnames(V) <- names(object$par)
+  # No generalised inverse: singular or indefinite Hessians give NA, with a warning
+  V <- .brs_vcov(object$hessian, names(object$par))
 
   switch(model,
     full = V,
@@ -414,6 +399,12 @@ model.matrix.brs <- function(object,
 
 #' Summarize a fitted model (betareg style)
 #'
+#' @description
+#' Wald tables for the mean and precision coefficients (standard errors
+#' from \code{\link{vcov.brs}}, \code{NA} when not estimable) and the
+#' randomized quantile residuals, drawn without changing the caller's RNG
+#' state (\code{.Random.seed} is restored).
+#'
 #' @param object A fitted \code{"brs"} object.
 #' @param ...    Ignored.
 #'
@@ -447,7 +438,7 @@ summary.brs <- function(object, ...) {
 
   # Mean coefficients table
   cf_mu <- object$coefficients$mean
-  se_mu <- sqrt(pmax(diag(V)[seq_len(object$p)], 0))
+  se_mu <- sqrt(diag(V)[seq_len(object$p)])
   z_mu <- cf_mu / se_mu
   p_mu <- 2 * stats::pnorm(-abs(z_mu))
   tab_mu <- cbind(
@@ -460,7 +451,7 @@ summary.brs <- function(object, ...) {
   # Precision coefficients table
   cf_phi <- object$coefficients$precision
   idx_phi <- object$p + seq_len(object$q)
-  se_phi <- sqrt(pmax(diag(V)[idx_phi], 0))
+  se_phi <- sqrt(diag(V)[idx_phi])
   z_phi <- cf_phi / se_phi
   p_phi <- 2 * stats::pnorm(-abs(z_phi))
   tab_phi <- cbind(
@@ -470,11 +461,11 @@ summary.brs <- function(object, ...) {
     `Pr(>|z|)` = p_phi
   )
 
-  # Default residuals (RQR)
-  rqr <- tryCatch(
+  # Default residuals (RQR); their random draws leave the user's RNG state intact
+  rqr <- .brs_keep_seed(tryCatch(
     residuals(object, type = "rqr"),
     error = function(e) object$residuals
-  )
+  ))
 
   # Censoring summary
   delta <- object$delta
@@ -907,7 +898,7 @@ confint.brs <- function(object, parm, level = 0.95,
   model <- match.arg(model)
 
   cf <- coef(object, model = model)
-  se <- sqrt(pmax(diag(vcov(object, model = model)), 0))
+  se <- sqrt(diag(vcov(object, model = model)))
   z <- stats::qnorm(1 - (1 - level) / 2)
 
   ci <- cbind(cf - z * se, cf + z * se)
@@ -1193,7 +1184,7 @@ brs_est <- function(object, alpha = 0.05) {
     stop("Expected a 'brs' or 'brsmm' object.", call. = FALSE)
   }
   V <- vcov(object)
-  se <- sqrt(pmax(diag(V), 0))
+  se <- sqrt(diag(V))
   z <- object$par / se
   p <- 2 * stats::pnorm(-abs(z))
   z_alpha <- stats::qnorm(1 - alpha / 2)

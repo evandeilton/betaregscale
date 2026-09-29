@@ -44,7 +44,8 @@ A data frame with columns \code{parameter}, \code{estimate}
   \code{wald_lower}, \code{wald_upper}, and \code{level}. The attribute
   \code{"n_success"} gives the number of replicates that converged.
   Additional attributes include \code{"R"}, \code{"n_attempted"},
-  \code{"ci_type"}, and optionally \code{"boot_draws"}.
+  \code{"n_failed"}, \code{"fail_rate"}, \code{"n_jack_failed"} (BCa
+  only), \code{"ci_type"}, and optionally \code{"boot_draws"}.
 }
 \description{
 Computes bootstrap-based confidence intervals for the parameters of a
@@ -53,17 +54,39 @@ model and re-estimating parameters. Only \code{"brs"} (fixed or
 variable-dispersion) objects are supported; \code{"brsmm"} is not supported.
 }
 \details{
-For each replicate, data are simulated via \code{\link{brs_sim}} using
-the estimated coefficients (on the link scale) and the original
-design. The model is then re-fitted with \code{\link{brs}}. Replicates
-that fail to converge are discarded; if the number of successful replicates
-is too low, a warning is issued. Intervals are computed from the bootstrap
+Each replicate draws a new response \eqn{y^*_i \sim \mathrm{Beta}(a_i, b_i)}
+at the fitted shapes of the rows used by the fit and substitutes it into a
+copy of \code{object$data}; covariates, factor levels, transformations and
+the formula stay those of the original fit, which is then re-fitted with
+\code{\link{brs}} under the same \code{ncuts}, \code{lim}, \code{interval},
+links, \code{repar} and optimizer. The observation mechanism of each row is
+reproduced: exact observations (\eqn{\delta = 0}) stay continuous; scores
+are re-coarsened on the fit's grid (the mapping of \code{\link{brs_sim}}).
+Rows whose bounds came from the analyst (\code{\link{brs_prep}} Modes 2--4,
+bounds that are not the cell of the row's score) keep their thresholds as
+fixed and non-informative (independent of \eqn{Y}), and \eqn{\delta} is
+re-drawn by the cell of the partition they induce where \eqn{y^*} falls:
+for an upper bound \eqn{c}, \eqn{y^* \le c} gives \eqn{\delta = 1} on
+\eqn{[\epsilon, c]}, otherwise \eqn{\delta = 2} on \eqn{[c, 1 - \epsilon]}
+(an interval \eqn{[l, u]} gives three cells). When the original design had
+more thresholds than a row records (e.g. Mode 4 intervals cut from a finer
+instrument) the bootstrap is conservative, and for Mode 2 rows with a
+forced \eqn{\delta} (a threshold built from the score itself, which is
+informative) it is only an approximation. The response must be a variable
+(not an expression such as \code{I(y / 10)}).
+
+Replicates that fail (refit error, non-convergence, non-finite estimates)
+are discarded and counted: attributes \code{"n_failed"} and
+\code{"fail_rate"}, also printed. Intervals are computed from the bootstrap
 distribution of each parameter, with the method controlled by
 \code{ci_type}: \code{"percentile"} (default) uses the raw empirical
 quantiles; \code{"basic"} uses reflected empirical quantiles;
 \code{"normal"} uses a normal approximation from the bootstrap standard
 error (no quantiles); \code{"bca"} uses bias-corrected-and-accelerated
-adjusted quantiles.
+adjusted quantiles. With parametric resampling and a nonparametric
+(leave-one-out) jackknife acceleration, \code{"bca"} is an approximation;
+a warning says so once per session, and failed jackknife refits are
+reported in \code{"n_jack_failed"}.
 }
 \section{Methods (by generic)}{
 \itemize{
