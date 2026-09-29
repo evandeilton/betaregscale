@@ -180,9 +180,13 @@ to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
   than `numDeriv` and agrees with it to 1e-8 in the standard errors
   (`hessian_method = "numDeriv"` remains); `brs()` fits are 2.0-2.3x faster.
 * `brs()` accepts `start` and `control`. Bootstrap and jackknife refits
-  warm-start from the parent estimate and use the compiled Hessian: 2.8x faster
-  for `R = 100`, `n = 250` (1.2-1.4x without the warm start), with intervals
-  unchanged to 6e-5 standard errors.
+  warm-start from the parent estimate and use the compiled Hessian: 1.4-1.8x
+  faster for `R = 100`, `n = 250`, with intervals unchanged to 6e-5 standard
+  errors.
+* `brs_marginaleffects()` draws from the Cholesky factor of the variance
+  matrix instead of its eigenvectors, so a negligible change of the variance
+  matrix no longer changes the simulated standard errors (an eigenvector sign
+  flip moved them by about 2% with `n_sim = 400`).
 * `brsmm()` passes the gradient of the chosen approximation (Laplace, AGHQ or
   QMC; chain rule and implicit-function theorem at the modes) to `optim()`
   and computes the Hessian from it (`hessian_method = "cpp"`, default). Standard errors of random-slope models

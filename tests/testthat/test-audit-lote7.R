@@ -207,7 +207,7 @@ test_that("L7-B1: all left-censored data: clamp and Hessian warnings, SEs NA (no
                               invokeRestart("muffleWarning")
                             })
   expect_true(any(grepl("30 of 30 observations .* clamp boundary", w)))
-  expect_true(any(grepl("Hessian not negative definite", w)))
+  expect_true(any(grepl("Hessian near-singular or not negative definite", w)))
   expect_false(f0$diagnostics$hessian_nd)
   expect_identical(f0$diagnostics$n_clamped, 30L)
   expect_warning(s <- summary(f0), "set to NA|singular")
@@ -221,7 +221,14 @@ test_that("L7-B2: near-collinear and aliased columns are flagged before optim", 
                                 phi = -1.5, ncuts = 10))
   s$x3 <- x + rnorm(150, 0, 1e-5)
   s$x4 <- 2 * s$x - 1
-  expect_warning(brs(y ~ x + x3, data = s), "nearly collinear.*'x', 'x3'")
+  # The exact Hessian of this design is near-singular too: both warnings, none leaks
+  w <- character(0)
+  withCallingHandlers(brs(y ~ x + x3, data = s), warning = function(w_) {
+    w <<- c(w, conditionMessage(w_))
+    invokeRestart("muffleWarning")
+  })
+  expect_true(any(grepl("nearly collinear.*'x', 'x3'", w)))
+  expect_true(any(grepl("Hessian near-singular", w)))
   expect_error(brs(y ~ x + x4, data = s), "rank deficient.*'x4'")
   s$z4 <- s$x4
   expect_error(brs(y ~ x | x + z4, data = s), "precision model matrix is rank deficient")
@@ -519,32 +526,28 @@ test_that("L7-V3: the gradient check is the log-likelihood gain of a Newton step
     unname(fit$par), fit$model_matrices$X, fit$Y[, "left"], fit$Y[, "right"],
     fit$Y[, "yt"], as.integer(fit$delta), 0L, 0L, 2L)
   expect_equal(dg$grad_gain, 0.5 * sum(g * solve(-fit$hessian, g)), tolerance = 1e-8)
-  # Badly scaled cubic term (x in [1e5, 1e5 + 10]): large gain, warns and says rescale
+  # Badly scaled cubic term (x in [1e5, 1e5 + 10]): the fit stops short of the
+  # optimum and the user is told to rescale
   set.seed(1)
   x <- runif(200, 1e5, 1e5 + 10)
   s2 <- suppressWarnings(brs_sim(~ xs, data = data.frame(xs = (x - 1e5) / 10),
                                  beta = c(-0.5, 1), phi = qlogis(0.2), ncuts = 10))
   s2$x <- x
   w <- character(0)
-  f2 <- withCallingHandlers(brs(y ~ I(x^3), data = s2, hessian_method = "numDeriv"),
-                            warning = function(w_) {
-    w <<- c(w, conditionMessage(w_))
-    invokeRestart("muffleWarning")
-  })
-  expect_gt(f2$diagnostics$grad_gain, 1e-2)
-  expect_true(any(grepl("Gradient not ~0.*rescale the covariates", w)))
-  # Lote 5: with the exact (default "cpp") Hessian the same fit shows its real
-  # problem, a near-singular -H (intercept and x^3 nearly collinear), so no
-  # Newton gain is computed and the Hessian + collinearity warnings fire. The
-  # numDeriv Hessian above is wrong at this scale (its relative step on a
-  # 3e-12 coefficient moves eta by ~300), which inflated the gain.
-  w <- character(0)
   f3 <- withCallingHandlers(brs(y ~ I(x^3), data = s2), warning = function(w_) {
     w <<- c(w, conditionMessage(w_))
     invokeRestart("muffleWarning")
   })
+  # Direct check: the same model on a standardised covariate reaches the optimum
+  # (-435.216), 0.446 above the I(x^3) fit (Lote 5: the former grad_gain check here
+  # passed only through a wrong numDeriv Hessian at this scale, gain 3.2e17)
+  fs <- suppressWarnings(brs(y ~ scale(x^3), data = s2))
+  expect_gt(as.numeric(logLik(fs) - logLik(f3)), 0.1)
+  # The exact (cpp) Hessian shows the real problem: -H near-singular (intercept
+  # and x^3 nearly collinear), flagged together with the collinearity and the
+  # advice to rescale
   expect_false(f3$diagnostics$hessian_nd)
-  expect_true(any(grepl("Hessian not negative definite", w)))
+  expect_true(any(grepl("Hessian near-singular.*rescale the covariates", w)))
   expect_true(any(grepl("nearly collinear", w)))
 })
 

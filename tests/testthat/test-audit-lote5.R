@@ -235,3 +235,20 @@ test_that("L5-10: NA in delta stops in R and in the compiled code (no NaN -> int
   expect_error(betaregscale:::.brsmm_loglik_eigen(c(0, 0, 0, 0), X, Z, Z, q$left, q$right, q$yt,
                dl, g, 0L, 0L, 2L, 0L, 11L), "delta.*found NA at row 3")
 })
+
+test_that("L5-11: marginal-effect SEs are stable under a tiny change of vcov (Cholesky draws)", {
+  set.seed(4)
+  d <- data.frame(x1 = rnorm(150), x2 = rnorm(150))
+  s <- brs_sim(~ x1 + x2, data = d, beta = c(0.2, 0.5, -0.3), phi = -1.5, ncuts = 10)
+  fit <- brs(y ~ x1 + x2, data = s)
+  fit2 <- fit
+  E <- matrix(1e-10, nrow(fit$hessian), ncol(fit$hessian))
+  fit2$hessian <- fit$hessian * (1 + E)          # symmetric 1e-10 relative change
+  set.seed(9); a <- brs_marginaleffects(fit)
+  set.seed(9); b <- brs_marginaleffects(fit2)
+  expect_equal(a$std.error, b$std.error, tolerance = 1e-6)
+  expect_equal(a$ci.lower, b$ci.lower, tolerance = 1e-6)
+  # draws reproduce the covariance
+  set.seed(1); X <- betaregscale:::.brs_me_rmvnorm(2e4, c(0, 0), matrix(c(2, 0.6, 0.6, 1), 2))
+  expect_equal(cov(X), matrix(c(2, 0.6, 0.6, 1), 2), tolerance = 0.05)
+})

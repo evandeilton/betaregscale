@@ -202,8 +202,9 @@
     }
     if (!nd_ok) {
       .brs_advisory(sprintf(paste0(
-        "Hessian not negative definite (SEs unreliable): smallest eigenvalue ",
-        "of -H = %.3g (%.3g in correlation form)."), min(ev), sev))
+        "Hessian near-singular or not negative definite (SEs unreliable): ",
+        "smallest eigenvalue of -H = %.3g (%.3g in correlation form)%s."), min(ev), sev,
+        if (badly_scaled) "; rescale the covariates (their scales differ widely)" else ""))
     }
     if (out$n_clamped > 0L) {
       .brs_advisory(sprintf(paste0(
