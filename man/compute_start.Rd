@@ -7,8 +7,8 @@
 compute_start(
   formula,
   data,
-  link = "logit",
-  link_phi = "logit",
+  link = NULL,
+  link_phi = NULL,
   ncuts = 100L,
   lim = 0.5,
   repar = 2L
@@ -20,13 +20,19 @@ multi-part).}
 
 \item{data}{Data frame.}
 
-\item{link}{Mean link function name.}
+\item{link}{Mean link function name (\code{NULL}: default for
+\code{repar}).}
 
-\item{link_phi}{Dispersion link function name.}
+\item{link_phi}{Dispersion link function name (\code{NULL}: default for
+\code{repar}).}
 
 \item{ncuts}{Number of scale categories.}
 
 \item{lim}{Uncertainty half-width.}
+
+\item{repar}{Reparameterization scheme. Under \code{repar = 0} the
+shapes are started by the method of moments on the midpoint response
+(\eqn{f = m(1-m)/v - 1}, \eqn{p = m f}, \eqn{q = (1-m) f}).}
 }
 \value{
 Named numeric vector of starting values.

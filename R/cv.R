@@ -173,9 +173,10 @@ brs_cv <- function(formula,
     lim = fit$lim
   )
 
-  mu <- predict(fit, newdata = newdata, type = "response")
-  phi <- predict(fit, newdata = newdata, type = "precision")
-  shp <- brs_repar(mu = mu, phi = phi, repar = fit$repar)
+  # First parameter and phi for the shapes; E[Y] for the point metrics.
+  pp <- .brs_predict_params(fit, newdata = newdata)
+  shp <- brs_repar(mu = pp$mu, phi = pp$phi, repar = fit$repar)
+  mu <- .brs_mean(pp$mu, pp$phi, fit$repar)
 
   delta <- as.integer(Y[, "delta"])
   left <- as.numeric(Y[, "left"])

@@ -7,10 +7,10 @@
 brs_fit_fixed(
   formula,
   data,
-  link = "logit",
-  link_phi = "logit",
-  ncuts = 100L,
-  lim = 0.5,
+  link = NULL,
+  link_phi = NULL,
+  ncuts = NULL,
+  lim = NULL,
   hessian_method = c("numDeriv", "optim"),
   repar = 2L,
   method = c("BFGS", "L-BFGS-B")
@@ -21,20 +21,35 @@ brs_fit_fixed(
 
 \item{data}{Data frame.}
 
-\item{link}{Mean link function (default \code{"logit"}).}
+\item{link}{Link for the first parameter (the mean under
+\code{repar = 1, 2}; the shape \eqn{p} under \code{repar = 0}).
+\code{NULL} (default) selects the link implied by \code{repar}:
+\code{"logit"} for \code{repar = 1, 2}, \code{"log"} for
+\code{repar = 0}. See the 'Reparameterizations and links' section of
+\code{\link{brs}} for the admissible values.}
 
-\item{link_phi}{Dispersion link function (default \code{"logit"}).}
+\item{link_phi}{Link for the second parameter. \code{NULL} (default)
+selects \code{"logit"} for \code{repar = 2} (dispersion on
+\eqn{(0, 1)}) and \code{"log"} for \code{repar = 0, 1} (positive
+shape/precision).}
 
-\item{ncuts}{Number of scale categories (default 100).}
+\item{ncuts}{Number of scale categories. \code{NULL} (default) uses the
+value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
+or 100 when \code{data} was not prepared. A value that differs from
+the stored one is ignored with a warning (the endpoints were built
+with the stored value).}
 
-\item{lim}{Uncertainty half-width (default 0.5).}
+\item{lim}{Uncertainty half-width. \code{NULL} (default) uses
+\code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
+rule as \code{ncuts}.}
 
 \item{hessian_method}{Character: \code{"numDeriv"} (default) or
 \code{"optim"}.  With \code{"numDeriv"} the Hessian is computed
 after convergence using \code{\link[numDeriv]{hessian}}, which is
 typically more accurate than the built-in optim Hessian.}
 
-\item{repar}{Reparameterization scheme (default 2).}
+\item{repar}{Reparameterization scheme (default 2); see
+\code{\link{brs_repar}}.}
 
 \item{method}{Optimization method: \code{"BFGS"} (default) or
 \code{"L-BFGS-B"}.}

@@ -8,11 +8,11 @@ brsmm(
   formula,
   random = ~1 | id,
   data,
-  link = "logit",
-  link_phi = "logit",
+  link = NULL,
+  link_phi = NULL,
   repar = 2L,
-  ncuts = 100L,
-  lim = 0.5,
+  ncuts = NULL,
+  lim = NULL,
   int_method = c("laplace", "aghq", "qmc"),
   n_points = 11L,
   qmc_points = 1024L,
@@ -31,15 +31,24 @@ brsmm(
 
 \item{data}{Data frame.}
 
-\item{link}{Mean link function.}
+\item{link}{Link for the first parameter (the mean under
+\code{repar = 1, 2}; the shape \eqn{p} under \code{repar = 0}).
+\code{NULL} (default) selects the link implied by \code{repar}; see
+the 'Reparameterizations and links' section of \code{\link{brs}}.}
 
-\item{link_phi}{Precision link function.}
+\item{link_phi}{Link for the second parameter; \code{NULL} (default)
+selects the link implied by \code{repar}.}
 
-\item{repar}{Beta reparameterization code (0, 1, 2).}
+\item{repar}{Beta reparameterization code (0, 1, 2); see
+\code{\link{brs_repar}}.}
 
-\item{ncuts}{Number of categories on the original scale.}
+\item{ncuts}{Number of categories on the original scale. \code{NULL}
+(default) uses \code{attr(data, "ncuts")} from \code{\link{brs_prep}},
+or 100; an explicit different value is ignored with a warning.}
 
-\item{lim}{Half-width used to construct interval endpoints.}
+\item{lim}{Half-width used to construct interval endpoints. \code{NULL}
+(default) uses \code{attr(data, "lim")}, or 0.5; same rule as
+\code{ncuts}.}
 
 \item{int_method}{Integration method: \code{"laplace"} (default),
 \code{"aghq"}, or \code{"qmc"}.}

@@ -176,7 +176,7 @@ autoplot.brsmm <- function(object,
   theme_obj <- if (is.function(theme)) theme() else theme
   df <- data.frame(
     observed  = as.numeric(object$Y[, "yt"]),
-    predicted = as.numeric(object$fitted_mu)
+    predicted = as.numeric(fitted(object, type = "mu"))
   )
   probs <- seq(0, 1, length.out = bins + 1L)
   breaks <- unique(stats::quantile(df$predicted, probs = probs, na.rm = TRUE))

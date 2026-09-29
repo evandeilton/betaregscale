@@ -29,10 +29,10 @@
 #'   and the last element is the (link-scale) dispersion parameter.
 #' @param formula One-sided or two-sided formula for the mean model.
 #' @param data   Data frame containing the response and predictors.
-#' @param link   Character: link function for the mean (default
-#'   \code{"logit"}).
-#' @param link_phi Character: link function for the dispersion
-#'   (default \code{"logit"}).
+#' @param link   Character: link function for the first parameter
+#'   (\code{NULL}: the default for \code{repar}, see \code{\link{brs}}).
+#' @param link_phi Character: link function for the second parameter
+#'   (\code{NULL}: the default for \code{repar}).
 #' @param ncuts  Integer: number of scale categories (default 100).
 #' @param lim    Numeric: half-width of uncertainty region (default
 #'   0.5).
@@ -64,15 +64,16 @@
 brs_loglik <- function(param,
                        formula,
                        data,
-                       link = "logit",
-                       link_phi = "logit",
+                       link = NULL,
+                       link_phi = NULL,
                        ncuts = 100L,
                        lim = 0.5,
                        repar = 2L) {
-  # Validate links
-  link <- match.arg(link, .mu_links)
-  link_phi <- match.arg(link_phi, .phi_links)
+  # Validate links (defaults and compatibility depend on repar)
   repar <- as.integer(repar)
+  links <- .resolve_links(link, link_phi, repar)
+  link <- links$link
+  link_phi <- links$link_phi
 
   # Build model matrices
   mf <- stats::model.frame(formula, data = data)
@@ -135,15 +136,16 @@ brs_loglik <- function(param,
 brs_loglik_var <- function(param,
                            formula = y ~ x1 + x2 | z1,
                            data,
-                           link = "logit",
-                           link_phi = "logit",
+                           link = NULL,
+                           link_phi = NULL,
                            ncuts = 100L,
                            lim = 0.5,
                            repar = 2L) {
-  # Validate
-  link <- match.arg(link, .mu_links)
-  link_phi <- match.arg(link_phi, .phi_links)
+  # Validate (link defaults and compatibility depend on repar)
   repar <- as.integer(repar)
+  links <- .resolve_links(link, link_phi, repar)
+  link <- links$link
+  link_phi <- links$link_phi
 
   # Parse multi-part formula
   formula <- Formula::as.Formula(formula)

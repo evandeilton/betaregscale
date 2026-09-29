@@ -87,7 +87,7 @@ inline double h_func_vec(const Eigen::VectorXd &b, const GroupData &gd,
   int n = gd.delta.size();
   for (int i = 0; i < n; ++i) {
     double eta = gd.eta_mu_fixed(i) + gd.Zr.row(i).dot(b);
-    double mu  = clamp(inv_link(eta, link_mu_code), EPS_UNIT, 1.0 - EPS_UNIT);
+    double mu  = clamp_mu_by_repar(inv_link(eta, link_mu_code), repar);
     double phi = clamp_phi_by_repar(inv_link(gd.eta_phi(i), link_phi_code), repar);
     double a, bb;
     beta_shapes(mu, phi, repar, a, bb);

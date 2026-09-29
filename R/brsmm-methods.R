@@ -435,7 +435,8 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
   .check_class_mm(object)
   type <- match.arg(type)
   if (identical(type, "mu")) {
-    return(object$fitted_mu)
+    # E[Y] = a / (a + b): fitted_mu itself under repar 1/2, p/(p+q) under 0
+    return(.brs_mean(object$fitted_mu, object$fitted_phi, object$repar))
   }
   object$fitted_phi
 }
@@ -506,14 +507,18 @@ predict.brsmm <- function(object,
       stop("'newdata' must be a data.frame.", call. = FALSE)
     }
 
+    # xlev: factor levels of the fit, so a new level is a clear error
     tm_mu <- stats::delete.response(object$terms$mean)
-    mf_mu <- stats::model.frame(tm_mu, data = newdata, ...)
+    mf_mu <- stats::model.frame(tm_mu, data = newdata,
+                                xlev = object$xlevels$mean, ...)
     Xn <- stats::model.matrix(tm_mu, mf_mu)
 
-    mf_phi <- stats::model.frame(object$terms$precision, data = newdata, ...)
+    mf_phi <- stats::model.frame(object$terms$precision, data = newdata,
+                                 xlev = object$xlevels$precision, ...)
     Zn <- stats::model.matrix(object$terms$precision, mf_phi)
 
-    mf_r <- stats::model.frame(object$random$re_terms, data = newdata, ...)
+    mf_r <- stats::model.frame(object$random$re_terms, data = newdata,
+                               xlev = object$xlevels$random, ...)
     Xrn <- stats::model.matrix(object$random$re_terms, mf_r)
     if (nrow(Xrn) != nrow(Xn)) {
       stop(
@@ -547,11 +552,12 @@ predict.brsmm <- function(object,
     eta_phi <- as.numeric(Zn %*% gamma)
   }
 
-  mu <- apply_inv_link(eta_mu, object$link)
-  phi <- apply_inv_link(eta_phi, object$link_phi)
+  # mu is the FIRST parameter (shape p under repar 0); clamps mirror the C++.
+  mu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, object$link), object$repar)
+  phi <- .clamp_phi_by_repar(apply_inv_link(eta_phi, object$link_phi), object$repar)
 
   switch(type,
-    response = mu,
+    response = .brs_mean(mu, phi, object$repar),
     link = eta_mu,
     precision = phi,
     variance = {
@@ -622,28 +628,19 @@ residuals.brsmm <- function(object, type = c(
   type <- match.arg(type)
 
   y <- as.numeric(object$Y[, "yt"])
+  # `mu` is the FIRST parameter (shape p under repar 0); `ey` is E[Y].
   mu <- as.numeric(object$fitted_mu)
-  r <- y - mu
+  phi <- as.numeric(object$fitted_phi)
+  repar <- object$repar
+  ey <- .brs_mean(mu, phi, repar)
+  r <- y - ey
   if (type == "response") {
     return(r)
   }
 
-  phi <- as.numeric(object$fitted_phi)
-  repar <- object$repar
-
   get_shapes <- function(mu, phi, repar) {
     rp <- brs_repar(mu, phi, repar = repar)
     list(a = rp$shape1, b = rp$shape2)
-  }
-
-  to_precision <- function(mu, phi, repar) {
-    if (repar == 1L) {
-      return(phi)
-    }
-    if (repar == 2L) {
-      return((1 - phi) / phi)
-    }
-    mu + phi
   }
 
   switch(type,
@@ -653,10 +650,14 @@ residuals.brsmm <- function(object, type = c(
       r / sqrt(v)
     },
     deviance = {
+      # Ferrari & Cribari-Neto, identical to residuals.brs: saturated model with
+      # mean y and precision a + b (the old form evaluated the density at E[Y]).
       sh <- get_shapes(mu, phi, repar)
-      ll_obs <- stats::dbeta(y, sh$a, sh$b, log = TRUE)
-      ll_fit <- stats::dbeta(mu, sh$a, sh$b, log = TRUE)
-      sign(y - mu) * sqrt(2 * pmax(ll_obs - ll_fit, 0))
+      y_safe <- pmin(pmax(y, 1e-7), 1 - 1e-7)
+      prec <- sh$a + sh$b
+      ll_sat <- stats::dbeta(y_safe, y_safe * prec, (1 - y_safe) * prec, log = TRUE)
+      ll_fit <- stats::dbeta(y_safe, sh$a, sh$b, log = TRUE)
+      sign(y - ey) * sqrt(abs(2 * (ll_sat - ll_fit)))
     },
     rqr = {
       sh <- get_shapes(mu, phi, repar)
@@ -682,10 +683,12 @@ residuals.brsmm <- function(object, type = c(
     },
     weighted = ,
     sweighted = {
-      prec <- to_precision(mu, phi, repar)
+      # Espinheira et al. (2008) from the shapes: a = mu*prec, b = (1-mu)*prec
+      sh <- get_shapes(mu, phi, repar)
+      prec <- sh$a + sh$b
       ystar <- stats::qlogis(y)
-      mustar <- digamma(mu * prec) - digamma((1 - mu) * prec)
-      v <- trigamma(mu * prec) + trigamma((1 - mu) * prec)
+      mustar <- digamma(sh$a) - digamma(sh$b)
+      v <- trigamma(sh$a) + trigamma(sh$b)
       if (type == "weighted") {
         (ystar - mustar) / sqrt(prec * v)
       } else {

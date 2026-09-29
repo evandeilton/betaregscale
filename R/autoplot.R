@@ -211,7 +211,7 @@ autoplot.brs <- function(object,
   theme_obj <- if (is.function(theme)) theme() else theme
   df <- data.frame(
     observed  = as.numeric(object$Y[, "yt"]),
-    predicted = as.numeric(object$hatmu)
+    predicted = as.numeric(fitted(object, type = "mu"))
   )
   probs <- seq(0, 1, length.out = bins + 1L)
   breaks <- unique(stats::quantile(df$predicted, probs = probs, na.rm = TRUE))
@@ -313,17 +313,20 @@ autoplot.brs <- function(object,
   if (!is.finite(n_grid) || n_grid < 20L) stop("'n_grid' must be an integer >= 20.", call. = FALSE)
   if (!is.finite(max_curves) || max_curves < 1L) stop("'max_curves' must be an integer >= 1.", call. = FALSE)
   grid <- seq(1e-4, 1 - 1e-4, length.out = n_grid)
+  # First parameter and phi (not E[Y]): what brs_repar() expects.
   if (is.null(newdata)) {
-    ord <- order(object$hatmu)
+    pp <- .brs_predict_params(object)
+    ord <- order(.brs_mean(pp$mu, pp$phi, object$repar))
     idx <- unique(round(seq(1, length(ord), length.out = min(max_curves, length(ord)))))
-    mu <- object$hatmu[ord[idx]]
-    phi <- object$hatphi[ord[idx]]
+    mu <- pp$mu[ord[idx]]
+    phi <- pp$phi[ord[idx]]
     labels <- paste0("scenario_", seq_along(mu))
   } else {
     if (!is.data.frame(newdata)) stop("'newdata' must be a data.frame.", call. = FALSE)
     if (nrow(newdata) > max_curves) newdata <- newdata[seq_len(max_curves), , drop = FALSE]
-    mu <- predict(object, newdata = newdata, type = "response")
-    phi <- predict(object, newdata = newdata, type = "precision")
+    pp <- .brs_predict_params(object, newdata = newdata)
+    mu <- pp$mu
+    phi <- pp$phi
     labels <- paste0("scenario_", seq_along(mu))
   }
   shp <- brs_repar(mu = mu, phi = phi, repar = object$repar)

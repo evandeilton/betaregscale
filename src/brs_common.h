@@ -69,6 +69,17 @@ inline double clamp_phi_by_repar(double phi, int repar) {
   return clamp(phi, EPS_UNIT, MAX_SHAPE);
 }
 
+// Clamp the first parameter: the mean in (0, 1) for repar 1/2, the shape p > 0
+// for repar 0 (a (0, 1) clamp there capped p at 1 - EPS_UNIT). Mirror: R .clamp_mu_by_repar().
+inline double clamp_mu_by_repar(double mu, int repar) {
+  if (repar == 0) {
+    if (!std::isfinite(mu)) return MAX_SHAPE;
+    return clamp(mu, EPS_UNIT, MAX_SHAPE);
+  }
+  if (!std::isfinite(mu)) return 1.0 - EPS_UNIT;
+  return clamp(mu, EPS_UNIT, 1.0 - EPS_UNIT);
+}
+
 // Convert (mu, phi) to beta shape parameters (a, b) under the chosen reparameterisation.
 // repar = 0: a = mu,            b = phi
 // repar = 1: a = mu*phi,        b = (1-mu)*phi  [Ferrari & Cribari-Neto 2004]

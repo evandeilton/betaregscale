@@ -706,15 +706,13 @@ print.brs <- function(x,
 fitted.brs <- function(object, type = c("mu", "phi"), ...) {
   .check_class(object)
   type <- match.arg(type)
-  if (type == "mu") {
-    return(object$hatmu)
-  }
   n <- length(object$hatmu)
-  if (length(object$hatphi) == 1L) {
-    rep(as.numeric(object$hatphi), n)
-  } else {
-    as.numeric(object$hatphi)
+  phi <- rep_len(as.numeric(object$hatphi), n)
+  if (type == "mu") {
+    # E[Y] = a / (a + b): hatmu itself under repar 1/2, p / (p + q) under 0
+    return(.brs_mean(object$hatmu, phi, object$repar))
   }
+  phi
 }
 
 
@@ -731,15 +729,20 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #' @return Numeric vector of residuals.
 #'
 #' @details
-#' For Pearson residuals the variance formula depends on the
-#' reparameterization stored in \code{object$repar}:
+#' All residuals are computed from the fitted shapes \eqn{(a, b)} and the
+#' mean \eqn{E[Y] = a / (a + b)} (so they are consistent across
+#' reparameterizations). For Pearson residuals the variance is
 #' \describe{
 #'   \item{repar = 1 (precision)}{V = mu(1 - mu) / (1 + phi)}
 #'   \item{repar = 2 (mean-variance)}{V = mu(1 - mu) * phi}
+#'   \item{repar = 0 (shapes)}{V = pq / ((p + q)^2 (p + q + 1))}
 #' }
-#' The weighted and sweighted residuals use the digamma/trigamma
-#' formulation from the precision parameterization (repar = 1),
-#' so internal conversion is applied when \code{repar != 1}.
+#' The weighted and sweighted residuals use
+#' \eqn{y^* = \mathrm{logit}(y)}, \eqn{\mu^* = \psi(a) - \psi(b)} and
+#' \eqn{v = \psi'(a) + \psi'(b)} (Espinheira, Ferrari and Cribari-Neto,
+#' 2008), with the precision \eqn{a + b}. Deviance residuals compare the
+#' fit with a saturated model that has mean \eqn{y} and the same
+#' precision \eqn{a + b}.
 #'
 #' @seealso \code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}}
 #'
@@ -772,9 +775,11 @@ residuals.brs <- function(object,
   type <- match.arg(type)
 
   y <- object$Y[, "yt"]
+  # `mu` is the FIRST parameter (shape p under repar 0); `ey` is E[Y].
   mu <- object$hatmu
-  phi <- object$hatphi
+  phi <- rep_len(as.numeric(object$hatphi), length(mu))
   repar <- object$repar
+  ey <- .brs_mean(mu, phi, repar)
 
   if (type == "response") {
     return(object$residuals)
@@ -784,18 +789,6 @@ residuals.brs <- function(object,
   get_shapes <- function(mu, phi, repar) {
     rp <- brs_repar(mu, phi, repar = repar)
     list(a = rp$shape1, b = rp$shape2)
-  }
-
-  # Helper: convert to precision scale (repar=1) phi
-  to_precision <- function(mu, phi, repar) {
-    if (repar == 1L) {
-      return(phi)
-    }
-    if (repar == 2L) {
-      return((1 - phi) / phi)
-    }
-    # repar == 0: shapes are (mu, phi) directly, precision = a + b = mu + phi
-    mu + phi
   }
 
   switch(type,
@@ -813,18 +806,19 @@ residuals.brs <- function(object,
         s <- sh$a + sh$b
         v <- (sh$a * sh$b) / (s^2 * (s + 1))
       }
-      (y - mu) / sqrt(v)
+      (y - ey) / sqrt(v)
     },
     deviance = {
       sh <- get_shapes(mu, phi, repar)
       # BUG-C02: deviance uses the SATURATED log-likelihood where mu_sat = y.
       # The fitted contribution evaluates density at y with fitted shapes (a,b).
-      # The saturated contribution uses shapes derived from y itself.
+      # Saturated model: mean y, same precision a + b (= brs_repar(y, phi) under
+      # repar 1/2; defined under repar 0 too).
       y_safe <- pmin(pmax(y, 1e-7), 1 - 1e-7)
-      sh_sat  <- brs_repar(y_safe, phi, repar = repar)
-      ll_sat  <- stats::dbeta(y_safe, sh_sat$shape1, sh_sat$shape2, log = TRUE)
+      prec <- sh$a + sh$b
+      ll_sat  <- stats::dbeta(y_safe, y_safe * prec, (1 - y_safe) * prec, log = TRUE)
       ll_fit  <- stats::dbeta(y_safe, sh$a, sh$b, log = TRUE)
-      sign(y - mu) * sqrt(abs(2 * (ll_sat - ll_fit)))
+      sign(y - ey) * sqrt(abs(2 * (ll_sat - ll_fit)))
     },
     rqr = {
       sh <- get_shapes(mu, phi, repar)
@@ -849,19 +843,19 @@ residuals.brs <- function(object,
       u <- pmin(pmax(u, 1e-10), 1 - 1e-10)
       stats::qnorm(u)
     },
-    weighted = {
-      prec <- to_precision(mu, phi, repar)
-      ystar <- stats::qlogis(y)
-      mustar <- digamma(mu * prec) - digamma((1 - mu) * prec)
-      v <- trigamma(mu * prec) + trigamma((1 - mu) * prec)
-      (ystar - mustar) / sqrt(prec * v)
-    },
+    weighted = ,
     sweighted = {
-      prec <- to_precision(mu, phi, repar)
+      # Espinheira et al. (2008) from the shapes: a = mu*prec, b = (1-mu)*prec
+      sh <- get_shapes(mu, phi, repar)
+      prec <- sh$a + sh$b
       ystar <- stats::qlogis(y)
-      mustar <- digamma(mu * prec) - digamma((1 - mu) * prec)
-      v <- trigamma(mu * prec) + trigamma((1 - mu) * prec)
-      (ystar - mustar) / sqrt(v)
+      mustar <- digamma(sh$a) - digamma(sh$b)
+      v <- trigamma(sh$a) + trigamma(sh$b)
+      if (type == "weighted") {
+        (ystar - mustar) / sqrt(prec * v)
+      } else {
+        (ystar - mustar) / sqrt(v)
+      }
     }
   )
 }
@@ -936,9 +930,10 @@ confint.brs <- function(object, parm, level = 0.95,
 #'
 #' @param object  A fitted \code{"brs"} object.
 #' @param newdata Optional data frame for prediction.
-#' @param type    Prediction type: \code{"response"} (default),
-#'   \code{"link"}, \code{"precision"}, \code{"variance"}, or
-#'   \code{"quantile"}.
+#' @param type    Prediction type: \code{"response"} (default; the mean
+#'   \eqn{E[Y] = a / (a + b)}), \code{"link"} (linear predictor of the
+#'   first parameter), \code{"precision"} (second parameter on its own
+#'   scale), \code{"variance"}, or \code{"quantile"}.
 #' @param at      Numeric vector of probabilities for quantile
 #'   predictions (default 0.5).
 #' @param ...     Currently ignored.
@@ -978,21 +973,19 @@ predict.brs <- function(object, newdata = NULL,
   .check_class(object)
   type <- match.arg(type)
 
+  # mu is the FIRST parameter (shape p under repar 0); E[Y] via .brs_mean().
   if (is.null(newdata)) {
     mu <- object$hatmu
-    phi <- if (length(object$hatphi) == 1L) {
-      rep(as.numeric(object$hatphi), length(mu))
-    } else {
-      as.numeric(object$hatphi)
-    }
-    eta_mu <- apply_link(pmin(pmax(mu, 1e-7), 1 - 1e-7), object$link)
+    phi <- rep_len(as.numeric(object$hatphi), length(mu))
+    eta_mu <- as.numeric(object$model_matrices$X %*% object$coefficients$mean)
   } else {
-    # Build X from newdata
+    # xlev = levels of the fit: a new factor level errors instead of misaligning X
     mt_mu <- stats::delete.response(object$terms$mean)
-    mf <- stats::model.frame(mt_mu, data = newdata, ...)
+    mf <- stats::model.frame(mt_mu, data = newdata,
+                             xlev = object$xlevels$mean, ...)
     X <- stats::model.matrix(mt_mu, mf)
     eta_mu <- as.numeric(X %*% object$coefficients$mean)
-    mu <- apply_inv_link(eta_mu, object$link)
+    mu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, object$link), object$repar)
 
     # BUG-H02: detect variable-dispersion by presence of Z matrix with
     # non-intercept columns, not by q > 1 (which misclassifies y ~ x | 1).
@@ -1002,7 +995,8 @@ predict.brs <- function(object, newdata = NULL,
     # Build Z from newdata (variable dispersion)
     if (has_var_phi) {
       mt_phi <- object$terms$precision
-      mf_z <- stats::model.frame(mt_phi, data = newdata, ...)
+      mf_z <- stats::model.frame(mt_phi, data = newdata,
+                                 xlev = object$xlevels$precision, ...)
       Z <- stats::model.matrix(mt_phi, mf_z)
       eta_phi <- as.numeric(Z %*% object$coefficients$precision)
       phi <- apply_inv_link(eta_phi, object$link_phi)
@@ -1013,10 +1007,12 @@ predict.brs <- function(object, newdata = NULL,
       )
       phi <- rep(phi_scalar, nrow(X))
     }
+    # Same clamp as the compiled likelihood and as hatphi.
+    phi <- .clamp_phi_by_repar(phi, object$repar)
   }
 
   switch(type,
-    response = mu,
+    response = .brs_mean(mu, phi, object$repar),
     link = eta_mu,
     precision = phi,
     variance = {

@@ -90,20 +90,15 @@ brs_predict_scoreprob <- function(object,
     stop("'scores' must be integers in [0, ncuts].", call. = FALSE)
   }
 
-  if (is.null(newdata)) {
-    mu <- object$hatmu
-    phi <- object$hatphi
-  } else {
-    if (!is.data.frame(newdata)) {
-      stop("'newdata' must be a data.frame.", call. = FALSE)
-    }
-    mu <- predict(object, newdata = newdata, type = "response")
-    phi <- predict(object, newdata = newdata, type = "precision")
+  if (!is.null(newdata) && !is.data.frame(newdata)) {
+    stop("'newdata' must be a data.frame.", call. = FALSE)
   }
+  # First parameter and phi (not E[Y]): what brs_repar() expects.
+  pp <- .brs_predict_params(object, newdata = newdata)
 
   P <- .brs_score_prob_matrix(
-    mu = mu,
-    phi = phi,
+    mu = pp$mu,
+    phi = pp$phi,
     repar = object$repar,
     ncuts = K,
     lim = object$lim,

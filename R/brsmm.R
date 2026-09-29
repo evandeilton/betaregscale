@@ -42,11 +42,20 @@
 #' @param random Random-effects specification of the form
 #'   \code{~ terms | group}, e.g. \code{~ 1 | id} or \code{~ 1 + x | id}.
 #' @param data Data frame.
-#' @param link Mean link function.
-#' @param link_phi Precision link function.
-#' @param repar Beta reparameterization code (0, 1, 2).
-#' @param ncuts Number of categories on the original scale.
-#' @param lim Half-width used to construct interval endpoints.
+#' @param link Link for the first parameter (the mean under
+#'   \code{repar = 1, 2}; the shape \eqn{p} under \code{repar = 0}).
+#'   \code{NULL} (default) selects the link implied by \code{repar}; see
+#'   the 'Reparameterizations and links' section of \code{\link{brs}}.
+#' @param link_phi Link for the second parameter; \code{NULL} (default)
+#'   selects the link implied by \code{repar}.
+#' @param repar Beta reparameterization code (0, 1, 2); see
+#'   \code{\link{brs_repar}}.
+#' @param ncuts Number of categories on the original scale. \code{NULL}
+#'   (default) uses \code{attr(data, "ncuts")} from \code{\link{brs_prep}},
+#'   or 100; an explicit different value is ignored with a warning.
+#' @param lim Half-width used to construct interval endpoints. \code{NULL}
+#'   (default) uses \code{attr(data, "lim")}, or 0.5; same rule as
+#'   \code{ncuts}.
 #' @param int_method Integration method: \code{"laplace"} (default),
 #'   \code{"aghq"}, or \code{"qmc"}.
 #' @param n_points Number of quadrature points for \code{int_method="aghq"}.
@@ -94,11 +103,11 @@
 brsmm <- function(formula,
                   random = ~ 1 | id,
                   data,
-                  link = "logit",
-                  link_phi = "logit",
+                  link = NULL,
+                  link_phi = NULL,
                   repar = 2L,
-                  ncuts = 100L,
-                  lim = 0.5,
+                  ncuts = NULL,
+                  lim = NULL,
                   int_method = c("laplace", "aghq", "qmc"),
                   n_points = 11L,
                   qmc_points = 1024L,
@@ -109,16 +118,17 @@ brsmm <- function(formula,
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
-  link <- match.arg(link, .mu_links)
-  link_phi <- match.arg(link_phi, .phi_links)
   int_method <- match.arg(int_method)
-  repar <- as.integer(repar)
   n_points <- as.integer(n_points)
   qmc_points <- as.integer(qmc_points)
 
-  if (!is.data.frame(data)) {
-    stop("'data' must be a data.frame.", call. = FALSE)
-  }
+  # Same checks as brs(); an unknown repar used to reach the C++ `default:` branch.
+  validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi)
+  ncuts <- validated$ncuts
+  lim <- validated$lim
+  repar <- validated$repar
+  link <- validated$link
+  link_phi <- validated$link_phi
   # int_method check removed to support aghq and qmc
   if (!is.finite(n_points) || n_points < 1L) {
     stop("'n_points' must be >= 1.", call. = FALSE)
@@ -309,14 +319,6 @@ brsmm <- function(formula,
   eta_phi <- as.numeric(Z %*% gamma_hat)
   y_mid <- as.numeric(Y[, "yt"])
 
-  pseudo_r2 <- suppressWarnings(stats::cor(
-    as.numeric(X %*% beta_hat),
-    apply_link(pmin(pmax(y_mid, 1e-7), 1 - 1e-7), link)
-  )^2)
-  if (!is.finite(pseudo_r2)) {
-    pseudo_r2 <- NA_real_
-  }
-
   mean_names <- colnames(X)
   phi_names <- paste0("(phi)_", colnames(Z))
   re_colnames <- colnames(Xr)
@@ -360,8 +362,17 @@ brsmm <- function(formula,
     sigma_b_hat <- NA_real_
   }
 
-  hatmu <- apply_inv_link(eta_mu, link)
-  hatphi <- apply_inv_link(eta_phi, link_phi)
+  # fitted_mu is the FIRST parameter (shape p under repar 0); E[Y] via .brs_mean().
+  # Both clamps mirror the compiled likelihood (src/brs_common.h).
+  hatmu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, link), repar)
+  hatphi <- .clamp_phi_by_repar(apply_inv_link(eta_phi, link_phi), repar)
+  ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
+
+  pseudo_r2 <- suppressWarnings(
+    .brs_pseudo_r2(X %*% beta_hat, ey, y_mid, link, repar)
+  )
+  .warn_sqrt_plateau(eta_mu, link, "link")
+  .warn_sqrt_plateau(eta_phi, link_phi, "link_phi")
 
   out <- list(
     call = cl,
@@ -374,7 +385,7 @@ brsmm <- function(formula,
     iterations = opt$counts,
     fitted_mu = as.numeric(hatmu),
     fitted_phi = as.numeric(hatphi),
-    residuals = as.numeric(y_mid - hatmu),
+    residuals = as.numeric(y_mid - ey),
     pseudo.r.squared = pseudo_r2,
     random = list(
       group = group_var,
@@ -392,6 +403,14 @@ brsmm <- function(formula,
     formula = formula_parsed,
     random_formula = random,
     terms = list(mean = mtX, precision = mtZ, full = mtX),
+    xlevels = list(
+      mean = stats::.getXlevels(mtX, mf),
+      precision = stats::.getXlevels(mtZ, mf),
+      random = stats::.getXlevels(
+        random_spec$re_terms,
+        stats::model.frame(random_spec$re_terms, data_sub)
+      )
+    ),
     model_matrices = list(X = X, Z = Z, Xr = Xr),
     Y = Y,
     delta = delta,
