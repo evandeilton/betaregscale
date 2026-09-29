@@ -14,7 +14,8 @@ compute_start(
   link_phi = NULL,
   ncuts = 100L,
   lim = 0.5,
-  repar = 2L
+  repar = 2L,
+  interval = "mid"
 )
 ```
 
@@ -50,6 +51,10 @@ compute_start(
   Reparameterization scheme. Under `repar = 0` the shapes are started by
   the method of moments on the midpoint response (\\f = m(1-m)/v - 1\\,
   \\p = m f\\, \\q = (1-m) f\\).
+
+- interval:
+
+  Interval direction used when `data` is not prepared.
 
 ## Value
 

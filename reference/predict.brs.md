@@ -9,7 +9,8 @@ Predict from a fitted model
 predict(
   object,
   newdata = NULL,
-  type = c("response", "link", "precision", "variance", "quantile"),
+  type = c("response", "link", "precision", "variance", "quantile", "score",
+    "expected_score"),
   at = 0.5,
   ...
 )
@@ -29,8 +30,18 @@ predict(
 
   Prediction type: `"response"` (default; the mean \\E\[Y\] = a / (a +
   b)\\), `"link"` (linear predictor of the first parameter),
-  `"precision"` (second parameter on its own scale), `"variance"`, or
-  `"quantile"`.
+  `"precision"` (second parameter on its own scale), `"variance"`,
+  `"quantile"`, `"score"` or `"expected_score"`. `"score"` is the latent
+  continuous score of the fit's `interval` at \\y^\* = E\[Y\]\\: \\K
+  y^\*\\ on \\(0, K)\\ for `"mid"`, \\(K + 1) y^\*\\ on \\(0, K + 1)\\
+  for `"right"` and \\(K + 1) y^\* - 1\\ on \\(-1, K)\\ for `"left"` (it
+  can be negative); under `"right"`/`"left"` it is about 0.5 above/below
+  the expected recorded score, because a recorded score is the
+  lower/upper end of its latent interval. `"expected_score"` is the
+  expected recorded score \\\sum_s s\\ P(S = s)\\
+  ([`brs_predict_scoreprob`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)),
+  the same for `"right"` and `"left"`, and a proper expectation only
+  when the cells partition \\\[0, 1\]\\.
 
 - at:
 

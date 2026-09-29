@@ -67,7 +67,8 @@ types.</p>
 <span>  lim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numDeriv"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BFGS"</span>, <span class="st">"L-BFGS-B"</span><span class="op">)</span></span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BFGS"</span>, <span class="st">"L-BFGS-B"</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -108,9 +109,10 @@ with the stored value).</p></dd>
 
 
 <dt id="arg-lim">lim<a class="anchor" aria-label="anchor" href="#arg-lim"></a></dt>
-<dd><p>Uncertainty half-width. <code>NULL</code> (default) uses
+<dd><p>Half-width of the score cell in \((0, 0.5]\)
+(<code>interval = "mid"</code> only). <code>NULL</code> (default) uses
 <code>attr(data, "lim")</code> from <code><a href="brs_prep.html">brs_prep</a></code>, or 0.5; same
-rule as <code>ncuts</code>.</p></dd>
+rule as <code>ncuts</code>. Values below 0.5 warn (partial coarsening).</p></dd>
 
 
 <dt id="arg-hessian-method">hessian_method<a class="anchor" aria-label="anchor" href="#arg-hessian-method"></a></dt>
@@ -128,6 +130,13 @@ typically more accurate than the built-in optim Hessian.</p></dd>
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Optimization method: <code>"BFGS"</code> (default) or
 <code>"L-BFGS-B"</code>.</p></dd>
+
+
+<dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
+<dd><p>Direction of the uncertainty interval, <code>"mid"</code>,
+<code>"right"</code> or <code>"left"</code> (see <code><a href="brs_check.html">brs_check</a></code>).
+<code>NULL</code> (default) uses <code>attr(data, "interval")</code> from
+<code><a href="brs_prep.html">brs_prep</a></code>, or <code>"mid"</code>; same rule as <code>ncuts</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

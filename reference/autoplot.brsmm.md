@@ -120,7 +120,6 @@ ggplot2::autoplot(fit_mm, type = "all")
 #> Warning: neighborhood radius 3.0128
 #> Warning: reciprocal condition number  0
 #> Warning: There are other near singularities as well. 8.5891
-#> Warning: NaNs produced
 
 # }
 ```

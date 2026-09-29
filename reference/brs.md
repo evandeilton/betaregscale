@@ -18,7 +18,8 @@ brs(
   lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  hessian_method = c("numDeriv", "optim")
+  hessian_method = c("numDeriv", "optim"),
+  interval = NULL
 )
 ```
 
@@ -57,9 +58,11 @@ brs(
 
 - lim:
 
-  Uncertainty half-width. `NULL` (default) uses `attr(data, "lim")` from
+  Half-width of the score cell in \\(0, 0.5\]\\ (`interval = "mid"`
+  only). `NULL` (default) uses `attr(data, "lim")` from
   [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
-  or 0.5; same rule as `ncuts`.
+  or 0.5; same rule as `ncuts`. Values below 0.5 warn (partial
+  coarsening).
 
 - repar:
 
@@ -73,6 +76,15 @@ brs(
 - hessian_method:
 
   Character: `"numDeriv"` or `"optim"`.
+
+- interval:
+
+  Direction of the uncertainty interval, `"mid"`, `"right"` or `"left"`
+  (see
+  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)).
+  `NULL` (default) uses `attr(data, "interval")` from
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+  or `"mid"`; same rule as `ncuts`.
 
 ## Value
 
@@ -112,6 +124,20 @@ Under `repar = 0` the fitted object stores the shape \\p\\ in `hatmu`
 [`fitted()`](https://rdrr.io/r/stats/fitted.values.html),
 `predict(type = "response")`, residuals and marginal effects use the
 mean \\E\[Y\] = p / (p + q)\\.
+
+## Interval direction
+
+`interval` selects how a score \\s\\ is coarsened into a cell of \\(0,
+1)\\: `"mid"` \\\[s - \mathrm{lim}, s + \mathrm{lim}\] / K\\ (default),
+`"right"` and `"left"` \\\[s, s + 1\] / (K + 1)\\ (the dissertation's
+\\r\\ and \\l\\ directions; equal cells, a package normalisation).
+`"right"` and `"left"` give the same likelihood and coefficients and
+differ only in the latent score read back by `predict(type = "score")`
+(one unit). The modes are different coarsening models, so their
+log-likelihoods are not comparable; see
+[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
+and
+[`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md).
 
 ## References
 

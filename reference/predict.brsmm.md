@@ -9,7 +9,8 @@ Predict from a brsmm model
 predict(
   object,
   newdata = NULL,
-  type = c("response", "link", "precision", "variance", "quantile"),
+  type = c("response", "link", "precision", "variance", "quantile", "score",
+    "expected_score"),
   at = 0.5,
   ...
 )
@@ -28,7 +29,13 @@ predict(
 - type:
 
   Character: `"response"` (default), `"link"`, `"precision"`,
-  `"variance"`, or `"quantile"`.
+  `"variance"`, `"quantile"`, `"score"` or `"expected_score"`. `"score"`
+  is the latent score of the fit's `interval` at the conditional mean
+  (support \\(0, K)\\, \\(0, K + 1)\\ or \\(-1, K)\\; about 0.5
+  above/below the expected recorded score under `"right"`/`"left"`);
+  `"expected_score"` is the expected recorded score \\\sum_s s\\ P(S =
+  s)\\. Details:
+  [`predict.brs`](https://evandeilton.github.io/betaregscale/reference/predict.brs.md).
 
 - at:
 
@@ -68,8 +75,8 @@ prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 head(predict(fit))
-#> [1] 0.3855891 0.3094727 0.3855891 0.3094727 0.3855891 0.5713390
+#> [1] 0.3856376 0.3093722 0.3856376 0.3093722 0.3856376 0.5712995
 head(predict(fit, type = "precision"))
-#> [1] 0.3588447 0.3588447 0.3588447 0.3588447 0.3588447 0.3588447
+#> [1] 0.3588121 0.3588121 0.3588121 0.3588121 0.3588121 0.3588121
 # }
 ```

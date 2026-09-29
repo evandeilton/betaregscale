@@ -33,7 +33,7 @@ brs_cv(formula, data, k = 5L, repeats = 1L, ...)
 
   Additional arguments forwarded to
   [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
-  (e.g., `repar`, `link`, `method`).
+  (e.g., `repar`, `link`, `interval`, `method`).
 
 ## Value
 

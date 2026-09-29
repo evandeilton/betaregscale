@@ -76,7 +76,8 @@ random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
 <span>  start <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BFGS"</span>, <span class="st">"L-BFGS-B"</span><span class="op">)</span>,</span>
 <span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numDeriv"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
-<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">2000L</span><span class="op">)</span></span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">2000L</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -122,9 +123,9 @@ or 100; an explicit different value is ignored with a warning.</p></dd>
 
 
 <dt id="arg-lim">lim<a class="anchor" aria-label="anchor" href="#arg-lim"></a></dt>
-<dd><p>Half-width used to construct interval endpoints. <code>NULL</code>
-(default) uses <code>attr(data, "lim")</code>, or 0.5; same rule as
-<code>ncuts</code>.</p></dd>
+<dd><p>Half-width of the score cell in \((0, 0.5]\)
+(<code>interval = "mid"</code> only). <code>NULL</code> (default) uses
+<code>attr(data, "lim")</code>, or 0.5; same rule as <code>ncuts</code>.</p></dd>
 
 
 <dt id="arg-int-method">int_method<a class="anchor" aria-label="anchor" href="#arg-int-method"></a></dt>
@@ -157,6 +158,13 @@ Default is 1024.</p></dd>
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
 <dd><p>Control list for <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>.</p></dd>
+
+
+<dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
+<dd><p>Direction of the uncertainty interval, <code>"mid"</code>,
+<code>"right"</code> or <code>"left"</code> (see <code><a href="brs_check.html">brs_check</a></code>).
+<code>NULL</code> (default) uses <code>attr(data, "interval")</code>, or
+<code>"mid"</code>; same rule as <code>ncuts</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -214,17 +222,17 @@ Beta regression for modelling rates and proportions.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (mean model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)          x1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4201     -0.3367 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4212     -0.3374 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.5804 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.5805 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random-effects parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> logSD.(Intercept)|id </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               -0.628 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              -0.6278 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Random SD: 0.5337 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Random SD: 0.5338 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mixed beta interval model (Laplace)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Observations: 20  | Groups: 4 </span>

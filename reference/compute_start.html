@@ -62,7 +62,8 @@ optimizer.</p>
 <span>  link_phi <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  repar <span class="op">=</span> <span class="fl">2L</span></span>
+<span>  repar <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"mid"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -101,6 +102,10 @@ multi-part).</p></dd>
 <dd><p>Reparameterization scheme. Under <code>repar = 0</code> the
 shapes are started by the method of moments on the midpoint response
 (\(f = m(1-m)/v - 1\), \(p = m f\), \(q = (1-m) f\)).</p></dd>
+
+
+<dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
+<dd><p>Interval direction used when <code>data</code> is not prepared.</p></dd>
 
 </dl></div>
     <div class="section level2">

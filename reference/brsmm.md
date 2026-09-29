@@ -25,7 +25,8 @@ brsmm(
   start = NULL,
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("numDeriv", "optim"),
-  control = list(maxit = 2000L)
+  control = list(maxit = 2000L),
+  interval = NULL
 )
 ```
 
@@ -71,8 +72,9 @@ brsmm(
 
 - lim:
 
-  Half-width used to construct interval endpoints. `NULL` (default) uses
-  `attr(data, "lim")`, or 0.5; same rule as `ncuts`.
+  Half-width of the score cell in \\(0, 0.5\]\\ (`interval = "mid"`
+  only). `NULL` (default) uses `attr(data, "lim")`, or 0.5; same rule as
+  `ncuts`.
 
 - int_method:
 
@@ -103,6 +105,14 @@ brsmm(
 - control:
 
   Control list for [`optim`](https://rdrr.io/r/stats/optim.html).
+
+- interval:
+
+  Direction of the uncertainty interval, `"mid"`, `"right"` or `"left"`
+  (see
+  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)).
+  `NULL` (default) uses `attr(data, "interval")`, or `"mid"`; same rule
+  as `ncuts`.
 
 ## Value
 
@@ -169,17 +179,17 @@ fit_mm
 #> 
 #> Coefficients (mean model with logit link):
 #> (Intercept)          x1 
-#>      0.4201     -0.3367 
+#>      0.4212     -0.3374 
 #> 
 #> Phi coefficients (precision model with logit link):
 #> (Intercept) 
-#>     -0.5804 
+#>     -0.5805 
 #> 
 #> Random-effects parameters:
 #> logSD.(Intercept)|id 
-#>               -0.628 
+#>              -0.6278 
 #> 
-#> Random SD: 0.5337 
+#> Random SD: 0.5338 
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 20  | Groups: 4 

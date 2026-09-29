@@ -1,48 +1,22 @@
 # Transform and validate a scale-derived response variable
 
-Takes a discrete (or continuous) response on the scale \\0, 1, \ldots,
-K\\ (where \\K =\\ `ncuts`) and converts it to a pair of interval
-endpoints on the open unit interval \\(0, 1)\\. Each observation is
-classified into one of four censoring types following the complete
-likelihood used in this package:
-
-- \\\delta = 0\\:
-
-  Uncensored (exact): the observation is a continuous value already in
-  \\(0, 1)\\. The likelihood contribution is the density \\f(y_i \|
-  \theta)\\. Endpoints: \\l_i = u_i = y_i\\ (or \\y_i / K\\ when on the
-  scale).
-
-- \\\delta = 1\\:
-
-  Left-censored: the latent value is below some upper bound \\u_i\\. The
-  contribution is \\F(u_i \| \theta)\\. When the observation is at the
-  scale minimum (\\y = 0\\), the upper bound is \\u_i = \mathrm{lim} /
-  K\\. When the user forces \\\delta = 1\\ on a non-boundary observation
-  (\\y \neq 0\\), the upper bound is \\u_i = (y + \mathrm{lim}) / K\\,
-  preserving observation- specific variation. In both cases \\l_i =
-  \epsilon\\.
-
-- \\\delta = 2\\:
-
-  Right-censored: the latent value is above some lower bound \\l_i\\.
-  The contribution is \\1 - F(l_i \| \theta)\\. When the observation is
-  at the scale maximum (\\y = K\\), the lower bound is \\l_i = (K -
-  \mathrm{lim}) / K\\. When the user forces \\\delta = 2\\ on a
-  non-boundary observation (\\y \neq K\\), the lower bound is \\l_i =
-  (y - \mathrm{lim}) / K\\, preserving observation- specific variation.
-  In both cases \\u_i = 1 - \epsilon\\.
-
-- \\\delta = 3\\:
-
-  Interval-censored: the standard case for scale data. The contribution
-  is \\F(u_i \| \theta) - F(l_i \| \theta)\\ with midpoint interval
-  endpoints \\\[(y - \mathrm{lim})/K,\\ (y + \mathrm{lim})/K\]\\.
+Maps a score on \\\\0, 1, \ldots, K\\\\ (\\K =\\ `ncuts`) to a cell
+\\\[l_s, u_s\]\\ of \\(0, 1)\\ and to a censoring type \\\delta\\ of the
+complete likelihood (dissertation, eq. `eqn_verossimilhanca_geral`):
+\\\delta = 0\\ density \\f(y)\\, \\\delta = 1\\ \\F(u)\\, \\\delta = 2\\
+\\1 - F(l)\\, \\\delta = 3\\ \\F(u) - F(l)\\. A response entirely in
+\\(0, 1)\\ is exact (\\\delta = 0\\).
 
 ## Usage
 
 ``` r
-brs_check(y, ncuts = 100L, lim = 0.5, delta = NULL)
+brs_check(
+  y,
+  ncuts = 100L,
+  lim = 0.5,
+  delta = NULL,
+  interval = c("mid", "right", "left")
+)
 ```
 
 ## Arguments
@@ -60,22 +34,22 @@ brs_check(y, ncuts = 100L, lim = 0.5, delta = NULL)
 
 - lim:
 
-  Numeric: half-width \\h\\ of the uncertainty region (default 0.5).
-  Controls the width of the interval around each scale point.
+  Numeric in \\(0, 0.5\]\\: half-width of the cell under
+  `interval = "mid"` (default 0.5, adjacent cells touch). Values below
+  0.5 give a partial coarsening (warning); ignored, with a warning, for
+  `"right"`/`"left"`.
 
 - delta:
 
   Integer vector or `NULL`. If `NULL` (default), censoring types are
-  inferred automatically from the boundary rules described above.
+  derived from the scores. If provided, must have the same length as `y`
+  with elements in `{0, 1, 2, 3}`; it overrides the type per observation
+  (see Details).
 
-  If provided, must have the same length as `y`, with every element in
-  `{0, 1, 2, 3}`. The supplied values override the automatic
-  classification on a per-observation basis, and the endpoint formulas
-  adapt to non-boundary observations as described in the table above.
+- interval:
 
-  This parameter is used internally by the simulation functions when the
-  analyst forces a specific censoring type (e.g.,
-  `brs_sim(..., delta = 2)`).
+  Direction of the uncertainty interval: `"mid"` (default), `"right"` or
+  `"left"`; see the section 'Interval direction'.
 
 ## Value
 
@@ -110,56 +84,33 @@ A numeric matrix with \\n\\ rows and 5 columns:
 
 ## Details
 
-**Automatic classification** (`delta = NULL`):
-
-If the entire input vector is already in \\(0, 1)\\ (i.e., all values
-satisfy \\0 \< y \< 1\\), all observations are treated as uncensored
-(\\\delta = 0\\).
-
-Otherwise, for scale (integer) data:
-
-- \\y = 0\\: left-censored (\\\delta = 1\\).
-
-- \\y = K\\: right-censored (\\\delta = 2\\).
-
-- \\0 \< y \< K\\: interval-censored (\\\delta = 3\\).
-
-**User-supplied delta** (`delta` vector):
-
-When the `delta` argument is provided, the user-supplied censoring
-indicators override the automatic boundary-based rules on a
-per-observation basis. This is the mechanism used by
+If every value is in \\(0, 1)\\ and `delta` is `NULL`, all observations
+are exact. Otherwise each score gets its cell and, with `delta = NULL`,
+the type above. A user-supplied `delta` (the mechanism
 [`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
-when the analyst forces a specific censoring type in Monte Carlo
-studies.
+uses in Monte Carlo studies) forces the type per observation and keeps
+the cell endpoints of the score:
 
-The endpoint formulas for each delta value are:
+|            |                                           |                  |
+|------------|-------------------------------------------|------------------|
+| \\\delta\\ | \\l_i\\                                   | \\u_i\\          |
+| 0          | cell centre (or \\y\\ when in \\(0, 1)\\) | same             |
+| 1          | \\\epsilon\\                              | \\u_s\\          |
+| 2          | \\l_s\\                                   | \\1 - \epsilon\\ |
+| 3          | \\l_s\\                                   | \\u_s\\          |
 
-|  |  |  |  |
-|----|----|----|----|
-| \\\delta\\ | Condition | \\l_i\\ (left) | \\u_i\\ (right) |
-| 0 | \\y \in (0, 1)\\ | \\y\\ | \\y\\ |
-| 0 | \\y\\ on scale | \\y / K\\ | \\y / K\\ |
-| 1 | \\y = 0\\ (boundary) | \\\epsilon\\ | \\\mathrm{lim} / K\\ |
-| 1 | \\y \neq 0\\ (forced) | \\\epsilon\\ | \\(y + \mathrm{lim}) / K\\ |
-| 2 | \\y = K\\ (boundary) | \\(K - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
-| 2 | \\y \neq K\\ (forced) | \\(y - \mathrm{lim}) / K\\ | \\1 - \epsilon\\ |
-| 3 | midpoint interval | \\(y - \mathrm{lim}) / K\\ | \\(y + \mathrm{lim}) / K\\ |
+Under `"mid"` with `lim = 0.5` this is \\u_0 = 0.5 / K\\, \\l_K = (K -
+0.5) / K\\ and \\\[l_s, u_s\] = \[(s - 0.5) / K, (s + 0.5) / K\]\\.
+Scores outside \\\[0, K\]\\ are an error (as in
+[`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)),
+and so is a \\\delta = 3\\ observation with \\l_i = u_i\\
+(zero-probability interval).
 
-All endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\ with
-\\\epsilon = 10^{-5}\\ to avoid boundary issues in the beta likelihood.
-
-The midpoint approximation `yt` is computed as:
-
-- \\y_t = y\\ when \\y \in (0, 1)\\ (continuous data).
-
-- \\y_t = y / K\\ when \\y\\ is on the integer scale.
-
-This value is used as an initialization aid for starting-value
-computation. It also enters the likelihood directly for exact/uncensored
-observations (\\\delta = 0\\), where the contribution is the beta
-density evaluated at \\y_t\\; for censored observations (\\\delta \in
-\\1,2,3\\\\) only `left`/`right` enter the likelihood, not `yt`.
+All endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\, \\\epsilon
+= 10^{-5}\\. `yt` is the cell centre (\\s / K\\ under `"mid"`, \\(s +
+0.5) / (K + 1)\\ otherwise; \\y\\ itself for exact values): it is the
+density argument for \\\delta = 0\\ and a point summary elsewhere;
+censored contributions use only `left`/`right`.
 
 **Interaction with the fitting pipeline**:
 
@@ -171,6 +122,35 @@ or by simulation with forced delta
 ([`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
 with `delta != NULL`), the pre-computed columns are used directly and
 `brs_check()` is skipped.
+
+## Interval direction
+
+`interval` is the direction of the uncertainty interval around the score
+(dissertation, "Mapeamento de intervalos para beta": \\m = \[s - 0.5,
+s + 0.5\]\\, \\r = \[s, s + 1\]\\, \\l = \[s - 1, s\]\\):
+
+|  |  |  |
+|----|----|----|
+| `interval` | cell of score \\s\\ | latent score |
+| `"mid"` | \\\[s - \mathrm{lim}, s + \mathrm{lim}\] / K\\ | \\K y^\*\\ |
+| `"right"` | \\\[s, s + 1\] / (K + 1)\\ | \\(K + 1) y^\*\\ |
+| `"left"` | \\\[s, s + 1\] / (K + 1)\\ | \\(K + 1) y^\* - 1\\ |
+
+The \\K + 1\\ cells of `"right"` and `"left"` are equal and partition
+\\\[0, 1\]\\. This normalisation is a package choice that differs from
+the dissertation, which divides \\r\\ and \\l\\ by \\K\\ (there \\r\\
+and \\l\\ differ by \\1/K\\, and chapter 4 reports opposite intercept
+biases for them); here `"right"` and `"left"` give the same likelihood
+and coefficients, and differ only in how a fitted value is read back on
+the score scale (one unit), so that opposite-bias signature disappears
+by construction. The three modes are different coarsening models of the
+same scores: their log-likelihoods are not comparable and
+[`anova()`](https://rdrr.io/r/stats/anova.html) refuses to compare them.
+`lim` applies to `"mid"` only.
+
+The censoring type comes from the score, before any clamping: \\s = 0
+\to \delta = 1\\ with \\u = u_0\\, \\s = K \to \delta = 2\\ with \\l =
+l_K\\, otherwise \\\delta = 3\\.
 
 ## References
 
@@ -215,6 +195,16 @@ brs_check(y, ncuts = 10)
 #> [5,] 0.85000 0.95000 0.90000  9     3
 #> [6,] 0.95000 0.99999 0.99999 10     2
 
+# Right-direction intervals: cells [s, s + 1] / 11
+brs_check(y, ncuts = 10, interval = "right")
+#>           left      right         yt  y delta
+#> [1,] 0.0000100 0.09090909 0.04545455  0     1
+#> [2,] 0.2727273 0.36363636 0.31818182  3     3
+#> [3,] 0.4545455 0.54545455 0.50000000  5     3
+#> [4,] 0.6363636 0.72727273 0.68181818  7     3
+#> [5,] 0.8181818 0.90909091 0.86363636  9     3
+#> [6,] 0.9090909 0.99999000 0.95454545 10     2
+
 # Force all observations to be exact (delta = 0)
 brs_check(y, ncuts = 10, delta = rep(0L, length(y)))
 #>         left   right      yt  y delta
@@ -225,12 +215,10 @@ brs_check(y, ncuts = 10, delta = rep(0L, length(y)))
 #> [5,] 0.90000 0.90000 0.90000  9     0
 #> [6,] 0.99999 0.99999 0.99999 10     0
 
-# Force delta = 1 on non-boundary observations:
-# endpoints use actual y values, preserving variation
+# Force delta = 1 on non-boundary observations: u = (y + 0.5) / K
 y2 <- c(30, 60)
 brs_check(y2, ncuts = 100, delta = c(1L, 1L))
 #>       left right  yt  y delta
 #> [1,] 1e-05 0.305 0.3 30     1
 #> [2,] 1e-05 0.605 0.6 60     1
-#  left = (eps, eps), right = (30.5/100, 60.5/100)
 ```

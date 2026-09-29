@@ -48,16 +48,16 @@ and `prob`.
 
 ## Details
 
-For a score \\s\\ and \\K =\\ `ncuts`, probabilities are computed as:
-
-- \\P(Y=s)=F(\mathrm{lim}/K)\\ for \\s=0\\,
-
-- \\P(Y=s)=1-F((K-\mathrm{lim})/K)\\ for \\s=K\\,
-
-- \\P(Y=s)=F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K)\\ for \\s \in
-  \\1,\ldots,K-1\\\\,
-
-where \\F\\ is the beta CDF under the fitted \\(\mu_i,\phi_i)\\.
+For a score \\s\\ with cell \\\[l_s, u_s\]\\ of the fit's `interval`
+(see
+[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)),
+\\P(S = s) = F(u_s) - F(l_s)\\ with \\l_0 = 0\\ and \\u_K = 1\\, where
+\\F\\ is the beta CDF under the fitted \\(\mu_i, \phi_i)\\. Under
+`"mid"` this is \\F(\mathrm{lim}/K)\\ for \\s = 0\\, \\1 - F((K -
+\mathrm{lim})/K)\\ for \\s = K\\ and \\F((s + \mathrm{lim})/K) - F((s -
+\mathrm{lim})/K)\\ otherwise; under `"right"`/`"left"` the cells are
+\\\[s, s + 1\]/(K + 1)\\. The rows sum to 1 whenever the cells partition
+\\\[0, 1\]\\ (always for `"right"`/`"left"`; `lim = 0.5` for `"mid"`).
 
 ## References
 

@@ -30,7 +30,8 @@ brs_prep(
   left = "left",
   right = "right",
   ncuts = 100L,
-  lim = 0.5
+  lim = 0.5,
+  interval = c("mid", "right", "left")
 )
 ```
 
@@ -63,8 +64,24 @@ brs_prep(
 
 - lim:
 
-  Numeric: half-width of the uncertainty region (default 0.5). Used only
-  when constructing intervals from `y` alone.
+  Numeric in \\(0, 0.5\]\\: half-width of the score cell under
+  `interval = "mid"` (default 0.5). Used only when constructing
+  intervals from `y` alone; see
+  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
+
+- interval:
+
+  Direction of the uncertainty interval, `"mid"` (default), `"right"` or
+  `"left"`; see the section 'Interval direction' of
+  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
+  Mode 1/2 cells follow it. Analyst endpoints \\L\\ (Modes 3/4) are
+  bounds on the latent score of that direction (the scale of
+  `predict(type = "score")`), must lie in \\\[-0.5, K + 0.5\]\\, \\\[0,
+  K + 1\]\\ or \\\[-1, K\]\\, and map to \\L / K\\, \\L / (K + 1)\\ or
+  \\(L + 1) / (K + 1)\\; so \\\[s - 0.5, s + 0.5\]\\, \\\[s, s + 1\]\\
+  and \\\[s - 1, s\]\\ all give the cell of score \\s\\. Without an
+  analyst `delta`, an interval reaching 0 (or 1) on the unit scale is
+  left- (or right-) censored.
 
 ## Value
 
@@ -80,7 +97,7 @@ A `data.frame` with the following columns appended or replaced:
 
 - `yt`:
 
-  Midpoint approximation on \\(0, 1)\\.
+  Cell centre (point summary) on \\(0, 1)\\.
 
 - `y`:
 
@@ -91,11 +108,10 @@ A `data.frame` with the following columns appended or replaced:
   Censoring indicator: 0 = exact, 1 = left, 2 = right, 3 = interval.
 
 Covariate columns are preserved. The output carries attributes
-`"is_prepared"` (`TRUE`), `"ncuts"` and `"lim"` so that
-[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) can
-detect prepared data and skip the internal
-[`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
-call.
+`"is_prepared"` (`TRUE`), `"ncuts"`, `"lim"` and `"interval"`, which
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) and
+[`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+reuse (an explicit different value is ignored with a warning).
 
 ## Details
 

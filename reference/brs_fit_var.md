@@ -17,7 +17,8 @@ brs_fit_var(
   ncuts = NULL,
   lim = NULL,
   repar = 2L,
-  method = c("BFGS", "L-BFGS-B")
+  method = c("BFGS", "L-BFGS-B"),
+  interval = NULL
 )
 ```
 
@@ -61,9 +62,11 @@ brs_fit_var(
 
 - lim:
 
-  Uncertainty half-width. `NULL` (default) uses `attr(data, "lim")` from
+  Half-width of the score cell in \\(0, 0.5\]\\ (`interval = "mid"`
+  only). `NULL` (default) uses `attr(data, "lim")` from
   [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
-  or 0.5; same rule as `ncuts`.
+  or 0.5; same rule as `ncuts`. Values below 0.5 warn (partial
+  coarsening).
 
 - repar:
 
@@ -73,6 +76,15 @@ brs_fit_var(
 - method:
 
   Optimization method (default `"BFGS"`).
+
+- interval:
+
+  Direction of the uncertainty interval, `"mid"`, `"right"` or `"left"`
+  (see
+  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)).
+  `NULL` (default) uses `attr(data, "interval")` from
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+  or `"mid"`; same rule as `ncuts`.
 
 ## Value
 

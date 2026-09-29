@@ -3,8 +3,52 @@
 ## betaregscale (development version)
 
 Fixes from the 2026-09 audit of the R code and the compiled backend. No
-change to the user-facing API for the default `repar = 2`; see
-“Reparameterizations and links” for `repar = 0, 1`.
+change to the user-facing API for the defaults (`repar = 2`,
+`interval = "mid"`, `lim = 0.5`); see “Reparameterizations and links”
+and “Interval direction”.
+
+### Interval direction (`interval`)
+
+- New `interval = c("mid", "right", "left")` in
+  [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md),
+  [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md),
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  and
+  [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  (the dissertation’s `m`, `r`, `l`). Score `s` maps to
+  `[s - lim, s + lim] / K` (`"mid"`, default, unchanged) or to
+  `[s, s + 1] / (K + 1)` (`"right"`/`"left"`: `K + 1` equal cells). This
+  is a package choice that differs from the dissertation (which divides
+  by `K`): `"right"` and `"left"` give the same likelihood and differ
+  only in `predict(type = "score")`, so chapter 4’s opposite intercept
+  biases vanish. `delta` comes from the score (`0 -> 1`, `K -> 2`, else
+  `3`).
+
+- [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  generates scores by the same mechanism the likelihood assumes and
+  always attaches `is_prepared`/`ncuts`/`lim`/`interval`;
+  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+  and
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  reuse these attributes.
+
+- `lim` outside `(0, 0.5]` is an error, `lim < 0.5` warns (partial
+  coarsening). [`anova()`](https://rdrr.io/r/stats/anova.html) refuses
+  fits with different `interval`, `ncuts`, `lim` (only under `"mid"`) or
+  `nobs`. New [`predict()`](https://rdrr.io/r/stats/predict.html) types
+  `"score"` (latent score) and `"expected_score"` (expected recorded
+  score).
+
+- [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
+  now stops on scores outside `0..K` (it warned and the observation
+  contributed `-1e6` to the log-likelihood), and
+  [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)/
+  [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  reject `delta = 3` with `left == right`.
+  [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  checks analyst bounds against the latent range of the direction and
+  makes an analyst interval that reaches 0 or 1 left- or right-censored.
 
 ### Reparameterizations and links
 

@@ -92,11 +92,16 @@ observation and one column per requested score.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For a score \(s\) and \(K =\) <code>ncuts</code>, probabilities are computed as:</p><ul><li><p>\(P(Y=s)=F(\mathrm{lim}/K)\) for \(s=0\),</p></li>
-<li><p>\(P(Y=s)=1-F((K-\mathrm{lim})/K)\) for \(s=K\),</p></li>
-<li><p>\(P(Y=s)=F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K)\)
-    for \(s \in \{1,\ldots,K-1\}\),</p></li>
-</ul><p>where \(F\) is the beta CDF under the fitted \((\mu_i,\phi_i)\).</p>
+    <p>For a score \(s\) with cell \([l_s, u_s]\) of the fit's
+<code>interval</code> (see <code><a href="brs_check.html">brs_check</a></code>), \(P(S = s) = F(u_s) -
+F(l_s)\) with \(l_0 = 0\) and \(u_K = 1\), where \(F\) is the beta
+CDF under the fitted \((\mu_i, \phi_i)\). Under <code>"mid"</code> this is
+\(F(\mathrm{lim}/K)\) for \(s = 0\), \(1 - F((K - \mathrm{lim})/K)\)
+for \(s = K\) and \(F((s + \mathrm{lim})/K) - F((s - \mathrm{lim})/K)\)
+otherwise; under <code>"right"</code>/<code>"left"</code> the cells are
+\([s, s + 1]/(K + 1)\). The rows sum to 1 whenever the cells partition
+\([0, 1]\) (always for <code>"right"</code>/<code>"left"</code>; <code>lim = 0.5</code>
+for <code>"mid"</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

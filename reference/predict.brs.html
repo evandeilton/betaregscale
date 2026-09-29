@@ -50,7 +50,8 @@
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  newdata <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"link"</span>, <span class="st">"precision"</span>, <span class="st">"variance"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"link"</span>, <span class="st">"precision"</span>, <span class="st">"variance"</span>, <span class="st">"quantile"</span>, <span class="st">"score"</span>,</span>
+<span>    <span class="st">"expected_score"</span><span class="op">)</span>,</span>
 <span>  at <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -72,7 +73,18 @@
 <dd><p>Prediction type: <code>"response"</code> (default; the mean
 \(E[Y] = a / (a + b)\)), <code>"link"</code> (linear predictor of the
 first parameter), <code>"precision"</code> (second parameter on its own
-scale), <code>"variance"</code>, or <code>"quantile"</code>.</p></dd>
+scale), <code>"variance"</code>, <code>"quantile"</code>, <code>"score"</code> or
+<code>"expected_score"</code>. <code>"score"</code> is the latent continuous score
+of the fit's <code>interval</code> at \(y^* = E[Y]\): \(K y^*\) on
+\((0, K)\) for <code>"mid"</code>, \((K + 1) y^*\) on \((0, K + 1)\) for
+<code>"right"</code> and \((K + 1) y^* - 1\) on \((-1, K)\) for
+<code>"left"</code> (it can be negative); under <code>"right"</code>/<code>"left"</code> it
+is about 0.5 above/below the expected recorded score, because a recorded
+score is the lower/upper end of its latent interval.
+<code>"expected_score"</code> is the expected recorded score
+\(\sum_s s\, P(S = s)\) (<code><a href="brs_predict_scoreprob.html">brs_predict_scoreprob</a></code>), the
+same for <code>"right"</code> and <code>"left"</code>, and a proper expectation only
+when the cells partition \([0, 1]\).</p></dd>
 
 
 <dt id="arg-at">at<a class="anchor" aria-label="anchor" href="#arg-at"></a></dt>

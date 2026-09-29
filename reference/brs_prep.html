@@ -113,7 +113,8 @@ The analyst can supply data in several ways:</p>
 <span>  left <span class="op">=</span> <span class="st">"left"</span>,</span>
 <span>  right <span class="op">=</span> <span class="st">"right"</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100L</span>,</span>
-<span>  lim <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mid"</span>, <span class="st">"right"</span>, <span class="st">"left"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -150,9 +151,22 @@ covariates.</p></dd>
 
 
 <dt id="arg-lim">lim<a class="anchor" aria-label="anchor" href="#arg-lim"></a></dt>
-<dd><p>Numeric: half-width of the uncertainty region
-(default 0.5). Used only when constructing intervals from <code>y</code>
-alone.</p></dd>
+<dd><p>Numeric in \((0, 0.5]\): half-width of the score cell
+under <code>interval = "mid"</code> (default 0.5). Used only when
+constructing intervals from <code>y</code> alone; see <code><a href="brs_check.html">brs_check</a></code>.</p></dd>
+
+
+<dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
+<dd><p>Direction of the uncertainty interval, <code>"mid"</code>
+(default), <code>"right"</code> or <code>"left"</code>; see the section 'Interval
+direction' of <code><a href="brs_check.html">brs_check</a></code>. Mode 1/2 cells follow it.
+Analyst endpoints \(L\) (Modes 3/4) are bounds on the latent score of
+that direction (the scale of <code>predict(type = "score")</code>), must lie in
+\([-0.5, K + 0.5]\), \([0, K + 1]\) or \([-1, K]\), and map to
+\(L / K\), \(L / (K + 1)\) or \((L + 1) / (K + 1)\); so
+\([s - 0.5, s + 0.5]\), \([s, s + 1]\) and \([s - 1, s]\) all give
+the cell of score \(s\). Without an analyst <code>delta</code>, an interval
+reaching 0 (or 1) on the unit scale is left- (or right-) censored.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -165,7 +179,7 @@ alone.</p></dd>
 <dd><p>Upper endpoint on \((0, 1)\).</p></dd>
 
     <dt><code>yt</code></dt>
-<dd><p>Midpoint approximation on \((0, 1)\).</p></dd>
+<dd><p>Cell centre (point summary) on \((0, 1)\).</p></dd>
 
     <dt><code>y</code></dt>
 <dd><p>Original scale value (preserved for reference).</p></dd>
@@ -177,9 +191,9 @@ alone.</p></dd>
 
 </dl><p>Covariate columns are preserved.
   The output carries attributes <code>"is_prepared"</code> (<code>TRUE</code>),
-  <code>"ncuts"</code> and <code>"lim"</code> so that
-  <code><a href="brs.html">brs</a></code> can detect prepared data and skip the
-  internal <code><a href="brs_check.html">brs_check</a></code> call.</p>
+  <code>"ncuts"</code>, <code>"lim"</code> and <code>"interval"</code>, which
+  <code><a href="brs.html">brs</a></code> and <code><a href="brsmm.html">brsmm</a></code> reuse (an explicit
+  different value is ignored with a warning).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

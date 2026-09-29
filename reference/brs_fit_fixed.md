@@ -17,7 +17,8 @@ brs_fit_fixed(
   lim = NULL,
   hessian_method = c("numDeriv", "optim"),
   repar = 2L,
-  method = c("BFGS", "L-BFGS-B")
+  method = c("BFGS", "L-BFGS-B"),
+  interval = NULL
 )
 ```
 
@@ -56,9 +57,11 @@ brs_fit_fixed(
 
 - lim:
 
-  Uncertainty half-width. `NULL` (default) uses `attr(data, "lim")` from
+  Half-width of the score cell in \\(0, 0.5\]\\ (`interval = "mid"`
+  only). `NULL` (default) uses `attr(data, "lim")` from
   [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
-  or 0.5; same rule as `ncuts`.
+  or 0.5; same rule as `ncuts`. Values below 0.5 warn (partial
+  coarsening).
 
 - hessian_method:
 
@@ -75,6 +78,15 @@ brs_fit_fixed(
 - method:
 
   Optimization method: `"BFGS"` (default) or `"L-BFGS-B"`.
+
+- interval:
+
+  Direction of the uncertainty interval, `"mid"`, `"right"` or `"left"`
+  (see
+  [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)).
+  `NULL` (default) uses `attr(data, "interval")` from
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+  or `"mid"`; same rule as `ncuts`.
 
 ## Value
 
