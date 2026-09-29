@@ -194,3 +194,18 @@ test_that("L5-8: AGHQ converges to brute-force integration as n_points grows (q_
   expect_true(e[2] < e[1] && e[3] < e[2])
   expect_lt(e[3], 1e-6)
 })
+
+test_that("L5-9: a brsmm fit does not depend on earlier fits in the session (warm-start reset)", {
+  mk <- function(seed) {
+    set.seed(seed); G <- 12; m <- 8; id <- rep(seq_len(G), each = m); x <- rnorm(G * m)
+    mu <- plogis(0.2 + 0.5 * x + rnorm(G, 0, 0.5)[id])
+    y <- round(100 * rbeta(G * m, mu * 30, (1 - mu) * 30))
+    suppressMessages(brs_prep(data.frame(y = y, x = x, id = factor(id)), ncuts = 100L))
+  }
+  dA <- mk(1L); dB <- mk(2L)   # same G and q_re, different data
+  fit <- function(d) suppressWarnings(brsmm(y ~ x, random = ~ 1 | id, data = d))
+  a1 <- fit(dA); invisible(fit(dB)); a2 <- fit(dA)
+  expect_identical(a1$par, a2$par)
+  expect_identical(as.numeric(logLik(a1)), as.numeric(logLik(a2)))
+  expect_identical(vcov(a1), vcov(a2))
+})

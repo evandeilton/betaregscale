@@ -297,13 +297,20 @@ inline ModeResult find_mode_vec(const GroupData &gd, const RandStruct &rs,
   return out;
 }
 
-// Warm-start cache: the previous call's modes, keyed by (G, q_re).
+// Warm-start cache: the previous call's modes, keyed by (G, q_re); reset per fit.
 struct ModeCache {
   int G = 0, q = 0;
   arma::mat modes;
   bool valid = false;
 };
 static ModeCache mode_cache;
+
+// Clear the warm-start cache. brsmm() calls it first, so a fit depends only on
+// its data and start, not on earlier fits in the session.
+// [[Rcpp::export(name = ".brsmm_reset_cache", rng = false)]]
+void brsmm_reset_cache() {
+  mode_cache = ModeCache();
+}
 
 inline arma::vec cached_start(int g, int G, int q) {
   if (mode_cache.valid && mode_cache.G == G && mode_cache.q == q)

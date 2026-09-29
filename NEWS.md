@@ -169,7 +169,7 @@ to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
   likelihood. An interval-censored observation with `left == right`
   (probability zero) now contributes `-1e6` instead of `log(1e-15)`.
 
-## Compiled backend: Armadillo, analytic derivatives, stable standard errors
+## Compiled backend: Armadillo, chain-rule derivatives, stable standard errors
 
 * The mixed-model backend (`brsmm()`) is now written in RcppArmadillo, like the
   rest of the package; RcppEigen is no longer a dependency. The port was
@@ -179,8 +179,8 @@ to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
   coefficients). `brs()`: gradient about 2x faster; the new default
   `hessian_method = "cpp"` is about 16x faster than `numDeriv` and agrees with
   it to 1e-8 in the standard errors. `hessian_method = "numDeriv"` remains.
-* `brsmm()` passes an analytic gradient of the chosen approximation (Laplace,
-  AGHQ or QMC) to `optim()` and computes the Hessian from it
+* `brsmm()` passes the gradient of the chosen approximation (Laplace, AGHQ or
+  QMC; chain rule and implicit-function theorem at the modes) to `optim()` and computes the Hessian from it
   (`hessian_method = "cpp"`, default). Standard errors of random-slope models
   are now finite and reproducible (they were `NaN` or changed by 20-40%
   between two practically identical optima). Fits are 1.5-6x faster.
@@ -192,7 +192,12 @@ to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
   `fit$diagnostics$inner`.
 * AGHQ and QMC scale the nodes by the symmetric root `C^(-1/2)` of the
   curvature, so their values no longer depend on the eigenvector sign and order
-  conventions of the LAPACK in use (random-effect dimension >= 2).
+  conventions of the LAPACK in use (random-effect dimension >= 2). For two or
+  more random effects QMC is therefore a different estimator than before; at
+  1024 points it underestimates the log-likelihood (mean error -0.05 over 30
+  two-effect data sets, -0.03 with the old scaling), so `int_method = "aghq"`
+  is recommended up to three random effects. Warm starts of the inner modes are reset at every `brsmm()` call, so
+  a fit depends only on its data and start.
 * Structural errors in the compiled functions (wrong parameter length, `NA` or
   non-finite data, group codes beyond the number of rows) stop with a clear
   message; a `NaN` parameter gives the likelihood penalty, `+-Inf` the bounds.

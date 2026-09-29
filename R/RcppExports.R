@@ -78,6 +78,10 @@
     .Call(`_betaregscale_betaregscale_hessian_variable_cpp`, param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 
+.brsmm_reset_cache <- function() {
+    invisible(.Call(`_betaregscale_brsmm_reset_cache`))
+}
+
 .brsmm_loglik_eigen <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points) {
     .Call(`_betaregscale_brsmm_loglik_eigen`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points)
 }

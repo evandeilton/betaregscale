@@ -52,7 +52,12 @@ or 100; an explicit different value is ignored with a warning.}
 \code{attr(data, "lim")}, or 0.5; same rule as \code{ncuts}.}
 
 \item{int_method}{Integration method: \code{"laplace"} (default),
-\code{"aghq"}, or \code{"qmc"}.}
+\code{"aghq"}, or \code{"qmc"}. AGHQ and QMC centre the nodes at each
+group's mode and scale them by the symmetric root of its curvature. With
+two or more random effects QMC (a deterministic importance sampler on a
+Halton grid) underestimates the log-likelihood: at 1024 points the error
+averaged -0.05 over 30 two-effect data sets. Prefer \code{"aghq"} when
+there are at most three random effects.}
 
 \item{n_points}{Number of quadrature points for \code{int_method="aghq"}.
 Ignored for other methods. Default is 11.}
@@ -66,9 +71,12 @@ Default is 1024.}
 \item{method}{Optimizer passed to \code{\link[stats]{optim}}.}
 
 \item{hessian_method}{\code{"cpp"} (default), \code{"numDeriv"} or
-\code{"optim"}. \code{"cpp"} differentiates the compiled analytic
-gradient of the marginal log-likelihood (Richardson central differences);
-the same gradient is passed to \code{\link[stats]{optim}}.}
+\code{"optim"}. \code{"cpp"} differentiates the compiled gradient of the
+marginal log-likelihood (Richardson central differences). That gradient,
+also passed to \code{\link[stats]{optim}}, is the derivative of the chosen
+approximation by the chain rule and the implicit-function theorem at the
+group modes, with per-observation derivatives in the linear predictor
+computed by central differences.}
 
 \item{control}{Control list for \code{\link[stats]{optim}}; its entries
 are merged into the default \code{list(maxit = 2000L)}, so
