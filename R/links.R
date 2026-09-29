@@ -160,8 +160,8 @@
 #' before the shapes are formed. Under \code{repar = 1, 2} it is the mean:
 #' \code{[1e-5, 1 - 1e-5]}. Under \code{repar = 0} it is the shape
 #' \eqn{p > 0}: \code{[1e-5, 1e8]}, the same range
-#' \code{clamp_phi_by_repar} gives the other shape. Non-finite values
-#' become the upper bound.
+#' \code{clamp_phi_by_repar} gives the other shape. \code{+-Inf} become the
+#' bounds; \code{NaN}/\code{NA} propagate (the likelihood then penalises them).
 #'
 #' @param mu Numeric vector.
 #' @param repar Integer (0, 1, or 2).
@@ -169,24 +169,19 @@
 #' @keywords internal
 #' @noRd
 .clamp_mu_by_repar <- function(mu, repar) {
-  # Mirror of C++ clamp_mu_by_repar(): shape p in [1e-5, 1e8], mean in [1e-5, 1-1e-5].
+  # Mirror of C++ clamp_mu_by_repar(): shape p in [1e-5, 1e8], mean in [1e-5, 1-1e-5];
+  # +-Inf -> bounds, NaN/NA propagate (pmin/pmax keep them).
   eps_unit <- 1e-5
-  max_shape <- 1e8
-  mu <- as.numeric(mu)
-  if (as.integer(repar) == 0L) {
-    mu[!is.finite(mu)] <- max_shape
-    return(pmin(pmax(mu, eps_unit), max_shape))
-  }
-  mu[!is.finite(mu)] <- 1 - eps_unit
-  pmin(pmax(mu, eps_unit), 1 - eps_unit)
+  hi <- if (as.integer(repar) == 0L) 1e8 else 1 - eps_unit
+  pmin(pmax(as.numeric(mu), eps_unit), hi)
 }
 
 #' Clamp the second parameter to its valid range (R mirror of the C++ code)
 #'
 #' @description
 #' Identical to \code{clamp_phi_by_repar()} in \code{src/brs_common.h}
-#' (keep both in sync): non-finite values become the upper bound;
-#' \code{repar = 2} clamps to \code{[1e-5, 1 - 1e-5]}, otherwise to
+#' (keep both in sync): \code{+-Inf} become the bounds, \code{NaN}/\code{NA}
+#' propagate; \code{repar = 2} clamps to \code{[1e-5, 1 - 1e-5]}, otherwise to
 #' \code{[1e-5, 1e8]}. Applied to the fitted \code{hatphi} so that the R
 #' side sees the same value the compiled likelihood used.
 #'
@@ -196,16 +191,10 @@
 #' @keywords internal
 #' @noRd
 .clamp_phi_by_repar <- function(phi, repar) {
-  # Mirror of C++ clamp_phi_by_repar(): non-finite -> upper bound, then clamp.
+  # Mirror of C++ clamp_phi_by_repar(): +-Inf -> bounds, NaN/NA propagate.
   eps_unit <- 1e-5
-  max_shape <- 1e8
-  phi <- as.numeric(phi)
-  if (as.integer(repar) == 2L) {
-    phi[!is.finite(phi)] <- 1 - eps_unit
-    return(pmin(pmax(phi, eps_unit), 1 - eps_unit))
-  }
-  phi[!is.finite(phi)] <- max_shape
-  pmin(pmax(phi, eps_unit), max_shape)
+  hi <- if (as.integer(repar) == 2L) 1 - eps_unit else 1e8
+  pmin(pmax(as.numeric(phi), eps_unit), hi)
 }
 
 #' Fitted (first parameter, second parameter) for the data or for newdata

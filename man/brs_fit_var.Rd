@@ -9,12 +9,14 @@ brs_fit_var(
   data,
   link = NULL,
   link_phi = NULL,
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   ncuts = NULL,
   lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  interval = NULL
+  interval = NULL,
+  start = NULL,
+  control = list()
 )
 }
 \arguments{
@@ -35,8 +37,8 @@ selects \code{"logit"} for \code{repar = 2} (dispersion on
 \eqn{(0, 1)}) and \code{"log"} for \code{repar = 0, 1} (positive
 shape/precision).}
 
-\item{hessian_method}{Character: \code{"numDeriv"} or
-\code{"optim"}.}
+\item{hessian_method}{Character: \code{"cpp"} (default),
+\code{"numDeriv"} or \code{"optim"} (see \code{\link{brs_fit_fixed}}).}
 
 \item{ncuts}{Number of scale categories. \code{NULL} (default) uses the
 value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
@@ -58,6 +60,14 @@ rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
 \code{NULL} (default) uses \code{attr(data, "interval")} from
 \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.}
+
+\item{start}{Optional numeric vector of starting values (mean
+coefficients, then dispersion coefficients). \code{NULL} (default) uses
+\code{compute_start()}. Refits (bootstrap, jackknife) pass the parent
+estimate here.}
+
+\item{control}{Control list for \code{\link[stats]{optim}}; its entries
+are merged into the default \code{list(maxit = 5000L)}.}
 }
 \value{
 An object of class \code{"brs"}.

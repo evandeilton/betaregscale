@@ -18,7 +18,7 @@ brsmm(
   qmc_points = 1024L,
   start = NULL,
   method = c("BFGS", "L-BFGS-B"),
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   control = list(maxit = 2000L),
   interval = NULL
 )
@@ -52,7 +52,12 @@ or 100; an explicit different value is ignored with a warning.}
 \code{attr(data, "lim")}, or 0.5; same rule as \code{ncuts}.}
 
 \item{int_method}{Integration method: \code{"laplace"} (default),
-\code{"aghq"}, or \code{"qmc"}.}
+\code{"aghq"}, or \code{"qmc"}. AGHQ and QMC centre the nodes at each
+group's mode and scale them by the symmetric root of its curvature. With
+two or more random effects QMC (a deterministic importance sampler on a
+Halton grid) underestimates the log-likelihood: at 1024 points the error
+averaged -0.05 over 30 two-effect data sets. Prefer \code{"aghq"} when
+there are at most three random effects.}
 
 \item{n_points}{Number of quadrature points for \code{int_method="aghq"}.
 Ignored for other methods. Default is 11.}
@@ -65,7 +70,13 @@ Default is 1024.}
 
 \item{method}{Optimizer passed to \code{\link[stats]{optim}}.}
 
-\item{hessian_method}{\code{"numDeriv"} (default) or \code{"optim"}.}
+\item{hessian_method}{\code{"cpp"} (default), \code{"numDeriv"} or
+\code{"optim"}. \code{"cpp"} differentiates the compiled gradient of the
+marginal log-likelihood (Richardson central differences). That gradient,
+also passed to \code{\link[stats]{optim}}, is the derivative of the chosen
+approximation by the chain rule and the implicit-function theorem at the
+group modes, with per-observation derivatives in the linear predictor
+computed by central differences.}
 
 \item{control}{Control list for \code{\link[stats]{optim}}; its entries
 are merged into the default \code{list(maxit = 2000L)}, so
@@ -78,9 +89,11 @@ are merged into the default \code{list(maxit = 2000L)}, so
 }
 \value{
 An object of class \code{"brsmm"}. \code{diagnostics} holds the
-  post-fit checks of \code{\link{brs}} (gradient by central differences
-  with step \eqn{10^{-3}}, Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
-  log-likelihood gain of each random-effect term over its removal. A term
+  post-fit checks of \code{\link{brs}} (compiled gradient and the fit's
+  Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
+  log-likelihood gain of each random-effect term over its removal, and
+  \code{inner} (groups without a positive-definite mode, largest
+  \eqn{|\nabla h|} at the modes). A term
   with log SD below -6 or a gain below \eqn{10^{-3}} is reported as a
   variance component on the boundary (test it with \code{\link{anova.brsmm}},
   chi-bar-square mixture). Rank-deficient fixed-effect or random-effect

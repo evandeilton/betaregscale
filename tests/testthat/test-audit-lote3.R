@@ -407,18 +407,19 @@ test_that("L3-6b: gradients near the clamps: smooth just inside, exactly flat ou
 test_that("L3-7a: .clamp_phi_by_repar / .clamp_mu_by_repar values at the boundaries", {
   cp <- betaregscale:::.clamp_phi_by_repar
   cm <- betaregscale:::.clamp_mu_by_repar
+  # Lote 5 semantics: +-Inf -> the bounds, NaN / NA propagate (likelihood penalty)
   x <- c(-1, 0, 1e-6, 1e-5, 2e-5, 0.5, 1 - 2e-5, 1 - 1e-5, 1 - 1e-6, 1, 1e8, 1e9, Inf, -Inf, NaN, NA)
   expect_equal(cp(x, 2L), c(1e-5, 1e-5, 1e-5, 1e-5, 2e-5, 0.5, 1 - 2e-5, 1 - 1e-5,
-                            1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5,
-                            1 - 1e-5, 1 - 1e-5), tolerance = 1e-10)
+                            1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1e-5,
+                            NaN, NA), tolerance = 1e-10)
   for (rp in 0:1) {
     expect_equal(cp(x, rp), c(1e-5, 1e-5, 1e-5, 1e-5, 2e-5, 0.5, 1 - 2e-5, 1 - 1e-5,
-                              1 - 1e-6, 1, 1e8, 1e8, 1e8, 1e8, 1e8, 1e8), tolerance = 1e-10)
+                              1 - 1e-6, 1, 1e8, 1e8, 1e8, 1e-5, NaN, NA), tolerance = 1e-10)
   }
-  expect_equal(cm(c(0, 1e-5, 0.5, 1 - 1e-5, 1, Inf, NaN, NA), 2L),
-               c(1e-5, 1e-5, 0.5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5))
-  expect_equal(cm(c(0, 1e-5, 0.5, 1, 2, 1e9, Inf, NaN), 0L),
-               c(1e-5, 1e-5, 0.5, 1, 2, 1e8, 1e8, 1e8))
+  expect_equal(cm(c(0, 1e-5, 0.5, 1 - 1e-5, 1, Inf, -Inf, NaN, NA), 2L),
+               c(1e-5, 1e-5, 0.5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1e-5, NaN, NA))
+  expect_equal(cm(c(0, 1e-5, 0.5, 1, 2, 1e9, Inf, -Inf, NaN), 0L),
+               c(1e-5, 1e-5, 0.5, 1, 2, 1e8, 1e8, 1e-5, NaN))
 })
 
 .l3_clamp_fixture <- function() {

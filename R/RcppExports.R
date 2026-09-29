@@ -2,19 +2,14 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @title C++ log-likelihood for fixed-dispersion beta interval regression
-#'   with mixed censoring
-#' @description Computes the total log-likelihood for a beta regression model
-#'   with interval-censored responses and a single (scalar) dispersion
-#'   parameter, supporting all four censoring types.
-#' @param param  Numeric vector: first \code{ncol(X)} elements are beta
-#'   coefficients, the last element is the scalar dispersion parameter.
+#' @description Total log-likelihood with a single dispersion parameter
+#'   (last element of \code{param}); all four censoring types.
+#' @param param  Numeric vector: \code{ncol(X)} coefficients, then phi (link scale).
 #' @param X      Design matrix (n x p).
-#' @param y_left  Numeric vector of left interval endpoints on (0, 1).
-#' @param y_right Numeric vector of right interval endpoints on (0, 1).
-#' @param yt     Numeric vector of midpoint response on (0, 1).
-#' @param delta  Integer vector of censoring indicators (0,1,2,3).
-#' @param link_mu_code  Integer code for the mean link function.
-#' @param link_phi_code Integer code for the dispersion link function.
+#' @param y_left,y_right Interval endpoints on (0, 1).
+#' @param yt     Exact response on (0, 1) (used when \code{delta = 0}).
+#' @param delta  Integer censoring indicators (0,1,2,3).
+#' @param link_mu_code,link_phi_code Integer link codes (see \code{link_to_code}).
 #' @param repar  Integer reparameterization type (0, 1, or 2).
 #' @return Scalar log-likelihood value.
 #' @keywords internal
@@ -23,20 +18,14 @@
 }
 
 #' @title C++ log-likelihood for variable-dispersion beta interval regression
-#'   with mixed censoring
-#' @description Computes the total log-likelihood for a beta regression model
-#'   with interval-censored responses and observation-specific dispersion,
-#'   supporting all four censoring types.
-#' @param param Numeric vector: first \code{ncol(X)} elements are beta
-#'   coefficients, next \code{ncol(Z)} elements are gamma (phi) coefficients.
-#' @param X      Design matrix for the mean submodel (n x p).
-#' @param Z      Design matrix for the dispersion submodel (n x q).
-#' @param y_left  Numeric vector of left interval endpoints on (0, 1).
-#' @param y_right Numeric vector of right interval endpoints on (0, 1).
-#' @param yt     Numeric vector of midpoint response on (0, 1).
-#' @param delta  Integer vector of censoring indicators (0,1,2,3).
-#' @param link_mu_code  Integer code for the mean link function.
-#' @param link_phi_code Integer code for the dispersion link function.
+#' @description Total log-likelihood with observation-specific dispersion
+#'   \code{Z gamma}; all four censoring types.
+#' @param param Numeric vector: \code{ncol(X)} beta then \code{ncol(Z)} gamma.
+#' @param X,Z   Design matrices of the mean (n x p) and dispersion (n x q).
+#' @param y_left,y_right Interval endpoints on (0, 1).
+#' @param yt     Exact response on (0, 1) (used when \code{delta = 0}).
+#' @param delta  Integer censoring indicators (0,1,2,3).
+#' @param link_mu_code,link_phi_code Integer link codes.
 #' @param repar  Integer reparameterization type (0, 1, or 2).
 #' @return Scalar log-likelihood value.
 #' @keywords internal
@@ -44,41 +33,53 @@
     .Call(`_betaregscale_betaregscale_loglik_variable_cpp`, param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 
-#' @title C++ gradient for fixed-dispersion log-likelihood
-#' @description Returns the gradient vector of the log-likelihood with
-#'   respect to all parameters (beta coefficients + scalar phi), using
-#'   a central-difference numerical approximation (step = 1e-6).
-#' @param param  Parameter vector (same layout as loglik function).
-#' @param X      Design matrix (n x p).
-#' @param y_left  Left endpoints.
-#' @param y_right Right endpoints.
-#' @param yt     Midpoint responses.
-#' @param delta  Integer censoring indicators.
-#' @param link_mu_code  Integer mean link code.
-#' @param link_phi_code Integer dispersion link code.
-#' @param repar  Integer reparameterization type.
+#' @title C++ gradient for the fixed-dispersion log-likelihood
+#' @description Chain rule on the linear predictors:
+#'   \code{crossprod(X, d_mu)} and \code{sum(d_phi)}, with per-observation
+#'   derivatives by Richardson central differences (brs_deriv.h).
+#' @inheritParams .brs_loglik_fixed_cpp
 #' @return Numeric gradient vector of length \code{ncol(X) + 1}.
 #' @keywords internal
 .brs_grad_fixed_cpp <- function(param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
     .Call(`_betaregscale_betaregscale_grad_fixed_cpp`, param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
 }
 
-#' @title C++ gradient for variable-dispersion log-likelihood
-#' @description Central-difference gradient for the variable-dispersion model.
-#' @param param  Parameter vector.
-#' @param X      Mean design matrix.
-#' @param Z      Dispersion design matrix.
-#' @param y_left  Left endpoints.
-#' @param y_right Right endpoints.
-#' @param yt     Midpoint responses.
-#' @param delta  Integer censoring indicators.
-#' @param link_mu_code  Integer mean link code.
-#' @param link_phi_code Integer dispersion link code.
-#' @param repar  Integer reparameterization type.
-#' @return Numeric gradient vector.
+#' @title C++ gradient for the variable-dispersion log-likelihood
+#' @description Chain rule on the linear predictors:
+#'   \code{crossprod(X, d_mu)} and \code{crossprod(Z, d_phi)}
+#'   (see \code{.brs_grad_fixed_cpp}).
+#' @inheritParams .brs_loglik_variable_cpp
+#' @return Numeric gradient vector of length \code{ncol(X) + ncol(Z)}.
 #' @keywords internal
 .brs_grad_variable_cpp <- function(param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
     .Call(`_betaregscale_betaregscale_grad_variable_cpp`, param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
+}
+
+#' @title C++ Hessian for the fixed-dispersion log-likelihood
+#' @description Chain rule on the linear predictors:
+#'   blocks \code{crossprod(X, w_mm * X)}, \code{crossprod(X, w_mp)} and
+#'   \code{sum(w_pp)}, with per-observation
+#'   second derivatives by Richardson central differences (17 evaluations).
+#' @inheritParams .brs_loglik_fixed_cpp
+#' @return Symmetric matrix of order \code{ncol(X) + 1} (log-likelihood scale).
+#' @keywords internal
+.brs_hessian_fixed_cpp <- function(param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
+    .Call(`_betaregscale_betaregscale_hessian_fixed_cpp`, param, X, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
+}
+
+#' @title C++ Hessian for the variable-dispersion log-likelihood
+#' @description Chain rule on the linear predictors:
+#'   blocks \code{crossprod(X, w_mm * X)}, \code{crossprod(X, w_mp * Z)} and
+#'   \code{crossprod(Z, w_pp * Z)}.
+#' @inheritParams .brs_loglik_variable_cpp
+#' @return Symmetric matrix of order \code{ncol(X) + ncol(Z)} (log-likelihood scale).
+#' @keywords internal
+.brs_hessian_variable_cpp <- function(param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar) {
+    .Call(`_betaregscale_betaregscale_hessian_variable_cpp`, param, X, Z, y_left, y_right, yt, delta, link_mu_code, link_phi_code, repar)
+}
+
+.brsmm_reset_cache <- function() {
+    invisible(.Call(`_betaregscale_brsmm_reset_cache`))
 }
 
 .brsmm_loglik_eigen <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points) {
@@ -87,5 +88,17 @@
 
 .brsmm_group_modes_eigen <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar) {
     .Call(`_betaregscale_brsmm_group_modes_eigen`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar)
+}
+
+.brsmm_mode_diag_cpp <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, warm) {
+    .Call(`_betaregscale_brsmm_mode_diag_cpp`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, warm)
+}
+
+.brsmm_grad_cpp <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points) {
+    .Call(`_betaregscale_brsmm_grad_cpp`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points)
+}
+
+.brsmm_hessian_cpp <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points) {
+    .Call(`_betaregscale_brsmm_hessian_cpp`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points)
 }
 

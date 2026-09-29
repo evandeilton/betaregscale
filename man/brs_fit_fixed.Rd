@@ -11,10 +11,12 @@ brs_fit_fixed(
   link_phi = NULL,
   ncuts = NULL,
   lim = NULL,
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  interval = NULL
+  interval = NULL,
+  start = NULL,
+  control = list()
 )
 }
 \arguments{
@@ -45,10 +47,12 @@ with the stored value).}
 \code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
 rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 
-\item{hessian_method}{Character: \code{"numDeriv"} (default) or
-\code{"optim"}.  With \code{"numDeriv"} the Hessian is computed
-after convergence using \code{\link[numDeriv]{hessian}}, which is
-typically more accurate than the built-in optim Hessian.}
+\item{hessian_method}{Character: \code{"cpp"} (default),
+\code{"numDeriv"} or \code{"optim"}. \code{"cpp"} uses the compiled
+chain-rule Hessian (per-observation second derivatives in the linear
+predictors); \code{"numDeriv"} differentiates the log-likelihood with
+\code{\link[numDeriv]{hessian}}; \code{"optim"} keeps the optimizer's
+own approximation.}
 
 \item{repar}{Reparameterization scheme (default 2); see
 \code{\link{brs_repar}}.}
@@ -60,6 +64,14 @@ typically more accurate than the built-in optim Hessian.}
 \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
 \code{NULL} (default) uses \code{attr(data, "interval")} from
 \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.}
+
+\item{start}{Optional numeric vector of starting values (mean
+coefficients, then dispersion coefficients). \code{NULL} (default) uses
+\code{compute_start()}. Refits (bootstrap, jackknife) pass the parent
+estimate here.}
+
+\item{control}{Control list for \code{\link[stats]{optim}}; its entries
+are merged into the default \code{list(maxit = 5000L)}.}
 }
 \value{
 An object of class \code{"brs"}.

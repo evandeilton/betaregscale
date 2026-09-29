@@ -2,8 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{.brs_loglik_fixed_cpp}
 \alias{.brs_loglik_fixed_cpp}
-\title{C++ log-likelihood for fixed-dispersion beta interval regression
-  with mixed censoring}
+\title{C++ log-likelihood for fixed-dispersion beta interval regression}
 \usage{
 .brs_loglik_fixed_cpp(
   param,
@@ -18,22 +17,17 @@
 )
 }
 \arguments{
-\item{param}{Numeric vector: first \code{ncol(X)} elements are beta
-coefficients, the last element is the scalar dispersion parameter.}
+\item{param}{Numeric vector: \code{ncol(X)} coefficients, then phi (link scale).}
 
 \item{X}{Design matrix (n x p).}
 
-\item{y_left}{Numeric vector of left interval endpoints on (0, 1).}
+\item{y_left, y_right}{Interval endpoints on (0, 1).}
 
-\item{y_right}{Numeric vector of right interval endpoints on (0, 1).}
+\item{yt}{Exact response on (0, 1) (used when \code{delta = 0}).}
 
-\item{yt}{Numeric vector of midpoint response on (0, 1).}
+\item{delta}{Integer censoring indicators (0,1,2,3).}
 
-\item{delta}{Integer vector of censoring indicators (0,1,2,3).}
-
-\item{link_mu_code}{Integer code for the mean link function.}
-
-\item{link_phi_code}{Integer code for the dispersion link function.}
+\item{link_mu_code, link_phi_code}{Integer link codes (see \code{link_to_code}).}
 
 \item{repar}{Integer reparameterization type (0, 1, or 2).}
 }
@@ -41,8 +35,7 @@ coefficients, the last element is the scalar dispersion parameter.}
 Scalar log-likelihood value.
 }
 \description{
-Computes the total log-likelihood for a beta regression model
-  with interval-censored responses and a single (scalar) dispersion
-  parameter, supporting all four censoring types.
+Total log-likelihood with a single dispersion parameter
+  (last element of \code{param}); all four censoring types.
 }
 \keyword{internal}

@@ -13,8 +13,10 @@ brs(
   lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  hessian_method = c("numDeriv", "optim"),
-  interval = NULL
+  hessian_method = c("cpp", "numDeriv", "optim"),
+  interval = NULL,
+  start = NULL,
+  control = list()
 )
 }
 \arguments{
@@ -51,13 +53,21 @@ rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 
 \item{method}{Optimization method (default \code{"BFGS"}).}
 
-\item{hessian_method}{Character: \code{"numDeriv"} or
-\code{"optim"}.}
+\item{hessian_method}{Character: \code{"cpp"} (default),
+\code{"numDeriv"} or \code{"optim"} (see \code{\link{brs_fit_fixed}}).}
 
 \item{interval}{Direction of the uncertainty interval, \code{"mid"},
 \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
 \code{NULL} (default) uses \code{attr(data, "interval")} from
 \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.}
+
+\item{start}{Optional numeric vector of starting values (mean
+coefficients, then dispersion coefficients). \code{NULL} (default) uses
+\code{compute_start()}. Refits (bootstrap, jackknife) pass the parent
+estimate here.}
+
+\item{control}{Control list for \code{\link[stats]{optim}}; its entries
+are merged into the default \code{list(maxit = 5000L)}.}
 }
 \value{
 An object of class \code{"brs"}; \code{diagnostics} holds the

@@ -309,11 +309,16 @@ brs_marginaleffects <- function(object,
 
 #' @keywords internal
 .brs_me_rmvnorm <- function(n, mu, sigma) {
+  # Cholesky factor: continuous in sigma, so the draws (same seed) do not jump
+  # when sigma moves slightly (eigenvector signs could flip). Eigen only if
+  # sigma is not positive definite (negative eigenvalues set to 0).
   p <- length(mu)
   sigma <- (sigma + t(sigma)) / 2
-  ee <- eigen(sigma, symmetric = TRUE)
-  vals <- pmax(ee$values, 0)
-  A <- diag(sqrt(vals), nrow = p) %*% t(ee$vectors)
+  A <- tryCatch(chol(sigma), error = function(e) NULL)
+  if (is.null(A)) {
+    ee <- eigen(sigma, symmetric = TRUE)
+    A <- diag(sqrt(pmax(ee$values, 0)), nrow = p) %*% t(ee$vectors)
+  }
   Z <- matrix(stats::rnorm(n * p), nrow = n, ncol = p)
   sweep(Z %*% A, 2L, mu, FUN = "+")
 }

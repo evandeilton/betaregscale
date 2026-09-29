@@ -361,6 +361,7 @@ print.brs_bootstrap <- function(x, ...) {
 # the fit's own settings; advisory warnings muffled; NULL on error.
 .brs_refit <- function(object, data) {
   meth <- if (is.null(object$method)) "BFGS" else object$method
+  # Warm start from the parent estimate; compiled (cpp) Hessian, the brs() default
   tryCatch(
     suppressMessages(.brs_quiet_advisory(brs(
       formula = object$formula,
@@ -371,7 +372,9 @@ print.brs_bootstrap <- function(x, ...) {
       lim = object$lim,
       repar = object$repar,
       method = meth,
-      interval = .brs_interval_of(object)
+      hessian_method = "cpp",
+      interval = .brs_interval_of(object),
+      start = unname(object$par)
     ))),
     error = function(e) NULL
   )

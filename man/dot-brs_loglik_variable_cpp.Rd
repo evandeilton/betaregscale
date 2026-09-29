@@ -2,8 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{.brs_loglik_variable_cpp}
 \alias{.brs_loglik_variable_cpp}
-\title{C++ log-likelihood for variable-dispersion beta interval regression
-  with mixed censoring}
+\title{C++ log-likelihood for variable-dispersion beta interval regression}
 \usage{
 .brs_loglik_variable_cpp(
   param,
@@ -19,24 +18,17 @@
 )
 }
 \arguments{
-\item{param}{Numeric vector: first \code{ncol(X)} elements are beta
-coefficients, next \code{ncol(Z)} elements are gamma (phi) coefficients.}
+\item{param}{Numeric vector: \code{ncol(X)} beta then \code{ncol(Z)} gamma.}
 
-\item{X}{Design matrix for the mean submodel (n x p).}
+\item{X, Z}{Design matrices of the mean (n x p) and dispersion (n x q).}
 
-\item{Z}{Design matrix for the dispersion submodel (n x q).}
+\item{y_left, y_right}{Interval endpoints on (0, 1).}
 
-\item{y_left}{Numeric vector of left interval endpoints on (0, 1).}
+\item{yt}{Exact response on (0, 1) (used when \code{delta = 0}).}
 
-\item{y_right}{Numeric vector of right interval endpoints on (0, 1).}
+\item{delta}{Integer censoring indicators (0,1,2,3).}
 
-\item{yt}{Numeric vector of midpoint response on (0, 1).}
-
-\item{delta}{Integer vector of censoring indicators (0,1,2,3).}
-
-\item{link_mu_code}{Integer code for the mean link function.}
-
-\item{link_phi_code}{Integer code for the dispersion link function.}
+\item{link_mu_code, link_phi_code}{Integer link codes.}
 
 \item{repar}{Integer reparameterization type (0, 1, or 2).}
 }
@@ -44,8 +36,7 @@ coefficients, next \code{ncol(Z)} elements are gamma (phi) coefficients.}
 Scalar log-likelihood value.
 }
 \description{
-Computes the total log-likelihood for a beta regression model
-  with interval-censored responses and observation-specific dispersion,
-  supporting all four censoring types.
+Total log-likelihood with observation-specific dispersion
+  \code{Z gamma}; all four censoring types.
 }
 \keyword{internal}
