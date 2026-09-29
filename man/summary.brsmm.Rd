@@ -4,18 +4,31 @@
 \alias{summary.brsmm}
 \title{Summarize a fitted brsmm model}
 \usage{
-\method{summary}{brsmm}(object, ...)
+\method{summary}{brsmm}(object, level = 0.95, ...)
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
+\item{level}{Confidence level of the \code{varcorr} intervals.}
+
 \item{...}{Currently ignored.}
 }
 \value{
-Object of class \code{"summary.brsmm"}.
+Object of class \code{"summary.brsmm"}; \code{coefficients$random}
+  holds the packed Cholesky parameters (estimate and standard error only)
+  and \code{varcorr} the SD/correlation table.
 }
 \description{
-Summarize a fitted brsmm model
+Wald tests for the fixed effects. The random effects are reported as
+standard deviations and correlations (\code{varcorr}) with Wald intervals
+built on a transformed scale and mapped back: \eqn{\exp} of the interval
+for \eqn{\log SD}, \eqn{\tanh} of the interval for
+\eqn{\mathrm{atanh}(\rho)} (delta method from the packed Cholesky
+parameters). No test or p-value is given for them: a z-test of
+\eqn{\log SD} tests \eqn{SD = 1}, and \eqn{SD = 0} lies on the boundary;
+use \code{\link{anova.brsmm}} (chi-bar-square mixture) against the model
+without the term. The randomized quantile residuals are drawn without
+changing the caller's RNG state.
 }
 \examples{
 \donttest{

@@ -4,6 +4,50 @@ Fixes from the 2026-09 audit of the R code and the compiled backend. No change
 to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
 `lim = 0.5`); see "Reparameterizations and links" and "Interval direction".
 
+## Bootstrap, fit diagnostics and mixed-model inference
+
+* `brs_bootstrap()` simulates only the response, at the fitted shapes, and
+  refits the original formula on a copy of the data: factors, `log(x)`,
+  `0 + x`, any response name and variable dispersion work (they ended in
+  "Too few successful bootstrap replicates (0)"). Each row keeps its
+  observation mechanism: exact values stay continuous (they were re-gridded
+  to `delta = 3`), scores are re-coarsened on the fit's grid, analyst
+  thresholds (`brs_prep()` Modes 2-4) are kept as fixed, non-informative
+  thresholds and `delta` is re-drawn by the cell of their partition where the
+  new value falls (conservative when the original design had more thresholds
+  than a row records; an approximation for Mode 2 rows with a forced `delta`).
+  Failed replicates are counted (`n_failed`, `fail_rate`) and printed; the
+  "basic" MCSE limits were swapped; `"bca"` warns once per session that it is
+  an approximation.
+* `brs()`/`brsmm()` stop on rank-deficient design matrices, warn on near
+  collinearity, and check the gradient, the Hessian and the likelihood
+  clamps after `optim()` (`fit$diagnostics`, one-line warnings; the gradient
+  check is the log-likelihood gain of the remaining Newton step, above 0.01).
+  `vcov()` no longer uses a generalised inverse: variances it cannot estimate
+  are `NA` (they were 0). `brsmm()` flags a variance component on the
+  boundary. `logLik()` of a `brs()` fit is evaluated exactly at the returned
+  estimate.
+* `brsmm`: `summary()` reports SD/Corr with transformed Wald intervals and
+  no z-test on `log(sd)`; `anova()` uses the chi-bar-square mixture
+  `1/2 chi2(Df - 1) + 1/2 chi2(Df)` when a model adds one random-effect term
+  (`1/2 chi2(0) + 1/2 chi2(1)` for `brs` against a random intercept) and says
+  so in its heading; the ICC of `brsmm_re_study()` uses the beta level-1
+  variance of `logit(Y)` instead of `pi^2/3` (`NA` with a warning when the
+  clamp of the mean drives it, e.g. probit or cloglog links with a large
+  random-effect SD); `control` is merged into `list(maxit = 2000)`.
+* `summary()` leaves the RNG state untouched. `brs_check()` treats values in
+  `(0, 1)` as exact per observation, as `brs_prep()` does, and warns on input
+  mixing them with values `>= 1` (half-point scores: use `y * 2` and
+  `ncuts * 2`). `brs_sim(delta = 1 or 2)` warns
+  (informative censoring, no finite MLE) and keeps covariates of `0 + x`
+  formulas; `brs_prep()` warns on rows covering the whole scale. Marginal
+  effects honour `| 0 + z`; repar 2 variable-dispersion starts use the
+  moment intercept with zero slopes. This changes some fits: in a validation
+  battery 22 of 136 fits moved, all to an equal or higher log-likelihood with
+  fewer iterations, and a `brsmm` variable-dispersion fit (200 groups x 25)
+  that had "converged" to a wrong point (intercept 0.94, true 0.2) now gains
+  1214 in log-likelihood (intercept 0.14).
+
 ## Interval direction (`interval`)
 
 * New `interval = c("mid", "right", "left")` in `brs_check()`, `brs_prep()`,

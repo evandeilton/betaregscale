@@ -15,7 +15,13 @@
 Numeric scalar.
 }
 \description{
-BIC for brsmm models
+\eqn{-2\ell + \log(n)\,k} with \eqn{n} = the number of observations
+(\code{nobs(object)}), as \code{lme4} does, and \eqn{k} the number of
+parameters (fixed effects, precision and packed random-effect
+parameters). There is no single sample size for a mixed model: counting
+groups instead (\eqn{n = } \code{object$ngroups}) penalises more and is a
+common alternative, \code{-2 * logLik(object) + log(object$ngroups) * k}.
+Compare BIC values only between fits with the same convention.
 }
 \examples{
 \donttest{

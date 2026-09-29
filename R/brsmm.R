@@ -70,9 +70,18 @@
 #'   (\code{beta}, \code{gamma}, and packed lower-Cholesky random parameters).
 #' @param method Optimizer passed to \code{\link[stats]{optim}}.
 #' @param hessian_method \code{"numDeriv"} (default) or \code{"optim"}.
-#' @param control Control list for \code{\link[stats]{optim}}.
+#' @param control Control list for \code{\link[stats]{optim}}; its entries
+#'   are merged into the default \code{list(maxit = 2000L)}, so
+#'   \code{control = list(reltol = 1e-10)} keeps \code{maxit = 2000}.
 #'
-#' @return An object of class \code{"brsmm"}.
+#' @return An object of class \code{"brsmm"}. \code{diagnostics} holds the
+#'   post-fit checks of \code{\link{brs}} (gradient by central differences
+#'   with step \eqn{10^{-3}}, Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
+#'   log-likelihood gain of each random-effect term over its removal. A term
+#'   with log SD below -6 or a gain below \eqn{10^{-3}} is reported as a
+#'   variance component on the boundary (test it with \code{\link{anova.brsmm}},
+#'   chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
+#'   design matrices are an error.
 #'
 #' @examples
 #' \donttest{
@@ -187,6 +196,10 @@ brsmm <- function(formula,
   }
   q_re <- ncol(Xr)
   k_re <- q_re * (q_re + 1L) / 2L
+  # Aliased columns stop before optim (a flat direction gave non-finite values)
+  .brs_check_design(X, "mean")
+  .brs_check_design(Z, "precision")
+  .brs_check_design(Xr, "random-effects")
   n <- nrow(X)
   g <- nlevels(group)
 
@@ -267,7 +280,8 @@ brsmm <- function(formula,
     fn = fn_obj,
     method = method,
     hessian = (hessian_method == "optim"),
-    control = control
+    # User entries override; the default maxit stays unless given
+    control = .brs_merge_control(list(maxit = 2000L), control)
   )
 
   # BUG-H04: warn if optimizer did not converge
@@ -372,8 +386,17 @@ brsmm <- function(formula,
 
   # fitted_mu is the FIRST parameter (shape p under repar 0); E[Y] via .brs_mean().
   # Both clamps mirror the compiled likelihood (src/brs_common.h).
-  hatmu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, link), repar)
-  hatphi <- .clamp_phi_by_repar(apply_inv_link(eta_phi, link_phi), repar)
+  mu_raw <- apply_inv_link(eta_mu, link)
+  phi_raw <- apply_inv_link(eta_phi, link_phi)
+  hatmu <- .clamp_mu_by_repar(mu_raw, repar)
+  hatphi <- .clamp_phi_by_repar(phi_raw, repar)
+  # No compiled gradient for the marginal likelihood: central differences
+  fit_diag <- .brs_fit_diagnostics(
+    .brs_num_grad(fn_ll, est), hess, mu_raw, phi_raw, repar, opt$convergence,
+    re_logsd = c(log(sd_b_terms), theta_re_hat[.brsmm_chol_diag_index(q_re)]),
+    re_gain = .brsmm_re_gain(fn_ll, est, idx_re, q_re),
+    badly_scaled = .brs_badly_scaled(X, Z, Xr)
+  )
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
 
   pseudo_r2 <- suppressWarnings(
@@ -441,12 +464,12 @@ brsmm <- function(formula,
     int_method = int_method,
     n_points = n_points,
     qmc_points = qmc_points,
-    diagnostics = list(
+    diagnostics = c(fit_diag, list(
       integration = list(
         method = int_method,
         n_groups = g
       )
-    )
+    ))
   )
 
   class(out) <- "brsmm"
@@ -456,6 +479,41 @@ brsmm <- function(formula,
 #' Parse random-effect specification for brsmm
 #' @keywords internal
 #' @noRd
+# Named entries of `user` replace those of `default` (base-R modifyList()).
+.brs_merge_control <- function(default, user) {
+  user <- as.list(user)
+  if (length(user) && is.null(names(user))) {
+    stop("'control' must be a named list.", call. = FALSE)
+  }
+  default[names(user)] <- user
+  default
+}
+
+# Log-likelihood gain of each random-effect term over the same parameters with
+# that term's Cholesky row at ~0 (log-diagonal -10: smaller SDs lose Laplace accuracy).
+.brsmm_re_gain <- function(fn_ll, est, idx_re, q_re) {
+  ll_hat <- fn_ll(est)
+  theta <- est[idx_re]
+  vapply(seq_len(q_re), function(i) {
+    th <- theta
+    k <- 1L
+    for (j in seq_len(q_re)) {
+      for (r in j:q_re) {
+        if (r == i) th[k] <- if (r == j) -10 else 0
+        k <- k + 1L
+      }
+    }
+    par0 <- est
+    par0[idx_re] <- th
+    ll_hat - fn_ll(par0)
+  }, numeric(1))
+}
+
+# Positions of the log-diagonal Cholesky entries in the column-wise theta_re.
+.brsmm_chol_diag_index <- function(q_re) {
+  cumsum(c(1L, if (q_re > 1L) rev(seq_len(q_re - 1L)) + 1L))[seq_len(q_re)]
+}
+
 .brsmm_parse_random <- function(random) {
   if (!inherits(random, "formula")) {
     stop("'random' must be a formula like ~ 1 | id or ~ 1 + x | id.", call. = FALSE)

@@ -74,7 +74,9 @@ The analyst can supply data in several ways:
     Censoring is inferred automatically:
     \eqn{y = 0 \to \delta = 1}, \eqn{y = K \to \delta = 2},
     \eqn{0 < y < K \to \delta = 3},
-    \eqn{y \in (0, 1) \to \delta = 0}.
+    \eqn{y \in (0, 1) \to \delta = 0} (per observation, as in
+    \code{\link{brs_check}}; a warning flags input that mixes values in
+    \eqn{(0, 1)} with values \eqn{\ge 1}).
   \item \strong{Classic (Mode 2)}: \code{y} + explicit
     \code{delta}. The analyst declares the censoring type;
     interval endpoints are computed using the actual \code{y}
@@ -84,7 +86,9 @@ The analyst can supply data in several ways:
     inferred from the NA pattern.
   \item \strong{Full (Mode 4)}: \code{y}, \code{left}, and
     \code{right} together. The analyst's own endpoints are
-    rescaled directly to \eqn{(0, 1)}.
+    rescaled directly to \eqn{(0, 1)}. A row whose bounds reach both
+    borders covers the whole scale and carries no information: it is
+    kept (\eqn{\delta = 3}) with a warning suggesting its removal.
 }
 
 All covariate columns are preserved unchanged in the output.

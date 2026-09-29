@@ -85,7 +85,7 @@ brs_cv <- function(formula,
 
   rows <- list()
   ii <- 1L
-  # Advisory lim warnings of the fold fits, re-emitted once after the loop
+  # Advisory lim / mixed-value warnings of the fold fits, re-emitted once after the loop
   lim_msgs <- character(0)
   keep_lim_msg <- function(w) {
     lim_msgs <<- c(lim_msgs, conditionMessage(w))
@@ -105,7 +105,8 @@ brs_cv <- function(formula,
 
       fit <- tryCatch(
         withCallingHandlers(brs(formula = formula, data = train, ...),
-                            brs_lim_advisory = keep_lim_msg),
+                            brs_lim_advisory = keep_lim_msg,
+                            brs_mixed_advisory = keep_lim_msg),
         error = identity
       )
 

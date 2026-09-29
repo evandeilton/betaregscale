@@ -10,6 +10,33 @@
 #' deviations, empirical mean/SD of posterior modes, shrinkage ratio, and
 #' a normality check by Shapiro-Wilk (when applicable).
 #'
+#' @details
+#' \code{icc} is the intraclass correlation of \eqn{\mathrm{logit}(Y)} implied
+#' by the fitted model: for two observations of the same group with the
+#' covariates of observation \eqn{i},
+#' \deqn{\mathrm{ICC}_i = \frac{\mathrm{Var}_b[\psi(a_i) - \psi(b_i)]}
+#'   {\mathrm{Var}_b[\psi(a_i) - \psi(b_i)] + E_b[\psi_1(a_i) + \psi_1(b_i)]},}
+#' where \eqn{a_i(b), b_i(b)} are the beta shapes with random part
+#' \eqn{b \sim N(0, x_{r,i}^\top D x_{r,i})}, and \eqn{\psi},
+#' \eqn{\psi_1} are the digamma and trigamma functions
+#' (\eqn{E[\mathrm{logit}\,Y] = \psi(a) - \psi(b)},
+#' \eqn{\mathrm{Var}[\mathrm{logit}\,Y] = \psi_1(a) + \psi_1(b)}). The
+#' expectations over \eqn{b} use 40-point Gauss-Hermite quadrature and the
+#' reported value is the mean of \eqn{\mathrm{ICC}_i} over the observations.
+#' The level-1 variance is that of the beta, so the value depends on the
+#' precision; with the logit link (only) and a large precision it approaches
+#' \eqn{\sigma_b^2 / (\sigma_b^2 + \psi_1(a) + \psi_1(b))}. It replaces the
+#' logistic-latent formula \eqn{\sigma_b^2 / (\sigma_b^2 + \pi^2/3)}, which
+#' does not describe a beta response.
+#'
+#' The moments of \eqn{\mathrm{logit}(Y)} over \eqn{b} can be infinite: with a
+#' probit link when \eqn{\sigma_b^2 \ge 1/2}, with a cloglog link for every
+#' \eqn{\sigma_b > 0}, and numerically with any link when \eqn{\sigma_b} is
+#' very large. The value would then be set by the clamp of the mean
+#' (\eqn{10^{-5}}), so \code{icc} is \code{NA}, with a warning, whenever
+#' \eqn{E_b[\psi_1(a) + \psi_1(b)]} changes by more than 10\% when that clamp
+#' is tightened to \eqn{10^{-8}}.
+#'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param ... Currently ignored.
 #'
@@ -64,8 +91,9 @@ brsmm_re_study <- function(object, ...) {
   if (is.null(D)) {
     sd_single <- object$random$sd_b
     D <- matrix(as.numeric(sd_single)^2, nrow = 1L, ncol = 1L)
-    colnames(D) <- rownames(D) <- colnames(B)
   }
+  # Term names on D (the fit stores it without them; print showed re1, re2)
+  dimnames(D) <- list(colnames(B), colnames(B))
   Corr <- stats::cov2cor(D)
 
   mode_mean <- colMeans(B)
@@ -97,16 +125,14 @@ brsmm_re_study <- function(object, ...) {
     row.names = NULL
   )
 
-  # ICC on latent logistic scale: ICC = sigma_b^2 / (sigma_b^2 + pi^2/3)
-  # Uses only the intercept RE variance (column 1) as the between-group component.
-  sigma_b2_intercept <- as.numeric(model_var[1L])
-  icc_latent <- sigma_b2_intercept / (sigma_b2_intercept + pi^2 / 3)
+  # ICC of logit(Y) implied by the fitted beta model (not pi^2/3, a logistic value)
+  icc <- .brsmm_icc(object, D)
 
   out <- list(
     summary = summary_df,
     D = D,
     Corr = Corr,
-    icc = icc_latent,
+    icc = icc,
     n_groups = nrow(B),
     modes = B
   )
@@ -180,7 +206,7 @@ print.brsmm_re_study <- function(x, digits = max(3, getOption("digits") - 3), ..
   }
 
   # --- ICC ---
-  cat(sprintf("\nICC (latent logistic scale): %.4f\n", x$icc))
+  cat(sprintf("\nICC (logit(Y) scale, beta level-1 variance): %.4f\n", x$icc))
 
   # --- Per-term summary ---
   cat("\nSummary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):\n")
@@ -190,4 +216,67 @@ print.brsmm_re_study <- function(x, digits = max(3, getOption("digits") - 3), ..
   print(sm, row.names = FALSE)
 
   invisible(x)
+}
+
+
+# ICC of logit(Y) implied by a brsmm fit (see ?brsmm_re_study): averaged over rows.
+.brsmm_icc <- function(object, D) {
+  mm <- object$model_matrices
+  eta0 <- as.numeric(mm$X %*% object$coefficients$mean)
+  phi <- .clamp_phi_by_repar(
+    apply_inv_link(as.numeric(mm$Z %*% object$coefficients$precision), object$link_phi),
+    object$repar
+  )
+  # Variance of the random part x_r' b of each row
+  s2 <- rowSums((mm$Xr %*% D) * mm$Xr)
+  .brs_icc_logit(eta0, phi, s2, object$link, object$repar)
+}
+
+# ICC_i = Var_b[m] / (Var_b[m] + E_b[v]), m = psi(a) - psi(b), v = psi1(a) + psi1(b),
+# b ~ N(0, s2_i) by Gauss-Hermite; mean over i. NA (warning) when the clamp drives it.
+.brs_icc_logit <- function(eta0, phi, s2, link, repar, n_gh = 40L) {
+  at_pkg <- .brs_icc_parts(eta0, phi, s2, link, repar, n_gh, eps = 1e-5)
+  at_tight <- .brs_icc_parts(eta0, phi, s2, link, repar, n_gh, eps = 1e-8)
+  # Infinite logit(Y) moments (probit, cloglog tails): E_b[v] then follows the clamp
+  rel <- abs(at_tight$ev - at_pkg$ev) / at_pkg$ev
+  if (!is.finite(rel) || rel > 0.1) {
+    warning("ICC not available: the variance of logit(Y) is driven by the clamp of ",
+            "the mean (link '", link, "', E_b[psi1(a) + psi1(b)] changes by ",
+            format(signif(100 * rel, 3)), "% between the 1e-5 and 1e-8 clamps).",
+            call. = FALSE)
+    return(NA_real_)
+  }
+  at_pkg$icc
+}
+
+# Mean ICC_i and mean E_b[v_i] with the mean clamped to [eps, 1 - eps]
+# ([eps, 1e8] for the shape p under repar 0); beta shapes as in the likelihood.
+.brs_icc_parts <- function(eta0, phi, s2, link, repar, n_gh, eps) {
+  gh <- .brs_gh_normal(n_gh)
+  n <- length(eta0)
+  eta <- eta0 + outer(sqrt(pmax(rep_len(s2, n), 0)), gh$x)
+  mu <- as.numeric(apply_inv_link(eta, link))
+  top <- if (as.integer(repar) == 0L) 1e8 else 1 - eps
+  mu[!is.finite(mu)] <- top
+  mu <- pmin(pmax(mu, eps), top)
+  # phi does not depend on b: one column per node, repeated
+  sh <- .brs_shapes_unclamped(mu, rep(rep_len(phi, n), times = n_gh), repar)
+  a <- matrix(pmin(pmax(sh$a, 1e-12), 1e8), nrow = n)
+  b <- matrix(pmin(pmax(sh$b, 1e-12), 1e8), nrow = n)
+  m <- digamma(a) - digamma(b)
+  v <- trigamma(a) + trigamma(b)
+  em <- drop(m %*% gh$w)
+  vm <- pmax(drop((m - em)^2 %*% gh$w), 0)
+  ev <- drop(v %*% gh$w)
+  list(icc = mean(vm / (vm + ev)), ev = mean(ev))
+}
+
+# Gauss-Hermite nodes/weights for E[f(Z)], Z ~ N(0, 1) (Golub-Welsch).
+.brs_gh_normal <- function(n) {
+  J <- matrix(0, n, n)
+  off <- sqrt(seq_len(n - 1L))
+  J[cbind(seq_len(n - 1L), 2:n)] <- off
+  J[cbind(2:n, seq_len(n - 1L))] <- off
+  e <- eigen(J, symmetric = TRUE)
+  list(x = e$values, w = e$vectors[1L, ]^2)
 }

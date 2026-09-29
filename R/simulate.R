@@ -103,31 +103,10 @@ compute_start <- function(formula, data, link = NULL,
   if (is.null(z) || ncol(z) < 2L) {
     init_phi <- init_phi0
     names(init_phi) <- "phi"
-  } else if (repar == 1L) {
-    # Precision on (0, Inf): a quasi-binomial GLM of the mean says nothing
-    # about it, so moment intercept + zero slopes.
-    init_phi <- .brs_intercept_start(z, init_phi0)
-    names(init_phi) <- paste0("phi_", colnames(z))
   } else {
-    glm_data_z <- if (ncol(z) == 1L) {
-      data.frame(y = y, z)
-    } else {
-      data.frame(y = y, z[, -1L, drop = FALSE])
-    }
-    # repar 2: GLM start as before; on failure fall back to the moment intercept.
-    init_phi <- tryCatch(
-      stats::coef(
-        stats::glm(y ~ .,
-          data = glm_data_z,
-          family = stats::quasibinomial(link = link_phi)
-        )
-      ),
-      error = function(e) NULL
-    )
-    if (is.null(init_phi) || length(init_phi) != ncol(z) ||
-      any(!is.finite(init_phi))) {
-      init_phi <- .brs_intercept_start(z, init_phi0)
-    }
+    # A GLM of the mean says nothing about the dispersion/precision (all right-
+    # censored data gave logit phi = 5.99): moment intercept + zero slopes.
+    init_phi <- .brs_intercept_start(z, init_phi0)
     names(init_phi) <- paste0("phi_", colnames(z))
   }
 
@@ -227,6 +206,12 @@ compute_start <- function(formula, data, link = NULL,
 #'   \code{zeta} are on the link scale of the first and second parameter of
 #'   that scheme (shapes \eqn{p, q} under \code{repar = 0}).
 #' @param delta Forced censoring type (\code{0,1,2,3}) or \code{NULL}.
+#'   \code{delta = 1} or \code{2} censors every observation on the same side
+#'   at the cell of its own value: the threshold depends on \eqn{Y}
+#'   (informative censoring) and \code{\link{brs}} has no finite MLE for such
+#'   data (the estimates diverge while optim may report convergence). A
+#'   warning is issued, as it is whenever all simulated observations end up
+#'   censored on the same side. Use it only to exercise code paths.
 #' @param interval Direction of the uncertainty interval, \code{"mid"}
 #'   (default), \code{"right"} or \code{"left"}; see \code{\link{brs_check}}.
 #'
@@ -353,12 +338,20 @@ brs_sim <- function(formula,
   out_y <- .build_simulated_response(
     y_raw = y_raw, delta = delta, ncuts = ncuts, lim = lim, interval = interval
   )
-
-  predictors <- if (is.null(Z)) {
-    X[, -1L, drop = FALSE]
-  } else {
-    cbind(X[, -1L, drop = FALSE], Z[, -1L, drop = FALSE])
+  # All rows censored on one side: no finite MLE (forced: also informative)
+  d_out <- as.integer(out_y[, "delta"])
+  if (!is.null(delta) && delta %in% c(1L, 2L)) {
+    warning("delta = ", delta, " censors every observation on the same side at ",
+            "the cell of its own value (informative censoring): brs() has no ",
+            "finite MLE for these data (estimates diverge).", call. = FALSE)
+  } else if (n > 0L && (all(d_out == 1L) || all(d_out == 2L))) {
+    warning("Every simulated observation is censored on the same side (delta = ",
+            d_out[1L], "): brs() has no finite MLE for these data.", call. = FALSE)
   }
+
+  # Drop the intercept by name: `0 + x` has no intercept column to drop
+  no_int <- function(M) M[, colnames(M) != "(Intercept)", drop = FALSE]
+  predictors <- if (is.null(Z)) no_int(X) else cbind(no_int(X), no_int(Z))
 
   result <- data.frame(out_y, predictors)
 

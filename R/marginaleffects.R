@@ -119,7 +119,9 @@ brs_marginaleffects <- function(object,
     stop("'newdata' must be a data.frame.", call. = FALSE)
   }
 
-  if (identical(model, "precision") && object$q <= 1L) {
+  # By terms, not q: `| 0 + z` has q = 1 but a covariate
+  if (identical(model, "precision") &&
+      length(.brs_me_model_vars(object, "precision")) == 0L) {
     return(data.frame(
       variable = character(0),
       ame = numeric(0),
@@ -188,6 +190,12 @@ brs_marginaleffects <- function(object,
   }
 
   draws <- NULL
+  if (interval && anyNA(V)) {
+    # NA variances (see fit$diagnostics): no simulation interval
+    warning("The variance matrix has NA entries: intervals are not computed.",
+            call. = FALSE)
+    interval <- FALSE
+  }
   if (interval) {
     draws <- .brs_me_rmvnorm(n = n_sim, mu = par_hat, sigma = V)
   }
@@ -279,7 +287,8 @@ brs_marginaleffects <- function(object,
   eta_mu <- as.numeric(X %*% beta)
   mu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, object$link), object$repar)
 
-  if (object$q > 1L && !is.null(object$terms$precision)) {
+  # Variable-dispersion fits carry precision terms (also `| 0 + z`, q = 1)
+  if (!is.null(object$terms$precision)) {
     mf_z <- stats::model.frame(object$terms$precision, data = data,
                                xlev = object$xlevels$precision)
     Z <- stats::model.matrix(object$terms$precision, mf_z)

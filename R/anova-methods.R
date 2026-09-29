@@ -48,6 +48,8 @@
   bic <- vapply(models, BIC, numeric(1))
 
   cls <- vapply(models, function(m) class(m)[1L], character(1))
+  # Number of random-effect terms (0 for brs)
+  nre <- vapply(models, function(m) if (inherits(m, "brsmm")) as.numeric(m$q_re) else 0, numeric(1))
   ord <- order(df, ll)
   if (!identical(ord, seq_along(models))) {
     models <- models[ord]
@@ -56,6 +58,7 @@
     aic <- aic[ord]
     bic <- bic[ord]
     cls <- cls[ord]
+    nre <- nre[ord]
   }
 
   out <- data.frame(
@@ -67,12 +70,34 @@
     check.names = FALSE
   )
 
+  heading <- "Likelihood-ratio comparison of brs/brsmm models"
   if (length(models) >= 2L && identical(test, "Chisq")) {
     ddf <- c(NA_real_, diff(df))
     lr <- c(NA_real_, 2 * diff(ll))
     pval <- rep(NA_real_, length(models))
     valid <- !is.na(ddf) & ddf > 0
     pval[valid] <- stats::pchisq(lr[valid], df = ddf[valid], lower.tail = FALSE)
+
+    # One added random term: its variance is on the boundary (Self & Liang;
+    # Stram & Lee), so LR ~ 1/2 chi2(d - 1) + 1/2 chi2(d)
+    dre <- c(NA_real_, diff(nre))
+    mix <- valid & dre == 1 & ddf >= nre
+    if (any(mix)) {
+      pval[mix] <- ifelse(lr[mix] <= 0, 1,
+        0.5 * stats::pchisq(lr[mix], df = ddf[mix] - 1, lower.tail = FALSE) +
+          0.5 * stats::pchisq(lr[mix], df = ddf[mix], lower.tail = FALSE))
+      heading <- c(heading, paste0(
+        "Rows ", paste0("M", which(mix), collapse = ", "), ": one added random ",
+        "effect (variance on the boundary); Pr(>Chisq) from the chi-bar-square ",
+        "mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df)."))
+    }
+    other <- valid & !is.na(dre) & dre != 0 & !mix
+    if (any(other)) {
+      heading <- c(heading, paste0(
+        "Rows ", paste0("M", which(other), collapse = ", "), ": the random-effect ",
+        "structure changes by more than one term; the chi2(Df) p-value is ",
+        "conservative (boundary)."))
+    }
 
     out$Chisq <- lr
     out$`Chi Df` <- ddf
@@ -82,14 +107,8 @@
   rownames(out) <- out$Model
   out$Model <- NULL
   class(out) <- c("anova", "data.frame")
-
-  if (any(cls == "brs") && any(cls == "brsmm")) {
-    attr(out, "note") <- paste(
-      "Comparisons brs vs brsmm involve boundary/null random-effect conditions;",
-      "use LR p-values as heuristic evidence and complement with information criteria."
-    )
-  }
-
+  # print.anova() prints the heading (the old attr "note" was never shown)
+  attr(out, "heading") <- c(heading, "")
   out
 }
 

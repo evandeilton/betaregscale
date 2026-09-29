@@ -20,6 +20,12 @@ A square numeric matrix.
 \description{
 Variance-covariance matrix of estimated coefficients
 }
+\details{
+\eqn{(-H)^{-1}} with \eqn{H} the Hessian of the log-likelihood at the
+estimate. No generalised inverse is used: a singular Hessian gives an
+\code{NA} matrix, and negative or non-finite variances become \code{NA}
+(row and column); both cases warn (see \code{fit$diagnostics}).
+}
 \examples{
 \donttest{
 dat <- data.frame(

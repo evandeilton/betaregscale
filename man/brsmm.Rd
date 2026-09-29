@@ -67,7 +67,9 @@ Default is 1024.}
 
 \item{hessian_method}{\code{"numDeriv"} (default) or \code{"optim"}.}
 
-\item{control}{Control list for \code{\link[stats]{optim}}.}
+\item{control}{Control list for \code{\link[stats]{optim}}; its entries
+are merged into the default \code{list(maxit = 2000L)}, so
+\code{control = list(reltol = 1e-10)} keeps \code{maxit = 2000}.}
 
 \item{interval}{Direction of the uncertainty interval, \code{"mid"},
 \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
@@ -75,7 +77,14 @@ Default is 1024.}
 \code{"mid"}; same rule as \code{ncuts}.}
 }
 \value{
-An object of class \code{"brsmm"}.
+An object of class \code{"brsmm"}. \code{diagnostics} holds the
+  post-fit checks of \code{\link{brs}} (gradient by central differences
+  with step \eqn{10^{-3}}, Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
+  log-likelihood gain of each random-effect term over its removal. A term
+  with log SD below -6 or a gain below \eqn{10^{-3}} is reported as a
+  variance component on the boundary (test it with \code{\link{anova.brsmm}},
+  chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
+  design matrices are an error.
 }
 \description{
 Fits a beta interval-censored mixed model with Gaussian random

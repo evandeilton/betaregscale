@@ -47,7 +47,13 @@ selects the link implied by \code{repar}.}
 \code{zeta} are on the link scale of the first and second parameter of
 that scheme (shapes \eqn{p, q} under \code{repar = 0}).}
 
-\item{delta}{Forced censoring type (\code{0,1,2,3}) or \code{NULL}.}
+\item{delta}{Forced censoring type (\code{0,1,2,3}) or \code{NULL}.
+\code{delta = 1} or \code{2} censors every observation on the same side
+at the cell of its own value: the threshold depends on \eqn{Y}
+(informative censoring) and \code{\link{brs}} has no finite MLE for such
+data (the estimates diverge while optim may report convergence). A
+warning is issued, as it is whenever all simulated observations end up
+censored on the same side. Use it only to exercise code paths.}
 
 \item{interval}{Direction of the uncertainty interval, \code{"mid"}
 (default), \code{"right"} or \code{"left"}; see \code{\link{brs_check}}.}

@@ -20,6 +20,33 @@ estimated covariance matrix, correlation matrix, per-term standard
 deviations, empirical mean/SD of posterior modes, shrinkage ratio, and
 a normality check by Shapiro-Wilk (when applicable).
 }
+\details{
+\code{icc} is the intraclass correlation of \eqn{\mathrm{logit}(Y)} implied
+by the fitted model: for two observations of the same group with the
+covariates of observation \eqn{i},
+\deqn{\mathrm{ICC}_i = \frac{\mathrm{Var}_b[\psi(a_i) - \psi(b_i)]}
+  {\mathrm{Var}_b[\psi(a_i) - \psi(b_i)] + E_b[\psi_1(a_i) + \psi_1(b_i)]},}
+where \eqn{a_i(b), b_i(b)} are the beta shapes with random part
+\eqn{b \sim N(0, x_{r,i}^\top D x_{r,i})}, and \eqn{\psi},
+\eqn{\psi_1} are the digamma and trigamma functions
+(\eqn{E[\mathrm{logit}\,Y] = \psi(a) - \psi(b)},
+\eqn{\mathrm{Var}[\mathrm{logit}\,Y] = \psi_1(a) + \psi_1(b)}). The
+expectations over \eqn{b} use 40-point Gauss-Hermite quadrature and the
+reported value is the mean of \eqn{\mathrm{ICC}_i} over the observations.
+The level-1 variance is that of the beta, so the value depends on the
+precision; with the logit link (only) and a large precision it approaches
+\eqn{\sigma_b^2 / (\sigma_b^2 + \psi_1(a) + \psi_1(b))}. It replaces the
+logistic-latent formula \eqn{\sigma_b^2 / (\sigma_b^2 + \pi^2/3)}, which
+does not describe a beta response.
+
+The moments of \eqn{\mathrm{logit}(Y)} over \eqn{b} can be infinite: with a
+probit link when \eqn{\sigma_b^2 \ge 1/2}, with a cloglog link for every
+\eqn{\sigma_b > 0}, and numerically with any link when \eqn{\sigma_b} is
+very large. The value would then be set by the clamp of the mean
+(\eqn{10^{-5}}), so \code{icc} is \code{NA}, with a warning, whenever
+\eqn{E_b[\psi_1(a) + \psi_1(b)]} changes by more than 10\% when that clamp
+is tightened to \eqn{10^{-8}}.
+}
 \examples{
 \donttest{
 dat <- data.frame(
