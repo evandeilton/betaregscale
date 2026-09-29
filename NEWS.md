@@ -1,3 +1,50 @@
+# betaregscale (development version)
+
+Fixes from the 2026-09 audit of the R code and the compiled backend. No change
+to the user-facing API.
+
+## Row alignment and input validation
+
+* `.extract_response()` and `.brsmm_row_index()` treated numeric row names as
+  row positions. After `data[-10, ]`, a permutation, or any subset that keeps
+  the original row names, `left`/`right`/`delta` and the grouping variable
+  were taken from the wrong rows, silently corrupting `brs()` on subsetted
+  data, `brs_cv()`, the BCa jackknife in `brs_bootstrap()` and `brsmm()`.
+  Rows are now always mapped by `match(rownames(mf), rownames(data))`.
+
+* The compiled `brsmm()` likelihood did no dimension checks. With a `NA` in a
+  random-slope variable, `model.matrix()` dropped a row and the group builder
+  wrote past its buffers (AddressSanitizer heap-buffer-overflow). Vector
+  lengths, `group >= 1` and `delta` in `0:3` are now validated in C++, and a
+  `NA` in a random-effects variable gives a clear R-side error.
+
+* `brs_prep()` Mode 3 rows (only `left`/`right` known) had `y = NA`, so
+  `model.frame()` dropped them and those censored observations never reached
+  the fit. They are now kept.
+
+## Likelihood: no probability floor, exact tails
+
+* The compiled likelihood floored every censored probability at `1e-15`
+  before taking the log, and chose the CDF tail by the position of the
+  interval on (0, 1) rather than by the fitted distribution. An interval far
+  above a small fitted mean (or below a large one) was computed as
+  `F(right) - F(left)` with both terms equal to 1 to machine precision, so it
+  hit the floor: the observation contributed the constant `log(1e-15)` with
+  zero gradient, and the optimiser maximised a trimmed likelihood that ignored
+  outliers. Now the tail is chosen by the mean `a / (a + b)`, `pbeta()` is
+  evaluated in plain scale on the small side, there is no floor, and below
+  `1e-240` (where R's `bratio` loses accuracy) an endpoint Laplace
+  approximation of the tail integral takes over. The endpoint clamp to
+  `[1e-5, 1 - 1e-5]` is unchanged. An R mirror of the same rules,
+  `.brs_obs_loglik()`, is used by `brs_cv()` for the log-score.
+
+  User-visible consequences: `logLik()`, `AIC()` and `brs_cv()` change on data
+  with observations far in a tail, and the precision estimate can drop a lot.
+  In the audit example (200 observations, 4 outliers) the estimated precision
+  went from 328 to 32; the old value was an artefact of the trimmed
+  likelihood. An interval-censored observation with `left == right`
+  (probability zero) now contributes `-1e6` instead of `log(1e-15)`.
+
 # betaregscale 2.7.4
 
 Resubmission addressing CRAN feedback on vignette build time (Uwe Ligges,
