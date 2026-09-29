@@ -46,19 +46,22 @@
 #' \doi{10.1016/j.jpainsymman.2010.08.016}
 #'
 #' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10),
-#'   x2 = rep(c(0, 0, 1, 1), 5)
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' cv <- brs_cv(y ~ x1, data = prep, k = 3, repeats = 1)
-#' cv
-#' }
+#' # Synthetic NRS-11 scores: 4 groups x 3 times. Simulated, not real data.
+#' set.seed(3)
+#' nrs <- expand.grid(id = 1:40, time = c("6h", "12h", "24h"))
+#' nrs$group <- factor(paste0("g", (nrs$id - 1) %% 4 + 1))
+#' eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + c(0, -0.1, 0.05, 0.1)[nrs$group]
+#' shp <- brs_repar(mu = plogis(eta), phi = 0.3, repar = 2)
+#' nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+#'
+#' # 3-fold CV of two nested models, time only (m1) and time + group (m2);
+#' # log_score is the mean held-out log-likelihood contribution (higher is better)
+#' set.seed(5)
+#' cv1 <- brs_cv(y ~ time, data = nrs, k = 3, ncuts = 10)
+#' set.seed(5)
+#' cv2 <- brs_cv(y ~ time + group, data = nrs, k = 3, ncuts = 10)
+#' c(m1 = mean(cv1$log_score), m2 = mean(cv2$log_score))
+#' cv2
 #'
 #' @rdname brs_cv
 #' @export

@@ -72,19 +72,24 @@ If \code{interval = TRUE}, uncertainty is approximated by asymptotic
 parameter simulation from \eqn{\mathcal{N}(\hat{\theta}, \hat{V})}.
 }
 \examples{
-\donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10),
-  x2 = rep(c(0, 0, 1, 1), 5)
-)
-prep <- brs_prep(dat, ncuts = 100)
-fit <- brs(y ~ x1, data = prep)
-brs_marginaleffects(fit, model = "mean", type = "response")
-}
+# Synthetic NRS-11 scores with a 0/1 time dummy and a numeric covariate (age)
+set.seed(3)
+nrs <- data.frame(t12 = rep(0:1, each = 60), age = round(rnorm(120, 40, 12)))
+shp <- brs_repar(mu = plogis(-1.3 + 0.75 * nrs$t12 + 0.03 * (nrs$age - 40)),
+                 phi = 0.3, repar = 2)
+nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+fit <- brs(y ~ t12 + age, data = nrs, ncuts = 10)
+
+# Average marginal effects on E[Y] (0/1 dummy: discrete change; age: slope),
+# with intervals from 50 draws of the estimates (use n_sim >= 400 in practice)
+set.seed(6)
+brs_marginaleffects(fit, n_sim = 50)
+
+# On the 0-10 score scale (mid cells): multiply by K = 10
+set.seed(6)
+ame <- brs_marginaleffects(fit, n_sim = 50)
+transform(ame[, c("variable", "ame", "ci.lower", "ci.upper")],
+          ame = 10 * ame, ci.lower = 10 * ci.lower, ci.upper = 10 * ci.upper)
 
 }
 \references{

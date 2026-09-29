@@ -23,27 +23,29 @@ support, it suffers from two critical limitations:
     where the precision parameter $\phi$ lacks a direct, clinically intuitive meaning.
 2.  **Measurement Resolution:** It ignores the discretized nature of rating scales.
     Selecting "52" on an NRS-101 reflects a measurement interval $[0.515, 0.525]$,
-    not a precise continuous value. Ignoring this leads to underestimated residual
-    variance and biased inference.
+    not a precise continuous value. Ignoring it treats a coarse reading as exact
+    and can distort the variance and the inference.
 
 ## The `betaregscale` Solution
 
 `betaregscale` provides a frequentist, maximum-likelihood framework tailored
-specifically for bounded scale data. It introduces two major methodological
-advancements:
+specifically for bounded scale data (Lopes, 2023). It combines two ideas:
 
-1.  **Mean-Dispersion (MD) Parameterization:** Reparameterizes the beta distribution
-    in terms of the conditional mean $\mu \in (0,1)$ and a proportional dispersion
-    parameter $\sigma \in (0,1)$, both directly interpretable and modelable via
-    covariates.
+1.  **Mean-Dispersion (MD) Parameterization** (Bayer, 2011): the beta distribution
+    in terms of the conditional mean $\mu \in (0,1)$ and a dispersion
+    $\sigma = 1/(1 + a + b) \in (0,1)$, with $\mathrm{Var}(Y) = \sigma\mu(1-\mu)$;
+    both can depend on covariates.
 
 2.  **Interval-Censored Likelihood:** Properly treats each discrete scale point as
     interval-censored data, integrating the beta PDF over the uncertainty bounds
-    implied by the instrument's resolution. A score of $y^{\ast}$ on a $K$-point scale
-    is treated as $[y^{\ast}/K - 1/(2K),\; y^{\ast}/K + 1/(2K)]$.
+    implied by the instrument's resolution. A score $y^{\ast}$ on the scale
+    $0, 1, \ldots, K$ (`ncuts = K`, the maximum score) is treated as
+    $[y^{\ast}/K - 1/(2K),\; y^{\ast}/K + 1/(2K)]$; scores 0 and $K$ are
+    left- and right-censored.
 
-The package features a compiled **C++ backend** for analytical gradient computation,
-and provides a mixed-effects extension (`brsmm()`) for repeated measures and
+The package features a compiled **C++ backend** (log-likelihood, and gradient and
+Hessian by the chain rule on the linear predictors, with per-observation numerical
+derivatives), and provides a mixed-effects extension (`brsmm()`) for repeated measures and
 multi-centre data, with three integration methods for the random-effects
 likelihood — multivariate **Laplace approximation** (default), **adaptive
 Gauss-Hermite quadrature** and **quasi-Monte Carlo** — all available for
@@ -204,7 +206,8 @@ ranef(fit_ri)
 # -----------------------------------------------------------------------------
 
 # 5a. Randomized quantile residuals (RQRs)
-#     Under the correctly specified model, RQRs ~ N(0,1) exactly.
+#     Under the correctly specified model, RQRs are approximately N(0,1)
+#     (exactly at the true parameters).
 #     Departure from the diagonal in the Q-Q plot signals misspecification.
 rqr <- residuals(fit_full, type = "rqr")
 qqnorm(rqr); qqline(rqr, col = "steelblue", lwd = 2)
@@ -308,8 +311,9 @@ The default link for both is logit, ensuring $\mu_i, \sigma_i \in (0,1)$.
 
 ### Interval-Censored Likelihood
 
-A raw NRS-101 score $y_i^{\ast} \in \{0, 1, \ldots, 100\}$ is mapped to
-$y_i = y_i^{\ast}/100$ with interval $[l_i, u_i] = [y_i - 0.005,\, y_i + 0.005]$.
+A raw NRS-101 score $y_i^{\ast} \in \{0, 1, \ldots, 100\}$ (`ncuts = 100`) is
+mapped to $y_i = y_i^{\ast}/100$ with interval $[l_i, u_i] = [y_i - 0.005,\, y_i + 0.005]$;
+the scores 0 and 100 are left- and right-censored ($\delta_i = 1, 2$).
 
 Let $\delta_i \in \{0,1,2,3\}$ encode the censoring type. The complete
 log-likelihood is:
@@ -341,9 +345,10 @@ posterior mode, and $H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)$.
 
 For higher accuracy, `int_method = "aghq"` replaces the Laplace step with adaptive
 Gauss-Hermite quadrature on a Cartesian grid centred at $\hat{\mathbf{b}}_j$ and
-scaled by $H_j^{-1/2}$, and `int_method = "qmc"` uses importance sampling from a
-Gaussian proposal along a Halton low-discrepancy sequence. Both work for any
-$q_b$; Laplace remains the default.
+scaled by the symmetric root $H_j^{-1/2}$, and `int_method = "qmc"` uses importance
+sampling from a Gaussian proposal along a Halton low-discrepancy sequence. Both work
+for any $q_b$; Laplace remains the default. With two or more random effects QMC
+underestimates the log-likelihood slightly; prefer AGHQ for up to three.
 
 ---
 
@@ -380,6 +385,17 @@ $q_b$; Laplace remains the default.
 | [**Advanced Workflows**](https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.html) | Production pipelines, model selection, sensitivity analysis |
 
 ---
+
+## References
+
+- Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
+  Master's dissertation, Universidade Federal do Paraná, Curitiba.
+  <https://hdl.handle.net/1884/86624>
+- Bayer, F. M. (2011). *Modelagem e inferência em regressão beta*. PhD thesis,
+  Universidade Federal de Pernambuco.
+- Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for modelling
+  rates and proportions. *Journal of Applied Statistics*, 31(7), 799–815.
+  <https://doi.org/10.1080/0266476042000214501>
 
 ## Citation
 

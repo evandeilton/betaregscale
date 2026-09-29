@@ -33,7 +33,7 @@
 #'   (\code{NULL}: the default for \code{repar}, see \code{\link{brs}}).
 #' @param link_phi Character: link function for the second parameter
 #'   (\code{NULL}: the default for \code{repar}).
-#' @param ncuts  Integer: number of scale categories (default 100).
+#' @param ncuts  Integer \eqn{K}, the maximum score (scale \eqn{0, \ldots, K}; default 100).
 #' @param lim    Numeric: half-width of uncertainty region (default
 #'   0.5).
 #' @param repar  Integer: reparameterization scheme (0, 1, or 2;

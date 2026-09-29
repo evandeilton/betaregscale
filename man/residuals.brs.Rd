@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{residuals.brs}
 \alias{residuals.brs}
-\title{Extract residuals}
+\title{Residuals of a fitted beta interval model}
 \usage{
 \method{residuals}{brs}(
   object,
@@ -13,49 +13,102 @@
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
 
-\item{type}{Residual type. One of \code{"response"} (default),
-\code{"pearson"}, \code{"deviance"}, \code{"rqr"} (randomized
-quantile), \code{"weighted"}, or \code{"sweighted"}.}
+\item{type}{Residual type: \code{"response"} (default), \code{"pearson"},
+\code{"deviance"}, \code{"rqr"}, \code{"weighted"} or
+\code{"sweighted"}.}
 
 \item{...}{Currently ignored.}
 }
 \value{
-Numeric vector of residuals.
+Numeric vector of residuals, one per observation.
 }
 \description{
-Extract residuals
+Residuals of a \code{"brs"} fit. Randomized quantile residuals
+(\code{type = "rqr"}) use the censoring of each observation and are the
+recommended ones; the other types are evaluated at one point of the cell
+(see Details).
 }
 \details{
-All residuals are computed from the fitted shapes \eqn{(a, b)} and the
-mean \eqn{E[Y] = a / (a + b)} (so they are consistent across
-reparameterizations). For Pearson residuals the variance is
+Let \eqn{(a_i, b_i)} be the fitted shapes, \eqn{\hat\mu_i = a_i/(a_i + b_i)}
+the fitted mean and \eqn{V_i} the fitted variance (\code{\link{brs_repar}}).
+All types except \code{"rqr"} use \eqn{y_i =} \code{yt}, the centre of the
+cell: \eqn{s/K} under \code{interval = "mid"}, so that the border scores
+sit at \eqn{10^{-5}} and \eqn{1 - 10^{-5}}, and \eqn{(s + 0.5)/(K + 1)}
+under \code{"right"}/\code{"left"}; exact values are used as they are. This
+is the midpoint convention of Lopes (2023, "Analise de residuos"); it makes
+these residuals unreliable at the borders of the scale.
 \describe{
-  \item{repar = 1 (precision)}{V = mu(1 - mu) / (1 + phi)}
-  \item{repar = 2 (mean-variance)}{V = mu(1 - mu) * phi}
-  \item{repar = 0 (shapes)}{V = pq / ((p + q)^2 (p + q + 1))}
+  \item{\code{"response"}}{\eqn{y_i - \hat\mu_i}.}
+  \item{\code{"pearson"}}{\eqn{(y_i - \hat\mu_i)/\sqrt{V_i}}. Lopes (2023)
+    writes \eqn{V_i} as \eqn{\mu(1 - \mu)/(1 + \phi)}
+    (parameterisation 1); it is the same variance under every
+    \code{repar}.}
+  \item{\code{"deviance"}}{\eqn{\mathrm{sign}(y_i - \hat\mu_i)
+    \sqrt{|2\{\ell_i(y_i) - \ell_i(\hat\mu_i)\}|}}, where \eqn{\ell_i(m)} is
+    the beta log-density at \eqn{y_i} with mean \eqn{m} and precision
+    \eqn{a_i + b_i} (Ferrari and Cribari-Neto, 2004). The saturated mean
+    is taken as \eqn{y_i}, as in \pkg{betareg}. For a small precision
+    (U- or J-shaped densities) \eqn{\ell_i(y_i)} can be below
+    \eqn{\ell_i(\hat\mu_i)}; the absolute value is then used and only the
+    sign carries information.}
+  \item{\code{"rqr"}}{\eqn{\Phi^{-1}(u_i)}, with \eqn{u_i} uniform on
+    \eqn{(F(l_i), F(u_i))} for \eqn{\delta_i = 3}, on \eqn{(0, F(u_i))} for
+    \eqn{\delta_i = 1} and on \eqn{(F(l_i), 1)} for \eqn{\delta_i = 2}, and
+    \eqn{u_i = F(y_i)} for exact values (Dunn and Smyth, 1996); \eqn{u_i}
+    is kept in \eqn{[10^{-10}, 1 - 10^{-10}]}. They are standard normal
+    under the model whatever the censoring. They are random: set a seed
+    to reproduce them; \code{summary()} draws them without changing the
+    caller's RNG state.}
+  \item{\code{"weighted"}, \code{"sweighted"}}{\eqn{(y_i^* - \mu_i^*)/
+    \sqrt{(a_i + b_i) v_i}} and \eqn{(y_i^* - \mu_i^*)/\sqrt{v_i}}, with
+    \eqn{y_i^* = \mathrm{logit}(y_i)}, \eqn{\mu_i^* = \psi(a_i) - \psi(b_i)}
+    and \eqn{v_i = \psi'(a_i) + \psi'(b_i)} (Espinheira, Ferrari and
+    Cribari-Neto, 2008).}
 }
-The weighted and sweighted residuals use
-\eqn{y^* = \mathrm{logit}(y)}, \eqn{\mu^* = \psi(a) - \psi(b)} and
-\eqn{v = \psi'(a) + \psi'(b)} (Espinheira, Ferrari and Cribari-Neto,
-2008), with the precision \eqn{a + b}. Deviance residuals compare the
-fit with a saturated model that has mean \eqn{y} and the same
-precision \eqn{a + b}.
+Lopes (2023) also recommends the adjusted quantile residuals of Pereira
+(2019), which are not implemented.
 }
 \examples{
-\donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10)
-)
-prep <- brs_prep(dat, ncuts = 100)
-fit <- brs(y ~ x1, data = prep)
-head(residuals(fit))
-head(residuals(fit, type = "pearson"))
-}
+# Synthetic NRS-11 scores: 3 post-operative times. Simulated, not real data.
+set.seed(2023)
+nrs <- data.frame(time = factor(rep(c("6h", "12h", "24h"), each = 80),
+                                levels = c("6h", "12h", "24h")))
+shp <- brs_repar(mu = plogis(-1.3 + c(0, 0.75, 0.3)[nrs$time]), phi = 0.3,
+                 repar = 2)
+nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+fit <- brs(y ~ time, data = nrs, ncuts = 10)
 
+# Randomized quantile residuals: approximately N(0, 1), borders included
+set.seed(1)
+r_q <- residuals(fit, type = "rqr")
+qqnorm(r_q); qqline(r_q)
+
+# Midpoint-based residuals are extreme at the border scores 0 and 10
+r_p <- residuals(fit, type = "pearson")
+tapply(r_p, cut(nrs$y, c(-1, 0, 9, 10), labels = c("0", "1-9", "10")), mean)
+
+}
+\references{
+Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: https://hdl.handle.net/1884/86624.
+
+Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
+\emph{Journal of Computational and Graphical Statistics}, \bold{5}(3),
+236--244.
+
+Espinheira, P. L., Ferrari, S. L. P., and Cribari-Neto, F. (2008). On beta
+regression residuals. \emph{Journal of Applied Statistics}, \bold{35}(4),
+407--419.
+
+Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+Beta regression for modelling rates and proportions.
+\emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+\doi{10.1080/0266476042000214501}
+
+Pereira, G. H. A. (2019). On quantile residuals in beta regression.
+\emph{Communications in Statistics - Simulation and Computation},
+\bold{48}(1), 302--316.
 }
 \seealso{
 \code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}}

@@ -2,54 +2,47 @@
 % Please edit documentation in R/anova-methods.R
 \name{anova.brsmm}
 \alias{anova.brsmm}
-\title{Model comparison by analysis of deviance (LR test) for `brsmm`}
+\title{Likelihood-ratio comparison involving mixed models}
 \usage{
 \method{anova}{brsmm}(object, ..., test = c("Chisq", "none"))
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} model.}
 
-\item{...}{Additional fitted \code{"brsmm"} and/or \code{"brs"} models to
-compare.}
+\item{...}{Further fitted \code{"brsmm"} and/or \code{"brs"} models.}
 
-\item{test}{Character; \code{"Chisq"} (default) or \code{"none"}.}
+\item{test}{\code{"Chisq"} (default) or \code{"none"}.}
 }
 \value{
-An object of class \code{"anova"} and \code{"data.frame"} with
-  model-wise log-likelihood, information criteria, and (optionally) LR test
-  columns.
+An object of class \code{"anova"}; see \code{\link{anova.brs}}.
 }
 \description{
-Model comparison by analysis of deviance (LR test) for `brsmm`
+\code{anova()} for \code{"brsmm"} fits: the same table as
+\code{\link{anova.brs}}, with the chi-bar-square mixture
+\eqn{\frac12\chi^2_{df-1} + \frac12\chi^2_{df}} for rows that add one
+random-effect term, whose variance is on the boundary under \eqn{H_0}.
+This is the test to use for a variance component: the Wald statistic of
+its log standard deviation is not meaningful (see
+\code{\link{summary.brsmm}}).
 }
 \examples{
-\donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10),
-  id = factor(rep(1:4, each = 5))
-)
-prep <- brs_prep(dat, ncuts = 100)
-m1 <- brs(y ~ 1, data = prep)
-m2 <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
-anova(m1, m2)
-}
+set.seed(11)
+g <- 20
+d <- data.frame(id = factor(rep(1:g, each = 8)), x = runif(8 * g))
+shp <- brs_repar(plogis(-0.4 + d$x + rnorm(g, sd = 0.6)[d$id]), phi = 0.25)
+d$y <- round(10 * rbeta(nrow(d), shp$shape1, shp$shape2))
+m0 <- brs(y ~ x, data = d, ncuts = 10)
+m1 <- brsmm(y ~ x, random = ~ 1 | id, data = d, ncuts = 10)
+anova(m0, m1)  # Pr(>Chisq) = half the chi2(1) tail
 
 }
 \references{
-Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
-Master's dissertation, Universidade Federal do Parana, Curitiba.
-URI: https://hdl.handle.net/1884/86624.
-
-Ferrari, S. L. P., and Cribari-Neto, F. (2004).
-Beta regression for modelling rates and proportions.
-\emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
-\doi{10.1080/0266476042000214501}
+Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+likelihood estimators and likelihood ratio tests under nonstandard
+conditions. \emph{Journal of the American Statistical Association},
+\bold{82}(398), 605--610. \doi{10.1080/01621459.1987.10478472}
 }
 \seealso{
-\code{\link{brsmm}}, \code{\link{logLik.brsmm}},
-  \code{\link{AIC.brsmm}}, \code{\link{BIC.brsmm}}
+\code{\link{anova.brs}}, \code{\link{brsmm}},
+  \code{\link{summary.brsmm}}
 }

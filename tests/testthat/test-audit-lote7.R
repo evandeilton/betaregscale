@@ -582,3 +582,18 @@ test_that("L7-V6: the mixed-values warning suggests the half-point rescaling", {
   expect_warning(brs_check(c(0.5, 2, 3.5, 4), ncuts = 5),
                  "half-point scores: use y \\* 2 and ncuts \\* 2")
 })
+
+# L6: brs_prep input types ------------------------------------------------------
+
+test_that("L6-1: an all-NA bound (or score) column is read as numeric NA", {
+  # Before: "Column 'right' must be numeric." (a column of NA is logical)
+  p <- suppressMessages(brs_prep(data.frame(left = c(7, 2), right = NA), ncuts = 10))
+  expect_identical(p$delta, c(2L, 2L))
+  expect_equal(p$left, c(0.7, 0.2))
+  p2 <- suppressMessages(brs_prep(data.frame(y = NA, left = 2, right = 5), ncuts = 10))
+  expect_identical(p2$delta, 3L)
+  expect_equal(c(p2$left, p2$right), c(0.2, 0.5))
+  # A logical column with values is still an error
+  expect_error(suppressMessages(brs_prep(data.frame(left = c(TRUE, NA), right = 5), ncuts = 10)),
+               "must be numeric")
+})

@@ -40,7 +40,8 @@ shape/precision).}
 \item{hessian_method}{Character: \code{"cpp"} (default),
 \code{"numDeriv"} or \code{"optim"} (see \code{\link{brs_fit_fixed}}).}
 
-\item{ncuts}{Number of scale categories. \code{NULL} (default) uses the
+\item{ncuts}{Integer \eqn{K}, the maximum score: the scale is
+\eqn{0, 1, \ldots, K} (\eqn{K + 1} categories). \code{NULL} (default) uses the
 value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
 or 100 when \code{data} was not prepared. A value that differs from
 the stored one is ignored with a warning (the endpoints were built

@@ -33,7 +33,7 @@ beta likelihood for scale-derived outcomes.
 This vignette covers:
 
 1. full model mathematics;
-2. estimation by marginal maximum likelihood (Laplace approximation);
+2. estimation by marginal maximum likelihood (Laplace, adaptive quadrature or quasi-Monte Carlo);
 3. practical use of all current `brsmm` methods;
 4. inferential and validation workflows, including parameter recovery.
 
@@ -134,6 +134,27 @@ $$
 $\hat{\mathbf{b}}_j$. For $q_b = 1$, this reduces to the scalar
 random-intercept formula.
 
+### Other integration methods and estimation details
+
+* `int_method = "aghq"`: adaptive Gauss-Hermite quadrature with
+  `n_points` nodes per dimension, placed at
+  $\hat{\mathbf{b}}_j+\sqrt{2}\,H_j^{-1/2}\mathbf{z}$ with the symmetric
+  square root $H_j^{-1/2}$ (`n_points`$^{q_b}$ nodes in total, at most 500000).
+* `int_method = "qmc"`: importance sampling from
+  $\mathcal{N}(\hat{\mathbf{b}}_j, H_j^{-1})$ with `qmc_points` Halton points.
+  It is deterministic and, with two or more random effects, underestimates
+  the log-likelihood (about $-0.05$ at 1024 points); prefer `"aghq"` for up
+  to three random effects.
+
+The inner mode is found by a Levenberg-Marquardt Newton method, warm-started
+from the previous evaluation (the cache is cleared at the start of each fit).
+A group whose curvature is not positive definite at its mode adds the
+penalty value, and `brsmm()` warns when that happens at the estimate.
+`optim()` receives the compiled gradient of the chosen approximation (chain
+rule on the linear predictor and implicit-function theorem at the modes),
+and the Hessian behind `vcov()` is a Richardson central difference of that
+gradient (`hessian_method = "cpp"`).
+
 ## Simulating clustered scale data
 
 The next helper simulates data from a known mixed model to illustrate fitting,
@@ -208,6 +229,11 @@ fit_mm_rs <- brsmm(
 summary(fit_mm_rs)
 ```
 
+The random-effects block of `summary()` reports standard deviations and the
+correlation, with 95% intervals built on the log scale (SD) and the
+$\mathrm{atanh}$ scale (correlation) and mapped back; it gives no test. The
+same numbers are in `summary(fit_mm_rs)$varcorr`.
+
 Covariance structure of random effects:
 
 ```{r random-covariance}
@@ -227,6 +253,22 @@ Following practices from established mixed-models packages, the package now allo
 * empirical distribution of modes by group;
 * empirical shrinkage intensity;
 * specific visual diagnostics for the random components.
+
+The intraclass correlation reported by `brsmm_re_study()` is the
+correlation of $\mathrm{logit}(Y)$ between two observations of the same
+group with the same covariates. With $m(b)=\psi(a)-\psi(b)$ and
+$v(b)=\psi_1(a)+\psi_1(b)$ (mean and variance of $\mathrm{logit}\,Y$ for
+$Y\sim\mathrm{Beta}(a,b)$, with the shapes at random effect $b$),
+$$
+\mathrm{ICC}=\frac{\mathrm{Var}_b[m(b)]}{\mathrm{Var}_b[m(b)]+E_b[v(b)]},
+$$
+computed by Gauss-Hermite quadrature over $b\sim N(0,\,w^\top D w)$ and
+averaged over the observations. It uses the beta level-1 variance: the
+logistic value $\pi^2/3$ of binary models does not describe a beta
+response. The moments of $\mathrm{logit}(Y)$ can be infinite (probit link
+with $\sigma_b^2\geq 1/2$, cloglog link, or a very large $\sigma_b$); the
+ICC is then `NA` with a warning, because its value would be set by the
+numerical clamp of the mean.
 
 ```{r ranef-study}
 re_study <- brsmm_re_study(fit_mm_rs)
@@ -293,7 +335,8 @@ vc <- vcov(fit_mm)
 dim(vc)
 
 sm <- summary(fit_mm)
-kbl10(sm$coefficients)
+kbl10(sm$coefficients$mean)
+kbl10(sm$varcorr)
 
 kbl10(
   data.frame(
@@ -390,14 +433,19 @@ kbl10(
 
 ### Wald tests (from `summary`)
 
-`summary.brsmm()` reports Wald $z$-tests for each parameter:
+`summary.brsmm()` reports Wald $z$-tests for the fixed effects:
 $$
 z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
 $$
+It gives no test for the random effects: a $z$-test of $\log\sigma_b$
+tests $\sigma_b=1$, and $\sigma_b=0$ lies on the boundary. Their SD and
+correlation come with intervals only; test a variance component with the
+likelihood-ratio test below.
 
 ```{r wald-tests}
 sm <- summary(fit_mm)
-kbl10(sm$coefficients)
+kbl10(sm$coefficients$mean)
+kbl10(sm$coefficients$precision)
 ```
 
 ### Evolutionary scheme and Likelihood Ratio (LR) test selection
@@ -408,10 +456,21 @@ A practical workflow of increasing complexity:
 2.  `brsmm(..., random = ~ 1 | id)`: random intercept;
 3.  `brsmm(..., random = ~ 1 + x1 | id)`: random intercept + slope.
 
-In the first jump (`brs` to `brsmm` with intercept), the hypothesis
-$\sigma_b^2 = 0$ lies on the boundary of the parameter space. Thus, the
-classical asymptotic $\chi^2$ reference distribution should be interpreted with caution.
-In the second jump (intercept to intercept + slope), the Likelihood Ratio (LR) test with a $\chi^2$ distribution is commonly used as a practical diagnostic for goodness-of-fit gains.
+In both jumps the added variance lies on the boundary of the parameter
+space under $H_0$, so the likelihood ratio does not follow $\chi^2_d$. With
+one added random-effect term the reference is the mixture
+$\frac12\chi^2_{d-1}+\frac12\chi^2_d$: $\frac12\chi^2_0+\frac12\chi^2_1$
+from `brs` to the random intercept, $\frac12\chi^2_1+\frac12\chi^2_2$ from
+the intercept to intercept + slope (Self and Liang, 1987; Stram and Lee,
+1994). `anova()` uses it for these rows and explains it in its heading; the
+naive $\chi^2_d$ p-value is about twice as large.
+
+When a variance is essentially zero, `brsmm()` warns "Variance component at
+the boundary" (log SD below $-6$, or a log-likelihood gain below $10^{-3}$
+over the same fit without the term). If that gain is negative, the message
+adds that SD $\approx 0$ has a higher log-likelihood: the fit stopped short
+of the maximum. The Wald standard error of that log SD is meaningless; rely
+on the likelihood-ratio test.
 
 ```{r lr-evolution}
 # Base model without a random effect
@@ -426,10 +485,7 @@ fit_brs <- brs(
 # fit_mm_rs : random = ~ 1 + x1 | id
 
 tab_lr <- anova(fit_brs, fit_mm, fit_mm_rs, test = "Chisq")
-kbl10(
-  data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL),
-  digits = 4
-)
+tab_lr
 ```
 
 Operational decision rule (analytical):
@@ -536,6 +592,14 @@ devtools::test(filter = "brsmm")
 ```
 
 ## References
+
+Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+likelihood estimators and likelihood ratio tests under nonstandard
+conditions. *Journal of the American Statistical Association*, 82(398),
+605-610.
+
+Stram, D. O., and Lee, J. W. (1994). Variance components testing in the
+longitudinal mixed effects model. *Biometrics*, 50(4), 1171-1177.
 
 Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for modelling
 rates and proportions. *Journal of Applied Statistics*, 31(7), 799-815.
