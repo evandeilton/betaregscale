@@ -13,7 +13,8 @@ brs_fit_fixed(
   lim = NULL,
   hessian_method = c("numDeriv", "optim"),
   repar = 2L,
-  method = c("BFGS", "L-BFGS-B")
+  method = c("BFGS", "L-BFGS-B"),
+  interval = NULL
 )
 }
 \arguments{
@@ -39,9 +40,10 @@ or 100 when \code{data} was not prepared. A value that differs from
 the stored one is ignored with a warning (the endpoints were built
 with the stored value).}
 
-\item{lim}{Uncertainty half-width. \code{NULL} (default) uses
+\item{lim}{Half-width of the score cell in \eqn{(0, 0.5]}
+(\code{interval = "mid"} only). \code{NULL} (default) uses
 \code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
-rule as \code{ncuts}.}
+rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 
 \item{hessian_method}{Character: \code{"numDeriv"} (default) or
 \code{"optim"}.  With \code{"numDeriv"} the Hessian is computed
@@ -53,6 +55,11 @@ typically more accurate than the built-in optim Hessian.}
 
 \item{method}{Optimization method: \code{"BFGS"} (default) or
 \code{"L-BFGS-B"}.}
+
+\item{interval}{Direction of the uncertainty interval, \code{"mid"},
+\code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
+\code{NULL} (default) uses \code{attr(data, "interval")} from
+\code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.}
 }
 \value{
 An object of class \code{"brs"}.

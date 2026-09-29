@@ -13,7 +13,8 @@ brs_fit_var(
   ncuts = NULL,
   lim = NULL,
   repar = 2L,
-  method = c("BFGS", "L-BFGS-B")
+  method = c("BFGS", "L-BFGS-B"),
+  interval = NULL
 )
 }
 \arguments{
@@ -43,14 +44,20 @@ or 100 when \code{data} was not prepared. A value that differs from
 the stored one is ignored with a warning (the endpoints were built
 with the stored value).}
 
-\item{lim}{Uncertainty half-width. \code{NULL} (default) uses
+\item{lim}{Half-width of the score cell in \eqn{(0, 0.5]}
+(\code{interval = "mid"} only). \code{NULL} (default) uses
 \code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
-rule as \code{ncuts}.}
+rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 
 \item{repar}{Reparameterization scheme (default 2); see
 \code{\link{brs_repar}}.}
 
 \item{method}{Optimization method (default \code{"BFGS"}).}
+
+\item{interval}{Direction of the uncertainty interval, \code{"mid"},
+\code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
+\code{NULL} (default) uses \code{attr(data, "interval")} from
+\code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.}
 }
 \value{
 An object of class \code{"brs"}.

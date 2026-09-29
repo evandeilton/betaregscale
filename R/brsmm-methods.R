@@ -447,7 +447,13 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
 #' @param object A fitted \code{"brsmm"} object.
 #' @param newdata Optional data frame.
 #' @param type Character: \code{"response"} (default), \code{"link"},
-#'   \code{"precision"}, \code{"variance"}, or \code{"quantile"}.
+#'   \code{"precision"}, \code{"variance"}, \code{"quantile"},
+#'   \code{"score"} or \code{"expected_score"}. \code{"score"} is the latent
+#'   score of the fit's \code{interval} at the conditional mean (support
+#'   \eqn{(0, K)}, \eqn{(0, K + 1)} or \eqn{(-1, K)}; about 0.5 above/below
+#'   the expected recorded score under \code{"right"}/\code{"left"});
+#'   \code{"expected_score"} is the expected recorded score
+#'   \eqn{\sum_s s\, P(S = s)}. Details: \code{\link{predict.brs}}.
 #' @param at Numeric vector of probabilities for quantile
 #'   predictions (default 0.5).
 #' @param ... Currently ignored.
@@ -481,7 +487,8 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
 #' @export
 predict.brsmm <- function(object,
                           newdata = NULL,
-                          type = c("response", "link", "precision", "variance", "quantile"),
+                          type = c("response", "link", "precision", "variance",
+                                   "quantile", "score", "expected_score"),
                           at = 0.5,
                           ...) {
   .check_class_mm(object)
@@ -565,6 +572,10 @@ predict.brsmm <- function(object,
       s <- shp$shape1 + shp$shape2
       (shp$shape1 * shp$shape2) / (s^2 * (s + 1))
     },
+    # Latent score of the mean and sum_s s P(S = s), as in predict.brs
+    score = .brs_latent_score(.brs_mean(mu, phi, object$repar), object$ncuts,
+                              .brs_interval_of(object)),
+    expected_score = .brs_expected_score(mu, phi, object),
     quantile = {
       rp <- brs_repar(mu, phi, repar = object$repar)
       rval <- sapply(at, function(p) {

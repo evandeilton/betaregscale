@@ -1,8 +1,34 @@
 # betaregscale (development version)
 
 Fixes from the 2026-09 audit of the R code and the compiled backend. No change
-to the user-facing API for the default `repar = 2`; see "Reparameterizations
-and links" for `repar = 0, 1`.
+to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
+`lim = 0.5`); see "Reparameterizations and links" and "Interval direction".
+
+## Interval direction (`interval`)
+
+* New `interval = c("mid", "right", "left")` in `brs_check()`, `brs_prep()`,
+  `brs()`, `brsmm()` and `brs_sim()` (the dissertation's `m`, `r`, `l`). Score
+  `s` maps to `[s - lim, s + lim] / K` (`"mid"`, default, unchanged) or to
+  `[s, s + 1] / (K + 1)` (`"right"`/`"left"`: `K + 1` equal cells). This is a
+  package choice that differs from the dissertation (which divides by `K`):
+  `"right"` and `"left"` give the same likelihood and differ only in
+  `predict(type = "score")`, so chapter 4's opposite intercept biases vanish.
+  `delta` comes from the score (`0 -> 1`, `K -> 2`, else `3`).
+
+* `brs_sim()` generates scores by the same mechanism the likelihood assumes
+  and always attaches `is_prepared`/`ncuts`/`lim`/`interval`; `brs()` and
+  `brsmm()` reuse these attributes.
+
+* `lim` outside `(0, 0.5]` is an error, `lim < 0.5` warns (partial
+  coarsening). `anova()` refuses fits with different `interval`, `ncuts`,
+  `lim` (only under `"mid"`) or `nobs`. New `predict()` types `"score"`
+  (latent score) and `"expected_score"` (expected recorded score).
+
+* `brs_check()` now stops on scores outside `0..K` (it warned and the
+  observation contributed `-1e6` to the log-likelihood), and `brs_check()`/
+  `brs_prep()` reject `delta = 3` with `left == right`. `brs_prep()` checks
+  analyst bounds against the latent range of the direction and makes an
+  analyst interval that reaches 0 or 1 left- or right-censored.
 
 ## Reparameterizations and links
 

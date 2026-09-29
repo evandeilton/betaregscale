@@ -11,7 +11,8 @@ compute_start(
   link_phi = NULL,
   ncuts = 100L,
   lim = 0.5,
-  repar = 2L
+  repar = 2L,
+  interval = "mid"
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ multi-part).}
 \item{repar}{Reparameterization scheme. Under \code{repar = 0} the
 shapes are started by the method of moments on the midpoint response
 (\eqn{f = m(1-m)/v - 1}, \eqn{p = m f}, \eqn{q = (1-m) f}).}
+
+\item{interval}{Interval direction used when \code{data} is not prepared.}
 }
 \value{
 Named numeric vector of starting values.

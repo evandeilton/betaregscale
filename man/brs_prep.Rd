@@ -11,7 +11,8 @@ brs_prep(
   left = "left",
   right = "right",
   ncuts = 100L,
-  lim = 0.5
+  lim = 0.5,
+  interval = c("mid", "right", "left")
 )
 }
 \arguments{
@@ -31,9 +32,20 @@ covariates.}
 
 \item{ncuts}{Integer: number of scale categories (default 100).}
 
-\item{lim}{Numeric: half-width of the uncertainty region
-(default 0.5). Used only when constructing intervals from \code{y}
-alone.}
+\item{lim}{Numeric in \eqn{(0, 0.5]}: half-width of the score cell
+under \code{interval = "mid"} (default 0.5). Used only when
+constructing intervals from \code{y} alone; see \code{\link{brs_check}}.}
+
+\item{interval}{Direction of the uncertainty interval, \code{"mid"}
+(default), \code{"right"} or \code{"left"}; see the section 'Interval
+direction' of \code{\link{brs_check}}. Mode 1/2 cells follow it.
+Analyst endpoints \eqn{L} (Modes 3/4) are bounds on the latent score of
+that direction (the scale of \code{predict(type = "score")}), must lie in
+\eqn{[-0.5, K + 0.5]}, \eqn{[0, K + 1]} or \eqn{[-1, K]}, and map to
+\eqn{L / K}, \eqn{L / (K + 1)} or \eqn{(L + 1) / (K + 1)}; so
+\eqn{[s - 0.5, s + 0.5]}, \eqn{[s, s + 1]} and \eqn{[s - 1, s]} all give
+the cell of score \eqn{s}. Without an analyst \code{delta}, an interval
+reaching 0 (or 1) on the unit scale is left- (or right-) censored.}
 }
 \value{
 A \code{data.frame} with the following columns appended or
@@ -41,16 +53,16 @@ A \code{data.frame} with the following columns appended or
   \describe{
     \item{\code{left}}{Lower endpoint on \eqn{(0, 1)}.}
     \item{\code{right}}{Upper endpoint on \eqn{(0, 1)}.}
-    \item{\code{yt}}{Midpoint approximation on \eqn{(0, 1)}.}
+    \item{\code{yt}}{Cell centre (point summary) on \eqn{(0, 1)}.}
     \item{\code{y}}{Original scale value (preserved for reference).}
     \item{\code{delta}}{Censoring indicator: 0 = exact, 1 = left,
       2 = right, 3 = interval.}
   }
   Covariate columns are preserved.
   The output carries attributes \code{"is_prepared"} (\code{TRUE}),
-  \code{"ncuts"} and \code{"lim"} so that
-  \code{\link{brs}} can detect prepared data and skip the
-  internal \code{\link{brs_check}} call.
+  \code{"ncuts"}, \code{"lim"} and \code{"interval"}, which
+  \code{\link{brs}} and \code{\link{brsmm}} reuse (an explicit
+  different value is ignored with a warning).
 }
 \description{
 Validates and transforms raw data into the format required by

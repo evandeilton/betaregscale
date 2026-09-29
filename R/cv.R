@@ -12,7 +12,7 @@
 #' @param k Number of folds.
 #' @param repeats Number of repeated k-fold runs.
 #' @param ... Additional arguments forwarded to \code{\link{brs}}
-#'   (e.g., \code{repar}, \code{link}, \code{method}).
+#'   (e.g., \code{repar}, \code{link}, \code{interval}, \code{method}).
 #'
 #' @return A data frame with one row per fold and columns:
 #'   \code{repeat}, \code{fold}, \code{n_train}, \code{n_test},
@@ -85,6 +85,12 @@ brs_cv <- function(formula,
 
   rows <- list()
   ii <- 1L
+  # Advisory lim warnings of the fold fits, re-emitted once after the loop
+  lim_msgs <- character(0)
+  keep_lim_msg <- function(w) {
+    lim_msgs <<- c(lim_msgs, conditionMessage(w))
+    invokeRestart("muffleWarning")
+  }
 
   for (r in seq_len(repeats)) {
     idx <- sample.int(n)
@@ -98,7 +104,8 @@ brs_cv <- function(formula,
       test <- data[test_idx, , drop = FALSE]
 
       fit <- tryCatch(
-        brs(formula = formula, data = train, ...),
+        withCallingHandlers(brs(formula = formula, data = train, ...),
+                            brs_lim_advisory = keep_lim_msg),
         error = identity
       )
 
@@ -157,6 +164,7 @@ brs_cv <- function(formula,
       ii <- ii + 1L
     }
   }
+  for (m in unique(lim_msgs)) warning(m, call. = FALSE)
 
   out <- do.call(rbind, rows)
   class(out) <- c("brs_cv", "data.frame")
@@ -166,11 +174,13 @@ brs_cv <- function(formula,
 #' @keywords internal
 .brs_cv_metrics <- function(fit, newdata) {
   mf <- stats::model.frame(fit$formula, data = newdata)
+  # Held-out rows coarsened exactly as the training fit was
   Y <- .extract_response(
     mf = mf,
     data = newdata,
     ncuts = fit$ncuts,
-    lim = fit$lim
+    lim = fit$lim,
+    interval = .brs_interval_of(fit)
   )
 
   # First parameter and phi for the shapes; E[Y] for the point metrics.

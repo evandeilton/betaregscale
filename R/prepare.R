@@ -107,25 +107,35 @@
 #' @param right  Character: name of the right-endpoint column
 #'   (default \code{"right"}).
 #' @param ncuts  Integer: number of scale categories (default 100).
-#' @param lim    Numeric: half-width of the uncertainty region
-#'   (default 0.5). Used only when constructing intervals from \code{y}
-#'   alone.
+#' @param lim    Numeric in \eqn{(0, 0.5]}: half-width of the score cell
+#'   under \code{interval = "mid"} (default 0.5). Used only when
+#'   constructing intervals from \code{y} alone; see \code{\link{brs_check}}.
+#' @param interval Direction of the uncertainty interval, \code{"mid"}
+#'   (default), \code{"right"} or \code{"left"}; see the section 'Interval
+#'   direction' of \code{\link{brs_check}}. Mode 1/2 cells follow it.
+#'   Analyst endpoints \eqn{L} (Modes 3/4) are bounds on the latent score of
+#'   that direction (the scale of \code{predict(type = "score")}), must lie in
+#'   \eqn{[-0.5, K + 0.5]}, \eqn{[0, K + 1]} or \eqn{[-1, K]}, and map to
+#'   \eqn{L / K}, \eqn{L / (K + 1)} or \eqn{(L + 1) / (K + 1)}; so
+#'   \eqn{[s - 0.5, s + 0.5]}, \eqn{[s, s + 1]} and \eqn{[s - 1, s]} all give
+#'   the cell of score \eqn{s}. Without an analyst \code{delta}, an interval
+#'   reaching 0 (or 1) on the unit scale is left- (or right-) censored.
 #'
 #' @return A \code{data.frame} with the following columns appended or
 #'   replaced:
 #'   \describe{
 #'     \item{\code{left}}{Lower endpoint on \eqn{(0, 1)}.}
 #'     \item{\code{right}}{Upper endpoint on \eqn{(0, 1)}.}
-#'     \item{\code{yt}}{Midpoint approximation on \eqn{(0, 1)}.}
+#'     \item{\code{yt}}{Cell centre (point summary) on \eqn{(0, 1)}.}
 #'     \item{\code{y}}{Original scale value (preserved for reference).}
 #'     \item{\code{delta}}{Censoring indicator: 0 = exact, 1 = left,
 #'       2 = right, 3 = interval.}
 #'   }
 #'   Covariate columns are preserved.
 #'   The output carries attributes \code{"is_prepared"} (\code{TRUE}),
-#'   \code{"ncuts"} and \code{"lim"} so that
-#'   \code{\link{brs}} can detect prepared data and skip the
-#'   internal \code{\link{brs_check}} call.
+#'   \code{"ncuts"}, \code{"lim"} and \code{"interval"}, which
+#'   \code{\link{brs}} and \code{\link{brsmm}} reuse (an explicit
+#'   different value is ignored with a warning).
 #'
 #' @seealso \code{\link{brs_check}} for the automatic
 #'   classification of raw scale scores;
@@ -201,11 +211,15 @@
 #' @export
 brs_prep <- function(data, y = "y", delta = "delta",
                      left = "left", right = "right",
-                     ncuts = 100L, lim = 0.5) {
+                     ncuts = 100L, lim = 0.5,
+                     interval = c("mid", "right", "left")) {
   # -- Input validation -------------------------------------------------------
   if (!is.data.frame(data)) {
     stop("'data' must be a data.frame.", call. = FALSE)
   }
+  # Direction of the cells and lim rules (stored as attributes for brs())
+  interval <- match.arg(interval)
+  .brs_lim_check(lim, interval, warn = TRUE)
 
   ncuts <- as.integer(ncuts)
   eps <- 1e-5
@@ -268,66 +282,70 @@ brs_prep <- function(data, y = "y", delta = "delta",
     )
   }
 
-  # ncuts must be >= max value
-  all_vals <- c(v_y, v_left, v_right)
-  all_vals <- all_vals[!is.na(all_vals)]
-  if (length(all_vals) > 0) {
-    max_val <- max(all_vals)
-    if (K < max_val) {
+  # Scores live on 0..K (analyst bounds are checked on the latent scale below)
+  y_obs <- v_y[!is.na(v_y)]
+  if (length(y_obs) > 0 && K < max(y_obs)) {
+    stop(
+      "'ncuts' (", K, ") must be >= the maximum observed value (",
+      max(y_obs), "). Increase 'ncuts'.",
+      call. = FALSE
+    )
+  }
+  # Analyst bounds must lie on the latent scale of the direction, checked
+  # before any cell is built (a bound outside it has no cell)
+  rng <- .brs_latent_range(K, interval)
+  for (col in c(left, right)) {
+    v <- if (identical(col, left)) v_left else v_right
+    out <- which(!is.na(v) & (v < rng[1] | v > rng[2]))
+    if (length(out) > 0L) {
       stop(
-        "'ncuts' (", K, ") must be >= the maximum observed value (",
-        max_val, "). Increase 'ncuts'.",
+        "Column '", col, "': observation(s) ", paste(out, collapse = ", "),
+        " outside the latent scale [", rng[1], ", ", rng[2],
+        "] for interval = '", interval, "'.",
         call. = FALSE
       )
     }
   }
 
-  # -- Per-observation processing ---------------------------------------------
-  # PERF-M02: vectorize the all-NA guard first; then use vapply for the complex
-  # per-row NA-pattern logic (.infer_delta / .compute_endpoints) which cannot be
-  # trivially vectorized without replicating all branch conditions.
-
-  all_na_rows <- is.na(v_y) & is.na(v_delta) & is.na(v_left) & is.na(v_right)
+  # -- Per-observation processing (vectorised) ---------------------------------
+  # A row needs a score or a bound; a delta alone defines no interval
+  all_na_rows <- is.na(v_y) & is.na(v_left) & is.na(v_right)
   if (any(all_na_rows)) {
     bad <- which(all_na_rows)
     stop("Observation(s) ", paste(bad, collapse = ", "),
-         ": all relevant columns are NA.", call. = FALSE)
+         ": all relevant columns are NA (y, left and right; a delta alone ",
+         "defines no interval).", call. = FALSE)
   }
 
-  has_lr_cols <- has_left || has_right
+  # Censoring type: the analyst's delta when given, else inferred per row
+  auto <- is.na(v_delta)
+  out_delta <- .infer_delta(v_y, v_left, v_right, K, has_lr_cols = has_left || has_right)
+  out_delta[!auto] <- as.integer(v_delta[!auto])
 
-  # Determine delta for each row
-  out_delta <- vapply(seq_len(n), function(i) {
-    di <- v_delta[i]
-    if (!is.na(di) && di %in% 0:3) {
-      as.integer(di)
-    } else {
-      .infer_delta(v_y[i], v_left[i], v_right[i], K, has_lr_cols = has_lr_cols)
-    }
-  }, integer(1L))
+  # An analyst interval reaching a border of (0, 1) is one-sided censoring,
+  # decided before the clamp; reaching both borders (probability ~1, no
+  # information) keeps delta = 3
+  both <- !is.na(v_left) & !is.na(v_right)
+  open_lo <- both & auto & .brs_unit_from_latent(v_left, K, interval) <= 0
+  open_hi <- both & auto & .brs_unit_from_latent(v_right, K, interval) >= 1
+  out_delta[open_lo & !open_hi] <- 1L
+  out_delta[open_hi & !open_lo] <- 2L
 
-  # Compute endpoints using the determined delta
-  ep_mat <- vapply(seq_len(n), function(i) {
-    ep <- .compute_endpoints(
-      yi = v_y[i], d = out_delta[i], li = v_left[i], ri = v_right[i],
-      K = K, lim = lim, eps = eps
-    )
-    c(ep$left, ep$right, ep$yt)
-  }, numeric(3L))
-
-  out_left  <- ep_mat[1L, ]
-  out_right <- ep_mat[2L, ]
-  out_yt    <- ep_mat[3L, ]
+  ep <- .compute_endpoints(v_y, out_delta, v_left, v_right, K, lim, eps, interval)
   # Mode 3 rows have no observed score, but `y` is the formula response and
   # model.frame() would drop NA rows, silently removing the censored
-  # observations from the fit. Fill with the interval midpoint on the
-  # original scale; the likelihood only uses left/right/delta.
-  out_y <- ifelse(!is.na(v_y), v_y, out_yt * K)
+  # observations from the fit. Fill with the latent score of the interval
+  # midpoint; the likelihood only uses left/right/delta.
+  out_y <- ifelse(!is.na(v_y), v_y, .brs_latent_score(ep$yt, K, interval))
 
   # Clamp to [eps, 1-eps]
-  out_left <- pmin(pmax(out_left, eps), 1 - eps)
-  out_right <- pmin(pmax(out_right, eps), 1 - eps)
-  out_yt <- pmin(pmax(out_yt, eps), 1 - eps)
+  out_left <- pmin(pmax(ep$left, eps), 1 - eps)
+  out_right <- pmin(pmax(ep$right, eps), 1 - eps)
+  out_yt <- pmin(pmax(ep$yt, eps), 1 - eps)
+
+  # Zero-width delta = 3 intervals: squeezed by the clamp, or empty (D2)
+  .brs_stop_zero_width(out_delta == 3L & out_left >= out_right,
+                       ep$right - ep$left, ep$score_based)
 
   # -- Build output data.frame ------------------------------------------------
   # Identify covariate columns (everything except the input y/delta/left/right)
@@ -355,6 +373,7 @@ brs_prep <- function(data, y = "y", delta = "delta",
   attr(result, "is_prepared") <- TRUE
   attr(result, "ncuts") <- ncuts
   attr(result, "lim") <- lim
+  attr(result, "interval") <- interval
 
   # Emit consistency warnings once on the final output.
   # Check against the scores the analyst actually supplied (Mode 3 fills).
@@ -374,209 +393,81 @@ brs_prep <- function(data, y = "y", delta = "delta",
 
 # -- Internal helpers -------------------------------------------------------- #
 
-#' Infer Censoring Type from NA Pattern
+#' Infer censoring types from the NA pattern (vectorised)
 #'
-#' Called by \code{brs_prep()} when the analyst does not provide an
-#' explicit \code{delta} value (or \code{delta} is \code{NA}) for a
-#' given observation.  The inference priority is:
-#'
-#' \enumerate{
-#'   \item Both \code{left} and \code{right} given (no \code{y})
-#'     \eqn{\to \delta = 3} (interval-censored).
-#'   \item Only \code{right} given
-#'     \eqn{\to \delta = 1} (left-censored: value below right).
-#'   \item Only \code{left} given
-#'     \eqn{\to \delta = 2} (right-censored: value above left).
-#'   \item \code{y} + both \code{left} + \code{right}
-#'     \eqn{\to \delta = 3} (analyst-supplied interval).
-#'   \item \code{y} present, left/right columns exist but both
-#'     \code{NA} \eqn{\to \delta = 0} (exact observation).
-#'   \item \code{y} only: boundary rules
-#'     (\eqn{y = 0 \to 1}, \eqn{y = K \to 2},
-#'      \eqn{y \in (0,1) \to 0}, else \eqn{\to 3}).
-#' }
-#'
-#' @param yi Numeric scalar: the score value (or NA).
-#' @param li Numeric scalar: the left endpoint (or NA).
-#' @param ri Numeric scalar: the right endpoint (or NA).
+#' Used by \code{brs_prep()} for rows without an analyst \code{delta}:
+#' both bounds \eqn{\to 3}; only \code{right} (no \code{y}) \eqn{\to 1};
+#' only \code{left} (no \code{y}) \eqn{\to 2}; a score \eqn{\to} the rule of
+#' \code{\link{brs_check}} (0 \eqn{\to} 1, \eqn{K \to} 2, \eqn{(0, 1) \to}
+#' 0, else 3), except an interior score in data that have bound columns but
+#' none for this row, which is exact (0).
+#' @param v_y,v_left,v_right Numeric vectors (possibly \code{NA}).
 #' @param K Integer: number of scale categories (ncuts).
-#' @param has_lr_cols Logical: whether left/right columns exist in the
-#'   original data.frame. When TRUE and both li/ri are NA but yi has a
-#'   value, the observation is treated as exact (delta = 0) because the
-#'   analyst explicitly chose not to provide censoring intervals.
+#' @param has_lr_cols Logical: whether left/right columns exist in the data.
+#' @return Integer vector of censoring types.
 #' @noRd
-.infer_delta <- function(yi, li, ri, K, has_lr_cols = FALSE) {
-  has_y <- !is.na(yi)
-  has_l <- !is.na(li)
-  has_r <- !is.na(ri)
-
-  if (has_l && has_r && !has_y) {
-    # Both left and right given -> interval-censored
-    return(3L)
-  }
-
-  if (!has_l && has_r && !has_y) {
-    # Only right given -> left-censored ("value is below right")
-    return(1L)
-  }
-  if (has_l && !has_r && !has_y) {
-    # Only left given -> right-censored ("value is above left")
-    return(2L)
-  }
-  if (has_y && has_l && has_r) {
-    # Analyst gave y AND left AND right -> interval (use analyst endpoints)
-    return(3L)
-  }
-  if (has_y && has_lr_cols && !has_l && !has_r) {
-    # Analyst provided left/right columns but left both NA for this row.
-    # If y is strictly inside (0, K), treat as exact.
-    # If y is 0 or K, it must be censored (boundary rule overrides "exact").
-    if (yi > 0 && yi < K) {
-      return(0L)
-    }
-    # If y is boundary, fall through to the y-only logic below (lines 417+)
-    # which correctly handles 0 -> 1 and K -> 2.
-  }
-  if (has_y) {
-    # y only (no left/right columns in data) -> classify like brs_check:
-    #   y == 0 -> left-censored
-    #   y == K -> right-censored
-    #   0 < y < K -> interval-censored
-    #   already on (0,1) -> exact
-    if (yi > 0 && yi < 1) {
-      return(0L)
-    }
-    if (yi == 0) {
-      return(1L)
-    }
-    if (yi == K) {
-      return(2L)
-    }
-    return(3L)
-  }
-
-  stop(
-    "Cannot infer censoring type: invalid combination of y, left, right.",
-    call. = FALSE
-  )
+.infer_delta <- function(v_y, v_left, v_right, K, has_lr_cols = FALSE) {
+  has_y <- !is.na(v_y)
+  has_l <- !is.na(v_left)
+  has_r <- !is.na(v_right)
+  d <- rep(NA_integer_, length(v_y))
+  # Scores: the brs_check() rule
+  ys <- v_y[has_y]
+  d[has_y] <- ifelse(ys > 0 & ys < 1, 0L, ifelse(ys == 0, 1L, ifelse(ys == K, 2L, 3L)))
+  # Interior score with empty bound columns: the analyst gave an exact value
+  d[has_y & has_lr_cols & !has_l & !has_r & v_y > 0 & v_y < K] <- 0L
+  # Analyst bounds: both -> interval, only right -> below it, only left -> above it
+  d[has_l & has_r] <- 3L
+  d[!has_y & has_r & !has_l] <- 1L
+  d[!has_y & has_l & !has_r] <- 2L
+  d
 }
 
 
-#' Compute Endpoints from Explicit Delta
+#' Endpoints of every row (vectorised)
 #'
-#' Called by \code{brs_prep()} inside the per-observation loop.
-#' Implements four endpoint-computation modes (see brs_prep docs):
-#'
-#' \strong{Mode 4} (analyst supplied left + right):
-#'   Rescale directly: \eqn{l = l_i / K}, \eqn{u = r_i / K}.
-#'
-#' \strong{Mode 3} (NA-pattern inference):
-#'   Left-censored (only right given): \eqn{l = \epsilon},
-#'     \eqn{u = r_i / K}.
-#'   Right-censored (only left given): \eqn{l = l_i / K},
-#'     \eqn{u = 1 - \epsilon}.
-#'
-#' \strong{Modes 1 & 2} (y-based, possibly with explicit delta):
-#'   Endpoint formulas depend on the delta value and whether y is
-#'   at a boundary.  The key distinction:
-#'   \itemize{
-#'     \item \eqn{\delta = 1, y = 0}: \eqn{u = h / K} (boundary).
-#'     \item \eqn{\delta = 1, y \neq 0}: \eqn{u = (y + h) / K}
-#'       (forced, observation-specific).
-#'     \item \eqn{\delta = 2, y = K}: \eqn{l = (K - h) / K}
-#'       (boundary).
-#'     \item \eqn{\delta = 2, y \neq K}: \eqn{l = (y - h) / K}
-#'       (forced, observation-specific).
-#'   }
-#'   See \code{\link{brs_check}} for the full formula table.
-#'
-#' @param yi Numeric scalar: the score value (or NA).
-#' @param d  Integer scalar: the censoring type (0, 1, 2, or 3).
-#' @param li Numeric scalar: analyst-supplied left endpoint (or NA).
-#' @param ri Numeric scalar: analyst-supplied right endpoint (or NA).
-#' @param K  Integer: number of scale categories (ncuts).
+#' Analyst bounds (Modes 3/4) are latent scores of \code{interval} and go
+#' through \code{.brs_unit_from_latent()}; score rows (Modes 1/2, including
+#' a score with a single bound, which is ignored) use the cell of the score
+#' from \code{.brs_cell()}, exactly as \code{\link{brs_check}}.
+#' @param v_y,v_left,v_right Numeric vectors (possibly \code{NA}).
+#' @param d Integer vector of censoring types.
+#' @param K Integer: number of scale categories (ncuts).
 #' @param lim Numeric: half-width of the uncertainty region.
 #' @param eps Numeric: small constant to avoid boundary (1e-5).
-#' @return A list with elements \code{left}, \code{right}, \code{yt}.
+#' @param interval Interval direction.
+#' @return \code{list(left, right, yt, score_based)}, unclamped.
 #' @noRd
-.compute_endpoints <- function(yi, d, li, ri, K, lim, eps) {
-  has_y <- !is.na(yi)
-  has_l <- !is.na(li)
-  has_r <- !is.na(ri)
+.compute_endpoints <- function(v_y, d, v_left, v_right, K, lim, eps, interval = "mid") {
+  has_y <- !is.na(v_y)
+  has_l <- !is.na(v_left)
+  has_r <- !is.na(v_right)
+  both <- has_l & has_r
+  only_r <- !has_y & has_r & !has_l
+  only_l <- !has_y & has_l & !has_r
+  score <- !both & !only_r & !only_l
+  l_u <- .brs_unit_from_latent(v_left, K, interval)
+  u_u <- .brs_unit_from_latent(v_right, K, interval)
+  cell <- .brs_cell(v_y, K, lim, interval)
+  # delta = 0 point: a proportion stays, a score uses its cell centre
+  point <- ifelse(v_y > 0 & v_y < 1, v_y, cell$mid)
 
-  # ---- Mode 4: analyst supplied left + right (possibly with y) ----
-  if (has_l && has_r) {
-    left_out <- li / K
-    right_out <- ri / K
-    yt_out <- (li + ri) / (2 * K)
-    return(list(left = left_out, right = right_out, yt = yt_out))
-  }
-
-  # ---- Mode 3: analyst supplied only left or only right (NA pattern) ----
-  if (!has_y && has_r && !has_l) {
-    # Left-censored: value below right
-    left_out <- eps
-    right_out <- ri / K
-    yt_out <- ri / (2 * K)
-    return(list(left = left_out, right = right_out, yt = yt_out))
-  }
-  if (!has_y && has_l && !has_r) {
-    # Right-censored: value above left
-    left_out <- li / K
-    right_out <- 1 - eps
-    yt_out <- (li / K + 1) / 2
-    return(list(left = left_out, right = right_out, yt = yt_out))
-  }
-
-  # ---- Modes 1 & 2: y-based (possibly with explicit delta) ----
-  if (!has_y) {
-    stop(
-      "Internal error: y is required for delta-based endpoint computation.",
-      call. = FALSE
-    )
-  }
-
-  switch(as.character(d),
-    "0" = {
-      # Exact - if y is already on (0,1), use it directly; otherwise rescale
-      if (yi > 0 && yi < 1) {
-        yt_out <- yi
-      } else {
-        yt_out <- yi / K
-      }
-      list(left = yt_out, right = yt_out, yt = yt_out)
-    },
-    "1" = {
-      # Left-censored: latent value below upper bound u
-      # Boundary (y=0): u = lim/K
-      # Non-boundary (forced delta=1): u = (y + lim)/K
-      if (yi == 0) {
-        list(left = eps, right = lim / K, yt = eps)
-      } else {
-        list(left = eps, right = (yi + lim) / K, yt = yi / K)
-      }
-    },
-    "2" = {
-      # Right-censored: latent value above lower bound l
-      # Boundary (y=K): l = (K - lim)/K
-      # Non-boundary (forced delta=2): l = (y - lim)/K
-      if (yi == K) {
-        list(left = (K - lim) / K, right = 1 - eps, yt = 1 - eps)
-      } else {
-        list(left = (yi - lim) / K, right = 1 - eps, yt = yi / K)
-      }
-    },
-    "3" = {
-      # Interval-censored — midpoint geometry
-      yt_out <- yi / K
-      list(
-        left  = (yi - lim) / K,
-        right = (yi + lim) / K,
-        yt    = yt_out
-      )
-    },
-    stop("Invalid delta value: ", d, call. = FALSE)
-  )
+  # Score rows: [eps, u_s], [l_s, 1 - eps] or [l_s, u_s]; censored rows keep
+  # the cell centre of the score as yt (consistent with their endpoints)
+  left <- ifelse(d == 0L, point, ifelse(d == 1L, eps, cell$left))
+  right <- ifelse(d == 0L, point, ifelse(d == 2L, 1 - eps, cell$right))
+  yt <- ifelse(d == 0L, point, cell$mid)
+  # Analyst bounds
+  left[both] <- l_u[both]
+  right[both] <- u_u[both]
+  yt[both] <- (l_u[both] + u_u[both]) / 2
+  left[only_r] <- eps
+  right[only_r] <- u_u[only_r]
+  yt[only_r] <- u_u[only_r] / 2
+  left[only_l] <- l_u[only_l]
+  right[only_l] <- 1 - eps
+  yt[only_l] <- (l_u[only_l] + 1) / 2
+  list(left = left, right = right, yt = yt, score_based = score)
 }
 
 

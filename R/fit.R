@@ -3,21 +3,40 @@
 # ============================================================================ #
 
 .validate_brs_common_args <- function(data, ncuts, lim, repar,
-                                      link = NULL, link_phi = NULL) {
+                                      link = NULL, link_phi = NULL,
+                                      interval = NULL) {
   if (!is.data.frame(data)) {
     stop("`data` must be a data.frame.", call. = FALSE)
   }
-  # The endpoints were built with brs_prep()'s ncuts/lim: the attribute wins
-  # (scoreprob/autoplot need the same grid).
+  # The endpoints were built with brs_prep()'s ncuts/lim/interval: the
+  # attribute wins (scoreprob/autoplot need the same grid).
+  lim_from_attr <- isTRUE(attr(data, "is_prepared", exact = TRUE)) &&
+    !is.null(attr(data, "lim", exact = TRUE))
+  # Explicit interval: partial matching, as match.arg() in brs_check()/brs_prep()
+  if (!is.null(interval)) {
+    interval <- tryCatch(match.arg(interval, .brs_intervals), error = function(e) {
+      stop("`interval` must be one of \"mid\", \"right\", \"left\".", call. = FALSE)
+    })
+  }
+  # Prepared data without an interval attribute (made before `interval`
+  # existed, or by hand) hold mid cells: that is the stored value
+  if (isTRUE(attr(data, "is_prepared", exact = TRUE)) &&
+    is.null(attr(data, "interval", exact = TRUE))) {
+    attr(data, "interval") <- "mid"
+  }
   ncuts <- .brs_prep_attr_arg(ncuts, data, "ncuts", 100L)
   lim <- .brs_prep_attr_arg(lim, data, "lim", 0.5)
+  interval <- .brs_prep_attr_arg(interval, data, "interval", "mid")
+  if (!is.character(interval) || length(interval) != 1L ||
+    !(interval %in% .brs_intervals)) {
+    stop("`interval` must be one of \"mid\", \"right\", \"left\".", call. = FALSE)
+  }
   ncuts <- as.integer(ncuts)
   if (length(ncuts) != 1L || !is.finite(ncuts) || ncuts < 2L) {
     stop("`ncuts` must be an integer >= 2.", call. = FALSE)
   }
-  if (!is.numeric(lim) || length(lim) != 1L || !is.finite(lim) || lim <= 0) {
-    stop("`lim` must be a positive finite scalar.", call. = FALSE)
-  }
+  # brs_prep() already warned about a stored lim; warn only for explicit values
+  .brs_lim_check(lim, interval, warn = !lim_from_attr)
   repar <- as.integer(repar)
   if (length(repar) != 1L || is.na(repar) || !(repar %in% 0:2)) {
     stop("`repar` must be one of 0, 1, or 2.", call. = FALSE)
@@ -25,12 +44,13 @@
   links <- .resolve_links(link, link_phi, repar)
   list(
     ncuts = ncuts, lim = as.numeric(lim), repar = repar,
-    link = links$link, link_phi = links$link_phi
+    link = links$link, link_phi = links$link_phi, interval = interval
   )
 }
 
-# Value of `ncuts`/`lim`: the brs_prep() attribute when present (warning if an
-# explicit different value was passed), else the explicit value, else default.
+# Value of `ncuts`/`lim`/`interval`: the brs_prep() attribute when present
+# (warning if an explicit different value was passed), else the explicit
+# value, else default.
 .brs_prep_attr_arg <- function(value, data, name, default) {
   # Not prepared data: explicit value, else default.
   stored <- attr(data, name, exact = TRUE)
@@ -40,7 +60,13 @@
   if (is.null(value)) {
     return(stored)
   }
-  if (!isTRUE(all.equal(as.numeric(value), as.numeric(stored)))) {
+  # Numeric attributes compare by value, character ones (interval) exactly
+  same <- if (is.numeric(stored)) {
+    isTRUE(all.equal(as.numeric(value), as.numeric(stored)))
+  } else {
+    identical(as.character(value), as.character(stored))
+  }
+  if (!same) {
     warning(
       "`", name, " = ", format(value), "` differs from the value used by ",
       "brs_prep() (", format(stored), "); the prepared endpoints were built ",
@@ -116,9 +142,10 @@
 #'   or 100 when \code{data} was not prepared. A value that differs from
 #'   the stored one is ignored with a warning (the endpoints were built
 #'   with the stored value).
-#' @param lim    Uncertainty half-width. \code{NULL} (default) uses
+#' @param lim    Half-width of the score cell in \eqn{(0, 0.5]}
+#'   (\code{interval = "mid"} only). \code{NULL} (default) uses
 #'   \code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
-#'   rule as \code{ncuts}.
+#'   rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).
 #' @param hessian_method Character: \code{"numDeriv"} (default) or
 #'   \code{"optim"}.  With \code{"numDeriv"} the Hessian is computed
 #'   after convergence using \code{\link[numDeriv]{hessian}}, which is
@@ -127,6 +154,10 @@
 #'   \code{\link{brs_repar}}.
 #' @param method Optimization method: \code{"BFGS"} (default) or
 #'   \code{"L-BFGS-B"}.
+#' @param interval Direction of the uncertainty interval, \code{"mid"},
+#'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
+#'   \code{NULL} (default) uses \code{attr(data, "interval")} from
+#'   \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.
 #'
 #' @return An object of class \code{"brs"}.
 #'
@@ -177,21 +208,24 @@ brs_fit_fixed <- function(formula, data,
                           lim = NULL,
                           hessian_method = c("numDeriv", "optim"),
                           repar = 2L,
-                          method = c("BFGS", "L-BFGS-B")) {
+                          method = c("BFGS", "L-BFGS-B"),
+                          interval = NULL) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
-  validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi)
+  validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi,
+                                        interval)
   ncuts <- validated$ncuts
   lim <- validated$lim
   repar <- validated$repar
   link <- validated$link
   link_phi <- validated$link_phi
+  interval <- validated$interval
 
   # Build matrices
   mf <- stats::model.frame(formula, data = data)
   mtX <- stats::terms(formula, data = data, rhs = 1L)
-  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
+  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim, interval = interval)
   X <- stats::model.matrix(mtX, mf)
   n <- nrow(X)
   p <- ncol(X)
@@ -203,7 +237,7 @@ brs_fit_fixed <- function(formula, data,
   ini <- compute_start(
     formula = formula, data = data, link = link,
     link_phi = link_phi, ncuts = ncuts,
-    lim = lim, repar = repar
+    lim = lim, repar = repar, interval = interval
   )
 
   # Pre-compute link codes for C++
@@ -324,6 +358,7 @@ brs_fit_fixed <- function(formula, data,
     repar            = repar,
     ncuts            = ncuts,
     lim              = lim,
+    interval         = interval,
     method           = method,
     optim_method     = method
   )
@@ -361,12 +396,17 @@ brs_fit_fixed <- function(formula, data,
 #'   or 100 when \code{data} was not prepared. A value that differs from
 #'   the stored one is ignored with a warning (the endpoints were built
 #'   with the stored value).
-#' @param lim    Uncertainty half-width. \code{NULL} (default) uses
+#' @param lim    Half-width of the score cell in \eqn{(0, 0.5]}
+#'   (\code{interval = "mid"} only). \code{NULL} (default) uses
 #'   \code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
-#'   rule as \code{ncuts}.
+#'   rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).
 #' @param repar  Reparameterization scheme (default 2); see
 #'   \code{\link{brs_repar}}.
 #' @param method Optimization method (default \code{"BFGS"}).
+#' @param interval Direction of the uncertainty interval, \code{"mid"},
+#'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
+#'   \code{NULL} (default) uses \code{attr(data, "interval")} from
+#'   \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.
 #'
 #' @return An object of class \code{"brs"}.
 #'
@@ -418,16 +458,19 @@ brs_fit_var <- function(formula, data,
                         ncuts = NULL,
                         lim = NULL,
                         repar = 2L,
-                        method = c("BFGS", "L-BFGS-B")) {
+                        method = c("BFGS", "L-BFGS-B"),
+                        interval = NULL) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
-  validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi)
+  validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi,
+                                        interval)
   ncuts <- validated$ncuts
   lim <- validated$lim
   repar <- validated$repar
   link <- validated$link
   link_phi <- validated$link_phi
+  interval <- validated$interval
 
   # Parse multi-part formula
   formula_orig <- formula
@@ -443,7 +486,7 @@ brs_fit_var <- function(formula, data,
   mtZ <- stats::delete.response(
     stats::terms(formula, data = data, rhs = 2L)
   )
-  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
+  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim, interval = interval)
   X <- stats::model.matrix(mtX, mf)
   Z <- stats::model.matrix(mtZ, mf)
   n <- nrow(X)
@@ -457,7 +500,7 @@ brs_fit_var <- function(formula, data,
   ini <- compute_start(
     formula = formula, data = data, link = link,
     link_phi = link_phi, ncuts = ncuts,
-    lim = lim, repar = repar
+    lim = lim, repar = repar, interval = interval
   )
 
   # Link codes
@@ -590,6 +633,7 @@ brs_fit_var <- function(formula, data,
     repar            = repar,
     ncuts            = ncuts,
     lim              = lim,
+    interval         = interval,
     method           = method,
     optim_method     = method
   )
@@ -639,6 +683,17 @@ brs_fit_var <- function(formula, data,
 #' \code{hatmu} (and \code{predict(type = "link")} is its linear
 #' predictor), while \code{fitted()}, \code{predict(type = "response")},
 #' residuals and marginal effects use the mean \eqn{E[Y] = p / (p + q)}.
+#'
+#' @section Interval direction:
+#' \code{interval} selects how a score \eqn{s} is coarsened into a cell of
+#' \eqn{(0, 1)}: \code{"mid"} \eqn{[s - \mathrm{lim}, s + \mathrm{lim}] / K}
+#' (default), \code{"right"} and \code{"left"} \eqn{[s, s + 1] / (K + 1)}
+#' (the dissertation's \eqn{r} and \eqn{l} directions; equal cells, a
+#' package normalisation). \code{"right"} and \code{"left"} give the same
+#' likelihood and coefficients and differ only in the latent score read
+#' back by \code{predict(type = "score")} (one unit). The modes are
+#' different coarsening models, so their log-likelihoods are not
+#' comparable; see \code{\link{brs_check}} and \code{\link{anova.brs}}.
 #'
 #' @inheritParams brs_fit_var
 #'
@@ -693,7 +748,8 @@ brs <- function(formula, data,
                 lim = NULL,
                 repar = 2L,
                 method = c("BFGS", "L-BFGS-B"),
-                hessian_method = c("numDeriv", "optim")) {
+                hessian_method = c("numDeriv", "optim"),
+                interval = NULL) {
   cl <- match.call()
   formula_parsed <- Formula::as.Formula(formula)
 
@@ -703,7 +759,8 @@ brs <- function(formula, data,
       link = link, link_phi = link_phi,
       ncuts = ncuts, lim = lim,
       hessian_method = hessian_method,
-      repar = repar, method = method
+      repar = repar, method = method,
+      interval = interval
     )
   } else {
     fit <- brs_fit_var(
@@ -711,7 +768,8 @@ brs <- function(formula, data,
       link = link, link_phi = link_phi,
       hessian_method = hessian_method,
       ncuts = ncuts, lim = lim,
-      repar = repar, method = method
+      repar = repar, method = method,
+      interval = interval
     )
   }
 
