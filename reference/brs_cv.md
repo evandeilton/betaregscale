@@ -85,13 +85,9 @@ prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 cv <- brs_cv(y ~ x1, data = prep, k = 3, repeats = 1)
 cv
-#>   repeat fold n_train n_test log_score rmse_yt mae_yt converged
-#> 1      1    1      13      7        NA      NA     NA     FALSE
-#> 2      1    2      13      7        NA      NA     NA     FALSE
-#> 3      1    3      14      6        NA      NA     NA     FALSE
-#>                                   error
-#> 1 missing value where TRUE/FALSE needed
-#> 2 missing value where TRUE/FALSE needed
-#> 3 missing value where TRUE/FALSE needed
+#>   repeat fold n_train n_test log_score   rmse_yt    mae_yt converged error
+#> 1      1    1      13      7 -5.043516 0.3461656 0.2731298      TRUE  <NA>
+#> 2      1    2      13      7 -6.352894 0.5101226 0.4564249      TRUE  <NA>
+#> 3      1    3      14      6 -4.660798 0.3340391 0.3019972      TRUE  <NA>
 # }
 ```

@@ -14,11 +14,13 @@ brs_repar(mu, phi, repar = 2L)
 
 - mu:
 
-  Numeric vector of mean values in \\(0, 1)\\.
+  Numeric vector: the first parameter. The mean, in \\(0, 1)\\, for
+  `repar = 1, 2`; the shape \\p \> 0\\ for `repar = 0`.
 
 - phi:
 
-  Numeric vector (or scalar) of dispersion values.
+  Numeric vector (or scalar): the second parameter (precision \\\phi \>
+  0\\, dispersion \\\phi \in (0, 1)\\, or shape \\q \> 0\\).
 
 - repar:
 
@@ -34,17 +36,29 @@ The three schemes are:
 
 - `repar = 0`:
 
-  Direct: \\a = \mu,\\ b = \phi\\.
+  Shapes: \\a = p,\\ b = q\\ with \\p, q \> 0\\ (the first argument is
+  \\p\\, the second \\q\\). Both parameters live on \\(0, \infty)\\ and
+  the mean is \\E\[Y\] = p / (p + q)\\. Regression directly on the
+  shapes is a package extension: the dissertation presents the \\(p,
+  q)\\ form (its eq. `eqn_beta_p1`) and builds the regression models on
+  the two reparameterizations below.
 
 - `repar = 1`:
 
-  Ferrari–Cribari-Neto: \\a = \mu\phi,\\ b = (1 - \mu)\phi\\, where
-  \\\phi\\ acts as a precision parameter.
+  Ferrari–Cribari-Neto (dissertation "parametrização 1", eq.
+  `eqn_beta_p2`): \\a = \mu\phi,\\ b = (1 - \mu)\phi\\, where \\\mu \in
+  (0, 1)\\ is the mean and \\\phi \> 0\\ acts as a precision parameter.
 
 - `repar = 2`:
 
-  Mean–variance: \\a = \mu(1-\phi)/\phi,\\ b = (1-\mu)(1-\phi)/\phi\\,
-  where \\\phi \in (0,1)\\ is analogous to a coefficient of variation.
+  Mean–dispersion (dissertation "parametrização 2", eq. `eqn_beta_p3`):
+  \\a = \mu(1-\phi)/\phi,\\ b = (1-\mu)(1-\phi)/\phi\\, where \\\mu \in
+  (0, 1)\\ is the mean and \\\phi \in (0,1)\\ is a dispersion parameter
+  (\\Var\[Y\] = \phi\\\mu(1-\mu)\\).
+
+The admissible link functions follow from these domains; see the
+'Reparameterizations and links' section of
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
 
 ## References
 

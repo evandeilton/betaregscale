@@ -12,10 +12,10 @@ Unified interface that dispatches to
 brs(
   formula,
   data,
-  link = "logit",
-  link_phi = "logit",
-  ncuts = 100L,
-  lim = 0.5,
+  link = NULL,
+  link_phi = NULL,
+  ncuts = NULL,
+  lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("numDeriv", "optim")
@@ -35,23 +35,36 @@ brs(
 
 - link:
 
-  Mean link function (default `"logit"`).
+  Link for the first parameter (the mean under `repar = 1, 2`; the shape
+  \\p\\ under `repar = 0`). `NULL` (default) selects the link implied by
+  `repar`: `"logit"` for `repar = 1, 2`, `"log"` for `repar = 0`. See
+  the 'Reparameterizations and links' section of `brs` for the
+  admissible values.
 
 - link_phi:
 
-  Dispersion link function (default `"logit"`).
+  Link for the second parameter. `NULL` (default) selects `"logit"` for
+  `repar = 2` (dispersion on \\(0, 1)\\) and `"log"` for `repar = 0, 1`
+  (positive shape/precision).
 
 - ncuts:
 
-  Number of scale categories (default 100).
+  Number of scale categories. `NULL` (default) uses the value stored by
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  in `attr(data, "ncuts")`, or 100 when `data` was not prepared. A value
+  that differs from the stored one is ignored with a warning (the
+  endpoints were built with the stored value).
 
 - lim:
 
-  Uncertainty half-width (default 0.5).
+  Uncertainty half-width. `NULL` (default) uses `attr(data, "lim")` from
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+  or 0.5; same rule as `ncuts`.
 
 - repar:
 
-  Reparameterization scheme (default 2).
+  Reparameterization scheme (default 2); see
+  [`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 - method:
 
@@ -70,6 +83,35 @@ An object of class `"brs"`.
 If the formula contains a `|` separator (e.g., `y ~ x1 + x2 | z1`), the
 variable-dispersion model is fitted; otherwise, a fixed-dispersion model
 is used.
+
+## Reparameterizations and links
+
+The three schemes of
+[`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md)
+model different parameters, so the admissible links differ: parameters
+on \\(0, 1)\\ use a `(0, 1)`-link, parameters on \\(0, \infty)\\ use
+`"log"` or `"sqrt"`. `link = NULL` and `link_phi = NULL` (the defaults)
+select the first entry of each cell; any other combination is rejected
+with an error.
+
+|  |  |  |
+|----|----|----|
+| `repar` | `link` (first parameter) | `link_phi` (second parameter) |
+| 0 (shapes \\p, q\\) | `log`, `sqrt` | `log`, `sqrt` |
+| 1 (mean, precision) | `logit`, `probit`, `cauchit`, `cloglog` | `log`, `sqrt` |
+| 2 (mean, dispersion) | `logit`, `probit`, `cauchit`, `cloglog` | `logit`, `probit`, `cauchit`, `cloglog` |
+
+`"identity"`, `"inverse"` and `"1/mu^2"` are not accepted for positive
+parameters (their inverse does not map the real line onto \\(0,
+\infty)\\). With `"sqrt"` the inverse link is flat for \\\eta \le 0\\; a
+warning is issued after the fit when a fitted linear predictor lies on
+that plateau.
+
+Under `repar = 0` the fitted object stores the shape \\p\\ in `hatmu`
+(and `predict(type = "link")` is its linear predictor), while
+[`fitted()`](https://rdrr.io/r/stats/fitted.values.html),
+`predict(type = "response")`, residuals and marginal effects use the
+mean \\E\[Y\] = p / (p + q)\\.
 
 ## References
 

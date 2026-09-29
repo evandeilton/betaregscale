@@ -78,17 +78,24 @@ quantile), <code>"weighted"</code>, or <code>"sweighted"</code>.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For Pearson residuals the variance formula depends on the
-reparameterization stored in <code>object$repar</code>:</p><dl><dt>repar = 1 (precision)</dt>
+    <p>All residuals are computed from the fitted shapes \((a, b)\) and the
+mean \(E[Y] = a / (a + b)\) (so they are consistent across
+reparameterizations). For Pearson residuals the variance is</p><dl><dt>repar = 1 (precision)</dt>
 <dd><p>V = mu(1 - mu) / (1 + phi)</p></dd>
 
   <dt>repar = 2 (mean-variance)</dt>
 <dd><p>V = mu(1 - mu) * phi</p></dd>
 
+  <dt>repar = 0 (shapes)</dt>
+<dd><p>V = pq / ((p + q)^2 (p + q + 1))</p></dd>
 
-</dl><p>The weighted and sweighted residuals use the digamma/trigamma
-formulation from the precision parameterization (repar = 1),
-so internal conversion is applied when <code>repar != 1</code>.</p>
+
+</dl><p>The weighted and sweighted residuals use
+\(y^* = \mathrm{logit}(y)\), \(\mu^* = \psi(a) - \psi(b)\) and
+\(v = \psi'(a) + \psi'(b)\) (Espinheira, Ferrari and Cribari-Neto,
+2008), with the precision \(a + b\). Deviance residuals compare the
+fit with a saturated model that has mean \(y\) and the same
+precision \(a + b\).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

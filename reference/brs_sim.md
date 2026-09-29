@@ -12,8 +12,8 @@ brs_sim(
   beta,
   phi = 1/5,
   zeta = NULL,
-  link = "logit",
-  link_phi = "logit",
+  link = NULL,
+  link_phi = NULL,
   ncuts = 100L,
   lim = 0.5,
   repar = 2L,
@@ -48,11 +48,14 @@ brs_sim(
 
 - link:
 
-  Mean link function.
+  Link for the first parameter; `NULL` (default) selects the link
+  implied by `repar` (see
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 - link_phi:
 
-  Precision link function.
+  Link for the second parameter; `NULL` (default) selects the link
+  implied by `repar`.
 
 - ncuts:
 
@@ -64,7 +67,9 @@ brs_sim(
 
 - repar:
 
-  Reparameterization scheme.
+  Reparameterization scheme. `beta` and `phi` / `zeta` are on the link
+  scale of the first and second parameter of that scheme (shapes \\p,
+  q\\ under `repar = 0`).
 
 - delta:
 
@@ -73,8 +78,12 @@ brs_sim(
 ## Value
 
 A data frame with columns `left`, `right`, `yt`, `y`, `delta`, plus
-simulated predictor columns from the model matrices. When
-`delta != NULL`, the output carries `attr(, "is_prepared") = TRUE`.
+simulated predictor columns from the model matrices. As for
+[`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+the output carries the attributes `"is_prepared"` (`TRUE`), `"ncuts"`
+and `"lim"`, which
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+reuses.
 
 ## Details
 

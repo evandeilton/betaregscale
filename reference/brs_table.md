@@ -86,7 +86,6 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 m1 <- brs(y ~ 1, data = prep)
-#> Warning: the standard deviation is zero
 m2 <- brs(y ~ x1, data = prep)
 brs_table(null = m1, x1 = m2, sort_by = "AIC")
 #>   model nobs npar   logLik      AIC      BIC pseudo_r2 exact left right

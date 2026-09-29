@@ -61,7 +61,6 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 m1 <- brs(y ~ 1, data = prep)
-#> Warning: the standard deviation is zero
 m2 <- brs(y ~ x1, data = prep)
 m3 <- brs(y ~ x1 + x2, data = prep)
 anova(m1, m2, m3)

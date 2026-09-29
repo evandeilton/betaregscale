@@ -27,8 +27,10 @@ predict(
 
 - type:
 
-  Prediction type: `"response"` (default), `"link"`, `"precision"`,
-  `"variance"`, or `"quantile"`.
+  Prediction type: `"response"` (default; the mean \\E\[Y\] = a / (a +
+  b)\\), `"link"` (linear predictor of the first parameter),
+  `"precision"` (second parameter on its own scale), `"variance"`, or
+  `"quantile"`.
 
 - at:
 

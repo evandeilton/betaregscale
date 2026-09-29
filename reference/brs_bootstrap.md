@@ -130,7 +130,7 @@ print(boot)
 #>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 
 #> 
 #>     parameter   estimate   se_boot   ci_lower   ci_upper mcse_lower mcse_upper
-#> 1 (Intercept)  0.2551000 0.7772708 -0.8231021 1.93714712  0.1651500 0.15824662
+#> 1 (Intercept)  0.2551000 0.7772708 -0.8231021 1.93714711  0.1651500 0.15824661
 #> 2          x1 -0.2202060 0.4898420 -1.3384456 0.50989158  0.1751015 0.08461005
 #> 3       (phi) -0.3929144 0.3259027 -1.2359624 0.05417615  0.1536645 0.12221656
 #>   wald_lower wald_upper level

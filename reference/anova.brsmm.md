@@ -61,7 +61,6 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 m1 <- brs(y ~ 1, data = prep)
-#> Warning: the standard deviation is zero
 m2 <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 anova(m1, m2)
 #>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)

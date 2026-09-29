@@ -65,11 +65,11 @@ random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
 <span>  <span class="va">formula</span>,</span>
 <span>  random <span class="op">=</span> <span class="op">~</span><span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>,</span>
 <span>  <span class="va">data</span>,</span>
-<span>  link <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  link <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  link_phi <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span>  ncuts <span class="op">=</span> <span class="fl">100L</span>,</span>
-<span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  ncuts <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  int_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"laplace"</span>, <span class="st">"aghq"</span>, <span class="st">"qmc"</span><span class="op">)</span>,</span>
 <span>  n_points <span class="op">=</span> <span class="fl">11L</span>,</span>
 <span>  qmc_points <span class="op">=</span> <span class="fl">1024L</span>,</span>
@@ -99,23 +99,32 @@ random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
 
 
 <dt id="arg-link">link<a class="anchor" aria-label="anchor" href="#arg-link"></a></dt>
-<dd><p>Mean link function.</p></dd>
+<dd><p>Link for the first parameter (the mean under
+<code>repar = 1, 2</code>; the shape \(p\) under <code>repar = 0</code>).
+<code>NULL</code> (default) selects the link implied by <code>repar</code>; see
+the 'Reparameterizations and links' section of <code><a href="brs.html">brs</a></code>.</p></dd>
 
 
 <dt id="arg-link-phi">link_phi<a class="anchor" aria-label="anchor" href="#arg-link-phi"></a></dt>
-<dd><p>Precision link function.</p></dd>
+<dd><p>Link for the second parameter; <code>NULL</code> (default)
+selects the link implied by <code>repar</code>.</p></dd>
 
 
 <dt id="arg-repar">repar<a class="anchor" aria-label="anchor" href="#arg-repar"></a></dt>
-<dd><p>Beta reparameterization code (0, 1, 2).</p></dd>
+<dd><p>Beta reparameterization code (0, 1, 2); see
+<code><a href="brs_repar.html">brs_repar</a></code>.</p></dd>
 
 
 <dt id="arg-ncuts">ncuts<a class="anchor" aria-label="anchor" href="#arg-ncuts"></a></dt>
-<dd><p>Number of categories on the original scale.</p></dd>
+<dd><p>Number of categories on the original scale. <code>NULL</code>
+(default) uses <code>attr(data, "ncuts")</code> from <code><a href="brs_prep.html">brs_prep</a></code>,
+or 100; an explicit different value is ignored with a warning.</p></dd>
 
 
 <dt id="arg-lim">lim<a class="anchor" aria-label="anchor" href="#arg-lim"></a></dt>
-<dd><p>Half-width used to construct interval endpoints.</p></dd>
+<dd><p>Half-width used to construct interval endpoints. <code>NULL</code>
+(default) uses <code>attr(data, "lim")</code>, or 0.5; same rule as
+<code>ncuts</code>.</p></dd>
 
 
 <dt id="arg-int-method">int_method<a class="anchor" aria-label="anchor" href="#arg-int-method"></a></dt>
@@ -205,17 +214,17 @@ Beta regression for modelling rates and proportions.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (mean model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)          x1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4212     -0.3374 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4201     -0.3367 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.5805 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.5804 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random-effects parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> logSD.(Intercept)|id </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              -0.6277 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               -0.628 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Random SD: 0.5338 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Random SD: 0.5337 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mixed beta interval model (Laplace)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Observations: 20  | Groups: 4 </span>

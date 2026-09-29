@@ -11,10 +11,10 @@ backend supporting the complete likelihood with mixed censoring types.
 brs_fit_fixed(
   formula,
   data,
-  link = "logit",
-  link_phi = "logit",
-  ncuts = 100L,
-  lim = 0.5,
+  link = NULL,
+  link_phi = NULL,
+  ncuts = NULL,
+  lim = NULL,
   hessian_method = c("numDeriv", "optim"),
   repar = 2L,
   method = c("BFGS", "L-BFGS-B")
@@ -33,19 +33,32 @@ brs_fit_fixed(
 
 - link:
 
-  Mean link function (default `"logit"`).
+  Link for the first parameter (the mean under `repar = 1, 2`; the shape
+  \\p\\ under `repar = 0`). `NULL` (default) selects the link implied by
+  `repar`: `"logit"` for `repar = 1, 2`, `"log"` for `repar = 0`. See
+  the 'Reparameterizations and links' section of
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+  for the admissible values.
 
 - link_phi:
 
-  Dispersion link function (default `"logit"`).
+  Link for the second parameter. `NULL` (default) selects `"logit"` for
+  `repar = 2` (dispersion on \\(0, 1)\\) and `"log"` for `repar = 0, 1`
+  (positive shape/precision).
 
 - ncuts:
 
-  Number of scale categories (default 100).
+  Number of scale categories. `NULL` (default) uses the value stored by
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+  in `attr(data, "ncuts")`, or 100 when `data` was not prepared. A value
+  that differs from the stored one is ignored with a warning (the
+  endpoints were built with the stored value).
 
 - lim:
 
-  Uncertainty half-width (default 0.5).
+  Uncertainty half-width. `NULL` (default) uses `attr(data, "lim")` from
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+  or 0.5; same rule as `ncuts`.
 
 - hessian_method:
 
@@ -56,7 +69,8 @@ brs_fit_fixed(
 
 - repar:
 
-  Reparameterization scheme (default 2).
+  Reparameterization scheme (default 2); see
+  [`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 - method:
 

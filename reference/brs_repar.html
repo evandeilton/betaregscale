@@ -60,11 +60,15 @@ three reparameterization schemes.</p>
 
 
 <dl><dt id="arg-mu">mu<a class="anchor" aria-label="anchor" href="#arg-mu"></a></dt>
-<dd><p>Numeric vector of mean values in \((0, 1)\).</p></dd>
+<dd><p>Numeric vector: the first parameter. The mean, in
+\((0, 1)\), for <code>repar = 1, 2</code>; the shape \(p &gt; 0\) for
+<code>repar = 0</code>.</p></dd>
 
 
 <dt id="arg-phi">phi<a class="anchor" aria-label="anchor" href="#arg-phi"></a></dt>
-<dd><p>Numeric vector (or scalar) of dispersion values.</p></dd>
+<dd><p>Numeric vector (or scalar): the second parameter
+(precision \(\phi &gt; 0\), dispersion \(\phi \in (0, 1)\), or shape
+\(q &gt; 0\)).</p></dd>
 
 
 <dt id="arg-repar">repar<a class="anchor" aria-label="anchor" href="#arg-repar"></a></dt>
@@ -79,21 +83,31 @@ three reparameterization schemes.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The three schemes are:</p><dl><dt><code>repar = 0</code></dt>
-<dd><p>Direct: \(a = \mu,\; b = \phi\).</p></dd>
+<dd><p>Shapes: \(a = p,\; b = q\) with
+    \(p, q &gt; 0\) (the first argument is \(p\), the second
+    \(q\)). Both parameters live on \((0, \infty)\) and the
+    mean is \(E[Y] = p / (p + q)\). Regression directly on the
+    shapes is a package extension: the dissertation presents the
+    \((p, q)\) form (its eq. <code>eqn_beta_p1</code>) and builds the
+    regression models on the two reparameterizations below.</p></dd>
 
   <dt><code>repar = 1</code></dt>
-<dd><p>Ferrari–Cribari-Neto:
-    \(a = \mu\phi,\; b = (1 - \mu)\phi\), where \(\phi\)
-    acts as a precision parameter.</p></dd>
+<dd><p>Ferrari–Cribari-Neto (dissertation
+    "parametrização 1", eq. <code>eqn_beta_p2</code>):
+    \(a = \mu\phi,\; b = (1 - \mu)\phi\), where \(\mu \in (0, 1)\)
+    is the mean and \(\phi &gt; 0\) acts as a precision parameter.</p></dd>
 
   <dt><code>repar = 2</code></dt>
-<dd><p>Mean–variance:
+<dd><p>Mean–dispersion (dissertation
+    "parametrização 2", eq. <code>eqn_beta_p3</code>):
     \(a = \mu(1-\phi)/\phi,\; b = (1-\mu)(1-\phi)/\phi\),
-    where \(\phi \in (0,1)\) is analogous to a coefficient
-    of variation.</p></dd>
+    where \(\mu \in (0, 1)\) is the mean and \(\phi \in (0,1)\)
+    is a dispersion parameter (\(Var[Y] = \phi\,\mu(1-\mu)\)).</p></dd>
 
 
-</dl></div>
+</dl><p>The admissible link functions follow from these domains; see the
+'Reparameterizations and links' section of <code><a href="brs.html">brs</a></code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.

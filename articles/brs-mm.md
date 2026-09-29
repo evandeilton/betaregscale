@@ -187,24 +187,24 @@ summary(fit_mm)
 #> 
 #> Randomized Quantile Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -2.7630 -0.6319  0.0210  0.7206  3.5456 
+#> -2.7630 -0.6319  0.0209  0.7206  3.5456 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)  0.36832    0.15437   2.386    0.017 *  
-#> x1           0.63301    0.09465   6.688 2.27e-11 ***
+#> (Intercept)  0.36838    0.15432   2.387    0.017 *  
+#> x1           0.63304    0.09468   6.686  2.3e-11 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)  
-#> (Intercept) -0.15937    0.08464  -1.883   0.0597 .
+#> (Intercept) -0.15938    0.08482  -1.879   0.0603 .
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Random-effects parameters (Cholesky scale):
 #>                      Estimate Std. Error z value Pr(>|z|)   
-#> logSD.(Intercept)|id  -0.7973     0.2925  -2.726  0.00641 **
+#> logSD.(Intercept)|id  -0.7973     0.2930  -2.721   0.0065 **
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
@@ -212,7 +212,7 @@ summary(fit_mm)
 #> Observations: 240  | Groups: 12 
 #> Log-likelihood: -1008.2467 on 4 Df | AIC: 2024.4934 | BIC: 2038.4160 
 #> Pseudo R-squared: 0.1364 
-#> Number of iterations: 35 (BFGS) 
+#> Number of iterations: 34 (BFGS) 
 #> Censoring: 212 interval | 8 left | 20 right
 ```
 
@@ -240,32 +240,32 @@ summary(fit_mm_rs)
 #> 
 #> Randomized Quantile Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -2.9374 -0.6419  0.0104  0.6845  2.3799 
+#> -2.9375 -0.6419  0.0104  0.6846  2.3799 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)   0.3533     0.1575   2.244   0.0249 *  
-#> x1            0.6292     0.1057   5.955 2.61e-09 ***
+#> (Intercept)   0.3532     0.1580   2.236   0.0253 *  
+#> x1            0.6292     0.1057   5.952 2.65e-09 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)  
-#> (Intercept) -0.17469    0.08485  -2.059   0.0395 *
+#> (Intercept) -0.17466    0.08485  -2.058   0.0396 *
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Random-effects parameters (Cholesky scale):
 #>                       Estimate Std. Error z value Pr(>|z|)   
-#> logSD.(Intercept)|id   -0.7689     0.2859  -2.689  0.00716 **
-#> cov.x1:(Intercept)|id  -0.1576     0.1072  -1.470  0.14161   
-#> logSD.x1|id            -4.8354    10.4522  -0.463  0.64364   
+#> logSD.(Intercept)|id   -0.7694     0.2864  -2.686  0.00722 **
+#> cov.x1:(Intercept)|id  -0.1575     0.1075  -1.465  0.14294   
+#> logSD.x1|id            -4.9137    11.7658  -0.418  0.67622   
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 240  | Groups: 12 
-#> Log-likelihood: -1007.0654 on 6 Df | AIC: 2026.1308 | BIC: 2047.0147 
+#> Log-likelihood: -1007.0651 on 6 Df | AIC: 2026.1302 | BIC: 2047.0141 
 #> Pseudo R-squared: 0.1364 
 #> Number of iterations: 32 (BFGS) 
 #> Censoring: 212 interval | 8 left | 20 right
@@ -280,8 +280,8 @@ kbl10(fit_mm_rs$random$D)
 
 |   V1    |   V2    |
 |:-------:|:-------:|
-| 0.2149  | -0.0731 |
-| -0.0731 | 0.0249  |
+| 0.2146  | -0.0730 |
+| -0.0730 | 0.0249  |
 
 ``` r
 
@@ -293,8 +293,8 @@ kbl10(
 
 |    term     |   sd   |
 |:-----------:|:------:|
-| (Intercept) | 0.4635 |
-|     x1      | 0.1578 |
+| (Intercept) | 0.4633 |
+|     x1      | 0.1577 |
 
 ``` r
 
@@ -303,16 +303,16 @@ kbl10(head(ranef(fit_mm_rs), 10))
 
 | (Intercept) |   x1    |
 |:-----------:|:-------:|
-|   -0.0040   | 0.0013  |
+|   -0.0039   | 0.0012  |
 |   0.2585    | -0.0880 |
-|   0.0430    | -0.0146 |
+|   0.0431    | -0.0146 |
 |   0.1528    | -0.0518 |
-|   -0.0354   | 0.0119  |
-|   0.6182    | -0.2102 |
-|   -0.4101   | 0.1396  |
-|   -0.1081   | 0.0366  |
-|   -0.4720   | 0.1606  |
-|   -0.6703   | 0.2280  |
+|   -0.0353   | 0.0119  |
+|   0.6181    | -0.2101 |
+|   -0.4099   | 0.1395  |
+|   -0.1080   | 0.0365  |
+|   -0.4717   | 0.1605  |
+|   -0.6700   | 0.2278  |
 
 ## Additional studies of random effects (numerical and visual)
 
@@ -334,22 +334,22 @@ print(re_study)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.  Corr
-#>   re1                         0.4635
-#>   re2                         0.1578  -0.9987
+#>   re1                         0.4633
+#>   re2                         0.1577  -0.9989
 #> 
-#> ICC (latent logistic scale): 0.0613
+#> ICC (latent logistic scale): 0.0612
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
-#>  (Intercept)   0.4635     6e-04  0.4160          0.8053    0.8381
-#>           x1   0.1578    -2e-04  0.1415          0.8036    0.8369
+#>  (Intercept)   0.4633     7e-04  0.4158          0.8057    0.8381
+#>           x1   0.1577    -2e-04  0.1414          0.8043    0.8371
 kbl10(re_study$summary)
 ```
 
 |    term     | sd_model | mean_mode | sd_mode | shrinkage_ratio | shapiro_p |
 |:-----------:|:--------:|:---------:|:-------:|:---------------:|:---------:|
-| (Intercept) |  0.4635  |   6e-04   | 0.4160  |     0.8053      |  0.8381   |
-|     x1      |  0.1578  |  -2e-04   | 0.1415  |     0.8036      |  0.8369   |
+| (Intercept) |  0.4633  |   7e-04   | 0.4158  |     0.8057      |  0.8381   |
+|     x1      |  0.1577  |  -2e-04   | 0.1414  |     0.8043      |  0.8371   |
 
 ``` r
 
@@ -358,8 +358,8 @@ kbl10(re_study$D)
 
 |   V1    |   V2    |
 |:-------:|:-------:|
-| 0.2149  | -0.0731 |
-| -0.0731 | 0.0249  |
+| 0.2146  | -0.0730 |
+| -0.0730 | 0.0249  |
 
 ``` r
 
@@ -368,8 +368,8 @@ kbl10(re_study$Corr)
 
 |   V1    |   V2    |
 |:-------:|:-------:|
-| 1.0000  | -0.9987 |
-| -0.9987 | 1.0000  |
+| 1.0000  | -0.9989 |
+| -0.9989 | 1.0000  |
 
 Suggested visualizations for random effects:
 
@@ -406,7 +406,7 @@ kbl10(
 
 |            parameter             | estimate |
 |:--------------------------------:|:--------:|
-|           (Intercept)            |  0.3683  |
+|           (Intercept)            |  0.3684  |
 |                x1                |  0.6330  |
 |        (phi)\_(Intercept)        | -0.1594  |
 | (re_chol_logsd)\_(Intercept)\|id | -0.7973  |
@@ -436,10 +436,10 @@ kbl10(head(ranef(fit_mm), 10))
 | -0.0420 |
 | 0.2152  |
 | 0.0468  |
-| 0.2022  |
-| -0.0720 |
-| 0.6098  |
-| -0.3624 |
+| 0.2021  |
+| -0.0721 |
+| 0.6097  |
+| -0.3625 |
 | -0.1838 |
 | -0.4129 |
 | -0.6105 |
@@ -459,9 +459,9 @@ kbl10(
 
 |            parameter             | estimate |
 |:--------------------------------:|:--------:|
-| (re_chol_logsd)\_(Intercept)\|id | -0.7689  |
-|  (re_chol)\_x1:(Intercept)\|id   | -0.1576  |
-|     (re_chol_logsd)\_x1\|id      | -4.8354  |
+| (re_chol_logsd)\_(Intercept)\|id | -0.7694  |
+|  (re_chol)\_x1:(Intercept)\|id   | -0.1575  |
+|     (re_chol_logsd)\_x1\|id      | -4.9137  |
 
 ``` r
 
@@ -470,8 +470,8 @@ kbl10(fit_mm_rs$random$D)
 
 |   V1    |   V2    |
 |:-------:|:-------:|
-| 0.2149  | -0.0731 |
-| -0.0731 | 0.0249  |
+| 0.2146  | -0.0730 |
+| -0.0730 | 0.0249  |
 
 ### Variance-covariance, summary and likelihood criteria
 
@@ -487,8 +487,8 @@ kbl10(sm$coefficients)
 
 |  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
 |:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| (Intercept) | 0.3683 | 0.1544 | 2.3860 | 0.017 | -0.1594 | 0.0846 | -1.8829 | 0.0597 | -0.7973 | 0.2925 | -2.7259 | 0.0064 |
-| x1 | 0.6330 | 0.0947 | 6.6877 | 0.000 | -0.1594 | 0.0846 | -1.8829 | 0.0597 | -0.7973 | 0.2925 | -2.7259 | 0.0064 |
+| (Intercept) | 0.3684 | 0.1543 | 2.3871 | 0.017 | -0.1594 | 0.0848 | -1.8789 | 0.0603 | -0.7973 | 0.293 | -2.7213 | 0.0065 |
+| x1 | 0.6330 | 0.0947 | 6.6858 | 0.000 | -0.1594 | 0.0848 | -1.8789 | 0.0603 | -0.7973 | 0.293 | -2.7213 | 0.0065 |
 
 ``` r
 
@@ -631,7 +631,7 @@ kbl10(
 
 | pred_unseen |
 |:-----------:|
-|   0.5338    |
+|   0.5339    |
 |   0.2886    |
 |   0.5839    |
 |   0.5528    |
@@ -652,7 +652,7 @@ kbl10(
 
 | pred_rs_seen |
 |:------------:|
-|    0.5294    |
+|    0.5293    |
 |    0.2858    |
 |    0.5793    |
 |    0.5483    |
@@ -671,13 +671,13 @@ kbl10(
 
 | pred_rs_unseen |
 |:--------------:|
-|     0.5305     |
+|     0.5304     |
 |     0.2871     |
-|     0.5803     |
+|     0.5802     |
 |     0.5493     |
 |     0.6971     |
 |     0.4865     |
-|     0.6110     |
+|     0.6109     |
 |     0.4742     |
 
 ## Statistical tests and validation workflow
@@ -698,8 +698,8 @@ kbl10(sm$coefficients)
 
 |  | mean.Estimate | mean.Std..Error | mean.z.value | mean.Pr…z.. | precision.Estimate | precision.Std..Error | precision.z.value | precision.Pr…z.. | random.Estimate | random.Std..Error | random.z.value | random.Pr…z.. |
 |:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| (Intercept) | 0.3683 | 0.1544 | 2.3860 | 0.017 | -0.1594 | 0.0846 | -1.8829 | 0.0597 | -0.7973 | 0.2925 | -2.7259 | 0.0064 |
-| x1 | 0.6330 | 0.0947 | 6.6877 | 0.000 | -0.1594 | 0.0846 | -1.8829 | 0.0597 | -0.7973 | 0.2925 | -2.7259 | 0.0064 |
+| (Intercept) | 0.3684 | 0.1543 | 2.3871 | 0.017 | -0.1594 | 0.0848 | -1.8789 | 0.0603 | -0.7973 | 0.293 | -2.7213 | 0.0065 |
+| x1 | 0.6330 | 0.0947 | 6.6858 | 0.000 | -0.1594 | 0.0848 | -1.8789 | 0.0603 | -0.7973 | 0.293 | -2.7213 | 0.0065 |
 
 ### Evolutionary scheme and Likelihood Ratio (LR) test selection
 
@@ -741,7 +741,7 @@ kbl10(
 |:----------:|:---:|:---------:|:--------:|:--------:|:-------:|:------:|:----------:|
 |  M1 (brs)  |  3  | -1014.913 | 2035.826 | 2046.268 |   NA    |   NA   |     NA     |
 | M2 (brsmm) |  4  | -1008.247 | 2024.493 | 2038.416 | 13.3331 |   1    |   0.0003   |
-| M3 (brsmm) |  6  | -1007.065 | 2026.131 | 2047.015 | 2.3626  |   2    |   0.3069   |
+| M3 (brsmm) |  6  | -1007.065 | 2026.130 | 2047.014 | 2.3632  |   2    |   0.3068   |
 
 Operational decision rule (analytical):
 
@@ -801,7 +801,7 @@ kbl10(recovery_table)
 
 | parameter | true | estimate |  bias   |
 |:---------:|:----:|:--------:|:-------:|
-|   beta0   | 0.20 |  0.3683  | 0.1683  |
+|   beta0   | 0.20 |  0.3684  | 0.1684  |
 |   beta1   | 0.65 |  0.6330  | -0.0170 |
 |  sigma_b  | 0.55 |  0.4505  | -0.0995 |
 

@@ -7,7 +7,3 @@ Valid link names for the mean submodel
 ``` r
 .mu_links
 ```
-
-## Format
-
-An object of class `character` of length 4.

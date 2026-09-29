@@ -214,11 +214,11 @@ d3 <- data.frame(
 )
 brs_prep(d3, ncuts = 100)
 #> brs_prep: n = 4 | exact = 1, left = 1, right = 1, interval = 1
-#>    left   right    yt  y delta         x1
-#> 1 1e-05 0.05000 0.025 NA     1 -0.7956434
-#> 2 2e-01 0.99999 0.600 NA     2 -0.5847379
-#> 3 3e-01 0.45000 0.375 NA     3  0.5348066
-#> 4 5e-01 0.50000 0.500 50     0 -0.5306958
+#>    left   right    yt    y delta         x1
+#> 1 1e-05 0.05000 0.025  2.5     1 -0.7956434
+#> 2 2e-01 0.99999 0.600 60.0     2 -0.5847379
+#> 3 3e-01 0.45000 0.375 37.5     3  0.5348066
+#> 4 5e-01 0.50000 0.500 50.0     0 -0.5306958
 
 # --- Mode 4: y + left + right (analyst-supplied intervals) ---
 d4 <- data.frame(

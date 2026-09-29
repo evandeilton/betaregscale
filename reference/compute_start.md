@@ -10,8 +10,8 @@ reasonable initialization for the interval likelihood optimizer.
 compute_start(
   formula,
   data,
-  link = "logit",
-  link_phi = "logit",
+  link = NULL,
+  link_phi = NULL,
   ncuts = 100L,
   lim = 0.5,
   repar = 2L
@@ -31,11 +31,11 @@ compute_start(
 
 - link:
 
-  Mean link function name.
+  Mean link function name (`NULL`: default for `repar`).
 
 - link_phi:
 
-  Dispersion link function name.
+  Dispersion link function name (`NULL`: default for `repar`).
 
 - ncuts:
 
@@ -44,6 +44,12 @@ compute_start(
 - lim:
 
   Uncertainty half-width.
+
+- repar:
+
+  Reparameterization scheme. Under `repar = 0` the shapes are started by
+  the method of moments on the midpoint response (\\f = m(1-m)/v - 1\\,
+  \\p = m f\\, \\q = (1-m) f\\).
 
 ## Value
 

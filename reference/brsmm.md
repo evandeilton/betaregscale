@@ -14,11 +14,11 @@ brsmm(
   formula,
   random = ~1 | id,
   data,
-  link = "logit",
-  link_phi = "logit",
+  link = NULL,
+  link_phi = NULL,
   repar = 2L,
-  ncuts = 100L,
-  lim = 0.5,
+  ncuts = NULL,
+  lim = NULL,
   int_method = c("laplace", "aghq", "qmc"),
   n_points = 11L,
   qmc_points = 1024L,
@@ -47,23 +47,32 @@ brsmm(
 
 - link:
 
-  Mean link function.
+  Link for the first parameter (the mean under `repar = 1, 2`; the shape
+  \\p\\ under `repar = 0`). `NULL` (default) selects the link implied by
+  `repar`; see the 'Reparameterizations and links' section of
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
 
 - link_phi:
 
-  Precision link function.
+  Link for the second parameter; `NULL` (default) selects the link
+  implied by `repar`.
 
 - repar:
 
-  Beta reparameterization code (0, 1, 2).
+  Beta reparameterization code (0, 1, 2); see
+  [`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 - ncuts:
 
-  Number of categories on the original scale.
+  Number of categories on the original scale. `NULL` (default) uses
+  `attr(data, "ncuts")` from
+  [`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md),
+  or 100; an explicit different value is ignored with a warning.
 
 - lim:
 
-  Half-width used to construct interval endpoints.
+  Half-width used to construct interval endpoints. `NULL` (default) uses
+  `attr(data, "lim")`, or 0.5; same rule as `ncuts`.
 
 - int_method:
 
@@ -160,17 +169,17 @@ fit_mm
 #> 
 #> Coefficients (mean model with logit link):
 #> (Intercept)          x1 
-#>      0.4212     -0.3374 
+#>      0.4201     -0.3367 
 #> 
 #> Phi coefficients (precision model with logit link):
 #> (Intercept) 
-#>     -0.5805 
+#>     -0.5804 
 #> 
 #> Random-effects parameters:
 #> logSD.(Intercept)|id 
-#>              -0.6277 
+#>               -0.628 
 #> 
-#> Random SD: 0.5338 
+#> Random SD: 0.5337 
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 20  | Groups: 4 

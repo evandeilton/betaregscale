@@ -125,4 +125,7 @@ Useful links:
 
 Authors:
 
+- José Evandeilton Lopes <evandeilton@gmail.com>
+  ([ORCID](https://orcid.org/0009-0007-5887-4084))
+
 - Wagner Hugo Bonat ([ORCID](https://orcid.org/0000-0002-0349-7054))

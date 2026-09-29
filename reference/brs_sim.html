@@ -55,8 +55,8 @@ beta regression models.</p>
 <span>  <span class="va">beta</span>,</span>
 <span>  phi <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">5</span>,</span>
 <span>  zeta <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  link <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  link <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  link_phi <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ncuts <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2L</span>,</span>
@@ -92,11 +92,13 @@ required for two-part formulas.</p></dd>
 
 
 <dt id="arg-link">link<a class="anchor" aria-label="anchor" href="#arg-link"></a></dt>
-<dd><p>Mean link function.</p></dd>
+<dd><p>Link for the first parameter; <code>NULL</code> (default) selects
+the link implied by <code>repar</code> (see <code><a href="brs.html">brs</a></code>).</p></dd>
 
 
 <dt id="arg-link-phi">link_phi<a class="anchor" aria-label="anchor" href="#arg-link-phi"></a></dt>
-<dd><p>Precision link function.</p></dd>
+<dd><p>Link for the second parameter; <code>NULL</code> (default)
+selects the link implied by <code>repar</code>.</p></dd>
 
 
 <dt id="arg-ncuts">ncuts<a class="anchor" aria-label="anchor" href="#arg-ncuts"></a></dt>
@@ -108,7 +110,9 @@ required for two-part formulas.</p></dd>
 
 
 <dt id="arg-repar">repar<a class="anchor" aria-label="anchor" href="#arg-repar"></a></dt>
-<dd><p>Reparameterization scheme.</p></dd>
+<dd><p>Reparameterization scheme. <code>beta</code> and <code>phi</code> /
+<code>zeta</code> are on the link scale of the first and second parameter of
+that scheme (shapes \(p, q\) under <code>repar = 0</code>).</p></dd>
 
 
 <dt id="arg-delta">delta<a class="anchor" aria-label="anchor" href="#arg-delta"></a></dt>
@@ -119,8 +123,9 @@ required for two-part formulas.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame with columns <code>left</code>, <code>right</code>, <code>yt</code>,
   <code>y</code>, <code>delta</code>, plus simulated predictor columns from the model
-  matrices. When <code>delta != NULL</code>, the output carries
-  <code>attr(, "is_prepared") = TRUE</code>.</p>
+  matrices. As for <code><a href="brs_prep.html">brs_prep</a></code>, the output carries the
+  attributes <code>"is_prepared"</code> (<code>TRUE</code>), <code>"ncuts"</code> and
+  <code>"lim"</code>, which <code><a href="brs.html">brs</a></code> reuses.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
