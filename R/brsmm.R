@@ -86,9 +86,11 @@
 #'   \code{control = list(reltol = 1e-10)} keeps \code{maxit = 2000}.
 #'
 #' @return An object of class \code{"brsmm"}. \code{diagnostics} holds the
-#'   post-fit checks of \code{\link{brs}} (gradient by central differences
-#'   with step \eqn{10^{-3}}, Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
-#'   log-likelihood gain of each random-effect term over its removal. A term
+#'   post-fit checks of \code{\link{brs}} (compiled gradient and the fit's
+#'   Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
+#'   log-likelihood gain of each random-effect term over its removal, and
+#'   \code{inner} (groups without a positive-definite mode, largest
+#'   \eqn{|\nabla h|} at the modes). A term
 #'   with log SD below -6 or a gain below \eqn{10^{-3}} is reported as a
 #'   variance component on the boundary (test it with \code{\link{anova.brsmm}},
 #'   chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
@@ -372,17 +374,14 @@ brsmm <- function(formula,
   if (ncol(mode_b) != q_re) {
     stop("Internal error while computing group modes.", call. = FALSE)
   }
-  # Inner-mode diagnostics: a group without a positive-definite mode is penalised.
+  # Inner-mode diagnostics (reported by .brs_fit_diagnostics): a group without a
+  # positive-definite mode is penalised in the likelihood.
   diag_re <- .brsmm_mode_diag_cpp(
     param = est, X = X, Z = Z, Xr = Xr,
     y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),
     yt = as.numeric(Y[, "yt"]), delta = delta, group = group_index,
     link_mu = lc_mu, link_phi = lc_phi, repar = repar, warm = TRUE
   )
-  if (any(diag_re$ok == 0)) {
-    warning(sum(diag_re$ok == 0), " group(s) have no positive-definite ",
-            "random-effect mode at the estimate.", call. = FALSE)
-  }
   eta_phi <- as.numeric(Z %*% gamma_hat)
   y_mid <- as.numeric(Y[, "yt"])
 
@@ -435,12 +434,16 @@ brsmm <- function(formula,
   phi_raw <- apply_inv_link(eta_phi, link_phi)
   hatmu <- .clamp_mu_by_repar(mu_raw, repar)
   hatphi <- .clamp_phi_by_repar(phi_raw, repar)
-  # No compiled gradient for the marginal likelihood: central differences
+  # Compiled gradient of the marginal likelihood; central differences only if
+  # it is not finite. With the fit's Hessian it gives the Newton-gain criterion.
+  g_hat <- tryCatch(gr_ll(est), error = function(e) NULL)
+  if (is.null(g_hat) || any(!is.finite(g_hat))) g_hat <- .brs_num_grad(fn_ll, est)
   fit_diag <- .brs_fit_diagnostics(
-    .brs_num_grad(fn_ll, est), hess, mu_raw, phi_raw, repar, opt$convergence,
+    g_hat, hess, mu_raw, phi_raw, repar, opt$convergence,
     re_logsd = c(log(sd_b_terms), theta_re_hat[.brsmm_chol_diag_index(q_re)]),
-    re_gain = .brsmm_re_gain(fn_ll, est, idx_re, q_re),
-    badly_scaled = .brs_badly_scaled(X, Z, Xr)
+    re_gain = .brsmm_re_gain(fn_ll, -opt$value, est, idx_re, q_re),
+    badly_scaled = .brs_badly_scaled(X, Z, Xr),
+    inner = list(bad_groups = sum(diag_re$ok == 0), max_grad = max(diag_re$grad_inf))
   )
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
 
@@ -513,10 +516,6 @@ brsmm <- function(formula,
       integration = list(
         method = int_method,
         n_groups = g
-      ),
-      inner = list(
-        bad_groups = sum(diag_re$ok == 0),
-        max_grad = max(diag_re$grad_inf)
       )
     ))
   )
@@ -540,8 +539,8 @@ brsmm <- function(formula,
 
 # Log-likelihood gain of each random-effect term over the same parameters with
 # that term's Cholesky row at ~0 (log-diagonal -10: smaller SDs lose Laplace accuracy).
-.brsmm_re_gain <- function(fn_ll, est, idx_re, q_re) {
-  ll_hat <- fn_ll(est)
+.brsmm_re_gain <- function(fn_ll, ll_hat, est, idx_re, q_re) {
+  # ll_hat = -opt$value: the log-likelihood the optimizer reached (no re-evaluation)
   theta <- est[idx_re]
   vapply(seq_len(q_re), function(i) {
     th <- theta

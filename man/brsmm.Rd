@@ -89,9 +89,11 @@ are merged into the default \code{list(maxit = 2000L)}, so
 }
 \value{
 An object of class \code{"brsmm"}. \code{diagnostics} holds the
-  post-fit checks of \code{\link{brs}} (gradient by central differences
-  with step \eqn{10^{-3}}, Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
-  log-likelihood gain of each random-effect term over its removal. A term
+  post-fit checks of \code{\link{brs}} (compiled gradient and the fit's
+  Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
+  log-likelihood gain of each random-effect term over its removal, and
+  \code{inner} (groups without a positive-definite mode, largest
+  \eqn{|\nabla h|} at the modes). A term
   with log SD below -6 or a gain below \eqn{10^{-3}} is reported as a
   variance component on the boundary (test it with \code{\link{anova.brsmm}},
   chi-bar-square mixture). Rank-deficient fixed-effect or random-effect

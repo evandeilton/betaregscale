@@ -124,13 +124,16 @@
 #'   over its removal (brsmm).
 #' @param badly_scaled Logical: the design has columns of very different
 #'   scales (the gradient warning then suggests rescaling).
+#' @param inner Optional brsmm inner-mode summary: \code{bad_groups} (groups
+#'   without a positive-definite mode, penalised in the likelihood) and
+#'   \code{max_grad} (largest |grad h| at the modes).
 #' @param warn Emit the warnings.
 #' @return A list stored as \code{fit$diagnostics}.
 #' @keywords internal
 #' @noRd
 .brs_fit_diagnostics <- function(grad, hessian, mu_raw, phi_raw, repar,
                                  convergence = 0L, re_logsd = NULL, re_gain = NULL,
-                                 badly_scaled = FALSE, warn = TRUE) {
+                                 badly_scaled = FALSE, inner = NULL, warn = TRUE) {
   H <- -hessian
   H <- (H + t(H)) / 2
   finite <- all(is.finite(H)) && all(is.finite(grad))
@@ -183,7 +186,8 @@
     n_clamped = sum(on_any),
     clamped = c(mu = sum(on_mu), phi = sum(on_phi), shape = sum(on_sh)),
     re_boundary = re_bnd,
-    re_gain = re_gain
+    re_gain = re_gain,
+    inner = inner
   )
 
   if (warn) {
@@ -205,6 +209,11 @@
       .brs_advisory(sprintf(paste0(
         "%d of %d observations have mu, phi or the beta shapes on the clamp ",
         "boundary (possible non-identifiability)."), out$n_clamped, n))
+    }
+    if (!is.null(inner) && inner$bad_groups > 0L) {
+      .brs_advisory(sprintf(paste0(
+        "%d group(s) have no positive-definite random-effect mode at the ",
+        "estimate (penalised in the likelihood)."), inner$bad_groups))
     }
     if (re_bnd) {
       # A negative gain: sd ~ 0 beats the estimate, so optim stopped short of the MLE
@@ -238,8 +247,8 @@
   )
 }
 
-# Central-difference gradient for brsmm (no compiled gradient). Step 1e-3: the
-# marginal likelihood has an inner mode search, so tiny steps measure its tolerance.
+# Central-difference gradient: brsmm fallback when the compiled gradient is not
+# finite. Step 1e-3: the inner mode search makes tiny steps measure its tolerance.
 .brs_num_grad <- function(fn, par, h_rel = 1e-3) {
   vapply(seq_along(par), function(j) {
     h <- h_rel * max(1, abs(par[j]))

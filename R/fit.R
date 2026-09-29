@@ -156,6 +156,12 @@
 #'   \code{\link{brs_repar}}.
 #' @param method Optimization method: \code{"BFGS"} (default) or
 #'   \code{"L-BFGS-B"}.
+#' @param start Optional numeric vector of starting values (mean
+#'   coefficients, then dispersion coefficients). \code{NULL} (default) uses
+#'   \code{compute_start()}. Refits (bootstrap, jackknife) pass the parent
+#'   estimate here.
+#' @param control Control list for \code{\link[stats]{optim}}; its entries
+#'   are merged into the default \code{list(maxit = 5000L)}.
 #' @param interval Direction of the uncertainty interval, \code{"mid"},
 #'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
 #'   \code{NULL} (default) uses \code{attr(data, "interval")} from
@@ -211,7 +217,9 @@ brs_fit_fixed <- function(formula, data,
                           hessian_method = c("cpp", "numDeriv", "optim"),
                           repar = 2L,
                           method = c("BFGS", "L-BFGS-B"),
-                          interval = NULL) {
+                          interval = NULL,
+                          start = NULL,
+                          control = list()) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
@@ -237,12 +245,16 @@ brs_fit_fixed <- function(formula, data,
   # Extract delta from brs_check output
   delta <- as.integer(Y[, "delta"])
 
-  # Starting values
-  ini <- compute_start(
-    formula = formula, data = data, link = link,
-    link_phi = link_phi, ncuts = ncuts,
-    lim = lim, repar = repar, interval = interval
-  )
+  # Starting values: user / parent estimate, else compute_start()
+  ini <- if (is.null(start)) {
+    compute_start(
+      formula = formula, data = data, link = link,
+      link_phi = link_phi, ncuts = ncuts,
+      lim = lim, repar = repar, interval = interval
+    )
+  } else {
+    .brs_check_start(start, p + 1L)
+  }
 
   # Pre-compute link codes for C++
   lc_mu <- link_to_code(link)
@@ -271,7 +283,7 @@ brs_fit_fixed <- function(formula, data,
     gr      = gr_obj,
     method  = method,
     hessian = (hessian_method == "optim"),
-    control = list(maxit = 5000L)
+    control = .brs_merge_control(list(maxit = 5000L), control)
   )
 
   # BUG-H04: warn if optimizer did not converge
@@ -420,6 +432,12 @@ brs_fit_fixed <- function(formula, data,
 #' @param repar  Reparameterization scheme (default 2); see
 #'   \code{\link{brs_repar}}.
 #' @param method Optimization method (default \code{"BFGS"}).
+#' @param start Optional numeric vector of starting values (mean
+#'   coefficients, then dispersion coefficients). \code{NULL} (default) uses
+#'   \code{compute_start()}. Refits (bootstrap, jackknife) pass the parent
+#'   estimate here.
+#' @param control Control list for \code{\link[stats]{optim}}; its entries
+#'   are merged into the default \code{list(maxit = 5000L)}.
 #' @param interval Direction of the uncertainty interval, \code{"mid"},
 #'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
 #'   \code{NULL} (default) uses \code{attr(data, "interval")} from
@@ -476,7 +494,9 @@ brs_fit_var <- function(formula, data,
                         lim = NULL,
                         repar = 2L,
                         method = c("BFGS", "L-BFGS-B"),
-                        interval = NULL) {
+                        interval = NULL,
+                        start = NULL,
+                        control = list()) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
@@ -516,12 +536,16 @@ brs_fit_var <- function(formula, data,
   # Extract delta from brs_check output
   delta <- as.integer(Y[, "delta"])
 
-  # Starting values
-  ini <- compute_start(
-    formula = formula, data = data, link = link,
-    link_phi = link_phi, ncuts = ncuts,
-    lim = lim, repar = repar, interval = interval
-  )
+  # Starting values: user / parent estimate, else compute_start()
+  ini <- if (is.null(start)) {
+    compute_start(
+      formula = formula, data = data, link = link,
+      link_phi = link_phi, ncuts = ncuts,
+      lim = lim, repar = repar, interval = interval
+    )
+  } else {
+    .brs_check_start(start, p + q)
+  }
 
   # Link codes
   lc_mu <- link_to_code(link)
@@ -548,7 +572,7 @@ brs_fit_var <- function(formula, data,
     gr      = gr_obj,
     method  = method,
     hessian = (hessian_method == "optim"),
-    control = list(maxit = 5000L)
+    control = .brs_merge_control(list(maxit = 5000L), control)
   )
 
   # BUG-H04: warn if optimizer did not converge
@@ -801,7 +825,9 @@ brs <- function(formula, data,
                 repar = 2L,
                 method = c("BFGS", "L-BFGS-B"),
                 hessian_method = c("cpp", "numDeriv", "optim"),
-                interval = NULL) {
+                interval = NULL,
+                start = NULL,
+                control = list()) {
   cl <- match.call()
   formula_parsed <- Formula::as.Formula(formula)
 
@@ -812,7 +838,7 @@ brs <- function(formula, data,
       ncuts = ncuts, lim = lim,
       hessian_method = hessian_method,
       repar = repar, method = method,
-      interval = interval
+      interval = interval, start = start, control = control
     )
   } else {
     fit <- brs_fit_var(
@@ -821,11 +847,20 @@ brs <- function(formula, data,
       hessian_method = hessian_method,
       ncuts = ncuts, lim = lim,
       repar = repar, method = method,
-      interval = interval
+      interval = interval, start = start, control = control
     )
   }
 
   # Override the call with the unified interface call
   fit$call <- cl
   fit
+}
+
+# Validate a user / parent starting vector (length and finiteness).
+.brs_check_start <- function(start, npar) {
+  start <- as.numeric(start)
+  if (length(start) != npar || any(!is.finite(start))) {
+    stop("'start' must be a finite numeric vector of length ", npar, ".", call. = FALSE)
+  }
+  start
 }

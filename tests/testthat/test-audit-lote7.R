@@ -526,12 +526,26 @@ test_that("L7-V3: the gradient check is the log-likelihood gain of a Newton step
                                  beta = c(-0.5, 1), phi = qlogis(0.2), ncuts = 10))
   s2$x <- x
   w <- character(0)
-  f2 <- withCallingHandlers(brs(y ~ I(x^3), data = s2), warning = function(w_) {
+  f2 <- withCallingHandlers(brs(y ~ I(x^3), data = s2, hessian_method = "numDeriv"),
+                            warning = function(w_) {
     w <<- c(w, conditionMessage(w_))
     invokeRestart("muffleWarning")
   })
   expect_gt(f2$diagnostics$grad_gain, 1e-2)
   expect_true(any(grepl("Gradient not ~0.*rescale the covariates", w)))
+  # Lote 5: with the exact (default "cpp") Hessian the same fit shows its real
+  # problem, a near-singular -H (intercept and x^3 nearly collinear), so no
+  # Newton gain is computed and the Hessian + collinearity warnings fire. The
+  # numDeriv Hessian above is wrong at this scale (its relative step on a
+  # 3e-12 coefficient moves eta by ~300), which inflated the gain.
+  w <- character(0)
+  f3 <- withCallingHandlers(brs(y ~ I(x^3), data = s2), warning = function(w_) {
+    w <<- c(w, conditionMessage(w_))
+    invokeRestart("muffleWarning")
+  })
+  expect_false(f3$diagnostics$hessian_nd)
+  expect_true(any(grepl("Hessian not negative definite", w)))
+  expect_true(any(grepl("nearly collinear", w)))
 })
 
 test_that("L7-V4: brs() stores the log-likelihood exactly at the returned estimate", {
