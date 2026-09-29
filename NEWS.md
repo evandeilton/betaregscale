@@ -169,6 +169,34 @@ to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
   likelihood. An interval-censored observation with `left == right`
   (probability zero) now contributes `-1e6` instead of `log(1e-15)`.
 
+## Compiled backend: Armadillo, analytic derivatives, stable standard errors
+
+* The mixed-model backend (`brsmm()`) is now written in RcppArmadillo, like the
+  rest of the package; RcppEigen is no longer a dependency. The port was
+  checked against the Eigen code to rounding before any change of method.
+* Gradients and Hessians use the chain rule on the linear predictors
+  (per-observation central differences, cost independent of the number of
+  coefficients). `brs()`: gradient about 2x faster; the new default
+  `hessian_method = "cpp"` is about 16x faster than `numDeriv` and agrees with
+  it to 1e-8 in the standard errors. `hessian_method = "numDeriv"` remains.
+* `brsmm()` passes an analytic gradient of the chosen approximation (Laplace,
+  AGHQ or QMC) to `optim()` and computes the Hessian from it
+  (`hessian_method = "cpp"`, default). Standard errors of random-slope models
+  are now finite and reproducible (they were `NaN` or changed by 20-40%
+  between two practically identical optima). Fits are 1.5-6x faster.
+* The inner search for the random-effect modes is a Levenberg–Marquardt
+  Newton method with warm starts. It no longer returns `b = 0` when the
+  curvature there is indefinite, and the silent eigenvalue floor of 1e-8
+  (which added up to `+9.2` per direction to the Laplace value) is gone; a
+  group without a positive-definite mode is penalised and reported in
+  `fit$diagnostics$inner`.
+* AGHQ and QMC scale the nodes by the symmetric root `C^(-1/2)` of the
+  curvature, so their values no longer depend on the eigenvector sign and order
+  conventions of the LAPACK in use (random-effect dimension >= 2).
+* Structural errors in the compiled functions (wrong parameter length, `NA` or
+  non-finite data, group codes beyond the number of rows) stop with a clear
+  message; a `NaN` parameter gives the likelihood penalty, `+-Inf` the bounds.
+
 # betaregscale 2.7.4
 
 Resubmission addressing CRAN feedback on vignette build time (Uwe Ligges,

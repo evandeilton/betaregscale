@@ -108,9 +108,9 @@ double betaregscale_loglik_variable_cpp(
 // ============================================================= Gradients === //
 
 //' @title C++ gradient for the fixed-dispersion log-likelihood
-//' @description Chain rule on the linear predictors: \code{X' d_mu} and
-//'   \code{sum(d_phi)}, with per-observation derivatives by Richardson
-//'   central differences (brs_deriv.h).
+//' @description Chain rule on the linear predictors:
+//'   \code{crossprod(X, d_mu)} and \code{sum(d_phi)}, with per-observation
+//'   derivatives by Richardson central differences (brs_deriv.h).
 //' @inheritParams .brs_loglik_fixed_cpp
 //' @return Numeric gradient vector of length \code{ncol(X) + 1}.
 //' @keywords internal
@@ -141,8 +141,9 @@ betaregscale_grad_fixed_cpp(const arma::vec &param, const arma::mat &X,
 }
 
 //' @title C++ gradient for the variable-dispersion log-likelihood
-//' @description Chain rule on the linear predictors: \code{X' d_mu} and
-//'   \code{Z' d_phi} (see \code{.brs_grad_fixed_cpp}).
+//' @description Chain rule on the linear predictors:
+//'   \code{crossprod(X, d_mu)} and \code{crossprod(Z, d_phi)}
+//'   (see \code{.brs_grad_fixed_cpp}).
 //' @inheritParams .brs_loglik_variable_cpp
 //' @return Numeric gradient vector of length \code{ncol(X) + ncol(Z)}.
 //' @keywords internal
@@ -168,7 +169,8 @@ arma::vec betaregscale_grad_variable_cpp(
 
 //' @title C++ Hessian for the fixed-dispersion log-likelihood
 //' @description Chain rule on the linear predictors:
-//'   \code{[X' W_mm X, X' w_mp; w_mp' X, sum(w_pp)]} with per-observation
+//'   blocks \code{crossprod(X, w_mm * X)}, \code{crossprod(X, w_mp)} and
+//'   \code{sum(w_pp)}, with per-observation
 //'   second derivatives by Richardson central differences (17 evaluations).
 //' @inheritParams .brs_loglik_fixed_cpp
 //' @return Symmetric matrix of order \code{ncol(X) + 1} (log-likelihood scale).
@@ -203,7 +205,8 @@ arma::mat betaregscale_hessian_fixed_cpp(
 
 //' @title C++ Hessian for the variable-dispersion log-likelihood
 //' @description Chain rule on the linear predictors:
-//'   \code{[X' W_mm X, X' W_mp Z; Z' W_mp X, Z' W_pp Z]}.
+//'   blocks \code{crossprod(X, w_mm * X)}, \code{crossprod(X, w_mp * Z)} and
+//'   \code{crossprod(Z, w_pp * Z)}.
 //' @inheritParams .brs_loglik_variable_cpp
 //' @return Symmetric matrix of order \code{ncol(X) + ncol(Z)} (log-likelihood scale).
 //' @keywords internal

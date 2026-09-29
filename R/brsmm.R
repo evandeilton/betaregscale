@@ -69,7 +69,10 @@
 #' @param start Optional numeric vector of starting values
 #'   (\code{beta}, \code{gamma}, and packed lower-Cholesky random parameters).
 #' @param method Optimizer passed to \code{\link[stats]{optim}}.
-#' @param hessian_method \code{"numDeriv"} (default) or \code{"optim"}.
+#' @param hessian_method \code{"cpp"} (default), \code{"numDeriv"} or
+#'   \code{"optim"}. \code{"cpp"} differentiates the compiled analytic
+#'   gradient of the marginal log-likelihood (Richardson central differences);
+#'   the same gradient is passed to \code{\link[stats]{optim}}.
 #' @param control Control list for \code{\link[stats]{optim}}; its entries
 #'   are merged into the default \code{list(maxit = 2000L)}, so
 #'   \code{control = list(reltol = 1e-10)} keeps \code{maxit = 2000}.
@@ -126,7 +129,7 @@ brsmm <- function(formula,
                   qmc_points = 1024L,
                   start = NULL,
                   method = c("BFGS", "L-BFGS-B"),
-                  hessian_method = c("numDeriv", "optim"),
+                  hessian_method = c("cpp", "numDeriv", "optim"),
                   control = list(maxit = 2000L),
                   interval = NULL) {
   cl <- match.call()
@@ -275,9 +278,22 @@ brsmm <- function(formula,
 
   fn_obj <- function(par) -fn_ll(par)
 
+  # Analytic gradient of the chosen approximation (exact for all three methods).
+  gr_ll <- function(par) {
+    .brsmm_grad_cpp(
+      param = as.numeric(par), X = X, Z = Z, Xr = Xr,
+      y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),
+      yt = as.numeric(Y[, "yt"]), delta = delta, group = group_index,
+      link_mu = lc_mu, link_phi = lc_phi, repar = repar,
+      method = method_code, n_points = n_pts
+    )
+  }
+  gr_obj <- function(par) -gr_ll(par)
+
   opt <- stats::optim(
     par = start,
     fn = fn_obj,
+    gr = gr_obj,
     method = method,
     hessian = (hessian_method == "optim"),
     # User entries override; the default maxit stays unless given
@@ -294,7 +310,15 @@ brsmm <- function(formula,
     )
   }
 
-  if (hessian_method == "numDeriv") {
+  if (hessian_method == "cpp") {
+    hess <- .brsmm_hessian_cpp(
+      param = opt$par, X = X, Z = Z, Xr = Xr,
+      y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),
+      yt = as.numeric(Y[, "yt"]), delta = delta, group = group_index,
+      link_mu = lc_mu, link_phi = lc_phi, repar = repar,
+      method = method_code, n_points = n_pts
+    )
+  } else if (hessian_method == "numDeriv") {
     hess <- numDeriv::hessian(fn_ll, opt$par)
   } else {
     hess <- -opt$hessian
@@ -337,6 +361,17 @@ brsmm <- function(formula,
   mode_b <- as.matrix(gm)
   if (ncol(mode_b) != q_re) {
     stop("Internal error while computing group modes.", call. = FALSE)
+  }
+  # Inner-mode diagnostics: a group without a positive-definite mode is penalised.
+  diag_re <- .brsmm_mode_diag_cpp(
+    param = est, X = X, Z = Z, Xr = Xr,
+    y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),
+    yt = as.numeric(Y[, "yt"]), delta = delta, group = group_index,
+    link_mu = lc_mu, link_phi = lc_phi, repar = repar, warm = TRUE
+  )
+  if (any(diag_re$ok == 0)) {
+    warning(sum(diag_re$ok == 0), " group(s) have no positive-definite ",
+            "random-effect mode at the estimate.", call. = FALSE)
   }
   eta_phi <- as.numeric(Z %*% gamma_hat)
   y_mid <- as.numeric(Y[, "yt"])
@@ -468,6 +503,10 @@ brsmm <- function(formula,
       integration = list(
         method = int_method,
         n_groups = g
+      ),
+      inner = list(
+        bad_groups = sum(diag_re$ok == 0),
+        max_grad = max(diag_re$grad_inf)
       )
     ))
   )

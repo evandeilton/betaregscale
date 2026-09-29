@@ -146,10 +146,12 @@
 #'   (\code{interval = "mid"} only). \code{NULL} (default) uses
 #'   \code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
 #'   rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).
-#' @param hessian_method Character: \code{"numDeriv"} (default) or
-#'   \code{"optim"}.  With \code{"numDeriv"} the Hessian is computed
-#'   after convergence using \code{\link[numDeriv]{hessian}}, which is
-#'   typically more accurate than the built-in optim Hessian.
+#' @param hessian_method Character: \code{"cpp"} (default),
+#'   \code{"numDeriv"} or \code{"optim"}. \code{"cpp"} uses the compiled
+#'   chain-rule Hessian (per-observation second derivatives in the linear
+#'   predictors); \code{"numDeriv"} differentiates the log-likelihood with
+#'   \code{\link[numDeriv]{hessian}}; \code{"optim"} keeps the optimizer's
+#'   own approximation.
 #' @param repar  Reparameterization scheme (default 2); see
 #'   \code{\link{brs_repar}}.
 #' @param method Optimization method: \code{"BFGS"} (default) or
@@ -206,7 +208,7 @@ brs_fit_fixed <- function(formula, data,
                           link_phi = NULL,
                           ncuts = NULL,
                           lim = NULL,
-                          hessian_method = c("numDeriv", "optim"),
+                          hessian_method = c("cpp", "numDeriv", "optim"),
                           repar = 2L,
                           method = c("BFGS", "L-BFGS-B"),
                           interval = NULL) {
@@ -283,7 +285,12 @@ brs_fit_fixed <- function(formula, data,
   }
 
   # Hessian (on the log-likelihood scale)
-  if (hessian_method == "numDeriv") {
+  if (hessian_method == "cpp") {
+    opt$hessian <- .brs_hessian_fixed_cpp(
+      opt$par, X, Y[, "left"], Y[, "right"], Y[, "yt"],
+      delta, lc_mu, lc_phi, repar
+    )
+  } else if (hessian_method == "numDeriv") {
     fn_ll <- function(par) {
       .brs_loglik_fixed_cpp(
         par, X, Y[, "left"], Y[, "right"], Y[, "yt"],
@@ -399,8 +406,8 @@ brs_fit_fixed <- function(formula, data,
 #'   selects \code{"logit"} for \code{repar = 2} (dispersion on
 #'   \eqn{(0, 1)}) and \code{"log"} for \code{repar = 0, 1} (positive
 #'   shape/precision).
-#' @param hessian_method Character: \code{"numDeriv"} or
-#'   \code{"optim"}.
+#' @param hessian_method Character: \code{"cpp"} (default),
+#'   \code{"numDeriv"} or \code{"optim"} (see \code{\link{brs_fit_fixed}}).
 #' @param ncuts  Number of scale categories. \code{NULL} (default) uses the
 #'   value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
 #'   or 100 when \code{data} was not prepared. A value that differs from
@@ -464,7 +471,7 @@ brs_fit_fixed <- function(formula, data,
 brs_fit_var <- function(formula, data,
                         link = NULL,
                         link_phi = NULL,
-                        hessian_method = c("numDeriv", "optim"),
+                        hessian_method = c("cpp", "numDeriv", "optim"),
                         ncuts = NULL,
                         lim = NULL,
                         repar = 2L,
@@ -555,7 +562,12 @@ brs_fit_var <- function(formula, data,
   }
 
   # Hessian
-  if (hessian_method == "numDeriv") {
+  if (hessian_method == "cpp") {
+    opt$hessian <- .brs_hessian_variable_cpp(
+      opt$par, X, Z, Y[, "left"], Y[, "right"], Y[, "yt"],
+      delta, lc_mu, lc_phi, repar
+    )
+  } else if (hessian_method == "numDeriv") {
     fn_ll <- function(par) {
       .brs_loglik_variable_cpp(
         par, X, Z, Y[, "left"], Y[, "right"], Y[, "yt"],
@@ -788,7 +800,7 @@ brs <- function(formula, data,
                 lim = NULL,
                 repar = 2L,
                 method = c("BFGS", "L-BFGS-B"),
-                hessian_method = c("numDeriv", "optim"),
+                hessian_method = c("cpp", "numDeriv", "optim"),
                 interval = NULL) {
   cl <- match.call()
   formula_parsed <- Formula::as.Formula(formula)

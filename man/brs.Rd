@@ -13,7 +13,7 @@ brs(
   lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   interval = NULL
 )
 }
@@ -51,8 +51,8 @@ rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 
 \item{method}{Optimization method (default \code{"BFGS"}).}
 
-\item{hessian_method}{Character: \code{"numDeriv"} or
-\code{"optim"}.}
+\item{hessian_method}{Character: \code{"cpp"} (default),
+\code{"numDeriv"} or \code{"optim"} (see \code{\link{brs_fit_fixed}}).}
 
 \item{interval}{Direction of the uncertainty interval, \code{"mid"},
 \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).

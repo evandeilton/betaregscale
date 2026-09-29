@@ -18,7 +18,7 @@ brsmm(
   qmc_points = 1024L,
   start = NULL,
   method = c("BFGS", "L-BFGS-B"),
-  hessian_method = c("numDeriv", "optim"),
+  hessian_method = c("cpp", "numDeriv", "optim"),
   control = list(maxit = 2000L),
   interval = NULL
 )
@@ -65,7 +65,10 @@ Default is 1024.}
 
 \item{method}{Optimizer passed to \code{\link[stats]{optim}}.}
 
-\item{hessian_method}{\code{"numDeriv"} (default) or \code{"optim"}.}
+\item{hessian_method}{\code{"cpp"} (default), \code{"numDeriv"} or
+\code{"optim"}. \code{"cpp"} differentiates the compiled analytic
+gradient of the marginal log-likelihood (Richardson central differences);
+the same gradient is passed to \code{\link[stats]{optim}}.}
 
 \item{control}{Control list for \code{\link[stats]{optim}}; its entries
 are merged into the default \code{list(maxit = 2000L)}, so
