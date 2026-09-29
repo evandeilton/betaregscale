@@ -72,9 +72,10 @@ test_that("brs_check handles unit-interval input as uncensored", {
   expect_true(all(out[, "right"] < 1))
 })
 
-test_that("brs_check warns when max(y) > ncuts", {
+test_that("brs_check stops when max(y) > ncuts", {
+  # a score beyond ncuts has no cell (it used to warn and contribute -1e6)
   y <- c(5, 10, 150)
-  expect_warning(brs_check(y, ncuts = 100), "exceeds")
+  expect_error(brs_check(y, ncuts = 100), "exceeds")
 })
 
 

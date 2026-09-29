@@ -22,6 +22,24 @@
   if (length(unique(nobs_vec)) != 1L) {
     stop("All models must be fitted to the same number of observations.", call. = FALSE)
   }
+  # Different coarsenings (interval/ncuts/lim) are different response models:
+  # their log-likelihoods are not comparable
+  for (what in c("interval", "ncuts", "lim")) {
+    # lim only defines the cells under "mid" (ignored for right/left)
+    if (what == "lim" && !identical(.brs_interval_of(models[[1L]]), "mid")) next
+    vals <- vapply(models, function(m) {
+      v <- if (what == "interval") .brs_interval_of(m) else m[[what]]
+      format(v)
+    }, character(1))
+    if (length(unique(vals)) != 1L) {
+      stop(
+        "All models must use the same `", what, "` (found: ",
+        paste(unique(vals), collapse = ", "), "); fits with different ",
+        "coarsenings of the response are not comparable.",
+        call. = FALSE
+      )
+    }
+  }
 
   ll_obj <- lapply(models, logLik)
   ll <- vapply(ll_obj, as.numeric, numeric(1))

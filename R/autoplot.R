@@ -243,11 +243,13 @@ autoplot.brs <- function(object,
   if (any(!is.finite(scores)) || any(scores < 0L) || any(scores > K)) {
     stop("'scores' must be integers in [0, ncuts].", call. = FALSE)
   }
-  obs_scores <- .brs_observed_scores(object$Y[, "y"], K = K)
+  interval <- .brs_interval_of(object)
+  obs_scores <- .brs_observed_scores(object$Y[, "y"], K = K, interval = interval)
   obs_counts <- as.numeric(table(factor(obs_scores, levels = scores)))
   probs <- .brs_score_prob_matrix(
     mu = object$hatmu, phi = object$hatphi,
-    repar = object$repar, ncuts = K, lim = object$lim, scores = scores
+    repar = object$repar, ncuts = K, lim = object$lim, scores = scores,
+    interval = interval
   )
   exp_counts <- colSums(probs)
   df <- rbind(
@@ -265,33 +267,37 @@ autoplot.brs <- function(object,
 }
 
 #' @keywords internal
-.brs_observed_scores <- function(y, K) {
+.brs_observed_scores <- function(y, K, interval = "mid") {
   y <- as.numeric(y)
-  if (all(y >= 0 & y <= 1, na.rm = TRUE)) {
-    out <- round(y * K)
+  # Strictly inside (0, 1) = exact values; integer scores 0/1 are scores
+  if (all(y > 0 & y < 1, na.rm = TRUE)) {
+    # Values on (0, 1): the score their cell would produce under `interval`
+    out <- .brs_score_from_unit(y, K, interval)
   } else {
-    out <- round(y)
+    # Scores, or latent fills of Mode 3 rows: the cell containing the latent score
+    out <- switch(interval, mid = round(y), right = floor(y), left = ceiling(y))
   }
   pmin(pmax(out, 0L), K)
 }
 
 #' @keywords internal
-.brs_score_prob_matrix <- function(mu, phi, repar, ncuts, lim, scores) {
+.brs_score_prob_matrix <- function(mu, phi, repar, ncuts, lim, scores,
+                                   interval = "mid") {
   eps <- 1e-10
   shp <- brs_repar(mu = mu, phi = phi, repar = repar)
 
+  # P(S = s) = F(u_s) - F(l_s) with the cells of `interval`; the border
+  # cells extend to 0 and 1
   P <- sapply(scores, function(s) {
+    cell <- .brs_cell(s, ncuts, lim, interval)
     if (s == 0L) {
-      u <- lim / ncuts
-      return(stats::pbeta(u, shp$shape1, shp$shape2))
+      return(stats::pbeta(cell$right, shp$shape1, shp$shape2))
     }
     if (s == ncuts) {
-      l <- (ncuts - lim) / ncuts
-      return(1 - stats::pbeta(l, shp$shape1, shp$shape2))
+      return(1 - stats::pbeta(cell$left, shp$shape1, shp$shape2))
     }
-    l <- (s - lim) / ncuts
-    u <- (s + lim) / ncuts
-    pmax(stats::pbeta(u, shp$shape1, shp$shape2) - stats::pbeta(l, shp$shape1, shp$shape2), eps)
+    pmax(stats::pbeta(cell$right, shp$shape1, shp$shape2) -
+      stats::pbeta(cell$left, shp$shape1, shp$shape2), eps)
   })
 
   if (is.vector(P)) {

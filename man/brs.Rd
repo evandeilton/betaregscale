@@ -13,7 +13,8 @@ brs(
   lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
-  hessian_method = c("numDeriv", "optim")
+  hessian_method = c("numDeriv", "optim"),
+  interval = NULL
 )
 }
 \arguments{
@@ -40,9 +41,10 @@ or 100 when \code{data} was not prepared. A value that differs from
 the stored one is ignored with a warning (the endpoints were built
 with the stored value).}
 
-\item{lim}{Uncertainty half-width. \code{NULL} (default) uses
+\item{lim}{Half-width of the score cell in \eqn{(0, 0.5]}
+(\code{interval = "mid"} only). \code{NULL} (default) uses
 \code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
-rule as \code{ncuts}.}
+rule as \code{ncuts}. Values below 0.5 warn (partial coarsening).}
 
 \item{repar}{Reparameterization scheme (default 2); see
 \code{\link{brs_repar}}.}
@@ -51,6 +53,11 @@ rule as \code{ncuts}.}
 
 \item{hessian_method}{Character: \code{"numDeriv"} or
 \code{"optim"}.}
+
+\item{interval}{Direction of the uncertainty interval, \code{"mid"},
+\code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
+\code{NULL} (default) uses \code{attr(data, "interval")} from
+\code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.}
 }
 \value{
 An object of class \code{"brs"}.
@@ -94,6 +101,19 @@ Under \code{repar = 0} the fitted object stores the shape \eqn{p} in
 \code{hatmu} (and \code{predict(type = "link")} is its linear
 predictor), while \code{fitted()}, \code{predict(type = "response")},
 residuals and marginal effects use the mean \eqn{E[Y] = p / (p + q)}.
+}
+
+\section{Interval direction}{
+
+\code{interval} selects how a score \eqn{s} is coarsened into a cell of
+\eqn{(0, 1)}: \code{"mid"} \eqn{[s - \mathrm{lim}, s + \mathrm{lim}] / K}
+(default), \code{"right"} and \code{"left"} \eqn{[s, s + 1] / (K + 1)}
+(the dissertation's \eqn{r} and \eqn{l} directions; equal cells, a
+package normalisation). \code{"right"} and \code{"left"} give the same
+likelihood and coefficients and differ only in the latent score read
+back by \code{predict(type = "score")} (one unit). The modes are
+different coarsening models, so their log-likelihoods are not
+comparable; see \code{\link{brs_check}} and \code{\link{anova.brs}}.
 }
 
 \examples{

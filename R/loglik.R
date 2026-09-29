@@ -38,6 +38,8 @@
 #'   0.5).
 #' @param repar  Integer: reparameterization scheme (0, 1, or 2;
 #'   default 2).
+#' @param interval Interval direction (\code{"mid"}, \code{"right"},
+#'   \code{"left"}) used when \code{data} is not prepared.
 #'
 #' @return Scalar: total log-likelihood.
 #'
@@ -68,16 +70,19 @@ brs_loglik <- function(param,
                        link_phi = NULL,
                        ncuts = 100L,
                        lim = 0.5,
-                       repar = 2L) {
-  # Validate links (defaults and compatibility depend on repar)
+                       repar = 2L,
+                       interval = "mid") {
+  # Validate links (defaults and compatibility depend on repar); a partial
+  # interval name must not fall through to the right/left cells
   repar <- as.integer(repar)
+  interval <- match.arg(interval, .brs_intervals)
   links <- .resolve_links(link, link_phi, repar)
   link <- links$link
   link_phi <- links$link_phi
 
   # Build model matrices
   mf <- stats::model.frame(formula, data = data)
-  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
+  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim, interval = interval)
   X <- stats::model.matrix(mf, data = data)
 
   # Dispatch to C++
@@ -140,9 +145,11 @@ brs_loglik_var <- function(param,
                            link_phi = NULL,
                            ncuts = 100L,
                            lim = 0.5,
-                           repar = 2L) {
-  # Validate (link defaults and compatibility depend on repar)
+                           repar = 2L,
+                           interval = "mid") {
+  # Validate (link defaults and compatibility depend on repar; interval by name)
   repar <- as.integer(repar)
+  interval <- match.arg(interval, .brs_intervals)
   links <- .resolve_links(link, link_phi, repar)
   link <- links$link
   link_phi <- links$link_phi
@@ -158,7 +165,7 @@ brs_loglik_var <- function(param,
   mf <- stats::model.frame(formula, data = data)
   mtX <- stats::terms(formula, data = data, rhs = 1L)
   mtZ <- stats::delete.response(stats::terms(formula, data = data, rhs = 2L))
-  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
+  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim, interval = interval)
   X <- stats::model.matrix(mtX, mf)
   Z <- stats::model.matrix(mtZ, mf)
 

@@ -16,7 +16,7 @@ brs_cv(formula, data, k = 5L, repeats = 1L, ...)
 \item{repeats}{Number of repeated k-fold runs.}
 
 \item{...}{Additional arguments forwarded to \code{\link{brs}}
-(e.g., \code{repar}, \code{link}, \code{method}).}
+(e.g., \code{repar}, \code{link}, \code{interval}, \code{method}).}
 }
 \value{
 A data frame with one row per fold and columns:

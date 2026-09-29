@@ -210,11 +210,13 @@ autoplot.brsmm <- function(object,
   if (any(!is.finite(scores)) || any(scores < 0L) || any(scores > K)) {
     stop("'scores' must be integers in [0, ncuts].", call. = FALSE)
   }
-  obs_scores <- .brs_observed_scores(object$Y[, "y"], K = K)
+  interval <- .brs_interval_of(object)
+  obs_scores <- .brs_observed_scores(object$Y[, "y"], K = K, interval = interval)
   obs_counts <- as.numeric(table(factor(obs_scores, levels = scores)))
   probs <- .brs_score_prob_matrix(
     mu = object$fitted_mu, phi = object$fitted_phi,
-    repar = object$repar, ncuts = K, lim = object$lim, scores = scores
+    repar = object$repar, ncuts = K, lim = object$lim, scores = scores,
+    interval = interval
   )
   exp_counts <- colSums(probs)
   df <- rbind(

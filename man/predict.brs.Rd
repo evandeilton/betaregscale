@@ -7,7 +7,8 @@
 \method{predict}{brs}(
   object,
   newdata = NULL,
-  type = c("response", "link", "precision", "variance", "quantile"),
+  type = c("response", "link", "precision", "variance", "quantile", "score",
+    "expected_score"),
   at = 0.5,
   ...
 )
@@ -20,7 +21,18 @@
 \item{type}{Prediction type: \code{"response"} (default; the mean
 \eqn{E[Y] = a / (a + b)}), \code{"link"} (linear predictor of the
 first parameter), \code{"precision"} (second parameter on its own
-scale), \code{"variance"}, or \code{"quantile"}.}
+scale), \code{"variance"}, \code{"quantile"}, \code{"score"} or
+\code{"expected_score"}. \code{"score"} is the latent continuous score
+of the fit's \code{interval} at \eqn{y^* = E[Y]}: \eqn{K y^*} on
+\eqn{(0, K)} for \code{"mid"}, \eqn{(K + 1) y^*} on \eqn{(0, K + 1)} for
+\code{"right"} and \eqn{(K + 1) y^* - 1} on \eqn{(-1, K)} for
+\code{"left"} (it can be negative); under \code{"right"}/\code{"left"} it
+is about 0.5 above/below the expected recorded score, because a recorded
+score is the lower/upper end of its latent interval.
+\code{"expected_score"} is the expected recorded score
+\eqn{\sum_s s\, P(S = s)} (\code{\link{brs_predict_scoreprob}}), the
+same for \code{"right"} and \code{"left"}, and a proper expectation only
+when the cells partition \eqn{[0, 1]}.}
 
 \item{at}{Numeric vector of probabilities for quantile
 predictions (default 0.5).}

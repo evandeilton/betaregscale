@@ -117,6 +117,8 @@ brs_bootstrap <- function(object,
   ncuts <- object$ncuts
   lim <- object$lim
   repar <- object$repar
+  # Replicates are generated and refitted under the fit's own coarsening
+  interval <- .brs_interval_of(object)
 
   alpha <- 1 - level
   probs <- c(alpha / 2, 1 - alpha / 2)
@@ -137,8 +139,9 @@ brs_bootstrap <- function(object,
 
   while (n_ok < R && n_attempted < max_tries) {
     n_attempted <- n_attempted + 1L
+    # The parent fit already gave the advisory lim warnings: not once per replicate
     sim_r <- tryCatch(
-      brs_sim(
+      .brs_quiet_lim(brs_sim(
         formula = formula,
         data = data,
         beta = beta,
@@ -148,22 +151,24 @@ brs_bootstrap <- function(object,
         link_phi = link_phi,
         ncuts = ncuts,
         lim = lim,
-        repar = repar
-      ),
+        repar = repar,
+        interval = interval
+      )),
       error = function(e) NULL
     )
     if (is.null(sim_r)) next
 
     fit_r <- tryCatch(
-      brs(
+      .brs_quiet_lim(brs(
         formula = formula,
         data = sim_r,
         link = link,
         link_phi = link_phi,
         ncuts = ncuts,
         lim = lim,
-        repar = repar
-      ),
+        repar = repar,
+        interval = interval
+      )),
       error = function(e) NULL
     )
     if (is.null(fit_r) || fit_r$convergence != 0L) next
@@ -326,16 +331,18 @@ print.brs_bootstrap <- function(x, ...) {
   jack <- matrix(NA_real_, nrow = n, ncol = p)
   for (i in seq_len(n)) {
     d_i <- object$data[-i, , drop = FALSE]
+    # Leave-one-out refits: no advisory lim warning per refit
     fit_i <- tryCatch(
-      brs(
+      .brs_quiet_lim(brs(
         formula = object$formula,
         data = d_i,
         link = object$link,
         link_phi = object$link_phi,
         ncuts = object$ncuts,
         lim = object$lim,
-        repar = object$repar
-      ),
+        repar = object$repar,
+        interval = .brs_interval_of(object)
+      )),
       error = function(e) NULL
     )
     if (is.null(fit_i) || fit_i$convergence != 0L || length(fit_i$par) != p) next

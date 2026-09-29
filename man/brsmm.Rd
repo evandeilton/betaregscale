@@ -19,7 +19,8 @@ brsmm(
   start = NULL,
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("numDeriv", "optim"),
-  control = list(maxit = 2000L)
+  control = list(maxit = 2000L),
+  interval = NULL
 )
 }
 \arguments{
@@ -46,9 +47,9 @@ selects the link implied by \code{repar}.}
 (default) uses \code{attr(data, "ncuts")} from \code{\link{brs_prep}},
 or 100; an explicit different value is ignored with a warning.}
 
-\item{lim}{Half-width used to construct interval endpoints. \code{NULL}
-(default) uses \code{attr(data, "lim")}, or 0.5; same rule as
-\code{ncuts}.}
+\item{lim}{Half-width of the score cell in \eqn{(0, 0.5]}
+(\code{interval = "mid"} only). \code{NULL} (default) uses
+\code{attr(data, "lim")}, or 0.5; same rule as \code{ncuts}.}
 
 \item{int_method}{Integration method: \code{"laplace"} (default),
 \code{"aghq"}, or \code{"qmc"}.}
@@ -67,6 +68,11 @@ Default is 1024.}
 \item{hessian_method}{\code{"numDeriv"} (default) or \code{"optim"}.}
 
 \item{control}{Control list for \code{\link[stats]{optim}}.}
+
+\item{interval}{Direction of the uncertainty interval, \code{"mid"},
+\code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
+\code{NULL} (default) uses \code{attr(data, "interval")}, or
+\code{"mid"}; same rule as \code{ncuts}.}
 }
 \value{
 An object of class \code{"brsmm"}.

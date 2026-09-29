@@ -36,14 +36,16 @@ Computes predicted probabilities for integer scores on the original scale
 \eqn{\{0, 1, \ldots, K\}} implied by the fitted beta interval model.
 }
 \details{
-For a score \eqn{s} and \eqn{K =} \code{ncuts}, probabilities are computed as:
-\itemize{
-  \item \eqn{P(Y=s)=F(\mathrm{lim}/K)} for \eqn{s=0},
-  \item \eqn{P(Y=s)=1-F((K-\mathrm{lim})/K)} for \eqn{s=K},
-  \item \eqn{P(Y=s)=F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K)}
-    for \eqn{s \in \{1,\ldots,K-1\}},
-}
-where \eqn{F} is the beta CDF under the fitted \eqn{(\mu_i,\phi_i)}.
+For a score \eqn{s} with cell \eqn{[l_s, u_s]} of the fit's
+\code{interval} (see \code{\link{brs_check}}), \eqn{P(S = s) = F(u_s) -
+F(l_s)} with \eqn{l_0 = 0} and \eqn{u_K = 1}, where \eqn{F} is the beta
+CDF under the fitted \eqn{(\mu_i, \phi_i)}. Under \code{"mid"} this is
+\eqn{F(\mathrm{lim}/K)} for \eqn{s = 0}, \eqn{1 - F((K - \mathrm{lim})/K)}
+for \eqn{s = K} and \eqn{F((s + \mathrm{lim})/K) - F((s - \mathrm{lim})/K)}
+otherwise; under \code{"right"}/\code{"left"} the cells are
+\eqn{[s, s + 1]/(K + 1)}. The rows sum to 1 whenever the cells partition
+\eqn{[0, 1]} (always for \code{"right"}/\code{"left"}; \code{lim = 0.5}
+for \code{"mid"}).
 }
 \examples{
 \donttest{

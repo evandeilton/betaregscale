@@ -4,7 +4,13 @@
 \alias{brs_check}
 \title{Transform and validate a scale-derived response variable}
 \usage{
-brs_check(y, ncuts = 100L, lim = 0.5, delta = NULL)
+brs_check(
+  y,
+  ncuts = 100L,
+  lim = 0.5,
+  delta = NULL,
+  interval = c("mid", "right", "left")
+)
 }
 \arguments{
 \item{y}{Numeric vector: the raw response. Can be either
@@ -14,23 +20,20 @@ continuous values already in \eqn{(0, 1)}.}
 \item{ncuts}{Integer: number of scale categories \eqn{K}
 (default 100). Must be \eqn{\geq \max(y)}.}
 
-\item{lim}{Numeric: half-width \eqn{h} of the uncertainty
-region (default 0.5). Controls the width of the interval
-around each scale point.}
+\item{lim}{Numeric in \eqn{(0, 0.5]}: half-width of the cell under
+\code{interval = "mid"} (default 0.5, adjacent cells touch). Values
+below 0.5 give a partial coarsening (warning); ignored, with a
+warning, for \code{"right"}/\code{"left"}.}
 
 \item{delta}{Integer vector or \code{NULL}. If \code{NULL}
-  (default), censoring types are inferred automatically from the
-  boundary rules described above.
+(default), censoring types are derived from the scores. If
+provided, must have the same length as \code{y} with elements in
+\code{\{0, 1, 2, 3\}}; it overrides the type per observation (see
+Details).}
 
-  If provided, must have the same length as \code{y}, with every
-  element in \code{\{0, 1, 2, 3\}}. The supplied values override
-  the automatic classification on a per-observation basis, and the
-  endpoint formulas adapt to non-boundary observations as
-  described in the table above.
-
-  This parameter is used internally by the simulation functions
-  when the analyst forces a specific censoring type
-  (e.g., \code{brs_sim(..., delta = 2)}).}
+\item{interval}{Direction of the uncertainty interval: \code{"mid"}
+(default), \code{"right"} or \code{"left"}; see the section
+'Interval direction'.}
 }
 \value{
 A numeric matrix with \eqn{n} rows and 5 columns:
@@ -51,99 +54,39 @@ A numeric matrix with \eqn{n} rows and 5 columns:
 }
 }
 \description{
-Takes a discrete (or continuous) response on the scale
-\eqn{0, 1, \ldots, K} (where \eqn{K =} \code{ncuts}) and converts
-it to a pair of interval endpoints on the open unit interval
-\eqn{(0, 1)}.  Each observation is classified into one of four
-censoring types following the complete likelihood used in this package:
-
-\describe{
-  \item{\eqn{\delta = 0}}{Uncensored (exact): the observation is a
-    continuous value already in \eqn{(0, 1)}.  The likelihood
-    contribution is the density \eqn{f(y_i | \theta)}.
-    Endpoints: \eqn{l_i = u_i = y_i} (or \eqn{y_i / K} when on
-    the scale).}
-  \item{\eqn{\delta = 1}}{Left-censored: the latent value is below
-    some upper bound \eqn{u_i}.  The contribution is
-    \eqn{F(u_i | \theta)}.
-    When the observation is at the scale minimum (\eqn{y = 0}),
-    the upper bound is \eqn{u_i = \mathrm{lim} / K}.
-    When the user forces \eqn{\delta = 1} on a non-boundary
-    observation (\eqn{y \neq 0}), the upper bound is
-    \eqn{u_i = (y + \mathrm{lim}) / K}, preserving observation-
-    specific variation.  In both cases \eqn{l_i = \epsilon}.}
-  \item{\eqn{\delta = 2}}{Right-censored: the latent value is above
-    some lower bound \eqn{l_i}.  The contribution is
-    \eqn{1 - F(l_i | \theta)}.
-    When the observation is at the scale maximum (\eqn{y = K}),
-    the lower bound is \eqn{l_i = (K - \mathrm{lim}) / K}.
-    When the user forces \eqn{\delta = 2} on a non-boundary
-    observation (\eqn{y \neq K}), the lower bound is
-    \eqn{l_i = (y - \mathrm{lim}) / K}, preserving observation-
-    specific variation.  In both cases \eqn{u_i = 1 - \epsilon}.}
-  \item{\eqn{\delta = 3}}{Interval-censored: the standard case for
-    scale data.  The contribution is
-    \eqn{F(u_i | \theta) - F(l_i | \theta)} with midpoint interval
-    endpoints \eqn{[(y - \mathrm{lim})/K,\; (y + \mathrm{lim})/K]}.}
-}
+Maps a score on \eqn{\{0, 1, \ldots, K\}} (\eqn{K =} \code{ncuts}) to a
+cell \eqn{[l_s, u_s]} of \eqn{(0, 1)} and to a censoring type
+\eqn{\delta} of the complete likelihood (dissertation, eq.
+\code{eqn_verossimilhanca_geral}): \eqn{\delta = 0} density
+\eqn{f(y)}, \eqn{\delta = 1} \eqn{F(u)}, \eqn{\delta = 2}
+\eqn{1 - F(l)}, \eqn{\delta = 3} \eqn{F(u) - F(l)}. A response entirely
+in \eqn{(0, 1)} is exact (\eqn{\delta = 0}).
 }
 \details{
-\strong{Automatic classification} (\code{delta = NULL}):
-
-If the entire input vector is already in \eqn{(0, 1)} (i.e., all
-values satisfy \eqn{0 < y < 1}), all observations are treated as
-uncensored (\eqn{\delta = 0}).
-
-Otherwise, for scale (integer) data:
-\itemize{
-  \item \eqn{y = 0}: left-censored (\eqn{\delta = 1}).
-  \item \eqn{y = K}: right-censored (\eqn{\delta = 2}).
-  \item \eqn{0 < y < K}: interval-censored (\eqn{\delta = 3}).
+If every value is in \eqn{(0, 1)} and \code{delta} is \code{NULL}, all
+observations are exact. Otherwise each score gets its cell and, with
+\code{delta = NULL}, the type above. A user-supplied \code{delta} (the
+mechanism \code{\link{brs_sim}} uses in Monte Carlo studies) forces the
+type per observation and keeps the cell endpoints of the score:
+\tabular{lll}{
+  \eqn{\delta} \tab \eqn{l_i} \tab \eqn{u_i} \cr
+  0 \tab cell centre (or \eqn{y} when in \eqn{(0, 1)}) \tab same \cr
+  1 \tab \eqn{\epsilon} \tab \eqn{u_s} \cr
+  2 \tab \eqn{l_s} \tab \eqn{1 - \epsilon} \cr
+  3 \tab \eqn{l_s} \tab \eqn{u_s}
 }
+Under \code{"mid"} with \code{lim = 0.5} this is \eqn{u_0 = 0.5 / K},
+\eqn{l_K = (K - 0.5) / K} and \eqn{[l_s, u_s] = [(s - 0.5) / K,
+(s + 0.5) / K]}. Scores outside \eqn{[0, K]} are an error (as in
+\code{\link{brs_prep}}), and so is a \eqn{\delta = 3} observation with
+\eqn{l_i = u_i} (zero-probability interval).
 
-\strong{User-supplied delta} (\code{delta} vector):
-
-When the \code{delta} argument is provided, the user-supplied
-censoring indicators override the automatic boundary-based rules
-on a per-observation basis.  This is the mechanism used by
-\code{\link{brs_sim}} when the analyst forces a
-specific censoring type in Monte Carlo studies.
-
-The endpoint formulas for each delta value are:
-
-\tabular{llll}{
-  \eqn{\delta} \tab Condition \tab \eqn{l_i} (left) \tab \eqn{u_i} (right) \cr
-  0 \tab \eqn{y \in (0, 1)} \tab \eqn{y}
-    \tab \eqn{y} \cr
-  0 \tab \eqn{y} on scale \tab \eqn{y / K}
-    \tab \eqn{y / K} \cr
-  1 \tab \eqn{y = 0} (boundary) \tab \eqn{\epsilon}
-    \tab \eqn{\mathrm{lim} / K} \cr
-  1 \tab \eqn{y \neq 0} (forced) \tab \eqn{\epsilon}
-    \tab \eqn{(y + \mathrm{lim}) / K} \cr
-  2 \tab \eqn{y = K} (boundary) \tab \eqn{(K - \mathrm{lim}) / K}
-    \tab \eqn{1 - \epsilon} \cr
-  2 \tab \eqn{y \neq K} (forced) \tab \eqn{(y - \mathrm{lim}) / K}
-    \tab \eqn{1 - \epsilon} \cr
-  3 \tab midpoint interval \tab \eqn{(y - \mathrm{lim}) / K}
-    \tab \eqn{(y + \mathrm{lim}) / K} \cr
-}
-
-All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]} with
-\eqn{\epsilon = 10^{-5}} to avoid boundary issues in the beta
-likelihood.
-
-The midpoint approximation \code{yt} is computed as:
-\itemize{
-  \item \eqn{y_t = y} when \eqn{y \in (0, 1)} (continuous data).
-  \item \eqn{y_t = y / K} when \eqn{y} is on the integer scale.
-}
-This value is used as an initialization aid for starting-value
-computation. It also enters the likelihood directly for
-exact/uncensored observations (\eqn{\delta = 0}), where the
-contribution is the beta density evaluated at \eqn{y_t}; for
-censored observations (\eqn{\delta \in \{1,2,3\}}) only
-\code{left}/\code{right} enter the likelihood, not \code{yt}.
+All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]},
+\eqn{\epsilon = 10^{-5}}. \code{yt} is the cell centre (\eqn{s / K}
+under \code{"mid"}, \eqn{(s + 0.5) / (K + 1)} otherwise; \eqn{y} itself
+for exact values): it is the density argument for \eqn{\delta = 0} and
+a point summary elsewhere; censored contributions use only
+\code{left}/\code{right}.
 
 \strong{Interaction with the fitting pipeline}:
 
@@ -155,19 +98,49 @@ This function is called internally by \code{.extract_response()}
 the pre-computed columns are used directly and
 \code{brs_check()} is skipped.
 }
+\section{Interval direction}{
+
+\code{interval} is the direction of the uncertainty interval around the
+score (dissertation, "Mapeamento de intervalos para beta":
+\eqn{m = [s - 0.5, s + 0.5]}, \eqn{r = [s, s + 1]}, \eqn{l = [s - 1, s]}):
+\tabular{lll}{
+  \code{interval} \tab cell of score \eqn{s} \tab latent score \cr
+  \code{"mid"} \tab \eqn{[s - \mathrm{lim}, s + \mathrm{lim}] / K}
+    \tab \eqn{K y^*} \cr
+  \code{"right"} \tab \eqn{[s, s + 1] / (K + 1)} \tab \eqn{(K + 1) y^*} \cr
+  \code{"left"} \tab \eqn{[s, s + 1] / (K + 1)} \tab \eqn{(K + 1) y^* - 1}
+}
+The \eqn{K + 1} cells of \code{"right"} and \code{"left"} are equal and
+partition \eqn{[0, 1]}. This normalisation is a package choice that
+differs from the dissertation, which divides \eqn{r} and \eqn{l} by
+\eqn{K} (there \eqn{r} and \eqn{l} differ by \eqn{1/K}, and chapter 4
+reports opposite intercept biases for them); here \code{"right"} and
+\code{"left"} give the same likelihood and coefficients, and differ only
+in how a fitted value is read back on the score scale (one unit), so
+that opposite-bias signature disappears by construction. The three
+modes are different coarsening models of the same scores: their
+log-likelihoods are not comparable and \code{anova()} refuses to compare
+them. \code{lim} applies to \code{"mid"} only.
+
+The censoring type comes from the score, before any clamping:
+\eqn{s = 0 \to \delta = 1} with \eqn{u = u_0}, \eqn{s = K \to \delta = 2}
+with \eqn{l = l_K}, otherwise \eqn{\delta = 3}.
+}
+
 \examples{
 # Scale data with boundary observations
 y <- c(0, 3, 5, 7, 9, 10)
 brs_check(y, ncuts = 10)
 
+# Right-direction intervals: cells [s, s + 1] / 11
+brs_check(y, ncuts = 10, interval = "right")
+
 # Force all observations to be exact (delta = 0)
 brs_check(y, ncuts = 10, delta = rep(0L, length(y)))
 
-# Force delta = 1 on non-boundary observations:
-# endpoints use actual y values, preserving variation
+# Force delta = 1 on non-boundary observations: u = (y + 0.5) / K
 y2 <- c(30, 60)
 brs_check(y2, ncuts = 100, delta = c(1L, 1L))
-#  left = (eps, eps), right = (30.5/100, 60.5/100)
 }
 \references{
 Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.

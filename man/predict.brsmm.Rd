@@ -7,7 +7,8 @@
 \method{predict}{brsmm}(
   object,
   newdata = NULL,
-  type = c("response", "link", "precision", "variance", "quantile"),
+  type = c("response", "link", "precision", "variance", "quantile", "score",
+    "expected_score"),
   at = 0.5,
   ...
 )
@@ -18,7 +19,13 @@
 \item{newdata}{Optional data frame.}
 
 \item{type}{Character: \code{"response"} (default), \code{"link"},
-\code{"precision"}, \code{"variance"}, or \code{"quantile"}.}
+\code{"precision"}, \code{"variance"}, \code{"quantile"},
+\code{"score"} or \code{"expected_score"}. \code{"score"} is the latent
+score of the fit's \code{interval} at the conditional mean (support
+\eqn{(0, K)}, \eqn{(0, K + 1)} or \eqn{(-1, K)}; about 0.5 above/below
+the expected recorded score under \code{"right"}/\code{"left"});
+\code{"expected_score"} is the expected recorded score
+\eqn{\sum_s s\, P(S = s)}. Details: \code{\link{predict.brs}}.}
 
 \item{at}{Numeric vector of probabilities for quantile
 predictions (default 0.5).}

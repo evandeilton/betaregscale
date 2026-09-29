@@ -926,6 +926,17 @@ confint.brs <- function(object, parm, level = 0.95,
 
 # -- Predict ---------------------------------------------------------------- #
 
+# Expected score sum_s s P(S = s) from the first parameter and phi, using the
+# cells of the fit's interval (shared by predict.brs and predict.brsmm).
+.brs_expected_score <- function(mu, phi, object) {
+  K <- as.integer(object$ncuts)
+  P <- .brs_score_prob_matrix(
+    mu = mu, phi = phi, repar = object$repar, ncuts = K, lim = object$lim,
+    scores = 0:K, interval = .brs_interval_of(object)
+  )
+  as.numeric(P %*% (0:K))
+}
+
 #' Predict from a fitted model
 #'
 #' @param object  A fitted \code{"brs"} object.
@@ -933,7 +944,18 @@ confint.brs <- function(object, parm, level = 0.95,
 #' @param type    Prediction type: \code{"response"} (default; the mean
 #'   \eqn{E[Y] = a / (a + b)}), \code{"link"} (linear predictor of the
 #'   first parameter), \code{"precision"} (second parameter on its own
-#'   scale), \code{"variance"}, or \code{"quantile"}.
+#'   scale), \code{"variance"}, \code{"quantile"}, \code{"score"} or
+#'   \code{"expected_score"}. \code{"score"} is the latent continuous score
+#'   of the fit's \code{interval} at \eqn{y^* = E[Y]}: \eqn{K y^*} on
+#'   \eqn{(0, K)} for \code{"mid"}, \eqn{(K + 1) y^*} on \eqn{(0, K + 1)} for
+#'   \code{"right"} and \eqn{(K + 1) y^* - 1} on \eqn{(-1, K)} for
+#'   \code{"left"} (it can be negative); under \code{"right"}/\code{"left"} it
+#'   is about 0.5 above/below the expected recorded score, because a recorded
+#'   score is the lower/upper end of its latent interval.
+#'   \code{"expected_score"} is the expected recorded score
+#'   \eqn{\sum_s s\, P(S = s)} (\code{\link{brs_predict_scoreprob}}), the
+#'   same for \code{"right"} and \code{"left"}, and a proper expectation only
+#'   when the cells partition \eqn{[0, 1]}.
 #' @param at      Numeric vector of probabilities for quantile
 #'   predictions (default 0.5).
 #' @param ...     Currently ignored.
@@ -967,7 +989,7 @@ predict.brs <- function(object, newdata = NULL,
                         type = c(
                           "response", "link",
                           "precision", "variance",
-                          "quantile"
+                          "quantile", "score", "expected_score"
                         ),
                         at = 0.5, ...) {
   .check_class(object)
@@ -1027,6 +1049,11 @@ predict.brs <- function(object, newdata = NULL,
         (sh$shape1 * sh$shape2) / (s^2 * (s + 1))
       }
     },
+    # Latent score of the mean on the original scale (direction-specific)
+    score = .brs_latent_score(.brs_mean(mu, phi, object$repar), object$ncuts,
+                              .brs_interval_of(object)),
+    # sum_s s P(S = s) from the score cells of the fit's interval
+    expected_score = .brs_expected_score(mu, phi, object),
     quantile = {
       rp <- brs_repar(mu, phi, repar = object$repar)
       rval <- sapply(at, function(p) {

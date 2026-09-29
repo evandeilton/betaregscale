@@ -106,7 +106,7 @@ test_that("L3-2: brsmm() validates repar, ncuts, lim and links", {
   expect_error(brsmm(y ~ x, random = ~ 1 | id, data = d, ncuts = 1),
                "`ncuts` must be an integer >= 2")
   expect_error(brsmm(y ~ x, random = ~ 1 | id, data = d, lim = -1),
-               "`lim` must be a positive finite scalar")
+               "`lim` must be a number in (0, 0.5]", fixed = TRUE)
   expect_error(brsmm(y ~ x, random = ~ 1 | id, data = d, link_phi = "log"),
                "not compatible with `repar = 2`")
   expect_error(brsmm(y ~ x, random = ~ 1 | id, data = as.list(d)),
@@ -301,7 +301,10 @@ test_that("L3-5a: brs() honours attr(data, 'ncuts'/'lim') from brs_prep()", {
   expect_silent(f10 <- brs(y ~ x, data = p10, ncuts = 10))
   expect_identical(as.integer(f10$ncuts), 10L)
   # lim
-  p25 <- suppressMessages(brs_prep(data.frame(y = y, x = x), ncuts = 10, lim = 0.25))
+  # lim < 0.5 now warns (partial coarsening, Lote 4); the attribute rule is the point here
+  p25 <- suppressWarnings(suppressMessages(
+    brs_prep(data.frame(y = y, x = x), ncuts = 10, lim = 0.25)
+  ))
   expect_warning(fl <- brs(y ~ x, data = p25, lim = 0.5), "`lim = 0.5` differs")
   expect_equal(fl$lim, 0.25)
   expect_equal(brs(y ~ x, data = p25)$lim, 0.25)

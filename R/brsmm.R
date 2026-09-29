@@ -53,9 +53,13 @@
 #' @param ncuts Number of categories on the original scale. \code{NULL}
 #'   (default) uses \code{attr(data, "ncuts")} from \code{\link{brs_prep}},
 #'   or 100; an explicit different value is ignored with a warning.
-#' @param lim Half-width used to construct interval endpoints. \code{NULL}
-#'   (default) uses \code{attr(data, "lim")}, or 0.5; same rule as
-#'   \code{ncuts}.
+#' @param lim Half-width of the score cell in \eqn{(0, 0.5]}
+#'   (\code{interval = "mid"} only). \code{NULL} (default) uses
+#'   \code{attr(data, "lim")}, or 0.5; same rule as \code{ncuts}.
+#' @param interval Direction of the uncertainty interval, \code{"mid"},
+#'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
+#'   \code{NULL} (default) uses \code{attr(data, "interval")}, or
+#'   \code{"mid"}; same rule as \code{ncuts}.
 #' @param int_method Integration method: \code{"laplace"} (default),
 #'   \code{"aghq"}, or \code{"qmc"}.
 #' @param n_points Number of quadrature points for \code{int_method="aghq"}.
@@ -114,7 +118,8 @@ brsmm <- function(formula,
                   start = NULL,
                   method = c("BFGS", "L-BFGS-B"),
                   hessian_method = c("numDeriv", "optim"),
-                  control = list(maxit = 2000L)) {
+                  control = list(maxit = 2000L),
+                  interval = NULL) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
@@ -123,12 +128,14 @@ brsmm <- function(formula,
   qmc_points <- as.integer(qmc_points)
 
   # Same checks as brs(); an unknown repar used to reach the C++ `default:` branch.
-  validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi)
+  validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi,
+                                        interval)
   ncuts <- validated$ncuts
   lim <- validated$lim
   repar <- validated$repar
   link <- validated$link
   link_phi <- validated$link_phi
+  interval <- validated$interval
   # int_method check removed to support aghq and qmc
   if (!is.finite(n_points) || n_points < 1L) {
     stop("'n_points' must be >= 1.", call. = FALSE)
@@ -153,7 +160,7 @@ brsmm <- function(formula,
 
   X <- stats::model.matrix(mtX, mf)
   Z <- stats::model.matrix(mtZ, mf)
-  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim)
+  Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim, interval = interval)
   delta <- as.integer(Y[, "delta"])
 
   rows_idx <- .brsmm_row_index(mf = mf, data = data)
@@ -192,7 +199,8 @@ brsmm <- function(formula,
       link_phi = link_phi,
       ncuts = ncuts,
       lim = lim,
-      repar = repar
+      repar = repar,
+      interval = interval
     )
     if (length(start_fix) != (p + q)) {
       stop(
@@ -427,6 +435,7 @@ brsmm <- function(formula,
     repar = repar,
     ncuts = ncuts,
     lim = lim,
+    interval = interval,
     method = method,
     hessian_method = hessian_method,
     int_method = int_method,
