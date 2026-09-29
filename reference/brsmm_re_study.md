@@ -25,6 +25,34 @@ brsmm_re_study(object, ...)
 
 A list with class `"brsmm_re_study"`.
 
+## Details
+
+`icc` is the intraclass correlation of \\\mathrm{logit}(Y)\\ implied by
+the fitted model: for two observations of the same group with the
+covariates of observation \\i\\, \$\$\mathrm{ICC}\_i =
+\frac{\mathrm{Var}\_b\[\psi(a_i) - \psi(b_i)\]}
+{\mathrm{Var}\_b\[\psi(a_i) - \psi(b_i)\] + E_b\[\psi_1(a_i) +
+\psi_1(b_i)\]},\$\$ where \\a_i(b), b_i(b)\\ are the beta shapes with
+random part \\b \sim N(0, x\_{r,i}^\top D x\_{r,i})\\, and \\\psi\\,
+\\\psi_1\\ are the digamma and trigamma functions
+(\\E\[\mathrm{logit}\\Y\] = \psi(a) - \psi(b)\\,
+\\\mathrm{Var}\[\mathrm{logit}\\Y\] = \psi_1(a) + \psi_1(b)\\). The
+expectations over \\b\\ use 40-point Gauss-Hermite quadrature and the
+reported value is the mean of \\\mathrm{ICC}\_i\\ over the observations.
+The level-1 variance is that of the beta, so the value depends on the
+precision; with the logit link (only) and a large precision it
+approaches \\\sigma_b^2 / (\sigma_b^2 + \psi_1(a) + \psi_1(b))\\. It
+replaces the logistic-latent formula \\\sigma_b^2 / (\sigma_b^2 +
+\pi^2/3)\\, which does not describe a beta response.
+
+The moments of \\\mathrm{logit}(Y)\\ over \\b\\ can be infinite: with a
+probit link when \\\sigma_b^2 \ge 1/2\\, with a cloglog link for every
+\\\sigma_b \> 0\\, and numerically with any link when \\\sigma_b\\ is
+very large. The value would then be set by the clamp of the mean
+(\\10^{-5}\\), so `icc` is `NA`, with a warning, whenever
+\\E_b\[\psi_1(a) + \psi_1(b)\]\\ changes by more than 10% when that
+clamp is tightened to \\10^{-8}\\.
+
 ## References
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
@@ -64,9 +92,9 @@ print(rs)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.
-#>   re1                         0.5338
+#>   (Intercept)                 0.5338
 #> 
-#> ICC (latent logistic scale): 0.0797
+#> ICC (logit(Y) scale, beta level-1 variance): 0.1806
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p

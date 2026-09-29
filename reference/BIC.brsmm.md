@@ -1,6 +1,12 @@
 # BIC for brsmm models
 
-BIC for brsmm models
+\\-2\ell + \log(n)\\k\\ with \\n\\ = the number of observations
+(`nobs(object)`), as `lme4` does, and \\k\\ the number of parameters
+(fixed effects, precision and packed random-effect parameters). There is
+no single sample size for a mixed model: counting groups instead (\\n =
+\\ `object$ngroups`) penalises more and is a common alternative,
+`-2 * logLik(object) + log(object$ngroups) * k`. Compare BIC values only
+between fits with the same convention.
 
 ## Usage
 

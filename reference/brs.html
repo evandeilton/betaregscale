@@ -133,7 +133,8 @@ rule as <code>ncuts</code>. Values below 0.5 warn (partial coarsening).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An object of class <code>"brs"</code>.</p>
+    <p>An object of class <code>"brs"</code>; <code>diagnostics</code> holds the
+  post-fit checks described above.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -176,6 +177,27 @@ likelihood and coefficients and differ only in the latent score read
 back by <code>predict(type = "score")</code> (one unit). The modes are
 different coarsening models, so their log-likelihoods are not
 comparable; see <code><a href="brs_check.html">brs_check</a></code> and <code><a href="anova.brs.html">anova.brs</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="fit-diagnostics">Fit diagnostics<a class="anchor" aria-label="anchor" href="#fit-diagnostics"></a></h2>
+
+
+<p>Before optimisation, an exactly rank-deficient mean or precision model
+matrix is an error naming the aliased columns, and a nearly collinear one
+(condition number of the unit-column matrix above \(10^4\)) a warning.
+After it, <code>fit$diagnostics</code> stores the largest absolute gradient
+(<code>grad_norm</code>), the log-likelihood gain \(\frac12 g^\top (-H)^{-1} g\)
+of the Newton step left to the optimum (<code>grad_gain</code>) and that step in
+SE units (<code>grad_step</code>), the extreme eigenvalues of \(-H\) (<code>min_eig</code>,
+<code>max_eig</code>, <code>min_eig_scaled</code> in correlation form,
+<code>hessian_nd</code>) and the number of observations whose mean, second
+parameter or beta shapes sit on the clamps of the likelihood
+(<code>n_clamped</code>, <code>clamped</code>). One-line warnings flag a gradient
+not \(\approx 0\) (gain above 0.01), a Hessian that is not negative
+definite, and clamped observations (possible non-identifiability, e.g.
+every observation left-censored). <code><a href="vcov.brs.html">vcov.brs</a></code> then returns
+<code>NA</code> for variances it cannot estimate instead of a generalised
+inverse.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

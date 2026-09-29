@@ -104,7 +104,9 @@ brsmm(
 
 - control:
 
-  Control list for [`optim`](https://rdrr.io/r/stats/optim.html).
+  Control list for [`optim`](https://rdrr.io/r/stats/optim.html); its
+  entries are merged into the default `list(maxit = 2000L)`, so
+  `control = list(reltol = 1e-10)` keeps `maxit = 2000`.
 
 - interval:
 
@@ -116,7 +118,16 @@ brsmm(
 
 ## Value
 
-An object of class `"brsmm"`.
+An object of class `"brsmm"`. `diagnostics` holds the post-fit checks of
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+(gradient by central differences with step \\10^{-3}\\, Hessian, clamps)
+plus `re_boundary` and `re_gain`, the log-likelihood gain of each
+random-effect term over its removal. A term with log SD below -6 or a
+gain below \\10^{-3}\\ is reported as a variance component on the
+boundary (test it with
+[`anova.brsmm`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md),
+chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
+design matrices are an error.
 
 ## Details
 

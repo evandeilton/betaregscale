@@ -106,6 +106,8 @@ Beta regression for modelling rates and proportions.
 <span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">m3</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">m1</span>, <span class="va">m2</span>, <span class="va">m3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Likelihood-ratio comparison of brs/brsmm models</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Df  logLik    AIC    BIC  Chisq Chi Df Pr(&gt;Chisq)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> M1 (brs)  2 -92.735 189.47 191.46                         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> M2 (brs)  3 -92.652 191.30 194.29 0.1650      1     0.6846</span>

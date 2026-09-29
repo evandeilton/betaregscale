@@ -75,6 +75,33 @@ a normality check by Shapiro-Wilk (when applicable).</p>
     <p>A list with class <code>"brsmm_re_study"</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code>icc</code> is the intraclass correlation of \(\mathrm{logit}(Y)\) implied
+by the fitted model: for two observations of the same group with the
+covariates of observation \(i\),
+$$\mathrm{ICC}_i = \frac{\mathrm{Var}_b[\psi(a_i) - \psi(b_i)]}
+  {\mathrm{Var}_b[\psi(a_i) - \psi(b_i)] + E_b[\psi_1(a_i) + \psi_1(b_i)]},$$
+where \(a_i(b), b_i(b)\) are the beta shapes with random part
+\(b \sim N(0, x_{r,i}^\top D x_{r,i})\), and \(\psi\),
+\(\psi_1\) are the digamma and trigamma functions
+(\(E[\mathrm{logit}\,Y] = \psi(a) - \psi(b)\),
+\(\mathrm{Var}[\mathrm{logit}\,Y] = \psi_1(a) + \psi_1(b)\)). The
+expectations over \(b\) use 40-point Gauss-Hermite quadrature and the
+reported value is the mean of \(\mathrm{ICC}_i\) over the observations.
+The level-1 variance is that of the beta, so the value depends on the
+precision; with the logit link (only) and a large precision it approaches
+\(\sigma_b^2 / (\sigma_b^2 + \psi_1(a) + \psi_1(b))\). It replaces the
+logistic-latent formula \(\sigma_b^2 / (\sigma_b^2 + \pi^2/3)\), which
+does not describe a beta response.</p>
+<p>The moments of \(\mathrm{logit}(Y)\) over \(b\) can be infinite: with a
+probit link when \(\sigma_b^2 \ge 1/2\), with a cloglog link for every
+\(\sigma_b &gt; 0\), and numerically with any link when \(\sigma_b\) is
+very large. The value would then be set by the clamp of the mean
+(\(10^{-5}\)), so <code>icc</code> is <code>NA</code>, with a warning, whenever
+\(E_b[\psi_1(a) + \psi_1(b)]\) changes by more than 10% when that clamp
+is tightened to \(10^{-8}\).</p>
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Lopes, J. E. (2023). <em>Modelos de regressao beta para dados de escala</em>.
 Master's dissertation, Universidade Federal do Parana, Curitiba.
@@ -111,9 +138,9 @@ Beta regression for modelling rates and proportions.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random-effects (VarCorr):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Name                      Std.Dev.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   re1                         0.5338</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   (Intercept)                 0.5338</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ICC (latent logistic scale): 0.0797</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ICC (logit(Y) scale, beta level-1 variance): 0.1806</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p</span>

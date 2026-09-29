@@ -575,22 +575,22 @@ summary(fit_var)
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)  0.31884    0.08541   3.733 0.000189 ***
-#> x1          -0.48246    0.08961  -5.384 7.28e-08 ***
-#> x2           0.23905    0.08270   2.890 0.003847 ** 
+#> (Intercept)  0.31885    0.08541   3.733 0.000189 ***
+#> x1          -0.48245    0.08961  -5.384 7.28e-08 ***
+#> x2           0.23904    0.08270   2.890 0.003847 ** 
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 
 #> Phi coefficients (precision model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)  0.33336    0.08621   3.867  0.00011 ***
-#> z1          -0.81256    0.09204  -8.829  < 2e-16 ***
+#> (Intercept)  0.33338    0.08621   3.867  0.00011 ***
+#> z1          -0.81258    0.09204  -8.829  < 2e-16 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> ---
 #> Log-likelihood: -936.0499 on 5 Df | AIC: 1882.0998 | BIC: 1899.7071 
 #> Pseudo R-squared: 0.1164  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 34 (BFGS) 
+#> Number of iterations: 40 (BFGS) 
 #> Censoring: 181 interval | 23 left | 46 right
 ```
 
@@ -648,11 +648,11 @@ kbl10(est_var)
 
 |      variable      | estimate |   se   | z_value | p_value | ci_lower | ci_upper |  link  |
 |:------------------:|:--------:|:------:|:-------:|:-------:|:--------:|:--------:|:------:|
-|    (Intercept)     |  0.3188  | 0.0854 | 3.7332  | 0.0002  |  0.1514  |  0.4862  | logit  |
+|    (Intercept)     |  0.3188  | 0.0854 | 3.7333  | 0.0002  |  0.1515  |  0.4862  | logit  |
 |         x1         | -0.4825  | 0.0896 | -5.3841 | 0.0000  | -0.6581  | -0.3068  | logit  |
 |         x2         |  0.2390  | 0.0827 | 2.8904  | 0.0038  |  0.0770  |  0.4011  | logit  |
-| (phi)\_(Intercept) |  0.3334  | 0.0862 | 3.8668  | 0.0001  |  0.1644  |  0.5023  | logit  |
-|     (phi)\_z1      | -0.8126  | 0.0920 | -8.8286 | 0.0000  | -0.9930  | -0.6322  | logit  |
+| (phi)\_(Intercept) |  0.3334  | 0.0862 | 3.8669  | 0.0001  |  0.1644  |  0.5024  | logit  |
+|     (phi)\_z1      | -0.8126  | 0.0920 | -8.8287 | 0.0000  | -0.9930  | -0.6322  | logit  |
 |    (Intercept)     |  0.1972  | 0.0524 | 3.7601  | 0.0002  |  0.0944  |  0.3000  | probit |
 |         x1         | -0.2980  | 0.0541 | -5.5038 | 0.0000  | -0.4041  | -0.1919  | probit |
 |         x2         |  0.1477  | 0.0505 | 2.9237  | 0.0035  |  0.0487  |  0.2467  | probit |

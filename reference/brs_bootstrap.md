@@ -65,24 +65,48 @@ A data frame with columns `parameter`, `estimate` (original point
 estimate), `se_boot` (bootstrap standard error), `ci_lower`, `ci_upper`,
 `mcse_lower`, `mcse_upper`, `wald_lower`, `wald_upper`, and `level`. The
 attribute `"n_success"` gives the number of replicates that converged.
-Additional attributes include `"R"`, `"n_attempted"`, `"ci_type"`, and
-optionally `"boot_draws"`.
+Additional attributes include `"R"`, `"n_attempted"`, `"n_failed"`,
+`"fail_rate"`, `"n_jack_failed"` (BCa only), `"ci_type"`, and optionally
+`"boot_draws"`.
 
 ## Details
 
-For each replicate, data are simulated via
-[`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
-using the estimated coefficients (on the link scale) and the original
-design. The model is then re-fitted with
-[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md).
-Replicates that fail to converge are discarded; if the number of
-successful replicates is too low, a warning is issued. Intervals are
-computed from the bootstrap distribution of each parameter, with the
-method controlled by `ci_type`: `"percentile"` (default) uses the raw
-empirical quantiles; `"basic"` uses reflected empirical quantiles;
-`"normal"` uses a normal approximation from the bootstrap standard error
-(no quantiles); `"bca"` uses bias-corrected-and-accelerated adjusted
-quantiles.
+Each replicate draws a new response \\y^\*\_i \sim \mathrm{Beta}(a_i,
+b_i)\\ at the fitted shapes of the rows used by the fit and substitutes
+it into a copy of `object$data`; covariates, factor levels,
+transformations and the formula stay those of the original fit, which is
+then re-fitted with
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+under the same `ncuts`, `lim`, `interval`, links, `repar` and optimizer.
+The observation mechanism of each row is reproduced: exact observations
+(\\\delta = 0\\) stay continuous; scores are re-coarsened on the fit's
+grid (the mapping of
+[`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)).
+Rows whose bounds came from the analyst
+([`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
+Modes 2–4, bounds that are not the cell of the row's score) keep their
+thresholds as fixed and non-informative (independent of \\Y\\), and
+\\\delta\\ is re-drawn by the cell of the partition they induce where
+\\y^\*\\ falls: for an upper bound \\c\\, \\y^\* \le c\\ gives \\\delta
+= 1\\ on \\\[\epsilon, c\]\\, otherwise \\\delta = 2\\ on \\\[c, 1 -
+\epsilon\]\\ (an interval \\\[l, u\]\\ gives three cells). When the
+original design had more thresholds than a row records (e.g. Mode 4
+intervals cut from a finer instrument) the bootstrap is conservative,
+and for Mode 2 rows with a forced \\\delta\\ (a threshold built from the
+score itself, which is informative) it is only an approximation. The
+response must be a variable (not an expression such as `I(y / 10)`).
+
+Replicates that fail (refit error, non-convergence, non-finite
+estimates) are discarded and counted: attributes `"n_failed"` and
+`"fail_rate"`, also printed. Intervals are computed from the bootstrap
+distribution of each parameter, with the method controlled by `ci_type`:
+`"percentile"` (default) uses the raw empirical quantiles; `"basic"`
+uses reflected empirical quantiles; `"normal"` uses a normal
+approximation from the bootstrap standard error (no quantiles); `"bca"`
+uses bias-corrected-and-accelerated adjusted quantiles. With parametric
+resampling and a nonparametric (leave-one-out) jackknife acceleration,
+`"bca"` is an approximation; a warning says so once per session, and
+failed jackknife refits are reported in `"n_jack_failed"`.
 
 ## Methods (by generic)
 
@@ -128,6 +152,7 @@ boot <- brs_bootstrap(fit, R = 50, level = 0.95)
 print(boot)
 #> Bootstrap confidence intervals
 #>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 
+#>   Failed replicates: 0 (0.0% of attempts)
 #> 
 #>     parameter   estimate   se_boot   ci_lower   ci_upper mcse_lower mcse_upper
 #> 1 (Intercept)  0.2551000 0.7772708 -0.8231021 1.93714711  0.1651500 0.15824662

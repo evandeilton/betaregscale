@@ -72,6 +72,13 @@
     <p>A square numeric matrix.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>\((-H)^{-1}\) with \(H\) the Hessian of the log-likelihood at the
+estimate. No generalised inverse is used: a singular Hessian gives an
+<code>NA</code> matrix, and negative or non-finite variances become <code>NA</code>
+(row and column); both cases warn (see <code>fit$diagnostics</code>).</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="brs.html">brs</a></code>, <code><a href="coef.brs.html">coef.brs</a></code>, <code><a href="confint.brs.html">confint.brs</a></code></p></div>
     </div>

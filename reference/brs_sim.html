@@ -117,7 +117,13 @@ that scheme (shapes \(p, q\) under <code>repar = 0</code>).</p></dd>
 
 
 <dt id="arg-delta">delta<a class="anchor" aria-label="anchor" href="#arg-delta"></a></dt>
-<dd><p>Forced censoring type (<code>0,1,2,3</code>) or <code>NULL</code>.</p></dd>
+<dd><p>Forced censoring type (<code>0,1,2,3</code>) or <code>NULL</code>.
+<code>delta = 1</code> or <code>2</code> censors every observation on the same side
+at the cell of its own value: the threshold depends on \(Y\)
+(informative censoring) and <code><a href="brs.html">brs</a></code> has no finite MLE for such
+data (the estimates diverge while optim may report convergence). A
+warning is issued, as it is whenever all simulated observations end up
+censored on the same side. Use it only to exercise code paths.</p></dd>
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>

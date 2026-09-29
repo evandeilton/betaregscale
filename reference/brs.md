@@ -88,7 +88,8 @@ brs(
 
 ## Value
 
-An object of class `"brs"`.
+An object of class `"brs"`; `diagnostics` holds the post-fit checks
+described above.
 
 ## Details
 
@@ -138,6 +139,26 @@ log-likelihoods are not comparable; see
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
 and
 [`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md).
+
+## Fit diagnostics
+
+Before optimisation, an exactly rank-deficient mean or precision model
+matrix is an error naming the aliased columns, and a nearly collinear
+one (condition number of the unit-column matrix above \\10^4\\) a
+warning. After it, `fit$diagnostics` stores the largest absolute
+gradient (`grad_norm`), the log-likelihood gain \\\frac12 g^\top
+(-H)^{-1} g\\ of the Newton step left to the optimum (`grad_gain`) and
+that step in SE units (`grad_step`), the extreme eigenvalues of \\-H\\
+(`min_eig`, `max_eig`, `min_eig_scaled` in correlation form,
+`hessian_nd`) and the number of observations whose mean, second
+parameter or beta shapes sit on the clamps of the likelihood
+(`n_clamped`, `clamped`). One-line warnings flag a gradient not
+\\\approx 0\\ (gain above 0.01), a Hessian that is not negative
+definite, and clamped observations (possible non-identifiability, e.g.
+every observation left-censored).
+[`vcov.brs`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md)
+then returns `NA` for variances it cannot estimate instead of a
+generalised inverse.
 
 ## References
 

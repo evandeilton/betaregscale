@@ -1,12 +1,22 @@
 # Summarize a fitted brsmm model
 
-Summarize a fitted brsmm model
+Wald tests for the fixed effects. The random effects are reported as
+standard deviations and correlations (`varcorr`) with Wald intervals
+built on a transformed scale and mapped back: \\\exp\\ of the interval
+for \\\log SD\\, \\\tanh\\ of the interval for \\\mathrm{atanh}(\rho)\\
+(delta method from the packed Cholesky parameters). No test or p-value
+is given for them: a z-test of \\\log SD\\ tests \\SD = 1\\, and \\SD =
+0\\ lies on the boundary; use
+[`anova.brsmm`](https://evandeilton.github.io/betaregscale/reference/anova.brsmm.md)
+(chi-bar-square mixture) against the model without the term. The
+randomized quantile residuals are drawn without changing the caller's
+RNG state.
 
 ## Usage
 
 ``` r
 # S3 method for class 'brsmm'
-summary(object, ...)
+summary(object, level = 0.95, ...)
 ```
 
 ## Arguments
@@ -15,13 +25,19 @@ summary(object, ...)
 
   A fitted `"brsmm"` object.
 
+- level:
+
+  Confidence level of the `varcorr` intervals.
+
 - ...:
 
   Currently ignored.
 
 ## Value
 
-Object of class `"summary.brsmm"`.
+Object of class `"summary.brsmm"`; `coefficients$random` holds the
+packed Cholesky parameters (estimate and standard error only) and
+`varcorr` the SD/correlation table.
 
 ## See also
 

@@ -64,6 +64,8 @@ m1 <- brs(y ~ 1, data = prep)
 m2 <- brs(y ~ x1, data = prep)
 m3 <- brs(y ~ x1 + x2, data = prep)
 anova(m1, m2, m3)
+#> Likelihood-ratio comparison of brs/brsmm models
+#> 
 #>          Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)
 #> M1 (brs)  2 -92.735 189.47 191.46                         
 #> M2 (brs)  3 -92.652 191.30 194.29 0.1650      1     0.6846

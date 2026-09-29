@@ -62,9 +62,9 @@ print(rs)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.
-#>   re1                         0.5338
+#>   (Intercept)                 0.5338
 #> 
-#> ICC (latent logistic scale): 0.0797
+#> ICC (logit(Y) scale, beta level-1 variance): 0.1806
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p

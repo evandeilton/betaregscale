@@ -63,8 +63,11 @@ prep <- brs_prep(dat, ncuts = 100)
 m1 <- brs(y ~ 1, data = prep)
 m2 <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 anova(m1, m2)
+#> Likelihood-ratio comparison of brs/brsmm models
+#> Rows M2: one added random effect (variance on the boundary); Pr(>Chisq) from the chi-bar-square mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df).
+#> 
 #>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)
 #> M1 (brs)    2 -92.735 189.47 191.46                         
-#> M2 (brsmm)  4 -92.183 192.37 196.35 1.1029      2     0.5761
+#> M2 (brsmm)  4 -92.183 192.37 196.35 1.1029      2     0.4349
 # }
 ```

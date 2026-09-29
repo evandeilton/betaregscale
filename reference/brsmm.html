@@ -157,7 +157,9 @@ Default is 1024.</p></dd>
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
-<dd><p>Control list for <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>.</p></dd>
+<dd><p>Control list for <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>; its entries
+are merged into the default <code>list(maxit = 2000L)</code>, so
+<code>control = list(reltol = 1e-10)</code> keeps <code>maxit = 2000</code>.</p></dd>
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
@@ -169,7 +171,14 @@ Default is 1024.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An object of class <code>"brsmm"</code>.</p>
+    <p>An object of class <code>"brsmm"</code>. <code>diagnostics</code> holds the
+  post-fit checks of <code><a href="brs.html">brs</a></code> (gradient by central differences
+  with step \(10^{-3}\), Hessian, clamps) plus <code>re_boundary</code> and <code>re_gain</code>, the
+  log-likelihood gain of each random-effect term over its removal. A term
+  with log SD below -6 or a gain below \(10^{-3}\) is reported as a
+  variance component on the boundary (test it with <code><a href="anova.brsmm.html">anova.brsmm</a></code>,
+  chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
+  design matrices are an error.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

@@ -1,6 +1,10 @@
 # Summarize a fitted model (betareg style)
 
-Summarize a fitted model (betareg style)
+Wald tables for the mean and precision coefficients (standard errors
+from
+[`vcov.brs`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md),
+`NA` when not estimable) and the randomized quantile residuals, drawn
+without changing the caller's RNG state (`.Random.seed` is restored).
 
 ## Usage
 

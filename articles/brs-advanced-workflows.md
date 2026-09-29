@@ -283,8 +283,8 @@ kbl10(data.frame(model = rownames(tab_lr), tab_lr, row.names = NULL))
 |   model    | Df  |  logLik   |   AIC    |   BIC    | Chisq  | Chi.Df | Pr..Chisq. |
 |:----------:|:---:|:---------:|:--------:|:--------:|:------:|:------:|:----------:|
 |  M1 (brs)  |  4  | -1057.029 | 2122.058 | 2136.144 |   NA   |   NA   |     NA     |
-| M2 (brsmm) |  5  | -1054.111 | 2118.223 | 2135.830 | 5.8355 |   1    |   0.0157   |
-| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8716 |   2    |   0.1443   |
+| M2 (brsmm) |  5  | -1054.111 | 2118.223 | 2135.830 | 5.8355 |   1    |   0.0079   |
+| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8716 |   2    |   0.0967   |
 
 ### 6.3 Model choice by LLR/LRT (ANOVA)
 
@@ -324,8 +324,8 @@ kbl10(tab_lr_df)
 |   model    | Df  |  logLik   |   AIC    |   BIC    | Chisq  | Chi.Df | Pr..Chisq. | decision |
 |:----------:|:---:|:---------:|:--------:|:--------:|:------:|:------:|:----------:|:--------:|
 |  M1 (brs)  |  4  | -1057.029 | 2122.058 | 2136.144 |   NA   |   NA   |     NA     | baseline |
-| M2 (brsmm) |  5  | -1054.111 | 2118.223 | 2135.830 | 5.8355 |   1    |   0.0157   | baseline |
-| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8716 |   2    |   0.1443   | baseline |
+| M2 (brsmm) |  5  | -1054.111 | 2118.223 | 2135.830 | 5.8355 |   1    |   0.0079   | baseline |
+| M3 (brsmm) |  7  | -1052.176 | 2118.351 | 2143.001 | 3.8716 |   2    |   0.0967   | baseline |
 
 ## 7) Random-effects study (numeric + visual)
 
@@ -339,10 +339,10 @@ print(rs)
 #> 
 #> Random-effects (VarCorr):
 #>   Name                      Std.Dev.  Corr
-#>   re1                         0.3240
-#>   re2                         0.2200  0.9991
+#>   (Intercept)                 0.3240
+#>   x1                          0.2200  0.9991
 #> 
-#> ICC (latent logistic scale): 0.0309
+#> ICC (logit(Y) scale, beta level-1 variance): 0.0804
 #> 
 #> Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):
 #>         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p
@@ -361,20 +361,20 @@ kbl10(rs$summary)
 kbl10(rs$D)
 ```
 
-|   V1   |   V2   |
-|:------:|:------:|
-| 0.1050 | 0.0712 |
-| 0.0712 | 0.0484 |
+|             | (Intercept) |   x1   |
+|:------------|:-----------:|:------:|
+| (Intercept) |   0.1050    | 0.0712 |
+| x1          |   0.0712    | 0.0484 |
 
 ``` r
 
 kbl10(rs$Corr)
 ```
 
-|   V1   |   V2   |
-|:------:|:------:|
-| 1.0000 | 0.9991 |
-| 0.9991 | 1.0000 |
+|             | (Intercept) |   x1   |
+|:------------|:-----------:|:------:|
+| (Intercept) |   1.0000    | 0.9991 |
+| x1          |   0.9991    | 1.0000 |
 
 ``` r
 

@@ -7,7 +7,9 @@ Minimal (Mode 1): only the score y.
     Censoring is inferred automatically:
     \(y = 0 \to \delta = 1\), \(y = K \to \delta = 2\),
     \(0 &amp;lt; y &amp;lt; K \to \delta = 3\),
-    \(y \in (0, 1) \to \delta = 0\).
+    \(y \in (0, 1) \to \delta = 0\) (per observation, as in
+    brs_check; a warning flags input that mixes values in
+    \((0, 1)\) with values \(\ge 1\)).
 Classic (Mode 2): y + explicit
     delta. The analyst declares the censoring type;
     interval endpoints are computed using the actual y
@@ -17,7 +19,9 @@ Interval (Mode 3): left and/or
     inferred from the NA pattern.
 Full (Mode 4): y, left, and
     right together. The analyst's own endpoints are
-    rescaled directly to \((0, 1)\).
+    rescaled directly to \((0, 1)\). A row whose bounds reach both
+    borders covers the whole scale and carries no information: it is
+    kept (\(\delta = 3\)) with a warning suggesting its removal.
 
 
 All covariate columns are preserved unchanged in the output."><meta property="og:description" content="Validates and transforms raw data into the format required by
@@ -28,7 +32,9 @@ Minimal (Mode 1): only the score y.
     Censoring is inferred automatically:
     \(y = 0 \to \delta = 1\), \(y = K \to \delta = 2\),
     \(0 &amp;lt; y &amp;lt; K \to \delta = 3\),
-    \(y \in (0, 1) \to \delta = 0\).
+    \(y \in (0, 1) \to \delta = 0\) (per observation, as in
+    brs_check; a warning flags input that mixes values in
+    \((0, 1)\) with values \(\ge 1\)).
 Classic (Mode 2): y + explicit
     delta. The analyst declares the censoring type;
     interval endpoints are computed using the actual y
@@ -38,7 +44,9 @@ Interval (Mode 3): left and/or
     inferred from the NA pattern.
 Full (Mode 4): y, left, and
     right together. The analyst's own endpoints are
-    rescaled directly to \((0, 1)\).
+    rescaled directly to \((0, 1)\). A row whose bounds reach both
+    borders covers the whole scale and carries no information: it is
+    kept (\(\delta = 3\)) with a warning suggesting its removal.
 
 
 All covariate columns are preserved unchanged in the output."><meta property="og:image" content="https://evandeilton.github.io/betaregscale/logo.png"></head><body>
@@ -90,7 +98,9 @@ The analyst can supply data in several ways:</p>
     Censoring is inferred automatically:
     \(y = 0 \to \delta = 1\), \(y = K \to \delta = 2\),
     \(0 &lt; y &lt; K \to \delta = 3\),
-    \(y \in (0, 1) \to \delta = 0\).</p></li>
+    \(y \in (0, 1) \to \delta = 0\) (per observation, as in
+    <code><a href="brs_check.html">brs_check</a></code>; a warning flags input that mixes values in
+    \((0, 1)\) with values \(\ge 1\)).</p></li>
 <li><p><strong>Classic (Mode 2)</strong>: <code>y</code> + explicit
     <code>delta</code>. The analyst declares the censoring type;
     interval endpoints are computed using the actual <code>y</code>
@@ -100,7 +110,9 @@ The analyst can supply data in several ways:</p>
     inferred from the NA pattern.</p></li>
 <li><p><strong>Full (Mode 4)</strong>: <code>y</code>, <code>left</code>, and
     <code>right</code> together. The analyst's own endpoints are
-    rescaled directly to \((0, 1)\).</p></li>
+    rescaled directly to \((0, 1)\). A row whose bounds reach both
+    borders covers the whole scale and carries no information: it is
+    kept (\(\delta = 3\)) with a warning suggesting its removal.</p></li>
 </ol><p>All covariate columns are preserved unchanged in the output.</p>
     </div>
 

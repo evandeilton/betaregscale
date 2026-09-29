@@ -27,6 +27,13 @@ vcov(object, model = c("full", "mean", "precision"), ...)
 
 A square numeric matrix.
 
+## Details
+
+\\(-H)^{-1}\\ with \\H\\ the Hessian of the log-likelihood at the
+estimate. No generalised inverse is used: a singular Hessian gives an
+`NA` matrix, and negative or non-finite variances become `NA` (row and
+column); both cases warn (see `fit$diagnostics`).
+
 ## See also
 
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md),

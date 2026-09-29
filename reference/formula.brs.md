@@ -45,6 +45,6 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 formula(fit)
 #> y ~ x1
-#> <environment: 0x564e62922430>
+#> <environment: 0x5624f5896678>
 # }
 ```

@@ -55,7 +55,7 @@ print(summary(fit))
 #> 
 #> Randomized Quantile Residuals:
 #>     Min      1Q  Median      3Q     Max 
-#> -2.0611 -0.4800 -0.1662  0.6831  2.7748 
+#> -1.9840 -0.4876 -0.1678  0.6964  2.1289 
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)
@@ -68,9 +68,9 @@ print(summary(fit))
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Random-effects parameters (Cholesky scale):
-#>                      Estimate Std. Error z value Pr(>|z|)
-#> logSD.(Intercept)|id  -0.6278     0.7369  -0.852    0.394
+#> Random effects (SD and Corr; 95% Wald CI on the log / atanh scale; no tests, see anova()):
+#>                Estimate  Lower  Upper
+#> SD (Intercept)   0.5338 0.1259 2.2624
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 20  | Groups: 4 

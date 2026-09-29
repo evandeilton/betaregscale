@@ -4,8 +4,8 @@ Maps a score on \\\\0, 1, \ldots, K\\\\ (\\K =\\ `ncuts`) to a cell
 \\\[l_s, u_s\]\\ of \\(0, 1)\\ and to a censoring type \\\delta\\ of the
 complete likelihood (dissertation, eq. `eqn_verossimilhanca_geral`):
 \\\delta = 0\\ density \\f(y)\\, \\\delta = 1\\ \\F(u)\\, \\\delta = 2\\
-\\1 - F(l)\\, \\\delta = 3\\ \\F(u) - F(l)\\. A response entirely in
-\\(0, 1)\\ is exact (\\\delta = 0\\).
+\\1 - F(l)\\, \\\delta = 3\\ \\F(u) - F(l)\\. A value in \\(0, 1)\\ is
+exact (\\\delta = 0\\), observation by observation.
 
 ## Usage
 
@@ -84,9 +84,15 @@ A numeric matrix with \\n\\ rows and 5 columns:
 
 ## Details
 
-If every value is in \\(0, 1)\\ and `delta` is `NULL`, all observations
-are exact. Otherwise each score gets its cell and, with `delta = NULL`,
-the type above. A user-supplied `delta` (the mechanism
+With `delta = NULL`, each value in \\(0, 1)\\ is exact and each other
+value is a score with its cell and the type above; the same
+per-observation rule as
+[`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md).
+Input that mixes values in \\(0, 1)\\ with values \\\ge 1\\ is ambiguous
+(proportions and scores side by side, or rescaled scores): a warning
+says which rule applied. Half-point scores (0, 0.5, 1, ...) are scores
+on a finer grid: use `y * 2` and `ncuts * 2`. A user-supplied `delta`
+(the mechanism
 [`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
 uses in Monte Carlo studies) forces the type per observation and keeps
 the cell endpoints of the score:

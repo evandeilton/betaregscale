@@ -6,7 +6,11 @@ The analyst can supply data in several ways:
 
 1.  **Minimal (Mode 1)**: only the score `y`. Censoring is inferred
     automatically: \\y = 0 \to \delta = 1\\, \\y = K \to \delta = 2\\,
-    \\0 \< y \< K \to \delta = 3\\, \\y \in (0, 1) \to \delta = 0\\.
+    \\0 \< y \< K \to \delta = 3\\, \\y \in (0, 1) \to \delta = 0\\ (per
+    observation, as in
+    [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md);
+    a warning flags input that mixes values in \\(0, 1)\\ with values
+    \\\ge 1\\).
 
 2.  **Classic (Mode 2)**: `y` + explicit `delta`. The analyst declares
     the censoring type; interval endpoints are computed using the actual
@@ -16,7 +20,10 @@ The analyst can supply data in several ways:
     original scale). Censoring is inferred from the NA pattern.
 
 4.  **Full (Mode 4)**: `y`, `left`, and `right` together. The analyst's
-    own endpoints are rescaled directly to \\(0, 1)\\.
+    own endpoints are rescaled directly to \\(0, 1)\\. A row whose
+    bounds reach both borders covers the whole scale and carries no
+    information: it is kept (\\\delta = 3\\) with a warning suggesting
+    its removal.
 
 All covariate columns are preserved unchanged in the output.
 

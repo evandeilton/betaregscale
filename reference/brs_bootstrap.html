@@ -116,21 +116,43 @@ parameter draws in attribute <code>"boot_draws"</code>.</p></dd>
   <code>wald_lower</code>, <code>wald_upper</code>, and <code>level</code>. The attribute
   <code>"n_success"</code> gives the number of replicates that converged.
   Additional attributes include <code>"R"</code>, <code>"n_attempted"</code>,
-  <code>"ci_type"</code>, and optionally <code>"boot_draws"</code>.</p>
+  <code>"n_failed"</code>, <code>"fail_rate"</code>, <code>"n_jack_failed"</code> (BCa
+  only), <code>"ci_type"</code>, and optionally <code>"boot_draws"</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For each replicate, data are simulated via <code><a href="brs_sim.html">brs_sim</a></code> using
-the estimated coefficients (on the link scale) and the original
-design. The model is then re-fitted with <code><a href="brs.html">brs</a></code>. Replicates
-that fail to converge are discarded; if the number of successful replicates
-is too low, a warning is issued. Intervals are computed from the bootstrap
+    <p>Each replicate draws a new response \(y^*_i \sim \mathrm{Beta}(a_i, b_i)\)
+at the fitted shapes of the rows used by the fit and substitutes it into a
+copy of <code>object$data</code>; covariates, factor levels, transformations and
+the formula stay those of the original fit, which is then re-fitted with
+<code><a href="brs.html">brs</a></code> under the same <code>ncuts</code>, <code>lim</code>, <code>interval</code>,
+links, <code>repar</code> and optimizer. The observation mechanism of each row is
+reproduced: exact observations (\(\delta = 0\)) stay continuous; scores
+are re-coarsened on the fit's grid (the mapping of <code><a href="brs_sim.html">brs_sim</a></code>).
+Rows whose bounds came from the analyst (<code><a href="brs_prep.html">brs_prep</a></code> Modes 2–4,
+bounds that are not the cell of the row's score) keep their thresholds as
+fixed and non-informative (independent of \(Y\)), and \(\delta\) is
+re-drawn by the cell of the partition they induce where \(y^*\) falls:
+for an upper bound \(c\), \(y^* \le c\) gives \(\delta = 1\) on
+\([\epsilon, c]\), otherwise \(\delta = 2\) on \([c, 1 - \epsilon]\)
+(an interval \([l, u]\) gives three cells). When the original design had
+more thresholds than a row records (e.g. Mode 4 intervals cut from a finer
+instrument) the bootstrap is conservative, and for Mode 2 rows with a
+forced \(\delta\) (a threshold built from the score itself, which is
+informative) it is only an approximation. The response must be a variable
+(not an expression such as <code>I(y / 10)</code>).</p>
+<p>Replicates that fail (refit error, non-convergence, non-finite estimates)
+are discarded and counted: attributes <code>"n_failed"</code> and
+<code>"fail_rate"</code>, also printed. Intervals are computed from the bootstrap
 distribution of each parameter, with the method controlled by
 <code>ci_type</code>: <code>"percentile"</code> (default) uses the raw empirical
 quantiles; <code>"basic"</code> uses reflected empirical quantiles;
 <code>"normal"</code> uses a normal approximation from the bootstrap standard
 error (no quantiles); <code>"bca"</code> uses bias-corrected-and-accelerated
-adjusted quantiles.</p>
+adjusted quantiles. With parametric resampling and a nonparametric
+(leave-one-out) jackknife acceleration, <code>"bca"</code> is an approximation;
+a warning says so once per session, and failed jackknife refits are
+reported in <code>"n_jack_failed"</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="methods-by-generic-">Methods (by generic)<a class="anchor" aria-label="anchor" href="#methods-by-generic-"></a></h2>
@@ -175,6 +197,7 @@ samples, and reserve <code>"bca"</code> for a final result.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap confidence intervals</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Level: 0.95 | CI: percentile | Successful replicates: 50 / 50 | Attempts: 50 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Failed replicates: 0 (0.0% of attempts)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     parameter   estimate   se_boot   ci_lower   ci_upper mcse_lower mcse_upper</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept)  0.2551000 0.7772708 -0.8231021 1.93714711  0.1651500 0.15824662</span>

@@ -74,7 +74,14 @@ brs_sim(
 
 - delta:
 
-  Forced censoring type (`0,1,2,3`) or `NULL`.
+  Forced censoring type (`0,1,2,3`) or `NULL`. `delta = 1` or `2`
+  censors every observation on the same side at the cell of its own
+  value: the threshold depends on \\Y\\ (informative censoring) and
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+  has no finite MLE for such data (the estimates diverge while optim may
+  report convergence). A warning is issued, as it is whenever all
+  simulated observations end up censored on the same side. Use it only
+  to exercise code paths.
 
 - interval:
 

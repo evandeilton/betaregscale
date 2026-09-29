@@ -105,9 +105,12 @@ Beta regression for modelling rates and proportions.
 <span class="r-in"><span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">m1</span>, <span class="va">m2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Likelihood-ratio comparison of brs/brsmm models</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Rows M2: one added random effect (variance on the boundary); Pr(&gt;Chisq) from the chi-bar-square mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Df  logLik    AIC    BIC  Chisq Chi Df Pr(&gt;Chisq)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> M1 (brs)    2 -92.735 189.47 191.46                         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> M2 (brsmm)  4 -92.183 192.37 196.35 1.1029      2     0.5761</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> M2 (brsmm)  4 -92.183 192.37 196.35 1.1029      2     0.4349</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

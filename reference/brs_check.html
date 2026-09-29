@@ -4,14 +4,14 @@ cell \([l_s, u_s]\) of \((0, 1)\) and to a censoring type
 \(\delta\) of the complete likelihood (dissertation, eq.
 eqn_verossimilhanca_geral): \(\delta = 0\) density
 \(f(y)\), \(\delta = 1\) \(F(u)\), \(\delta = 2\)
-\(1 - F(l)\), \(\delta = 3\) \(F(u) - F(l)\). A response entirely
-in \((0, 1)\) is exact (\(\delta = 0\))."><meta property="og:description" content="Maps a score on \(\{0, 1, \ldots, K\}\) (\(K =\) ncuts) to a
+\(1 - F(l)\), \(\delta = 3\) \(F(u) - F(l)\). A value in
+\((0, 1)\) is exact (\(\delta = 0\)), observation by observation."><meta property="og:description" content="Maps a score on \(\{0, 1, \ldots, K\}\) (\(K =\) ncuts) to a
 cell \([l_s, u_s]\) of \((0, 1)\) and to a censoring type
 \(\delta\) of the complete likelihood (dissertation, eq.
 eqn_verossimilhanca_geral): \(\delta = 0\) density
 \(f(y)\), \(\delta = 1\) \(F(u)\), \(\delta = 2\)
-\(1 - F(l)\), \(\delta = 3\) \(F(u) - F(l)\). A response entirely
-in \((0, 1)\) is exact (\(\delta = 0\))."><meta property="og:image" content="https://evandeilton.github.io/betaregscale/logo.png"></head><body>
+\(1 - F(l)\), \(\delta = 3\) \(F(u) - F(l)\). A value in
+\((0, 1)\) is exact (\(\delta = 0\)), observation by observation."><meta property="og:image" content="https://evandeilton.github.io/betaregscale/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -58,8 +58,8 @@ cell \([l_s, u_s]\) of \((0, 1)\) and to a censoring type
 \(\delta\) of the complete likelihood (dissertation, eq.
 <code>eqn_verossimilhanca_geral</code>): \(\delta = 0\) density
 \(f(y)\), \(\delta = 1\) \(F(u)\), \(\delta = 2\)
-\(1 - F(l)\), \(\delta = 3\) \(F(u) - F(l)\). A response entirely
-in \((0, 1)\) is exact (\(\delta = 0\)).</p>
+\(1 - F(l)\), \(\delta = 3\) \(F(u) - F(l)\). A value in
+\((0, 1)\) is exact (\(\delta = 0\)), observation by observation.</p>
     </div>
 
     <div class="section level2">
@@ -138,9 +138,13 @@ Details).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If every value is in \((0, 1)\) and <code>delta</code> is <code>NULL</code>, all
-observations are exact. Otherwise each score gets its cell and, with
-<code>delta = NULL</code>, the type above. A user-supplied <code>delta</code> (the
+    <p>With <code>delta = NULL</code>, each value in \((0, 1)\) is exact and each
+other value is a score with its cell and the type above; the same
+per-observation rule as <code><a href="brs_prep.html">brs_prep</a></code>. Input that mixes values in
+\((0, 1)\) with values \(\ge 1\) is ambiguous (proportions and scores
+side by side, or rescaled scores): a warning says which rule applied.
+Half-point scores (0, 0.5, 1, ...) are scores on a finer grid: use
+<code>y * 2</code> and <code>ncuts * 2</code>. A user-supplied <code>delta</code> (the
 mechanism <code><a href="brs_sim.html">brs_sim</a></code> uses in Monte Carlo studies) forces the
 type per observation and keeps the cell endpoints of the score:</p><table class="table table"><tr><td>\(\delta\)</td><td>\(l_i\)</td><td>\(u_i\)</td></tr><tr><td>0</td><td>cell centre (or \(y\) when in \((0, 1)\))</td><td>same</td></tr><tr><td>1</td><td>\(\epsilon\)</td><td>\(u_s\)</td></tr><tr><td>2</td><td>\(l_s\)</td><td>\(1 - \epsilon\)</td></tr><tr><td>3</td><td>\(l_s\)</td><td>\(u_s\)</td></tr></table><p>Under <code>"mid"</code> with <code>lim = 0.5</code> this is \(u_0 = 0.5 / K\),
 \(l_K = (K - 0.5) / K\) and \([l_s, u_s] = [(s - 0.5) / K,
