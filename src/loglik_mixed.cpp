@@ -479,13 +479,17 @@ inline void check_mixed_inputs(const arma::mat &X, const arma::mat &Z,
     Rcpp::stop("brsmm: X, Z, Xr, y_left, y_right and yt must not contain NA or "
                "non-finite values.");
   for (arma::uword i = 0; i < n; ++i) {
-    if (group[i] == NA_INTEGER || group[i] < 1)
+    if (group[i] == NA_INTEGER)
+      Rcpp::stop("brsmm: group indices must be >= 1 (found NA at row %d).", (int)i + 1);
+    if (group[i] < 1)
       Rcpp::stop("brsmm: group indices must be >= 1 (found %d at row %d).",
                  group[i], (int)i + 1);
     if ((arma::uword)group[i] > n)   // codes are 1..G with G <= n
       Rcpp::stop("brsmm: group index %d at row %d exceeds the number of rows (%d).",
                  group[i], (int)i + 1, (int)n);
-    if (delta[i] == NA_INTEGER || delta[i] < 0 || delta[i] > 3)
+    if (delta[i] == NA_INTEGER)
+      Rcpp::stop("brsmm: delta must be in {0,1,2,3} (found NA at row %d).", (int)i + 1);
+    if (delta[i] < 0 || delta[i] > 3)
       Rcpp::stop("brsmm: delta must be in {0,1,2,3} (found %d at row %d).",
                  delta[i], (int)i + 1);
   }

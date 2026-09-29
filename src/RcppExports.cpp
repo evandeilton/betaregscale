@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // betaregscale_loglik_fixed_cpp
-double betaregscale_loglik_fixed_cpp(const arma::vec& param, const arma::mat& X, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, int link_mu_code, int link_phi_code, int repar);
+double betaregscale_loglik_fixed_cpp(const arma::vec& param, const arma::mat& X, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const Rcpp::IntegerVector& delta, int link_mu_code, int link_phi_code, int repar);
 RcppExport SEXP _betaregscale_betaregscale_loglik_fixed_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -21,7 +21,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
     Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
     Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
@@ -30,7 +30,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // betaregscale_loglik_variable_cpp
-double betaregscale_loglik_variable_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, int link_mu_code, int link_phi_code, int repar);
+double betaregscale_loglik_variable_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const Rcpp::IntegerVector& delta, int link_mu_code, int link_phi_code, int repar);
 RcppExport SEXP _betaregscale_betaregscale_loglik_variable_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -40,7 +40,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
     Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
     Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
@@ -49,7 +49,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // betaregscale_grad_fixed_cpp
-arma::vec betaregscale_grad_fixed_cpp(const arma::vec& param, const arma::mat& X, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, int link_mu_code, int link_phi_code, int repar);
+arma::vec betaregscale_grad_fixed_cpp(const arma::vec& param, const arma::mat& X, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const Rcpp::IntegerVector& delta, int link_mu_code, int link_phi_code, int repar);
 RcppExport SEXP _betaregscale_betaregscale_grad_fixed_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -58,7 +58,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
     Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
     Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
@@ -67,7 +67,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // betaregscale_grad_variable_cpp
-arma::vec betaregscale_grad_variable_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, int link_mu_code, int link_phi_code, int repar);
+arma::vec betaregscale_grad_variable_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const Rcpp::IntegerVector& delta, int link_mu_code, int link_phi_code, int repar);
 RcppExport SEXP _betaregscale_betaregscale_grad_variable_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -77,7 +77,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
     Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
     Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
@@ -86,7 +86,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // betaregscale_hessian_fixed_cpp
-arma::mat betaregscale_hessian_fixed_cpp(const arma::vec& param, const arma::mat& X, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, int link_mu_code, int link_phi_code, int repar);
+arma::mat betaregscale_hessian_fixed_cpp(const arma::vec& param, const arma::mat& X, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const Rcpp::IntegerVector& delta, int link_mu_code, int link_phi_code, int repar);
 RcppExport SEXP _betaregscale_betaregscale_hessian_fixed_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -95,7 +95,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
     Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
     Rcpp::traits::input_parameter< int >::type repar(reparSEXP);
@@ -104,7 +104,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // betaregscale_hessian_variable_cpp
-arma::mat betaregscale_hessian_variable_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const arma::ivec& delta, int link_mu_code, int link_phi_code, int repar);
+arma::mat betaregscale_hessian_variable_cpp(const arma::vec& param, const arma::mat& X, const arma::mat& Z, const arma::vec& y_left, const arma::vec& y_right, const arma::vec& yt, const Rcpp::IntegerVector& delta, int link_mu_code, int link_phi_code, int repar);
 RcppExport SEXP _betaregscale_betaregscale_hessian_variable_cpp(SEXP paramSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP y_leftSEXP, SEXP y_rightSEXP, SEXP ytSEXP, SEXP deltaSEXP, SEXP link_mu_codeSEXP, SEXP link_phi_codeSEXP, SEXP reparSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -114,7 +114,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type y_left(y_leftSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type y_right(y_rightSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type yt(ytSEXP);
-    Rcpp::traits::input_parameter< const arma::ivec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::IntegerVector& >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< int >::type link_mu_code(link_mu_codeSEXP);
     Rcpp::traits::input_parameter< int >::type link_phi_code(link_phi_codeSEXP);
     Rcpp::traits::input_parameter< int >::type repar(reparSEXP);

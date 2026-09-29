@@ -491,12 +491,18 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL,
         call. = FALSE
       )
     }
+    delta <- data[["delta"]][rows]
+    bad <- which(is.na(delta) | !(delta %in% 0:3))
+    if (length(bad)) {
+      stop("Prepared column 'delta' must be 0, 1, 2 or 3 (NA or other value in ",
+           length(bad), " row(s), first: ", rownames(mf)[bad[1L]], ").", call. = FALSE)
+    }
     cbind(
       left  = data[["left"]][rows],
       right = data[["right"]][rows],
       yt    = data[["yt"]][rows],
       y     = stats::model.response(mf, "numeric"),
-      delta = data[["delta"]][rows]
+      delta = delta
     )
   } else {
     # Raw scores: lim/interval were validated upstream, so no repeated warnings

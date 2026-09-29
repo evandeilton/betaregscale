@@ -12,15 +12,16 @@
 
 // Structural checks shared by all exports (no bounds checks under -DNDEBUG):
 // sizes, param length (short or extra), NA / non-finite data, delta codes.
+// delta is an R integer vector: NA stays NA_INTEGER (no NaN -> int64 cast).
 static void check_brs_inputs(const arma::vec &param, const arma::mat &X,
                              const arma::mat *Z, const arma::vec &y_left,
                              const arma::vec &y_right, const arma::vec &yt,
-                             const arma::ivec &delta) {
+                             const Rcpp::IntegerVector &delta) {
   const arma::uword n = X.n_rows;
   if (n < 1) Rcpp::stop("brs: no observations.");
   if (X.n_cols < 1) Rcpp::stop("brs: X must have at least one column.");
   if (y_left.n_elem != n || y_right.n_elem != n || yt.n_elem != n ||
-      delta.n_elem != n || (Z && Z->n_rows != n))
+      (arma::uword)delta.size() != n || (Z && Z->n_rows != n))
     Rcpp::stop("brs: X, Z, y_left, y_right, yt and delta must all have %d rows.",
                (int)n);
   if (!X.is_finite() || (Z && !Z->is_finite()) || !y_left.is_finite() ||
@@ -31,9 +32,11 @@ static void check_brs_inputs(const arma::vec &param, const arma::mat &X,
     Rcpp::stop("brs: param must have length %d (got %d).", (int)k,
                (int)param.n_elem);
   for (arma::uword i = 0; i < n; ++i)
-    if (delta(i) < 0 || delta(i) > 3)
+    if (delta[i] == NA_INTEGER)
+      Rcpp::stop("brs: delta must be in {0,1,2,3} (found NA at row %d).", (int)i + 1);
+    else if (delta[i] < 0 || delta[i] > 3)
       Rcpp::stop("brs: delta must be in {0,1,2,3} (found %d at row %d).",
-                 (int)delta(i), (int)i + 1);
+                 delta[i], (int)i + 1);
 }
 
 // ============================================================ Fixed phi === //
@@ -55,7 +58,7 @@ double betaregscale_loglik_fixed_cpp(const arma::vec &param, const arma::mat &X,
                                      const arma::vec &y_left,
                                      const arma::vec &y_right,
                                      const arma::vec &yt,
-                                     const arma::ivec &delta, int link_mu_code,
+                                     const Rcpp::IntegerVector &delta, int link_mu_code,
                                      int link_phi_code, int repar) {
   check_brs_inputs(param, X, nullptr, y_left, y_right, yt, delta);
   const int n = X.n_rows, p = X.n_cols;
@@ -66,7 +69,7 @@ double betaregscale_loglik_fixed_cpp(const arma::vec &param, const arma::mat &X,
     double mu_i = clamp_mu_by_repar(inv_link(eta(i), link_mu_code), repar);
     double a, b;
     beta_shapes(mu_i, phi, repar, a, b);
-    ll += obs_loglik(delta(i), y_left(i), y_right(i), yt(i), a, b);
+    ll += obs_loglik(delta[i], y_left(i), y_right(i), yt(i), a, b);
   }
   return ll;
 }
@@ -89,7 +92,7 @@ double betaregscale_loglik_fixed_cpp(const arma::vec &param, const arma::mat &X,
 double betaregscale_loglik_variable_cpp(
     const arma::vec &param, const arma::mat &X, const arma::mat &Z,
     const arma::vec &y_left, const arma::vec &y_right, const arma::vec &yt,
-    const arma::ivec &delta, int link_mu_code, int link_phi_code, int repar) {
+    const Rcpp::IntegerVector &delta, int link_mu_code, int link_phi_code, int repar) {
   check_brs_inputs(param, X, &Z, y_left, y_right, yt, delta);
   const int n = X.n_rows, p = X.n_cols, q = Z.n_cols;
   arma::vec eta_mu = X * param.head(p);
@@ -100,7 +103,7 @@ double betaregscale_loglik_variable_cpp(
     double phi_i = clamp_phi_by_repar(inv_link(eta_phi(i), link_phi_code), repar);
     double a, b;
     beta_shapes(mu_i, phi_i, repar, a, b);
-    ll += obs_loglik(delta(i), y_left(i), y_right(i), yt(i), a, b);
+    ll += obs_loglik(delta[i], y_left(i), y_right(i), yt(i), a, b);
   }
   return ll;
 }
@@ -118,7 +121,7 @@ double betaregscale_loglik_variable_cpp(
 arma::vec
 betaregscale_grad_fixed_cpp(const arma::vec &param, const arma::mat &X,
                             const arma::vec &y_left, const arma::vec &y_right,
-                            const arma::vec &yt, const arma::ivec &delta,
+                            const arma::vec &yt, const Rcpp::IntegerVector &delta,
                             int link_mu_code, int link_phi_code, int repar) {
   check_brs_inputs(param, X, nullptr, y_left, y_right, yt, delta);
   const int n = X.n_rows, p = X.n_cols;
@@ -128,7 +131,7 @@ betaregscale_grad_fixed_cpp(const arma::vec &param, const arma::mat &X,
   arma::vec dmu(n);
   double dphi = 0.0;
   for (int i = 0; i < n; ++i) {
-    ObsSpec o{(int)delta(i), y_left(i), y_right(i), yt(i)};
+    ObsSpec o{delta[i], y_left(i), y_right(i), yt(i)};
     double d1, p1;
     obs_deriv_grad(eta(i), eta_phi, o, s, d1, p1);
     dmu(i) = d1;
@@ -151,7 +154,7 @@ betaregscale_grad_fixed_cpp(const arma::vec &param, const arma::mat &X,
 arma::vec betaregscale_grad_variable_cpp(
     const arma::vec &param, const arma::mat &X, const arma::mat &Z,
     const arma::vec &y_left, const arma::vec &y_right, const arma::vec &yt,
-    const arma::ivec &delta, int link_mu_code, int link_phi_code, int repar) {
+    const Rcpp::IntegerVector &delta, int link_mu_code, int link_phi_code, int repar) {
   check_brs_inputs(param, X, &Z, y_left, y_right, yt, delta);
   const int n = X.n_rows, p = X.n_cols, q = Z.n_cols;
   arma::vec eta_mu = X * param.head(p);
@@ -159,7 +162,7 @@ arma::vec betaregscale_grad_variable_cpp(
   const LinkSpec s{link_mu_code, link_phi_code, repar};
   arma::vec dmu(n), dphi(n);
   for (int i = 0; i < n; ++i) {
-    ObsSpec o{(int)delta(i), y_left(i), y_right(i), yt(i)};
+    ObsSpec o{delta[i], y_left(i), y_right(i), yt(i)};
     obs_deriv_grad(eta_mu(i), eta_phi(i), o, s, dmu(i), dphi(i));
   }
   return arma::join_cols(X.t() * dmu, Z.t() * dphi);
@@ -178,7 +181,7 @@ arma::vec betaregscale_grad_variable_cpp(
 // [[Rcpp::export(name = ".brs_hessian_fixed_cpp", rng = false)]]
 arma::mat betaregscale_hessian_fixed_cpp(
     const arma::vec &param, const arma::mat &X, const arma::vec &y_left,
-    const arma::vec &y_right, const arma::vec &yt, const arma::ivec &delta,
+    const arma::vec &y_right, const arma::vec &yt, const Rcpp::IntegerVector &delta,
     int link_mu_code, int link_phi_code, int repar) {
   check_brs_inputs(param, X, nullptr, y_left, y_right, yt, delta);
   const int n = X.n_rows, p = X.n_cols;
@@ -189,7 +192,7 @@ arma::mat betaregscale_hessian_fixed_cpp(
   double wpp = 0.0;
   ObsDeriv r;
   for (int i = 0; i < n; ++i) {
-    ObsSpec o{(int)delta(i), y_left(i), y_right(i), yt(i)};
+    ObsSpec o{delta[i], y_left(i), y_right(i), yt(i)};
     obs_deriv_hess(eta(i), eta_phi, o, s, r);
     wmm(i) = r.d2;
     wmp(i) = r.c11;
@@ -214,7 +217,7 @@ arma::mat betaregscale_hessian_fixed_cpp(
 arma::mat betaregscale_hessian_variable_cpp(
     const arma::vec &param, const arma::mat &X, const arma::mat &Z,
     const arma::vec &y_left, const arma::vec &y_right, const arma::vec &yt,
-    const arma::ivec &delta, int link_mu_code, int link_phi_code, int repar) {
+    const Rcpp::IntegerVector &delta, int link_mu_code, int link_phi_code, int repar) {
   check_brs_inputs(param, X, &Z, y_left, y_right, yt, delta);
   const int n = X.n_rows, p = X.n_cols, q = Z.n_cols;
   arma::vec eta_mu = X * param.head(p);
@@ -223,7 +226,7 @@ arma::mat betaregscale_hessian_variable_cpp(
   arma::vec wmm(n), wpp(n), wmp(n);
   ObsDeriv r;
   for (int i = 0; i < n; ++i) {
-    ObsSpec o{(int)delta(i), y_left(i), y_right(i), yt(i)};
+    ObsSpec o{delta[i], y_left(i), y_right(i), yt(i)};
     obs_deriv_hess(eta_mu(i), eta_phi(i), o, s, r);
     wmm(i) = r.d2;
     wpp(i) = r.p2;

@@ -209,3 +209,29 @@ test_that("L5-9: a brsmm fit does not depend on earlier fits in the session (war
   expect_identical(as.numeric(logLik(a1)), as.numeric(logLik(a2)))
   expect_identical(vcov(a1), vcov(a2))
 })
+
+test_that("L5-10: NA in delta stops in R and in the compiled code (no NaN -> integer UB)", {
+  set.seed(2); d <- data.frame(y = round(100 * rbeta(40, 2, 3)), x = rnorm(40))
+  p <- suppressMessages(brs_prep(d, ncuts = 100L))
+  p$delta[3] <- NA
+  expect_error(brs(y ~ x, data = p), "delta.*NA or other value.*first: 3")
+  p$delta[3] <- 7L
+  expect_error(brs(y ~ x, data = p), "delta.*must be 0, 1, 2 or 3")
+  q <- suppressMessages(brs_prep(d, ncuts = 100L)); X <- cbind(1, q$x)
+  dl <- as.integer(q$delta); dl[3] <- NA
+  for (f in list(betaregscale:::.brs_loglik_fixed_cpp, betaregscale:::.brs_grad_fixed_cpp,
+                 betaregscale:::.brs_hessian_fixed_cpp)) {
+    expect_error(f(c(0, 0, 0), X, q$left, q$right, q$yt, dl, 0L, 0L, 2L), "found NA at row 3")
+  }
+  Z <- matrix(1, nrow(q), 1)
+  for (f in list(betaregscale:::.brs_loglik_variable_cpp, betaregscale:::.brs_grad_variable_cpp,
+                 betaregscale:::.brs_hessian_variable_cpp)) {
+    expect_error(f(c(0, 0, 0), X, Z, q$left, q$right, q$yt, dl, 0L, 0L, 2L), "found NA at row 3")
+  }
+  # a double delta with NaN is coerced by R (NaN -> NA), never cast in C++
+  expect_error(betaregscale:::.brs_loglik_fixed_cpp(c(0, 0, 0), X, q$left, q$right, q$yt,
+               replace(as.numeric(q$delta), 3, NaN), 0L, 0L, 2L), "found NA at row 3")
+  g <- rep(1:4, each = 10)
+  expect_error(betaregscale:::.brsmm_loglik_eigen(c(0, 0, 0, 0), X, Z, Z, q$left, q$right, q$yt,
+               dl, g, 0L, 0L, 2L, 0L, 11L), "delta.*found NA at row 3")
+})

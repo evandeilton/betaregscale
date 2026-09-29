@@ -176,14 +176,18 @@ to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
   checked against the Eigen code to rounding before any change of method.
 * Gradients and Hessians use the chain rule on the linear predictors
   (per-observation central differences, cost independent of the number of
-  coefficients). `brs()`: gradient about 2x faster; the new default
-  `hessian_method = "cpp"` is about 16x faster than `numDeriv` and agrees with
-  it to 1e-8 in the standard errors. `hessian_method = "numDeriv"` remains.
+  coefficients). The new default `hessian_method = "cpp"` is about 16x faster
+  than `numDeriv` and agrees with it to 1e-8 in the standard errors
+  (`hessian_method = "numDeriv"` remains); `brs()` fits are 2.0-2.3x faster.
+* `brs()` accepts `start` and `control`. Bootstrap and jackknife refits
+  warm-start from the parent estimate and use the compiled Hessian: 2.8x faster
+  for `R = 100`, `n = 250` (1.2-1.4x without the warm start), with intervals
+  unchanged to 6e-5 standard errors.
 * `brsmm()` passes the gradient of the chosen approximation (Laplace, AGHQ or
-  QMC; chain rule and implicit-function theorem at the modes) to `optim()` and computes the Hessian from it
-  (`hessian_method = "cpp"`, default). Standard errors of random-slope models
+  QMC; chain rule and implicit-function theorem at the modes) to `optim()`
+  and computes the Hessian from it (`hessian_method = "cpp"`, default). Standard errors of random-slope models
   are now finite and reproducible (they were `NaN` or changed by 20-40%
-  between two practically identical optima). Fits are 1.5-6x faster.
+  between two practically identical optima). Fits are 1.5-6.6x faster.
 * The inner search for the random-effect modes is a Levenberg–Marquardt
   Newton method with warm starts. It no longer returns `b = 0` when the
   curvature there is indefinite, and the silent eigenvalue floor of 1e-8
@@ -196,11 +200,16 @@ to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
   more random effects QMC is therefore a different estimator than before; at
   1024 points it underestimates the log-likelihood (mean error -0.05 over 30
   two-effect data sets, -0.03 with the old scaling), so `int_method = "aghq"`
-  is recommended up to three random effects. Warm starts of the inner modes are reset at every `brsmm()` call, so
-  a fit depends only on its data and start.
+  is recommended up to three random effects. Warm starts of the inner modes
+  are reset at every `brsmm()` call, so a fit depends only on its data and
+  start.
 * Structural errors in the compiled functions (wrong parameter length, `NA` or
   non-finite data, group codes beyond the number of rows) stop with a clear
   message; a `NaN` parameter gives the likelihood penalty, `+-Inf` the bounds.
+  An `NA` in a prepared `delta` column now stops in R and in C++; before, it
+  reached the compiled code as `NaN` and was cast to an integer (undefined
+  behaviour: rejected with a misleading message on x86-64, silently read as an
+  exact observation on arm64).
 
 # betaregscale 2.7.4
 
