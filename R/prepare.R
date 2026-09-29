@@ -318,7 +318,11 @@ brs_prep <- function(data, y = "y", delta = "delta",
   out_left  <- ep_mat[1L, ]
   out_right <- ep_mat[2L, ]
   out_yt    <- ep_mat[3L, ]
-  out_y <- ifelse(!is.na(v_y), v_y, NA_real_)
+  # Mode 3 rows have no observed score, but `y` is the formula response and
+  # model.frame() would drop NA rows, silently removing the censored
+  # observations from the fit. Fill with the interval midpoint on the
+  # original scale; the likelihood only uses left/right/delta.
+  out_y <- ifelse(!is.na(v_y), v_y, out_yt * K)
 
   # Clamp to [eps, 1-eps]
   out_left <- pmin(pmax(out_left, eps), 1 - eps)
@@ -343,9 +347,8 @@ brs_prep <- function(data, y = "y", delta = "delta",
     result <- cbind(result, data[, covar_names, drop = FALSE])
   }
 
-  # Reset rownames to sequential 1:n (critical for .extract_response()
-
-  # which indexes by as.integer(rownames(model.frame)))
+  # Fresh sequential rownames; downstream code maps model.frame rows back by
+  # name, so any later subsetting/reordering of the result stays aligned.
   rownames(result) <- NULL
 
   # Set attributes for downstream functions
@@ -354,7 +357,8 @@ brs_prep <- function(data, y = "y", delta = "delta",
   attr(result, "lim") <- lim
 
   # Emit consistency warnings once on the final output.
-  .warn_consistency(result$delta, result$y, ncuts)
+  # Check against the scores the analyst actually supplied (Mode 3 fills).
+  .warn_consistency(result$delta, v_y, ncuts)
 
   # Informative message
   tab <- table(factor(out_delta,

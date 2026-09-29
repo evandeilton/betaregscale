@@ -378,16 +378,10 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL) {
 .extract_response <- function(mf, data, ncuts, lim) {
   if (isTRUE(attr(data, "is_prepared")) &&
     all(c("left", "right", "yt", "delta") %in% names(data))) {
-    rn_mf <- rownames(mf)
-    rows <- suppressWarnings(as.integer(rn_mf))
-    if (anyNA(rows)) {
-      rn_data <- rownames(data)
-      if (!is.null(rn_data) && length(rn_data) > 0L) {
-        rows <- match(rn_mf, rn_data)
-      } else {
-        rows <- seq_len(nrow(mf))
-      }
-    }
+    # Row names are labels, not positions: after `data[-10, ]` the row named
+    # "11" is the 10th row. Always map by name (model.frame keeps the row
+    # names of `data`, and data.frame row names are unique).
+    rows <- match(rownames(mf), rownames(data))
     if (anyNA(rows)) {
       stop(
         "Unable to align prepared rows between `model.frame` and `data`.",

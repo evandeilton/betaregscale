@@ -366,6 +366,34 @@ Eigen::MatrixXd build_halton_grid(int n_points, int q) {
   return grid;
 }
 
+// R compiles with -DNDEBUG, so eigen_assert is off and build_groups() would
+// write past its buffers on inconsistent input. Validate once per call.
+inline void check_mixed_inputs(const Eigen::MatrixXd &X, const Eigen::MatrixXd &Z,
+                               const Eigen::MatrixXd &Xr,
+                               const Eigen::VectorXd &y_left,
+                               const Eigen::VectorXd &y_right,
+                               const Eigen::VectorXd &yt,
+                               const Eigen::VectorXi &delta,
+                               const Eigen::VectorXi &group) {
+  const Eigen::Index n = X.rows();
+  if (n < 1) Rcpp::stop("brsmm: no observations.");
+  if (Z.rows() != n || Xr.rows() != n || y_left.size() != n ||
+      y_right.size() != n || yt.size() != n || delta.size() != n ||
+      group.size() != n) {
+    Rcpp::stop("brsmm: X, Z, Xr, y_left, y_right, yt, delta and group must "
+               "all have %d rows.", (int)n);
+  }
+  if (Xr.cols() < 1) Rcpp::stop("brsmm: Xr must have at least one column.");
+  for (Eigen::Index i = 0; i < n; ++i) {
+    if (group(i) < 1)
+      Rcpp::stop("brsmm: group indices must be >= 1 (found %d at row %d).",
+                 group(i), (int)i + 1);
+    if (delta(i) < 0 || delta(i) > 3)
+      Rcpp::stop("brsmm: delta must be in {0,1,2,3} (found %d at row %d).",
+                 delta(i), (int)i + 1);
+  }
+}
+
 // ====================================================== Main exported fn === //
 
 // Computes marginal log-likelihood using Laplace, AGHQ, or QMC.
@@ -378,6 +406,9 @@ double brsmm_loglik_eigen(Eigen::VectorXd param, Eigen::MatrixXd X,
                           Eigen::VectorXd yt, Eigen::VectorXi delta,
                           Eigen::VectorXi group, int link_mu, int link_phi,
                           int repar, int method, int n_points) {
+  check_mixed_inputs(X, Z, Xr, y_left, y_right, yt, delta, group);
+  if (method != 0 && n_points < 1)
+    Rcpp::stop("brsmm: n_points must be >= 1.");
   int p    = X.cols();
   int q_phi = Z.cols();
   int q_re = Xr.cols();
@@ -479,6 +510,7 @@ Eigen::MatrixXd brsmm_group_modes_eigen(
     Eigen::MatrixXd Xr, Eigen::VectorXd y_left, Eigen::VectorXd y_right,
     Eigen::VectorXd yt, Eigen::VectorXi delta, Eigen::VectorXi group,
     int link_mu, int link_phi, int repar) {
+  check_mixed_inputs(X, Z, Xr, y_left, y_right, yt, delta, group);
   int p    = X.cols();
   int q_phi = Z.cols();
   int q_re = Xr.cols();

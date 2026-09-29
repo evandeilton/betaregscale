@@ -159,6 +159,15 @@ brsmm <- function(formula,
   p <- ncol(X)
   q <- ncol(Z)
   Xr <- stats::model.matrix(random_spec$re_terms, data_sub)
+  if (nrow(Xr) != nrow(X)) {
+    # model.matrix() drops rows with NA in the random-effect variables while
+    # X/Y/group keep them; the compiled code assumes equal lengths.
+    stop(
+      "Random-effect variables in 'random' contain missing values (",
+      nrow(X) - nrow(Xr), " row(s)). Remove or impute them before fitting.",
+      call. = FALSE
+    )
+  }
   q_re <- ncol(Xr)
   k_re <- q_re * (q_re + 1L) / 2L
   n <- nrow(X)
@@ -450,10 +459,8 @@ brsmm <- function(formula,
 #' @keywords internal
 #' @noRd
 .brsmm_row_index <- function(mf, data) {
-  rows_num <- suppressWarnings(as.integer(rownames(mf)))
-  if (all(!is.na(rows_num))) {
-    return(rows_num)
-  }
+  # Row names are labels, not positions (see .extract_response); a permuted
+  # or subsetted `data` silently misaligned group/Xr with X/Y otherwise.
   rows <- match(rownames(mf), rownames(data))
   if (anyNA(rows)) {
     stop("Could not map model.frame rows back to 'data'.", call. = FALSE)
