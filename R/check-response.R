@@ -9,7 +9,7 @@
 
 #' Cell of a score on (0, 1) for the chosen interval direction
 #' @param s Numeric vector of scores.
-#' @param K Integer: number of scale categories.
+#' @param K Integer: the maximum score (\code{ncuts}).
 #' @param lim Half-width, used by \code{"mid"} only.
 #' @param interval One of \code{"mid"}, \code{"right"}, \code{"left"}.
 #' @return \code{list(left, right, mid)} on the (0, 1) scale (unclamped).
@@ -178,52 +178,74 @@
   )
 }
 
-#' Transform and validate a scale-derived response variable
+#' Map scale scores to intervals on (0, 1) and censoring types
 #'
 #' @description
-#' Maps a score on \eqn{\{0, 1, \ldots, K\}} (\eqn{K =} \code{ncuts}) to a
-#' cell \eqn{[l_s, u_s]} of \eqn{(0, 1)} and to a censoring type
-#' \eqn{\delta} of the complete likelihood (dissertation, eq.
-#' \code{eqn_verossimilhanca_geral}): \eqn{\delta = 0} density
-#' \eqn{f(y)}, \eqn{\delta = 1} \eqn{F(u)}, \eqn{\delta = 2}
-#' \eqn{1 - F(l)}, \eqn{\delta = 3} \eqn{F(u) - F(l)}. A value in
-#' \eqn{(0, 1)} is exact (\eqn{\delta = 0}), observation by observation.
+#' Maps a score on \eqn{\{0, 1, \ldots, K\}} (\eqn{K =} \code{ncuts}, the
+#' maximum score; \eqn{K + 1} categories) to a cell \eqn{[l_s, u_s]} of
+#' \eqn{(0, 1)} and to a censoring type \eqn{\delta} of the complete
+#' likelihood (Lopes, 2023, eq. \code{eqn_verossimilhanca_geral}; see
+#' \code{\link{brs}}): \eqn{\delta = 0} density \eqn{f(y)},
+#' \eqn{\delta = 1} \eqn{F(u)}, \eqn{\delta = 2} \eqn{1 - F(l)},
+#' \eqn{\delta = 3} \eqn{F(u) - F(l)}. A value in \eqn{(0, 1)} is exact
+#' (\eqn{\delta = 0}), observation by observation. A scale that starts at 1
+#' (e.g. a Likert item 1--5) must be shifted to start at 0 (0--4,
+#' \code{ncuts = 4}): its lowest category is then the left-censored border.
 #'
 #' @section Interval direction:
 #' \code{interval} is the direction of the uncertainty interval around the
-#' score (dissertation, "Mapeamento de intervalos para beta":
-#' \eqn{m = [s - 0.5, s + 0.5]}, \eqn{r = [s, s + 1]}, \eqn{l = [s - 1, s]}):
+#' score (Lopes, 2023, "Mapeamento de intervalos para beta":
+#' \eqn{m = [s - 0.5, s + 0.5]}, \eqn{r = [s, s + 1]}, \eqn{l = [s - 1, s]}).
 #' \tabular{lll}{
-#'   \code{interval} \tab cell of score \eqn{s} \tab latent score \cr
-#'   \code{"mid"} \tab \eqn{[s - \mathrm{lim}, s + \mathrm{lim}] / K}
+#'   \code{interval} \tab cell of score \eqn{s} \tab latent score of
+#'     \eqn{y^* \in (0, 1)} \cr
+#'   \code{"mid"} \tab \eqn{[s - \mathrm{lim}, s + \mathrm{lim}]/K}
 #'     \tab \eqn{K y^*} \cr
-#'   \code{"right"} \tab \eqn{[s, s + 1] / (K + 1)} \tab \eqn{(K + 1) y^*} \cr
-#'   \code{"left"} \tab \eqn{[s, s + 1] / (K + 1)} \tab \eqn{(K + 1) y^* - 1}
+#'   \code{"right"} \tab \eqn{[s, s + 1]/(K + 1)} \tab \eqn{(K + 1) y^*} \cr
+#'   \code{"left"} \tab \eqn{[s, s + 1]/(K + 1)} \tab \eqn{(K + 1) y^* - 1}
 #' }
-#' The \eqn{K + 1} cells of \code{"right"} and \code{"left"} are equal and
-#' partition \eqn{[0, 1]}. This normalisation is a package choice that
-#' differs from the dissertation, which divides \eqn{r} and \eqn{l} by
-#' \eqn{K} (there \eqn{r} and \eqn{l} differ by \eqn{1/K}, and chapter 4
-#' reports opposite intercept biases for them); here \code{"right"} and
-#' \code{"left"} give the same likelihood and coefficients, and differ only
-#' in how a fitted value is read back on the score scale (one unit), so
-#' that opposite-bias signature disappears by construction. The three
-#' modes are different coarsening models of the same scores: their
-#' log-likelihoods are not comparable and \code{anova()} refuses to compare
-#' them. \code{lim} applies to \code{"mid"} only.
+#' The latent score is the back-transformation used by
+#' \code{predict(type = "score")}: it lies in \eqn{[s - 0.5, s + 0.5]},
+#' \eqn{[s, s + 1]} or \eqn{[s - 1, s]} when \eqn{y^*} is in the cell of
+#' \eqn{s}. The \eqn{K + 1} cells of \code{"right"} and \code{"left"} are
+#' equal and partition \eqn{[0, 1]}. This is a package choice that differs
+#' from the dissertation, which divides \eqn{r} and \eqn{l} by \eqn{K}; there
+#' the two directions differ by \eqn{1/K} and chapter 4 reports opposite
+#' intercept biases for them, while here they give the same likelihood and
+#' the same coefficients. The three directions are different coarsening
+#' models of the same scores: their log-likelihoods are not comparable, and
+#' \code{\link{anova.brs}} refuses such comparisons. \code{lim} applies to
+#' \code{"mid"} only.
 #'
-#' The censoring type comes from the score, before any clamping:
-#' \eqn{s = 0 \to \delta = 1} with \eqn{u = u_0}, \eqn{s = K \to \delta = 2}
-#' with \eqn{l = l_K}, otherwise \eqn{\delta = 3}.
+#' @section Scale change and borders:
+#' Lopes (2023, "Mudanca de escala intervalar") rescales scores by the range
+#' and handles the edge effect either with the transformation
+#' \eqn{y^* = \{y(n - 1)/R + 1/2\}/n} (Smithson and Verkuilen, 2006), which
+#' depends on the sample size \eqn{n} and the observed range \eqn{R}, or by
+#' moving 0 and 1 inwards by \eqn{\zeta = 10^{-4}}. The package does neither:
+#' each score is coarsened into its cell, using the scale maximum \eqn{K}
+#' rather than the observed range; the border scores 0 and \eqn{K} become
+#' left- and right-censored observations with contributions \eqn{F(u_0)} and
+#' \eqn{1 - F(l_K)}; and the endpoints are clamped to
+#' \eqn{[\epsilon, 1 - \epsilon]}, \eqn{\epsilon = 10^{-5}}, only as a
+#' numerical guard. The border cells therefore keep their full probability,
+#' no data are moved towards 1/2, and the fit does not depend on \eqn{n}.
+#' The clamp does not enter the border contributions (\eqn{F(u_0)} ignores
+#' \eqn{l_0}, \eqn{1 - F(l_K)} ignores \eqn{u_K}); it matters only for exact
+#' values and for extreme user-supplied intervals.
+#'
+#' The censoring type is derived from the score, before any clamping:
+#' \eqn{s = 0 \to \delta = 1}, \eqn{s = K \to \delta = 2}, otherwise
+#' \eqn{\delta = 3}.
 #'
 #' @details
 #' With \code{delta = NULL}, each value in \eqn{(0, 1)} is exact and each
-#' other value is a score with its cell and the type above; the same
-#' per-observation rule as \code{\link{brs_prep}}. Input that mixes values in
-#' \eqn{(0, 1)} with values \eqn{\ge 1} is ambiguous (proportions and scores
-#' side by side, or rescaled scores): a warning says which rule applied.
-#' Half-point scores (0, 0.5, 1, ...) are scores on a finer grid: use
-#' \code{y * 2} and \code{ncuts * 2}. A user-supplied \code{delta} (the
+#' other value is a score with its cell and the type above; this is the rule
+#' of \code{\link{brs_prep}} too. Input that mixes values in \eqn{(0, 1)}
+#' with values \eqn{\ge 1} is ambiguous (proportions next to scores, or
+#' rescaled scores) and gives one warning; rescale it if the values in
+#' \eqn{(0, 1)} are meant as scores (half-point scores 0, 0.5, 1, ...: use
+#' \code{y * 2} and \code{ncuts * 2}). A user-supplied \code{delta} (the
 #' mechanism \code{\link{brs_sim}} uses in Monte Carlo studies) forces the
 #' type per observation and keeps the cell endpoints of the score:
 #' \tabular{lll}{
@@ -233,81 +255,61 @@
 #'   2 \tab \eqn{l_s} \tab \eqn{1 - \epsilon} \cr
 #'   3 \tab \eqn{l_s} \tab \eqn{u_s}
 #' }
-#' Under \code{"mid"} with \code{lim = 0.5} this is \eqn{u_0 = 0.5 / K},
-#' \eqn{l_K = (K - 0.5) / K} and \eqn{[l_s, u_s] = [(s - 0.5) / K,
-#' (s + 0.5) / K]}. Scores outside \eqn{[0, K]} are an error (as in
-#' \code{\link{brs_prep}}), and so is a \eqn{\delta = 3} observation with
-#' \eqn{l_i = u_i} (zero-probability interval).
+#' A forced \eqn{\delta = 1} or 2 uses the cell of the observed score as the
+#' censoring threshold, so the threshold depends on \eqn{Y}: applied to every
+#' observation this is informative censoring and the likelihood has no finite
+#' maximum (\code{\link{brs_sim}} warns).
+#' Under \code{"mid"} with \code{lim = 0.5}: \eqn{u_0 = 0.5/K},
+#' \eqn{l_K = (K - 0.5)/K} and \eqn{[l_s, u_s] = [(s - 0.5)/K, (s + 0.5)/K]}.
+#' Scores outside \eqn{[0, K]} are an error (as in \code{\link{brs_prep}}),
+#' and so is a \eqn{\delta = 3} observation with \eqn{l_i \ge u_i}
+#' (zero-probability interval). When the clamp squeezes a cell to zero width
+#' (a cell narrower than \eqn{10^{-5}} at a border, i.e. \code{ncuts} too
+#' large or \code{lim} too small), the error says so.
 #'
-#' All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]},
-#' \eqn{\epsilon = 10^{-5}}. \code{yt} is the cell centre (\eqn{s / K}
-#' under \code{"mid"}, \eqn{(s + 0.5) / (K + 1)} otherwise; \eqn{y} itself
-#' for exact values): it is the density argument for \eqn{\delta = 0} and
-#' a point summary elsewhere; censored contributions use only
-#' \code{left}/\code{right}.
+#' \code{yt} is the cell centre: \eqn{s/K} under \code{"mid"} (so the border
+#' scores sit at \eqn{\epsilon} and \eqn{1 - \epsilon}) and
+#' \eqn{(s + 0.5)/(K + 1)} otherwise; exact values are kept. It is the
+#' density argument for \eqn{\delta = 0} and the point used by the midpoint
+#' residuals; censored contributions do not use it.
 #'
-#' \strong{Interaction with the fitting pipeline}:
+#' Data carrying the \code{"is_prepared"} attribute (from
+#' \code{\link{brs_prep}} or \code{\link{brs_sim}}) are used by
+#' \code{\link{brs}} as they are; \code{brs_check()} runs only for raw scores.
 #'
-#' This function is called internally by \code{.extract_response()}
-#'   when the data does \emph{not} carry the \code{"is_prepared"}
-#'   attribute.  If data has already been processed by
-#'   \code{\link{brs_prep}} or by simulation with forced delta
-#' (\code{\link{brs_sim}} with \code{delta != NULL}),
-#' the pre-computed columns are used directly and
-#' \code{brs_check()} is skipped.
-#'
-#' @param y      Numeric vector: the raw response. Can be either
-#'   integer scores on the scale \eqn{\{0, 1, \ldots, K\}} or
-#'   continuous values already in \eqn{(0, 1)}.
-#' @param ncuts  Integer: number of scale categories \eqn{K}
-#'   (default 100). Must be \eqn{\geq \max(y)}.
-#' @param lim    Numeric in \eqn{(0, 0.5]}: half-width of the cell under
+#' @param y Numeric vector: scores on \eqn{\{0, 1, \ldots, K\}} or values in
+#'   \eqn{(0, 1)}.
+#' @param ncuts Integer \eqn{K}: the maximum score (default 100); the scale
+#'   is \eqn{0, 1, \ldots, K}, with \eqn{K + 1} categories. Must be
+#'   \eqn{\geq \max(y)}.
+#' @param lim Numeric in \eqn{(0, 0.5]}: half-width of the cell under
 #'   \code{interval = "mid"} (default 0.5, adjacent cells touch). Values
-#'   below 0.5 give a partial coarsening (warning); ignored, with a
-#'   warning, for \code{"right"}/\code{"left"}.
-#' @param delta  Integer vector or \code{NULL}. If \code{NULL}
-#'   (default), censoring types are derived from the scores. If
-#'   provided, must have the same length as \code{y} with elements in
-#'   \code{\{0, 1, 2, 3\}}; it overrides the type per observation (see
-#'   Details).
+#'   below 0.5 give a partial coarsening (warning); ignored, with a warning,
+#'   for \code{"right"}/\code{"left"}.
+#' @param delta Integer vector or \code{NULL}. If \code{NULL} (default),
+#'   censoring types are derived from the scores. If provided, it must have
+#'   the length of \code{y} with elements in \code{\{0, 1, 2, 3\}}; it
+#'   overrides the type per observation (see Details).
 #' @param interval Direction of the uncertainty interval: \code{"mid"}
-#'   (default), \code{"right"} or \code{"left"}; see the section
-#'   'Interval direction'.
+#'   (default), \code{"right"} or \code{"left"}; see the section 'Interval
+#'   direction'.
 #'
-#' @return A numeric matrix with \eqn{n} rows and 5 columns:
-#' \describe{
-#'   \item{\code{left}}{Lower endpoint \eqn{l_i} on \eqn{(0, 1)},
-#'     clamped to \eqn{[\epsilon, 1 - \epsilon]}.}
-#'   \item{\code{right}}{Upper endpoint \eqn{u_i} on \eqn{(0, 1)},
-#'     clamped to \eqn{[\epsilon, 1 - \epsilon]}.}
-#'   \item{\code{yt}}{Midpoint approximation \eqn{y_t} for
-#'     starting-value computation. Also enters the likelihood
-#'     directly as the density argument for exact observations
-#'     (\eqn{\delta = 0}); for censored observations only
-#'     \code{left}/\code{right} enter the likelihood.}
-#'   \item{\code{y}}{Original response value (preserved unchanged).}
-#'   \item{\code{delta}}{Censoring indicator: 0 = exact (density),
-#'     1 = left-censored \eqn{F(u)}, 2 = right-censored
-#'     \eqn{1 - F(l)}, 3 = interval-censored \eqn{F(u) - F(l)}.}
-#' }
+#' @return A numeric matrix with one row per observation and columns
+#'   \code{left} (\eqn{l_i}), \code{right} (\eqn{u_i}), \code{yt} (cell
+#'   centre), \code{y} (the input) and \code{delta}.
 #'
-#' @seealso \code{\link{brs_prep}} for the analyst-facing
-#'   pre-processing function; \code{\link{brs_sim}}
-#'   for simulation with forced delta.
+#' @seealso \code{\link{brs_prep}} for analyst-supplied censoring and
+#'   intervals; \code{\link{brs}}; \code{\link{brs_sim}}.
 #'
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
 #' URI: https://hdl.handle.net/1884/86624.
 #'
-#' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
-#' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
-#' Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
-#' Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
-#' (CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
-#' Intermittent and Constant Osteoarthritis Pain (ICOAP).
-#' Arthritis Care and Research, 63(S11), S240-S252.
-#' \doi{10.1002/acr.20543}
+#' Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
+#' Maximum-likelihood regression with beta-distributed dependent variables.
+#' \emph{Psychological Methods}, \bold{11}(1), 54--71.
+#' \doi{10.1037/1082-989X.11.1.54}
 #'
 #' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
 #' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
@@ -317,19 +319,29 @@
 #' \doi{10.1016/j.jpainsymman.2010.08.016}
 #'
 #' @examples
-#' # Scale data with boundary observations
-#' y <- c(0, 3, 5, 7, 9, 10)
-#' brs_check(y, ncuts = 10)
+#' # NRS-11 scores (K = 10) under the three interval directions
+#' s <- 0:10
+#' brs_check(s, ncuts = 10)                      # mid:   [s - 0.5, s + 0.5] / 10
+#' brs_check(s, ncuts = 10, interval = "right")  # right: [s, s + 1] / 11
+#' # "left" has the same cells as "right"; only the latent score read back differs
+#' identical(brs_check(s, 10, interval = "left"), brs_check(s, 10, interval = "right"))
 #'
-#' # Right-direction intervals: cells [s, s + 1] / 11
-#' brs_check(y, ncuts = 10, interval = "right")
+#' # Borders: score 0 -> delta 1 (F(u)), score 10 -> delta 2 (1 - F(l))
+#' brs_check(c(0, 10), ncuts = 10)[, c("left", "right", "delta")]
 #'
-#' # Force all observations to be exact (delta = 0)
-#' brs_check(y, ncuts = 10, delta = rep(0L, length(y)))
+#' # A Likert item 1-5: shift to 0-4 so that K = ncuts = 4 is its maximum
+#' likert <- c(1, 2, 3, 5, 4)
+#' brs_check(likert - 1, ncuts = 4)[, c("left", "right", "delta")]
+#' # Unshifted, category 1 would be an interior cell and 0 a category never used
+#' brs_check(likert, ncuts = 5)[, "delta"]
 #'
-#' # Force delta = 1 on non-boundary observations: u = (y + 0.5) / K
-#' y2 <- c(30, 60)
-#' brs_check(y2, ncuts = 100, delta = c(1L, 1L))
+#' # Values already in (0, 1) are exact observations (delta 0)
+#' brs_check(c(0.12, 0.5, 0.97))
+#' # Per observation: 0.3 is exact, 5 and 10 are scores (with a warning)
+#' brs_check(c(0.3, 5, 10), ncuts = 10)
+#'
+#' # A forced delta keeps the cell of the score
+#' brs_check(c(30, 60), ncuts = 100, delta = c(1L, 2L))
 #' @rdname brs_check
 #' @export
 brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL,
@@ -469,7 +481,7 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL,
 #' @param mf Model frame (from \code{model.frame}).
 #' @param data Original data frame passed by the user.  May carry
 #'   the \code{"is_prepared"} attribute.
-#' @param ncuts Integer: number of scale categories \eqn{K}.
+#' @param ncuts Integer \eqn{K}, the maximum score.
 #' @param lim Numeric: uncertainty half-width (only used when falling
 #'   back to \code{brs_check}).
 #' @param interval Interval direction (only used when falling back).

@@ -2,41 +2,73 @@
 % Please edit documentation in R/methods.R
 \name{summary.brs}
 \alias{summary.brs}
-\title{Summarize a fitted model (betareg style)}
+\title{Summarize a fitted beta interval model}
 \usage{
 \method{summary}{brs}(object, ...)
 }
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
 
-\item{...}{Ignored.}
+\item{...}{Currently ignored.}
 }
 \value{
-A list of class \code{"summary.brs"}.
+A list of class \code{"summary.brs"} with \code{coefficients}
+  (tables \code{mean} and \code{precision} with columns \code{Estimate},
+  \code{Std. Error}, \code{z value}, \code{Pr(>|z|)}), \code{residuals}
+  (RQR), \code{loglik}, \code{AIC}, \code{BIC}, \code{df}, \code{nobs},
+  \code{pseudo.r2}, \code{censoring} (counts by type), \code{link},
+  \code{link_phi}, \code{repar}, \code{convergence} and \code{iterations}.
 }
 \description{
-Wald tables for the mean and precision coefficients (standard errors
-from \code{\link{vcov.brs}}, \code{NA} when not estimable) and the
-randomized quantile residuals, drawn without changing the caller's RNG
-state (\code{.Random.seed} is restored).
+Wald tables for the mean and precision (or dispersion) coefficients,
+information criteria, a pseudo \eqn{R^2}, the censoring counts and a
+summary of the randomized quantile residuals.
+}
+\details{
+For each coefficient \eqn{\hat\theta_j}, the standard error is
+\eqn{SE_j = \sqrt{[(-H)^{-1}]_{jj}}} from \code{\link{vcov.brs}}, the Wald
+statistic is \eqn{z_j = \hat\theta_j / SE_j} and the two-sided p-value is
+\eqn{2\Phi(-|z_j|)} (Lopes, 2023, "Inferencia"). The test is on the link
+scale (\eqn{H_0: \theta_j = 0}). When \eqn{-H} is singular, or its inverse
+has negative variances, the affected standard errors, statistics and
+p-values are \code{NA} (see 'Fit diagnostics' in \code{\link{brs}}).
+
+\eqn{\mathrm{AIC} = -2\ell + 2k} and \eqn{\mathrm{BIC} = -2\ell + k\log n},
+with \eqn{\ell} the maximised log-likelihood, \eqn{k} the number of
+coefficients and \eqn{n} the number of observations. The pseudo
+\eqn{R^2} is the squared correlation between the fitted linear predictor
+of the mean and \eqn{g_1(y_i)} at the cell centres \code{yt} (Ferrari and
+Cribari-Neto, 2004); under \code{repar = 0} both sides are on the logit
+scale. It uses the cell centres, so it is rough when most observations are
+censored (the print says so).
+
+The randomized quantile residuals (\code{\link{residuals.brs}},
+\code{type = "rqr"}) are drawn without changing the caller's RNG state.
 }
 \examples{
-\donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10)
-)
-prep <- brs_prep(dat, ncuts = 100)
-fit <- brs(y ~ x1, data = prep)
+set.seed(2023)
+d <- data.frame(time = factor(rep(c("6h", "12h", "24h"), each = 60),
+                              levels = c("6h", "12h", "24h")))
+shp <- brs_repar(mu = plogis(-1.3 + c(0, 0.75, 0.3)[d$time]), phi = 0.3)
+d$y <- round(10 * rbeta(nrow(d), shp$shape1, shp$shape2))
+fit <- brs(y ~ time, data = d, ncuts = 10)
 s <- summary(fit)
+s
 s$coefficients$mean
-}
+c(AIC = s$AIC, BIC = s$BIC, pseudo_R2 = s$pseudo.r2)
 
 }
+\references{
+Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: https://hdl.handle.net/1884/86624.
+
+Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+Beta regression for modelling rates and proportions.
+\emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+\doi{10.1080/0266476042000214501}
+}
 \seealso{
-\code{\link{brs}}, \code{\link{print.summary.brs}},
-  \code{\link{brs_est}}, \code{\link{brs_gof}}
+\code{\link{brs}}, \code{\link{confint.brs}},
+  \code{\link{anova.brs}}, \code{\link{brs_gof}}
 }

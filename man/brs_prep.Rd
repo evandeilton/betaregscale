@@ -16,216 +16,147 @@ brs_prep(
 )
 }
 \arguments{
-\item{data}{Data frame containing the response variable and
-covariates.}
+\item{data}{Data frame with the response columns and covariates.}
 
 \item{y}{Character: name of the score column (default \code{"y"}).}
 
-\item{delta}{Character: name of the censoring indicator column
-(default \code{"delta"}). Values must be in \code{{0, 1, 2, 3}}.}
+\item{delta}{Character: name of the censoring-type column (default
+\code{"delta"}); values in \code{\{0, 1, 2, 3\}} or \code{NA}.}
 
-\item{left}{Character: name of the left-endpoint column
-(default \code{"left"}).}
+\item{left, right}{Character: names of the lower and upper bound columns
+(defaults \code{"left"}, \code{"right"}), on the latent score scale.}
 
-\item{right}{Character: name of the right-endpoint column
-(default \code{"right"}).}
+\item{ncuts}{Integer \eqn{K}: the maximum score (default 100); the scale is
+\eqn{0, 1, \ldots, K} (\eqn{K + 1} categories). Must be at least the
+largest \code{y}; bounds may reach the latent range given in Details.}
 
-\item{ncuts}{Integer: number of scale categories (default 100).}
-
-\item{lim}{Numeric in \eqn{(0, 0.5]}: half-width of the score cell
-under \code{interval = "mid"} (default 0.5). Used only when
-constructing intervals from \code{y} alone; see \code{\link{brs_check}}.}
+\item{lim}{Numeric in \eqn{(0, 0.5]}: half-width of the score cell under
+\code{interval = "mid"} (default 0.5); see \code{\link{brs_check}}.}
 
 \item{interval}{Direction of the uncertainty interval, \code{"mid"}
-(default), \code{"right"} or \code{"left"}; see the section 'Interval
-direction' of \code{\link{brs_check}}. Mode 1/2 cells follow it.
-Analyst endpoints \eqn{L} (Modes 3/4) are bounds on the latent score of
-that direction (the scale of \code{predict(type = "score")}), must lie in
-\eqn{[-0.5, K + 0.5]}, \eqn{[0, K + 1]} or \eqn{[-1, K]}, and map to
-\eqn{L / K}, \eqn{L / (K + 1)} or \eqn{(L + 1) / (K + 1)}; so
-\eqn{[s - 0.5, s + 0.5]}, \eqn{[s, s + 1]} and \eqn{[s - 1, s]} all give
-the cell of score \eqn{s}. Without an analyst \code{delta}, an interval
-reaching 0 (or 1) on the unit scale is left- (or right-) censored.}
+(default), \code{"right"} or \code{"left"}; see \code{\link{brs_check}}.}
 }
 \value{
-A \code{data.frame} with the following columns appended or
-  replaced:
-  \describe{
-    \item{\code{left}}{Lower endpoint on \eqn{(0, 1)}.}
-    \item{\code{right}}{Upper endpoint on \eqn{(0, 1)}.}
-    \item{\code{yt}}{Cell centre (point summary) on \eqn{(0, 1)}.}
-    \item{\code{y}}{Original scale value (preserved for reference).}
-    \item{\code{delta}}{Censoring indicator: 0 = exact, 1 = left,
-      2 = right, 3 = interval.}
-  }
-  Covariate columns are preserved.
-  The output carries attributes \code{"is_prepared"} (\code{TRUE}),
-  \code{"ncuts"}, \code{"lim"} and \code{"interval"}, which
-  \code{\link{brs}} and \code{\link{brsmm}} reuse (an explicit
-  different value is ignored with a warning).
+A data frame with columns \code{left}, \code{right} (cell on
+  \eqn{(0, 1)}), \code{yt} (cell centre), \code{y} (score, or the filled
+  latent score for rows without one) and \code{delta}, followed by the
+  covariates. Attributes \code{"is_prepared"} (\code{TRUE}),
+  \code{"ncuts"}, \code{"lim"} and \code{"interval"} are reused by
+  \code{\link{brs}} and \code{\link{brsmm}}; an explicit different value
+  there is ignored with a warning.
 }
 \description{
-Validates and transforms raw data into the format required by
-\code{\link{brs}}.
-The analyst can supply data in several ways:
-
+Turns analyst data into the cells \eqn{[l_i, u_i]} and censoring types
+\eqn{\delta_i} used by \code{\link{brs}} and \code{\link{brsmm}}. Scores
+run over \eqn{0, 1, \ldots, K} with \eqn{K =} \code{ncuts} the maximum;
+shift a scale that starts at 1 (a Likert item 1--5 becomes 0--4,
+\code{ncuts = 4}). Four input modes are recognised per row:
 \enumerate{
-  \item \strong{Minimal (Mode 1)}: only the score \code{y}.
-    Censoring is inferred automatically:
-    \eqn{y = 0 \to \delta = 1}, \eqn{y = K \to \delta = 2},
-    \eqn{0 < y < K \to \delta = 3},
-    \eqn{y \in (0, 1) \to \delta = 0} (per observation, as in
-    \code{\link{brs_check}}; a warning flags input that mixes values in
-    \eqn{(0, 1)} with values \eqn{\ge 1}).
-  \item \strong{Classic (Mode 2)}: \code{y} + explicit
-    \code{delta}. The analyst declares the censoring type;
-    interval endpoints are computed using the actual \code{y}
-    value.
-  \item \strong{Interval (Mode 3)}: \code{left} and/or
-    \code{right} columns (on the original scale). Censoring is
-    inferred from the NA pattern.
-  \item \strong{Full (Mode 4)}: \code{y}, \code{left}, and
-    \code{right} together. The analyst's own endpoints are
-    rescaled directly to \eqn{(0, 1)}. A row whose bounds reach both
-    borders covers the whole scale and carries no information: it is
-    kept (\eqn{\delta = 3}) with a warning suggesting its removal.
+  \item \strong{Score only} (\code{y}): the cell of the score and
+    \eqn{\delta} from the score, exactly as \code{\link{brs_check}}
+    (0 \eqn{\to} 1, \eqn{K} \eqn{\to} 2, otherwise 3; a value in
+    \eqn{(0, 1)} \eqn{\to} 0, per observation).
+  \item \strong{Score and \code{delta}}: the analyst's censoring type,
+    with the cell of the score.
+  \item \strong{Bounds only} (\code{left} and/or \code{right}, \code{y}
+    missing): an interval, or a one-sided censoring when one bound is
+    \code{NA}.
+  \item \strong{Score and both bounds}: the analyst's interval.
 }
-
-All covariate columns are preserved unchanged in the output.
+Covariate columns are kept unchanged.
 }
 \details{
-\strong{Priority rule}: if \code{delta} is provided (non-\code{NA}),
-it takes precedence over all automatic classification rules.
-When \code{delta} is \code{NA}, the function infers the censoring type
-from the pattern of \code{left}, \code{right}, and \code{y}:
-
-\tabular{llllll}{
-  \code{left} \tab \code{right} \tab \code{y} \tab \code{delta}
-  \tab Interpretation \tab Inferred \eqn{\delta} \cr
-  \code{NA}   \tab  5  \tab \code{NA} \tab \code{NA}
-  \tab Left-censored (below 5) \tab 1 \cr
-  20          \tab \code{NA} \tab \code{NA} \tab \code{NA}
-  \tab Right-censored (above 20) \tab 2 \cr
-  30          \tab 45  \tab \code{NA} \tab \code{NA}
-  \tab Interval-censored [30, 45] \tab 3 \cr
-  \code{NA}   \tab \code{NA} \tab 50 \tab \code{NA}
-  \tab Exact observation \tab 0 \cr
-  \code{NA}   \tab \code{NA} \tab 50 \tab 3
-  \tab Analyst says interval \tab 3 \cr
-  \code{NA}   \tab \code{NA} \tab 0  \tab 1
-  \tab Analyst says left-censored \tab 1 \cr
-  \code{NA}   \tab \code{NA} \tab 99 \tab 2
-  \tab Analyst says right-censored \tab 2 \cr
+A non-missing \code{delta} always wins. Otherwise the type comes from
+the pattern of \code{left}, \code{right} and \code{y} (here
+\eqn{K = 10}, \code{interval = "mid"}):
+\tabular{lllll}{
+  \code{left} \tab \code{right} \tab \code{y} \tab cell on \eqn{(0, 1)}
+    \tab \eqn{\delta} \cr
+  \code{NA} \tab 3 \tab \code{NA} \tab \eqn{[\epsilon, 0.3]} (below 3) \tab 1 \cr
+  7 \tab \code{NA} \tab \code{NA} \tab \eqn{[0.7, 1 - \epsilon]} (above 7)
+    \tab 2 \cr
+  2 \tab 5 \tab \code{NA} \tab \eqn{[0.2, 0.5]} \tab 3 \cr
+  4 \tab 6 \tab 5 \tab \eqn{[0.4, 0.6]} (analyst interval) \tab 3 \cr
+  -0.5 \tab 4 \tab \code{NA} \tab \eqn{[\epsilon, 0.4]} (reaches 0) \tab 1 \cr
+  3 \tab 10.5 \tab \code{NA} \tab \eqn{[0.3, 1 - \epsilon]} (reaches 1)
+    \tab 2 \cr
+  (no columns) \tab \tab 5 \tab \eqn{[0.45, 0.55]} (Mode 1) \tab 3 \cr
+  \code{NA} \tab \code{NA} \tab 5 \tab 0.5 (exact reading) \tab 0 \cr
+  \code{NA} \tab \code{NA} \tab 0 \tab \eqn{[\epsilon, 0.05]} \tab 1 \cr
+  \code{NA} \tab \code{NA} \tab 10 \tab \eqn{[0.95, 1 - \epsilon]} \tab 2
 }
+When the data have \code{left}/\code{right} columns, a row that gives
+only an interior score (both bounds \code{NA}) is an exact value at the
+cell centre, with a density contribution; without those columns the same
+score is interval-censored (Mode 1). An analyst interval that reaches 0
+(or 1) on the unit scale is left- (or right-) censored; one that reaches
+both borders covers the whole scale, stays \eqn{\delta = 3} and gives a
+warning, since such a row carries no information about the parameters.
+A row with neither a score nor a bound is an error (a \code{delta} alone
+defines no interval).
 
-When \code{y}, \code{left}, and \code{right} are all present for the
-same observation, the analyst's \code{left}/\code{right} values are
-used directly (rescaled by \eqn{K =} \code{ncuts}) and \code{delta}
-is set to 3 (interval-censored) unless the analyst supplied
-\code{delta} explicitly.
+Score-based rows (Modes 1 and 2) use the cells of \code{interval}, as in
+\code{\link{brs_check}}: \eqn{[s - \mathrm{lim}, s + \mathrm{lim}]/K} for
+\code{"mid"}, \eqn{[s, s + 1]/(K + 1)} for \code{"right"}/\code{"left"};
+a forced \eqn{\delta = 1} keeps \eqn{u_s} and a forced \eqn{\delta = 2}
+keeps \eqn{l_s}. Analyst bounds \eqn{L} (Modes 3 and 4) are values of the
+latent score of the chosen direction (the scale of
+\code{predict(type = "score")}) and map to \eqn{L/K} (\code{"mid"}),
+\eqn{L/(K + 1)} (\code{"right"}) or \eqn{(L + 1)/(K + 1)} (\code{"left"}),
+so that the dissertation's intervals \eqn{[s - 0.5, s + 0.5]},
+\eqn{[s, s + 1]} and \eqn{[s - 1, s]} all give the cell of score \eqn{s}.
+They must lie in the latent range of the direction:
+\eqn{[-0.5, K + 0.5]} (\code{"mid"}), \eqn{[0, K + 1]} (\code{"right"})
+or \eqn{[-1, K]} (\code{"left"}); a bound outside it is an error. Rows
+with no score get \code{y} = the latent score of their cell centre, so
+that \code{model.frame()} keeps them.
 
-\strong{Endpoint formulas for Mode 2 (y + explicit delta)}:
-
-When the analyst supplies \code{delta} explicitly, the endpoint
-computation uses the actual \code{y} value to produce
-observation-specific bounds.  This is the same logic used by
-\code{\link{brs_check}} with a user-supplied \code{delta}
-vector:
-
-\tabular{llll}{
-  \eqn{\delta} \tab Condition \tab \eqn{l_i} (left)
-    \tab \eqn{u_i} (right) \cr
-  0 \tab (any) \tab \eqn{y / K} \tab \eqn{y / K} \cr
-  1 \tab \eqn{y = 0} \tab \eqn{\epsilon}
-    \tab \eqn{\mathrm{lim} / K} \cr
-  1 \tab \eqn{y \neq 0} \tab \eqn{\epsilon}
-    \tab \eqn{(y + \mathrm{lim}) / K} \cr
-  2 \tab \eqn{y = K} \tab \eqn{(K - \mathrm{lim}) / K}
-    \tab \eqn{1 - \epsilon} \cr
-  2 \tab \eqn{y \neq K} \tab \eqn{(y - \mathrm{lim}) / K}
-    \tab \eqn{1 - \epsilon} \cr
-  3 \tab type \code{"m"} \tab \eqn{(y - \mathrm{lim}) / K}
-    \tab \eqn{(y + \mathrm{lim}) / K} \cr
-}
-
-\strong{Consistency warnings}: when the analyst supplies \code{delta}
-values that are unusual for the given \code{y} (e.g.,
-\eqn{\delta = 1} but \eqn{y \neq 0}), the function emits a warning
-but proceeds.  This is by design for Monte Carlo workflows where
-forced delta on non-boundary observations is intentional.
-
-All endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]} with
-\eqn{\epsilon = 10^{-5}}.
+Endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]},
+\eqn{\epsilon = 10^{-5}} (why this replaces the edge-effect transformation
+of Lopes, 2023: section 'Scale change and borders' of
+\code{\link{brs_check}}). A \eqn{\delta = 3} row with \code{left >= right}
+is an error (zero probability; use \eqn{\delta = 0}), and so is a cell the
+clamp squeezes to zero width (the message tells whether \code{ncuts} is
+too large for the cells or the analyst interval lies inside the clamp).
+As in \code{\link{brs_check}}, values in \eqn{(0, 1)} mixed with values
+\eqn{\ge 1} give one warning. Unusual combinations, e.g. \eqn{\delta = 1}
+with \eqn{y \neq 0}, give a warning but are kept.
 }
 \examples{
-# --- Mode 1: y only (automatic classification, like brs_check) ---
-d1 <- data.frame(y = c(0, 3, 5, 7, 10), x1 = rnorm(5))
+# Mode 1: score only; delta from the score (0 -> 1, K -> 2, else 3)
+d1 <- data.frame(y = c(0, 3, 10), x = c(1.2, 0.4, -0.3))
 brs_prep(d1, ncuts = 10)
 
-# --- Mode 2: y + explicit delta ---
-d2 <- data.frame(
-  y = d1$y,
-  delta = c(0, 3, 3, 3, 0), # Force interval-censoring for 3,5,7
-  x1 = d1$x1
-)
-brs_prep(d2, ncuts = 100)
+# Mode 2: score + analyst delta (the same score read as exact and as a cell)
+d2 <- data.frame(y = c(4, 4), delta = c(0, 3))
+brs_prep(d2, ncuts = 10)
 
-# --- Mode 3: left/right with NA patterns ---
-d3 <- data.frame(
-  left = c(NA, 20, 30, NA),
-  right = c(5, NA, 45, NA),
-  y = c(NA, NA, NA, 50),
-  x1 = d1$x1[1:4]
-)
-brs_prep(d3, ncuts = 100)
+# Mode 3: only left and/or right bounds (NA pattern gives delta)
+d3 <- data.frame(left = c(NA, 7, 2), right = c(3, NA, 5))
+brs_prep(d3, ncuts = 10)
 
-# --- Mode 4: y + left + right (analyst-supplied intervals) ---
-d4 <- data.frame(
-  y = c(50, 75),
-  left = c(48, 73),
-  right = c(52, 77),
-  x1 = rnorm(2)
-)
-brs_prep(d4, ncuts = 100)
+# Mode 4: score with analyst bounds (used as given, divided by K)
+d4 <- data.frame(y = 5, left = 4, right = 6)
+brs_prep(d4, ncuts = 10)
 
-# --- Fitting after prep ---
-\donttest{
-dat5 <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10)
-)
-prep5 <- brs_prep(dat5, ncuts = 100)
-fit5 <- brs(y ~ x1, data = prep5)
-summary(fit5)
-}
+# An analyst interval reaching a border is one-sided censoring
+brs_prep(data.frame(left = c(-0.5, 3), right = c(4, 10.5)), ncuts = 10)
 
+# A Likert item 1-5: shift it to 0-4, so that ncuts = 4 is the maximum
+lk <- data.frame(item = c(1, 2, 5, 3, 4), x = c(0.1, 0.5, 0.9, 0.3, 0.7))
+brs_prep(data.frame(y = lk$item - 1, x = lk$x), ncuts = 4)
+
+# Right-direction cells [s, s + 1] / 11; the choice is stored as attributes
+p <- brs_prep(d1, ncuts = 10, interval = "right")
+p[, c("left", "right", "delta")]
+attributes(p)[c("ncuts", "lim", "interval")]
 }
 \references{
 Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 Master's dissertation, Universidade Federal do Parana, Curitiba.
 URI: https://hdl.handle.net/1884/86624.
-
-Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
-Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
-Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
-Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
-(CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
-Intermittent and Constant Osteoarthritis Pain (ICOAP).
-Arthritis Care and Research, 63(S11), S240-S252.
-\doi{10.1002/acr.20543}
-
-Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
-Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
-Visual Analogue Scales for assessment of pain intensity in adults:
-a systematic literature review.
-Journal of Pain and Symptom Management, 41(6), 1073-1093.
-\doi{10.1016/j.jpainsymman.2010.08.016}
 }
 \seealso{
-\code{\link{brs_check}} for the automatic
-  classification of raw scale scores;
-  \code{\link{brs}} for fitting the model.
+\code{\link{brs_check}} for the cells and the automatic
+  classification; \code{\link{brs}} for fitting the model.
 }

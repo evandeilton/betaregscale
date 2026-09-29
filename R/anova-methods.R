@@ -112,46 +112,75 @@
   out
 }
 
-#' Model comparison by analysis of deviance (LR test) for `brs`
+#' Likelihood-ratio comparison of nested beta interval models
+#'
+#' @description
+#' Compares fitted \code{"brs"} and \code{"brsmm"} models by log-likelihood,
+#' AIC, BIC and likelihood-ratio tests (Lopes, 2023, "Inferencia").
+#'
+#' @details
+#' The models are sorted by their number of parameters. For consecutive
+#' models the statistic is \eqn{LR = 2(\ell_1 - \ell_0)}, with \code{Chi Df}
+#' the difference in the number of parameters, and
+#' \eqn{p = P(\chi^2_{df} > LR)}. The models must be nested; this is not
+#' checked. They must also describe the same response: the same observations,
+#' \code{interval}, \code{ncuts} and (under \code{"mid"}) \code{lim}, or the
+#' call stops, since different coarsenings are different likelihoods.
+#'
+#' When the larger model adds one random-effect term (a \code{"brs"} model
+#' against a random-intercept \code{"brsmm"}, or one more correlated random
+#' term), its variance lies on the boundary of the parameter space under
+#' \eqn{H_0} and \eqn{LR} follows the mixture
+#' \eqn{\frac12\chi^2_{df-1} + \frac12\chi^2_{df}} (Self and Liang, 1987;
+#' Stram and Lee, 1994); for one variance component alone this is
+#' \eqn{\frac12\chi^2_0 + \frac12\chi^2_1}, i.e. half the naive p-value. The
+#' printed heading names the rows that use it. When more than one random term
+#' is added at once, the naive \eqn{\chi^2_{df}} p-value is kept and flagged
+#' as conservative.
 #'
 #' @param object A fitted \code{"brs"} model.
-#' @param ... Additional fitted \code{"brs"} and/or \code{"brsmm"} models to
-#'   compare.
-#' @param test Character; \code{"Chisq"} (default) or \code{"none"}.
+#' @param ... Further fitted \code{"brs"} and/or \code{"brsmm"} models.
+#' @param test \code{"Chisq"} (default) or \code{"none"}.
 #'
-#' @return An object of class \code{"anova"} and \code{"data.frame"} with
-#'   model-wise log-likelihood, information criteria, and (optionally) LR test
-#'   columns.
+#' @return An object of class \code{"anova"} (a data frame) with columns
+#'   \code{Df}, \code{logLik}, \code{AIC}, \code{BIC} and, for
+#'   \code{test = "Chisq"}, \code{Chisq}, \code{Chi Df} and
+#'   \code{Pr(>Chisq)}; the attribute \code{"heading"} explains the p-values.
 #'
-#' @seealso \code{\link{brs}}, \code{\link{logLik.brs}}, \code{\link{AIC.brs}},
-#'   \code{\link{BIC.brs}}
+#' @seealso \code{\link{anova.brsmm}}, \code{\link{summary.brs}},
+#'   \code{\link{logLik.brs}}
 #'
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
 #' URI: https://hdl.handle.net/1884/86624.
 #'
-#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
-#' Beta regression for modelling rates and proportions.
-#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
-#' \doi{10.1080/0266476042000214501}
+#' Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+#' likelihood estimators and likelihood ratio tests under nonstandard
+#' conditions. \emph{Journal of the American Statistical Association},
+#' \bold{82}(398), 605--610. \doi{10.1080/01621459.1987.10478472}
+#'
+#' Stram, D. O., and Lee, J. W. (1994). Variance components testing in the
+#' longitudinal mixed effects model. \emph{Biometrics}, \bold{50}(4),
+#' 1171--1177. \doi{10.2307/2533455}
 #'
 #' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10),
-#'   x2 = rep(c(0, 0, 1, 1), 5)
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' m1 <- brs(y ~ 1, data = prep)
-#' m2 <- brs(y ~ x1, data = prep)
-#' m3 <- brs(y ~ x1 + x2, data = prep)
-#' anova(m1, m2, m3)
-#' }
+#' # Synthetic NRS-11 scores: 4 groups x 3 times. Simulated, not real data.
+#' set.seed(2023)
+#' nrs <- expand.grid(id = 1:80, time = c("6h", "12h", "24h"))
+#' nrs$group <- factor(paste0("g", (nrs$id - 1) %% 4 + 1))
+#' eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + c(0, -0.1, 0.05, 0.1)[nrs$group]
+#' shp <- brs_repar(mu = plogis(eta), phi = 0.3, repar = 2)
+#' nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+#'
+#' # Time only (m1) nested in time + group (m2): LR test on 3 df
+#' m1 <- brs(y ~ time, data = nrs, ncuts = 10)
+#' m2 <- brs(y ~ time + group, data = nrs, ncuts = 10)
+#' anova(m1, m2)
+#'
+#' # Fits under different interval directions are different response models
+#' m2_right <- brs(y ~ time + group, data = nrs, ncuts = 10, interval = "right")
+#' try(anova(m2, m2_right))
 #'
 #' @method anova brs
 #' @importFrom stats anova pchisq
@@ -161,45 +190,41 @@ anova.brs <- function(object, ..., test = c("Chisq", "none")) {
   .anova_brs_family(models = models, test = test)
 }
 
-#' Model comparison by analysis of deviance (LR test) for `brsmm`
+#' Likelihood-ratio comparison involving mixed models
+#'
+#' @description
+#' \code{anova()} for \code{"brsmm"} fits: the same table as
+#' \code{\link{anova.brs}}, with the chi-bar-square mixture
+#' \eqn{\frac12\chi^2_{df-1} + \frac12\chi^2_{df}} for rows that add one
+#' random-effect term, whose variance is on the boundary under \eqn{H_0}.
+#' This is the test to use for a variance component: the Wald statistic of
+#' its log standard deviation is not meaningful (see
+#' \code{\link{summary.brsmm}}).
 #'
 #' @param object A fitted \code{"brsmm"} model.
-#' @param ... Additional fitted \code{"brsmm"} and/or \code{"brs"} models to
-#'   compare.
-#' @param test Character; \code{"Chisq"} (default) or \code{"none"}.
+#' @param ... Further fitted \code{"brsmm"} and/or \code{"brs"} models.
+#' @param test \code{"Chisq"} (default) or \code{"none"}.
 #'
-#' @return An object of class \code{"anova"} and \code{"data.frame"} with
-#'   model-wise log-likelihood, information criteria, and (optionally) LR test
-#'   columns.
+#' @return An object of class \code{"anova"}; see \code{\link{anova.brs}}.
 #'
-#' @seealso \code{\link{brsmm}}, \code{\link{logLik.brsmm}},
-#'   \code{\link{AIC.brsmm}}, \code{\link{BIC.brsmm}}
+#' @seealso \code{\link{anova.brs}}, \code{\link{brsmm}},
+#'   \code{\link{summary.brsmm}}
 #'
 #' @references
-#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
-#' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
-#'
-#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
-#' Beta regression for modelling rates and proportions.
-#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
-#' \doi{10.1080/0266476042000214501}
+#' Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+#' likelihood estimators and likelihood ratio tests under nonstandard
+#' conditions. \emph{Journal of the American Statistical Association},
+#' \bold{82}(398), 605--610. \doi{10.1080/01621459.1987.10478472}
 #'
 #' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10),
-#'   id = factor(rep(1:4, each = 5))
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' m1 <- brs(y ~ 1, data = prep)
-#' m2 <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
-#' anova(m1, m2)
-#' }
+#' set.seed(11)
+#' g <- 20
+#' d <- data.frame(id = factor(rep(1:g, each = 8)), x = runif(8 * g))
+#' shp <- brs_repar(plogis(-0.4 + d$x + rnorm(g, sd = 0.6)[d$id]), phi = 0.25)
+#' d$y <- round(10 * rbeta(nrow(d), shp$shape1, shp$shape2))
+#' m0 <- brs(y ~ x, data = d, ncuts = 10)
+#' m1 <- brsmm(y ~ x, random = ~ 1 | id, data = d, ncuts = 10)
+#' anova(m0, m1)  # Pr(>Chisq) = half the chi2(1) tail
 #'
 #' @method anova brsmm
 #' @importFrom stats anova pchisq

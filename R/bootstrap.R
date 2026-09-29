@@ -35,6 +35,9 @@
 #' informative) it is only an approximation. The response must be a variable
 #' (not an expression such as \code{I(y / 10)}).
 #'
+#' Each refit starts from the estimate of \code{object} and uses the compiled
+#' Hessian (\code{hessian_method = "cpp"}), so replicates are cheap.
+#'
 #' Replicates that fail (refit error, non-convergence, non-finite estimates)
 #' are discarded and counted: attributes \code{"n_failed"} and
 #' \code{"fail_rate"}, also printed. Intervals are computed from the bootstrap
@@ -80,20 +83,22 @@
 #'   only), \code{"ci_type"}, and optionally \code{"boot_draws"}.
 #'
 #' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10),
-#'   x2 = rep(c(0, 0, 1, 1), 5)
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' fit <- brs(y ~ x1, data = prep)
-#' boot <- brs_bootstrap(fit, R = 50, level = 0.95)
-#' print(boot)
-#' }
+#' # Synthetic NRS-11 scores at 6h, 12h, 24h (time is a factor)
+#' set.seed(3)
+#' nrs <- data.frame(time = factor(rep(c("6h", "12h", "24h"), each = 40),
+#'                                 levels = c("6h", "12h", "24h")))
+#' shp <- brs_repar(mu = plogis(-1.3 + c(0, 0.75, 0.3)[nrs$time]), phi = 0.3)
+#' nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+#' fit <- brs(y ~ time, data = nrs, ncuts = 10)
+#'
+#' # Percentile intervals from 30 parametric replicates (use R >= 199 in practice)
+#' set.seed(4)
+#' bt <- brs_bootstrap(fit, R = 30)
+#' bt
+#' # Bootstrap next to Wald limits, and the bootstrap/Wald SE ratio
+#' cols <- c("parameter", "ci_lower", "ci_upper", "wald_lower", "wald_upper")
+#' as.data.frame(bt)[, cols]
+#' round(bt$se_boot / sqrt(diag(vcov(fit))), 2)
 #'
 #' @seealso \code{\link{confint.brs}} for Wald intervals;
 #'   \code{\link{brs_sim}} for simulation; \code{\link{brs}} for fitting.

@@ -397,36 +397,68 @@ model.matrix.brs <- function(object,
 
 # -- Summary ---------------------------------------------------------------- #
 
-#' Summarize a fitted model (betareg style)
+#' Summarize a fitted beta interval model
 #'
 #' @description
-#' Wald tables for the mean and precision coefficients (standard errors
-#' from \code{\link{vcov.brs}}, \code{NA} when not estimable) and the
-#' randomized quantile residuals, drawn without changing the caller's RNG
-#' state (\code{.Random.seed} is restored).
+#' Wald tables for the mean and precision (or dispersion) coefficients,
+#' information criteria, a pseudo \eqn{R^2}, the censoring counts and a
+#' summary of the randomized quantile residuals.
+#'
+#' @details
+#' For each coefficient \eqn{\hat\theta_j}, the standard error is
+#' \eqn{SE_j = \sqrt{[(-H)^{-1}]_{jj}}} from \code{\link{vcov.brs}}, the Wald
+#' statistic is \eqn{z_j = \hat\theta_j / SE_j} and the two-sided p-value is
+#' \eqn{2\Phi(-|z_j|)} (Lopes, 2023, "Inferencia"). The test is on the link
+#' scale (\eqn{H_0: \theta_j = 0}). When \eqn{-H} is singular, or its inverse
+#' has negative variances, the affected standard errors, statistics and
+#' p-values are \code{NA} (see 'Fit diagnostics' in \code{\link{brs}}).
+#'
+#' \eqn{\mathrm{AIC} = -2\ell + 2k} and \eqn{\mathrm{BIC} = -2\ell + k\log n},
+#' with \eqn{\ell} the maximised log-likelihood, \eqn{k} the number of
+#' coefficients and \eqn{n} the number of observations. The pseudo
+#' \eqn{R^2} is the squared correlation between the fitted linear predictor
+#' of the mean and \eqn{g_1(y_i)} at the cell centres \code{yt} (Ferrari and
+#' Cribari-Neto, 2004); under \code{repar = 0} both sides are on the logit
+#' scale. It uses the cell centres, so it is rough when most observations are
+#' censored (the print says so).
+#'
+#' The randomized quantile residuals (\code{\link{residuals.brs}},
+#' \code{type = "rqr"}) are drawn without changing the caller's RNG state.
 #'
 #' @param object A fitted \code{"brs"} object.
-#' @param ...    Ignored.
+#' @param ... Currently ignored.
 #'
-#' @return A list of class \code{"summary.brs"}.
+#' @return A list of class \code{"summary.brs"} with \code{coefficients}
+#'   (tables \code{mean} and \code{precision} with columns \code{Estimate},
+#'   \code{Std. Error}, \code{z value}, \code{Pr(>|z|)}), \code{residuals}
+#'   (RQR), \code{loglik}, \code{AIC}, \code{BIC}, \code{df}, \code{nobs},
+#'   \code{pseudo.r2}, \code{censoring} (counts by type), \code{link},
+#'   \code{link_phi}, \code{repar}, \code{convergence} and \code{iterations}.
 #'
-#' @seealso \code{\link{brs}}, \code{\link{print.summary.brs}},
-#'   \code{\link{brs_est}}, \code{\link{brs_gof}}
+#' @seealso \code{\link{brs}}, \code{\link{confint.brs}},
+#'   \code{\link{anova.brs}}, \code{\link{brs_gof}}
+#'
+#' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: https://hdl.handle.net/1884/86624.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
 #'
 #' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10)
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' fit <- brs(y ~ x1, data = prep)
+#' set.seed(2023)
+#' d <- data.frame(time = factor(rep(c("6h", "12h", "24h"), each = 60),
+#'                               levels = c("6h", "12h", "24h")))
+#' shp <- brs_repar(mu = plogis(-1.3 + c(0, 0.75, 0.3)[d$time]), phi = 0.3)
+#' d$y <- round(10 * rbeta(nrow(d), shp$shape1, shp$shape2))
+#' fit <- brs(y ~ time, data = d, ncuts = 10)
 #' s <- summary(fit)
+#' s
 #' s$coefficients$mean
-#' }
+#' c(AIC = s$AIC, BIC = s$BIC, pseudo_R2 = s$pseudo.r2)
 #'
 #' @method summary brs
 #' @importFrom stats pnorm
@@ -709,48 +741,104 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 
 # -- Residuals -------------------------------------------------------------- #
 
-#' Extract residuals
+#' Residuals of a fitted beta interval model
 #'
-#' @param object A fitted \code{"brs"} object.
-#' @param type   Residual type. One of \code{"response"} (default),
-#'   \code{"pearson"}, \code{"deviance"}, \code{"rqr"} (randomized
-#'   quantile), \code{"weighted"}, or \code{"sweighted"}.
-#' @param ...    Currently ignored.
-#'
-#' @return Numeric vector of residuals.
+#' @description
+#' Residuals of a \code{"brs"} fit. Randomized quantile residuals
+#' (\code{type = "rqr"}) use the censoring of each observation and are the
+#' recommended ones; the other types are evaluated at one point of the cell
+#' (see Details).
 #'
 #' @details
-#' All residuals are computed from the fitted shapes \eqn{(a, b)} and the
-#' mean \eqn{E[Y] = a / (a + b)} (so they are consistent across
-#' reparameterizations). For Pearson residuals the variance is
+#' Let \eqn{(a_i, b_i)} be the fitted shapes, \eqn{\hat\mu_i = a_i/(a_i + b_i)}
+#' the fitted mean and \eqn{V_i} the fitted variance (\code{\link{brs_repar}}).
+#' All types except \code{"rqr"} use \eqn{y_i =} \code{yt}, the centre of the
+#' cell: \eqn{s/K} under \code{interval = "mid"}, so that the border scores
+#' sit at \eqn{10^{-5}} and \eqn{1 - 10^{-5}}, and \eqn{(s + 0.5)/(K + 1)}
+#' under \code{"right"}/\code{"left"}; exact values are used as they are. This
+#' is the midpoint convention of Lopes (2023, "Analise de residuos"); it makes
+#' these residuals unreliable at the borders of the scale.
 #' \describe{
-#'   \item{repar = 1 (precision)}{V = mu(1 - mu) / (1 + phi)}
-#'   \item{repar = 2 (mean-variance)}{V = mu(1 - mu) * phi}
-#'   \item{repar = 0 (shapes)}{V = pq / ((p + q)^2 (p + q + 1))}
+#'   \item{\code{"response"}}{\eqn{y_i - \hat\mu_i}.}
+#'   \item{\code{"pearson"}}{\eqn{(y_i - \hat\mu_i)/\sqrt{V_i}}. Lopes (2023)
+#'     writes \eqn{V_i} as \eqn{\mu(1 - \mu)/(1 + \phi)}
+#'     (parameterisation 1); it is the same variance under every
+#'     \code{repar}.}
+#'   \item{\code{"deviance"}}{\eqn{\mathrm{sign}(y_i - \hat\mu_i)
+#'     \sqrt{|2\{\ell_i(y_i) - \ell_i(\hat\mu_i)\}|}}, where \eqn{\ell_i(m)} is
+#'     the beta log-density at \eqn{y_i} with mean \eqn{m} and precision
+#'     \eqn{a_i + b_i} (Ferrari and Cribari-Neto, 2004). The saturated mean
+#'     is taken as \eqn{y_i}, as in \pkg{betareg}. For a small precision
+#'     (U- or J-shaped densities) \eqn{\ell_i(y_i)} can be below
+#'     \eqn{\ell_i(\hat\mu_i)}; the absolute value is then used and only the
+#'     sign carries information.}
+#'   \item{\code{"rqr"}}{\eqn{\Phi^{-1}(u_i)}, with \eqn{u_i} uniform on
+#'     \eqn{(F(l_i), F(u_i))} for \eqn{\delta_i = 3}, on \eqn{(0, F(u_i))} for
+#'     \eqn{\delta_i = 1} and on \eqn{(F(l_i), 1)} for \eqn{\delta_i = 2}, and
+#'     \eqn{u_i = F(y_i)} for exact values (Dunn and Smyth, 1996); \eqn{u_i}
+#'     is kept in \eqn{[10^{-10}, 1 - 10^{-10}]}. They are standard normal
+#'     under the model whatever the censoring. They are random: set a seed
+#'     to reproduce them; \code{summary()} draws them without changing the
+#'     caller's RNG state.}
+#'   \item{\code{"weighted"}, \code{"sweighted"}}{\eqn{(y_i^* - \mu_i^*)/
+#'     \sqrt{(a_i + b_i) v_i}} and \eqn{(y_i^* - \mu_i^*)/\sqrt{v_i}}, with
+#'     \eqn{y_i^* = \mathrm{logit}(y_i)}, \eqn{\mu_i^* = \psi(a_i) - \psi(b_i)}
+#'     and \eqn{v_i = \psi'(a_i) + \psi'(b_i)} (Espinheira, Ferrari and
+#'     Cribari-Neto, 2008).}
 #' }
-#' The weighted and sweighted residuals use
-#' \eqn{y^* = \mathrm{logit}(y)}, \eqn{\mu^* = \psi(a) - \psi(b)} and
-#' \eqn{v = \psi'(a) + \psi'(b)} (Espinheira, Ferrari and Cribari-Neto,
-#' 2008), with the precision \eqn{a + b}. Deviance residuals compare the
-#' fit with a saturated model that has mean \eqn{y} and the same
-#' precision \eqn{a + b}.
+#' Lopes (2023) also recommends the adjusted quantile residuals of Pereira
+#' (2019), which are not implemented.
+#'
+#' @param object A fitted \code{"brs"} object.
+#' @param type Residual type: \code{"response"} (default), \code{"pearson"},
+#'   \code{"deviance"}, \code{"rqr"}, \code{"weighted"} or
+#'   \code{"sweighted"}.
+#' @param ... Currently ignored.
+#'
+#' @return Numeric vector of residuals, one per observation.
 #'
 #' @seealso \code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}}
 #'
+#' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: https://hdl.handle.net/1884/86624.
+#'
+#' Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
+#' \emph{Journal of Computational and Graphical Statistics}, \bold{5}(3),
+#' 236--244.
+#'
+#' Espinheira, P. L., Ferrari, S. L. P., and Cribari-Neto, F. (2008). On beta
+#' regression residuals. \emph{Journal of Applied Statistics}, \bold{35}(4),
+#' 407--419.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
+#'
+#' Pereira, G. H. A. (2019). On quantile residuals in beta regression.
+#' \emph{Communications in Statistics - Simulation and Computation},
+#' \bold{48}(1), 302--316.
+#'
 #' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10)
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' fit <- brs(y ~ x1, data = prep)
-#' head(residuals(fit))
-#' head(residuals(fit, type = "pearson"))
-#' }
+#' # Synthetic NRS-11 scores: 3 post-operative times. Simulated, not real data.
+#' set.seed(2023)
+#' nrs <- data.frame(time = factor(rep(c("6h", "12h", "24h"), each = 80),
+#'                                 levels = c("6h", "12h", "24h")))
+#' shp <- brs_repar(mu = plogis(-1.3 + c(0, 0.75, 0.3)[nrs$time]), phi = 0.3,
+#'                  repar = 2)
+#' nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+#' fit <- brs(y ~ time, data = nrs, ncuts = 10)
+#'
+#' # Randomized quantile residuals: approximately N(0, 1), borders included
+#' set.seed(1)
+#' r_q <- residuals(fit, type = "rqr")
+#' qqnorm(r_q); qqline(r_q)
+#'
+#' # Midpoint-based residuals are extreme at the border scores 0 and 10
+#' r_p <- residuals(fit, type = "pearson")
+#' tapply(r_p, cut(nrs$y, c(-1, 0, 9, 10), labels = c("0", "1-9", "10")), mean)
 #'
 #' @method residuals brs
 #' @importFrom stats residuals qnorm pbeta dbeta qlogis
@@ -857,36 +945,44 @@ residuals.brs <- function(object,
 #' Wald confidence intervals
 #'
 #' @description
-#' Computes Wald confidence intervals for model parameters using the
-#' normal approximation.
+#' Wald intervals \eqn{\hat\theta_j \pm z_{1 - \alpha/2} SE_j} on the link
+#' scale, with \eqn{SE_j} from \code{\link{vcov.brs}} (Lopes, 2023,
+#' "Inferencia").
+#'
+#' @details
+#' Intervals for a mean or precision on the response scale follow by the
+#' inverse link of the limits (monotone links). A limit is \code{NA} when the
+#' variance is not estimable (see 'Fit diagnostics' in \code{\link{brs}}).
+#' For small samples or parameters near the border of the scale,
+#' \code{\link{brs_bootstrap}} gives intervals that do not rely on the normal
+#' approximation.
 #'
 #' @param object A fitted \code{"brs"} object.
-#' @param parm   Character or integer: which parameters. If missing,
-#'   all parameters are returned.
-#' @param level  Confidence level (default 0.95).
-#' @param model  Character: \code{"full"}, \code{"mean"}, or
+#' @param parm Character or integer: which parameters. If missing, all
+#'   parameters of \code{model} are returned.
+#' @param level Confidence level (default 0.95).
+#' @param model Character: \code{"full"}, \code{"mean"} or
 #'   \code{"precision"}.
-#' @param ...    Currently ignored.
+#' @param ... Currently ignored.
 #'
-#' @return Matrix with columns for lower and upper confidence bounds.
+#' @return Matrix with the lower and upper limits.
 #'
-#' @seealso \code{\link{brs}}, \code{\link{coef.brs}}, \code{\link{vcov.brs}},
-#'   \code{\link{brs_est}}
+#' @seealso \code{\link{brs}}, \code{\link{vcov.brs}},
+#'   \code{\link{brs_bootstrap}}, \code{\link{brs_est}}
+#'
+#' @references
+#' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+#' Master's dissertation, Universidade Federal do Parana, Curitiba.
+#' URI: https://hdl.handle.net/1884/86624.
 #'
 #' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10)
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' fit <- brs(y ~ x1, data = prep)
+#' set.seed(2023)
+#' d <- data.frame(x = runif(150))
+#' s <- brs_sim(~ x, data = d, beta = c(-0.5, 1), phi = qlogis(0.3), ncuts = 10)
+#' fit <- brs(y ~ x, data = s)
 #' confint(fit)
-#' confint(fit, model = "mean")
-#' }
+#' # Mean at x = 0 on (0, 1): inverse logit of the intercept limits
+#' plogis(confint(fit, parm = "(Intercept)"))
 #'
 #' @method confint brs
 #' @importFrom stats confint qnorm

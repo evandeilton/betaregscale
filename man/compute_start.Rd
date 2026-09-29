@@ -27,7 +27,7 @@ multi-part).}
 \item{link_phi}{Dispersion link function name (\code{NULL}: default for
 \code{repar}).}
 
-\item{ncuts}{Number of scale categories.}
+\item{ncuts}{Maximum score \eqn{K} (scale \eqn{0, \ldots, K}).}
 
 \item{lim}{Uncertainty half-width.}
 

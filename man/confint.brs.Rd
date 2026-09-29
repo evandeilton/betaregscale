@@ -15,40 +15,48 @@
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
 
-\item{parm}{Character or integer: which parameters. If missing,
-all parameters are returned.}
+\item{parm}{Character or integer: which parameters. If missing, all
+parameters of \code{model} are returned.}
 
 \item{level}{Confidence level (default 0.95).}
 
-\item{model}{Character: \code{"full"}, \code{"mean"}, or
+\item{model}{Character: \code{"full"}, \code{"mean"} or
 \code{"precision"}.}
 
 \item{...}{Currently ignored.}
 }
 \value{
-Matrix with columns for lower and upper confidence bounds.
+Matrix with the lower and upper limits.
 }
 \description{
-Computes Wald confidence intervals for model parameters using the
-normal approximation.
+Wald intervals \eqn{\hat\theta_j \pm z_{1 - \alpha/2} SE_j} on the link
+scale, with \eqn{SE_j} from \code{\link{vcov.brs}} (Lopes, 2023,
+"Inferencia").
+}
+\details{
+Intervals for a mean or precision on the response scale follow by the
+inverse link of the limits (monotone links). A limit is \code{NA} when the
+variance is not estimable (see 'Fit diagnostics' in \code{\link{brs}}).
+For small samples or parameters near the border of the scale,
+\code{\link{brs_bootstrap}} gives intervals that do not rely on the normal
+approximation.
 }
 \examples{
-\donttest{
-dat <- data.frame(
-  y = c(
-    0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-    10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-  ),
-  x1 = rep(c(1, 2), 10)
-)
-prep <- brs_prep(dat, ncuts = 100)
-fit <- brs(y ~ x1, data = prep)
+set.seed(2023)
+d <- data.frame(x = runif(150))
+s <- brs_sim(~ x, data = d, beta = c(-0.5, 1), phi = qlogis(0.3), ncuts = 10)
+fit <- brs(y ~ x, data = s)
 confint(fit)
-confint(fit, model = "mean")
-}
+# Mean at x = 0 on (0, 1): inverse logit of the intercept limits
+plogis(confint(fit, parm = "(Intercept)"))
 
 }
+\references{
+Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
+Master's dissertation, Universidade Federal do Parana, Curitiba.
+URI: https://hdl.handle.net/1884/86624.
+}
 \seealso{
-\code{\link{brs}}, \code{\link{coef.brs}}, \code{\link{vcov.brs}},
-  \code{\link{brs_est}}
+\code{\link{brs}}, \code{\link{vcov.brs}},
+  \code{\link{brs_bootstrap}}, \code{\link{brs_est}}
 }

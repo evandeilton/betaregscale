@@ -2,55 +2,77 @@
 % Please edit documentation in R/links.R
 \name{brs_repar}
 \alias{brs_repar}
-\title{Reparameterize (mu, phi) into beta shape parameters}
+\title{Beta shape parameters from the parameters of each scheme}
 \usage{
 brs_repar(mu, phi, repar = 2L)
 }
 \arguments{
-\item{mu}{Numeric vector: the first parameter. The mean, in
-\eqn{(0, 1)}, for \code{repar = 1, 2}; the shape \eqn{p > 0} for
+\item{mu}{Numeric vector: the first parameter, i.e. the mean in
+\eqn{(0, 1)} for \code{repar = 1, 2} and the shape \eqn{p > 0} for
 \code{repar = 0}.}
 
-\item{phi}{Numeric vector (or scalar): the second parameter
-(precision \eqn{\phi > 0}, dispersion \eqn{\phi \in (0, 1)}, or shape
-\eqn{q > 0}).}
+\item{phi}{Numeric vector (or scalar): the second parameter, i.e. the
+precision \eqn{\phi > 0}, the dispersion \eqn{\phi \in (0, 1)} or the
+shape \eqn{q > 0}.}
 
-\item{repar}{Integer (0, 1, or 2) selecting the scheme.}
+\item{repar}{Integer (0, 1 or 2) selecting the scheme (default 2).}
 }
 \value{
-A \code{data.frame} with columns \code{shape1} and
-  \code{shape2}.
+A \code{data.frame} with columns \code{shape1} (\eqn{a}) and
+  \code{shape2} (\eqn{b}), one row per element of the recycled inputs.
 }
 \description{
-Converts a mean–dispersion pair \eqn{(\mu, \phi)} to the shape
-parameters \eqn{(a, b)} of the beta distribution under one of
-three reparameterization schemes.
+Converts the pair \code{(mu, phi)} of one of three parameterisations into
+the shapes \eqn{(a, b)} of the beta density
+\eqn{f(y) = y^{a - 1}(1 - y)^{b - 1}/B(a, b)}, \eqn{0 < y < 1}.
 }
 \details{
-The three schemes are:
-\describe{
-  \item{\code{repar = 0}}{Shapes: \eqn{a = p,\; b = q} with
-    \eqn{p, q > 0} (the first argument is \eqn{p}, the second
-    \eqn{q}). Both parameters live on \eqn{(0, \infty)} and the
-    mean is \eqn{E[Y] = p / (p + q)}. Regression directly on the
-    shapes is a package extension: the dissertation presents the
-    \eqn{(p, q)} form (its eq. \code{eqn_beta_p1}) and builds the
-    regression models on the two reparameterizations below.}
-  \item{\code{repar = 1}}{Ferrari–Cribari-Neto (dissertation
-    "parametrização 1", eq. \code{eqn_beta_p2}):
-    \eqn{a = \mu\phi,\; b = (1 - \mu)\phi}, where \eqn{\mu \in (0, 1)}
-    is the mean and \eqn{\phi > 0} acts as a precision parameter.}
-  \item{\code{repar = 2}}{Mean–dispersion (dissertation
-    "parametrização 2", eq. \code{eqn_beta_p3}):
-    \eqn{a = \mu(1-\phi)/\phi,\; b = (1-\mu)(1-\phi)/\phi},
-    where \eqn{\mu \in (0, 1)} is the mean and \eqn{\phi \in (0,1)}
-    is a dispersion parameter (\eqn{Var[Y] = \phi\,\mu(1-\mu)}).}
+\tabular{lllll}{
+  \code{repar} \tab \code{mu}, \code{phi} \tab \eqn{(a, b)} \tab
+    \eqn{E[Y]} \tab \eqn{\mathrm{Var}[Y]} \cr
+  0 \tab shapes \eqn{p, q > 0} \tab \eqn{(p, q)} \tab \eqn{p/(p + q)}
+    \tab \eqn{pq/\{(p + q)^2 (p + q + 1)\}} \cr
+  1 \tab mean \eqn{\mu \in (0, 1)}, precision \eqn{\phi > 0} \tab
+    \eqn{(\mu\phi, (1 - \mu)\phi)} \tab \eqn{\mu} \tab
+    \eqn{\mu(1 - \mu)/(1 + \phi)} \cr
+  2 \tab mean \eqn{\mu \in (0, 1)}, dispersion \eqn{\phi \in (0, 1)} \tab
+    \eqn{(\mu\tau, (1 - \mu)\tau)}, \eqn{\tau = (1 - \phi)/\phi} \tab
+    \eqn{\mu} \tab \eqn{\phi\,\mu(1 - \mu)}
 }
-The admissible link functions follow from these domains; see the
-'Reparameterizations and links' section of \code{\link{brs}}.
+The three describe the same family: \eqn{a + b} is the precision, and the
+dispersion of \code{repar = 2} is
+\deqn{\phi = \frac{\mathrm{Var}[Y]}{\mu(1 - \mu)} = \frac{1}{1 + a + b},}
+the share of the largest possible variance \eqn{\mu(1 - \mu)}, which is
+approached as \eqn{a + b \to 0}. It is not a coefficient of variation.
+
+In Lopes (2023) these are eq. \code{eqn_beta_p1} (shapes \eqn{p, q}),
+"parametrizacao 1" (Ferrari and Cribari-Neto, 2004; eq.
+\code{eqn_beta_p2}) and "parametrizacao 2" (Bayer, 2011; eq.
+\code{eqn_beta_p3}), where the dispersion is written \eqn{\sigma}. The
+package names the second parameter \code{phi} in every scheme. Regression
+on the shapes (\code{repar = 0}) is a package extension. Admissible links
+per scheme: section 'Reparameterizations and links' of \code{\link{brs}}.
 }
 \examples{
-brs_repar(mu = 0.5, phi = 0.2, repar = 2)
+# One beta distribution in the three parameterisations: shapes (6, 14)
+brs_repar(mu = 0.3, phi = 20, repar = 1)      # mean 0.3, precision 20
+brs_repar(mu = 0.3, phi = 1 / 21, repar = 2)  # mean 0.3, dispersion 1/(1 + 20)
+brs_repar(mu = 6, phi = 14, repar = 0)        # shapes p = 6, q = 14
+
+# Back from shapes: mean, precision a + b, dispersion 1 / (1 + a + b)
+sh <- brs_repar(mu = 0.3, phi = 20, repar = 1)
+c(mean = sh$shape1 / (sh$shape1 + sh$shape2),
+  precision = sh$shape1 + sh$shape2,
+  dispersion = 1 / (1 + sh$shape1 + sh$shape2))
+
+# E[Y] and Var[Y] agree across parameterisations: 0.3 and 0.21 / 21 = 0.01
+mu <- 0.3
+c(var_repar1 = mu * (1 - mu) / (1 + 20),
+  var_repar2 = mu * (1 - mu) * (1 / 21),
+  var_shapes = 6 * 14 / ((6 + 14)^2 * (6 + 14 + 1)))
+
+# Vectorised: one row per observation
+brs_repar(mu = c(0.2, 0.5, 0.8), phi = 0.1, repar = 2)
 
 }
 \references{
@@ -58,19 +80,11 @@ Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 Master's dissertation, Universidade Federal do Parana, Curitiba.
 URI: https://hdl.handle.net/1884/86624.
 
-Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
-Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
-Numeric Rating Scale for Pain (NRS Pain), McGill Pain Questionnaire (MPQ),
-Short-Form McGill Pain Questionnaire (SF-MPQ), Chronic Pain Grade Scale
-(CPGS), Short Form-36 Bodily Pain Scale (SF-36 BPS), and Measure of
-Intermittent and Constant Osteoarthritis Pain (ICOAP).
-Arthritis Care and Research, 63(S11), S240-S252.
-\doi{10.1002/acr.20543}
+Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+Beta regression for modelling rates and proportions.
+\emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+\doi{10.1080/0266476042000214501}
 
-Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
-Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
-Visual Analogue Scales for assessment of pain intensity in adults:
-a systematic literature review.
-Journal of Pain and Symptom Management, 41(6), 1073-1093.
-\doi{10.1016/j.jpainsymman.2010.08.016}
+Bayer, F. M. (2011). \emph{Modelagem e inferencia em regressao beta}.
+PhD thesis, Universidade Federal de Pernambuco.
 }

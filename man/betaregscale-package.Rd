@@ -6,67 +6,86 @@
 \alias{betaregscale-package}
 \title{betaregscale: Beta Regression for Interval-Censored Scale-Derived Outcomes}
 \description{
-Maximum-likelihood estimation of beta regression models for responses
-derived from bounded rating scales. Observations are treated as
-interval-censored on (0, 1) after a scale-to-unit transformation.
-The complete likelihood supports mixed censoring types: uncensored
-(exact), left-censored, right-censored, and interval-censored
-observations. Both fixed- and
-variable-dispersion submodels are supported, with flexible link
-functions for the mean and precision components. A compiled C++
-backend (via Rcpp and RcppArmadillo) provides numerically stable,
-high-performance log-likelihood evaluation. Standard S3 methods
-(print(), summary(), coef(), fitted(), residuals(), predict(),
-plot(), confint(), vcov(), logLik(), AIC(), BIC()) are available
-for fitted objects.
+Maximum-likelihood beta regression for scores recorded on a bounded scale
+\eqn{\{0, 1, \ldots, K\}} (pain rating scales, Likert-type items, ratings),
+where \eqn{K =} \code{ncuts} is the maximum score; a scale that starts at
+1 is shifted to start at 0.
+A score is read as a coarsened observation of a latent \eqn{Y \in (0, 1)}
+with a beta distribution: each score maps to a cell \eqn{[l_i, u_i]} of
+\eqn{(0, 1)} and contributes the beta probability of that cell to the
+likelihood. This is the interval beta regression model of Lopes (2023).
+The package fits fixed- and variable-dispersion models (\code{\link{brs}})
+and mixed models with random intercepts and slopes (\code{\link{brsmm}}),
+and provides simulation, score probabilities, bootstrap, cross-validation
+and marginal effects.
 }
+\section{Model}{
+
+For observation \eqn{i},
+\deqn{Y_i \sim \mathrm{Beta}(a_i, b_i), \qquad
+  g_1(\mu_i) = x_i^\top \beta, \qquad g_2(\phi_i) = z_i^\top \gamma,}
+where \eqn{(a_i, b_i)} follow from \eqn{(\mu_i, \phi_i)} under one of three
+parameterisations (\code{\link{brs_repar}}). The default,
+\code{repar = 2}, uses the mean \eqn{\mu} and the dispersion
+\eqn{\phi = 1/(1 + a + b)}, written \eqn{\sigma} in Lopes (2023). The
+score \eqn{s_i} gives the cell \eqn{[l_i, u_i]} and the censoring type
+\eqn{\delta_i} (\code{\link{brs_check}}), and the log-likelihood is
+\deqn{\ell(\beta, \gamma) = \sum_{\delta_i = 0} \log f(y_i)
+  + \sum_{\delta_i = 1} \log F(u_i)
+  + \sum_{\delta_i = 2} \log\{1 - F(l_i)\}
+  + \sum_{\delta_i = 3} \log\{F(u_i) - F(l_i)\},}
+with \eqn{f} and \eqn{F} the beta density and distribution function.
+Scores 0 and \eqn{K} are left- and right-censored (\eqn{\delta = 1, 2}),
+other scores interval-censored (\eqn{\delta = 3}); values already in
+\eqn{(0, 1)} are exact (\eqn{\delta = 0}).
+}
+
 \section{Main functions}{
 
 \describe{
-  \item{\code{\link{brs}}}{Unified fitting interface for both
-    fixed- and variable-dispersion models.}
-  \item{\code{\link{brs_fit_fixed}}}{Fit a fixed-dispersion model.}
-  \item{\code{\link{brs_fit_var}}}{Fit a variable-dispersion model.}
-  \item{\code{\link{brsmm}}}{Fit a mixed-effects beta interval model
-    with Gaussian random intercepts.}
-  \item{\code{\link{brs_sim}}}{Simulate interval-censored
-    data from fixed or variable-dispersion beta models.}
-  \item{\code{\link{brs_bootstrap}}}{Parametric bootstrap confidence
-    intervals for \code{brs} model parameters.}
-  \item{\code{\link{brs_cens}}}{Visual and tabular summary of
-    censoring structure.}
-  \item{\code{\link{brs_prep}}}{Pre-process analyst data (validate,
-    classify censoring, and rescale) before model fitting.}
+  \item{\code{\link{brs_check}}, \code{\link{brs_prep}}}{Scores (or
+    analyst-supplied intervals) to cells and censoring types.}
+  \item{\code{\link{brs}}}{Model fit; \code{\link{brs_fit_fixed}} and
+    \code{\link{brs_fit_var}} are the fixed- and variable-dispersion
+    workers.}
+  \item{\code{\link{brsmm}}}{Mixed model with Gaussian random intercepts
+    and slopes (Laplace, adaptive Gauss-Hermite or quasi-Monte Carlo
+    integration).}
+  \item{\code{\link{brs_sim}}}{Simulate scores from the model.}
+  \item{\code{\link{brs_predict_scoreprob}}}{Predicted probability of each
+    score.}
+  \item{\code{\link{brs_bootstrap}}, \code{\link{brs_cv}},
+    \code{\link{brs_marginaleffects}}, \code{\link{brs_table}}}{Parametric
+    bootstrap, cross-validation, average marginal effects and model
+    comparison tables.}
 }
-}
-
-\section{S3 methods}{
-
-Objects of class \code{"brs"} support: \code{print()},
-\code{summary()}, \code{coef()}, \code{vcov()}, \code{logLik()}, \code{AIC()},
-\code{BIC()}, \code{nobs()}, \code{formula()}, \code{model.matrix()},
-\code{fitted()}, \code{residuals()}, \code{predict()}, \code{confint()},
-and \code{plot()}.
-
-The \code{coef()} and \code{vcov()} methods accept a
-\code{model = c("full", "mean", "precision")} argument following
-the \pkg{betareg} package convention.
+Fits of class \code{"brs"} and \code{"brsmm"} have methods for
+\code{print}, \code{summary}, \code{coef}, \code{vcov}, \code{confint},
+\code{logLik}, \code{AIC}, \code{BIC}, \code{nobs}, \code{anova},
+\code{fitted}, \code{residuals}, \code{predict}, \code{plot} and
+\code{autoplot}. As in \pkg{betareg}, \code{coef()} and \code{vcov()} take
+\code{model = c("full", "mean", "precision")}. Every fit checks its
+gradient, Hessian and likelihood clamps and warns in one line when
+something is wrong ('Fit diagnostics' in \code{\link{brs}}).
 }
 
-\section{Censoring types}{
+\section{Relation to other approaches}{
 
-The complete likelihood supports four
-censoring types, classified automatically by
-\code{\link{brs_check}}:
-\describe{
-  \item{\eqn{\delta = 0} (exact)}{Continuous observations in (0, 1).}
-  \item{\eqn{\delta = 1} (left-censored)}{Observations at the scale
-    minimum (y = 0).}
-  \item{\eqn{\delta = 2} (right-censored)}{Observations at the scale
-    maximum (y = ncuts).}
-  \item{\eqn{\delta = 3} (interval-censored)}{Standard scale
-    observations between the boundaries.}
-}
+The model is the interval beta regression (model M2) of Lopes (2023). That
+dissertation compares it with beta regression on the rescaled scores
+(\pkg{betareg}, M1) and with the quasi-beta regression of Bonat et al.
+(2019), fitted with \pkg{mcglm} (Bonat and Jørgensen, 2016), which
+specifies only the mean and the variance (M3). In that study's simulations
+M3 had Wald coverage closest to 95\%, M1 and M2 fell below 90\% in
+several scenarios with more than 500 observations and dispersion above
+0.2, and M3 tended to underestimate the covariate effects; on its
+knee-surgery data M1 and M2 gave similar time effects. These are results
+of that study and of the implementation used then, not properties
+guaranteed by the package (a Monte Carlo study of the current code is in
+\code{vignette("brs-advanced-workflows")}). The interval model is useful
+when the coarsening of the scale is part of the question: it gives score
+probabilities, treats the borders of the scale as censoring and supports
+likelihood-ratio tests.
 }
 
 \references{
@@ -78,15 +97,17 @@ Ferrari, S. L. P., and Cribari-Neto, F. (2004).
 Beta regression for modelling rates and proportions.
 \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
 \doi{10.1080/0266476042000214501}
+
+Bonat, W. H., Petterle, R. R., Hinde, J., and Demétrio, C. G. B. (2019).
+Flexible quasi-beta regression models for continuous bounded data.
+\emph{Statistical Modelling}, \bold{19}(6), 617--633.
+
+Bonat, W. H., and Jørgensen, B. (2016). Multivariate covariance
+generalized linear models. \emph{Journal of the Royal Statistical Society:
+Series C (Applied Statistics)}, \bold{65}(5), 649--675.
 }
 \seealso{
-Useful links:
-\itemize{
-  \item \url{https://evandeilton.github.io/betaregscale/}
-  \item \url{https://github.com/evandeilton/betaregscale}
-  \item Report bugs at \url{https://github.com/evandeilton/betaregscale/issues}
-}
-
+\code{vignette("brs-intro", package = "betaregscale")}
 }
 \author{
 \strong{Maintainer}: José Evandeilton Lopes \email{evandeilton@gmail.com} (\href{https://orcid.org/0009-0007-5887-4084}{ORCID})

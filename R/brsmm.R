@@ -5,111 +5,123 @@
 #' Fit a mixed-effects beta interval regression model
 #'
 #' @description
-#' Fits a beta interval-censored mixed model with Gaussian random
-#' intercepts/slopes using marginal maximum likelihood. The implementation supports
-#' random-effects formulas such as \code{~ 1 | group} and \code{~ 1 + x | group},
-#' and offers three integration methods for the
-#' random effects: Laplace approximation, Adaptive Gauss-Hermite Quadrature
-#' (AGHQ), and Quasi-Monte Carlo (QMC).
+#' Beta interval regression (\code{\link{brs}}) with Gaussian random effects
+#' in the linear predictor of the first parameter (the mean, or the shape
+#' \eqn{p} under \code{repar = 0}), fitted by marginal maximum likelihood.
+#' \code{random = ~ 1 | id} gives a random intercept per group,
+#' \code{~ 1 + x | id} a random intercept and slope with a free correlation.
 #'
 #' @details
-#' The conditional contribution for each observation follows the same mixed
-#' censoring likelihood used by \code{\link{brs}}:
-#'
-#' \enumerate{
-#'   \item \eqn{\delta=0}: exact contribution via beta density,
-#'   \item \eqn{\delta=1}: left-censored contribution via beta CDF,
-#'   \item \eqn{\delta=2}: right-censored contribution via survival CDF,
-#'   \item \eqn{\delta=3}: interval contribution via CDF difference.
+#' For group \eqn{g} with observations \eqn{i}, the model is
+#' \deqn{g_1(\mu_{gi}) = x_{gi}^\top \beta + x_{r,gi}^\top b_g, \qquad
+#'   g_2(\phi_{gi}) = z_{gi}^\top \gamma, \qquad b_g \sim N(0, D),}
+#' with the censored contributions of \code{\link{brs}}. The marginal
+#' log-likelihood is \eqn{\sum_g \log \int \exp\{h_g(b)\}\, db}, where
+#' \eqn{h_g(b) = \sum_i \ell_{gi}(b) + \log \varphi(b; 0, D)}. The integral
+#' is computed around the mode \eqn{\hat b_g} of \eqn{h_g}, with
+#' \eqn{H_g = -\partial^2 h_g / \partial b\, \partial b^\top} there:
+#' \describe{
+#'   \item{\code{"laplace"}}{\eqn{h_g(\hat b_g) + \frac{q}{2}\log(2\pi) -
+#'     \frac12 \log |H_g|}; fast, accurate when groups are not tiny.}
+#'   \item{\code{"aghq"}}{adaptive Gauss-Hermite quadrature: a product grid of
+#'     \code{n_points} nodes per dimension at
+#'     \eqn{\hat b_g + \sqrt{2}\, H_g^{-1/2} z}, with the symmetric square
+#'     root \eqn{H_g^{-1/2}} (\code{n_points}\eqn{^q} nodes, at most
+#'     500000).}
+#'   \item{\code{"qmc"}}{importance sampling from \eqn{N(\hat b_g, H_g^{-1})}
+#'     (nodes \eqn{\hat b_g + H_g^{-1/2} z}) on \code{qmc_points} Halton
+#'     points. It is deterministic and, with two or more random effects,
+#'     underestimates the log-likelihood (about \eqn{-0.05} at 1024 points
+#'     in the package's two-effect checks); prefer \code{"aghq"} for up to
+#'     three random effects.}
 #' }
+#' The inner mode is found by a Levenberg--Marquardt Newton method,
+#' warm-started from the modes of the previous evaluation (the cache is
+#' cleared at the start of each fit). A group whose curvature is not positive
+#' definite at its mode adds the penalty value \eqn{-10^6} instead of a
+#' silently regularised term, and \code{brsmm()} warns.
 #'
-#' For group \eqn{i}, the random-effects vector
-#' \eqn{\mathbf{b}_i \sim N(\mathbf{0}, D)} is integrated out numerically.
+#' \eqn{D = LL^\top} is parameterised by its lower Cholesky factor: the
+#' log of each diagonal entry and the off-diagonal entries as they are
+#' (\code{(re_chol_logsd)_} and \code{(re_chol)_} in \code{coef()}).
+#' \code{\link{summary.brsmm}} reports the standard deviations and
+#' correlations with intervals; \code{\link{brsmm_re_study}} the intraclass
+#' correlation.
 #'
-#' \itemize{
-#'   \item \code{"laplace"}: Uses a second-order Laplace approximation at the
-#'     conditional mode. Fast and generally accurate for \eqn{n_i} large.
-#'   \item \code{"aghq"}: Adaptive Gauss-Hermite Quadrature. Uses \code{n_points}
-#'     quadrature nodes centered and scaled by the conditional mode and curvature.
-#'     More accurate than Laplace, especially for small \eqn{n_i}.
-#'   \item \code{"qmc"}: Quasi-Monte Carlo integration using a Halton sequence.
-#'     Uses \code{qmc_points} evaluation points. Suitable for high-dimensional
-#'     integration (future proofing) or checking robustness.
+#' @section Estimation:
+#' \code{\link[stats]{optim}} maximises the marginal log-likelihood with its
+#' compiled gradient: the derivative of the chosen approximation by the chain
+#' rule on the linear predictor and the implicit-function theorem at the group
+#' modes (including the movement of the quadrature nodes), with
+#' per-observation derivatives by central differences. The Hessian for
+#' \code{vcov()} (\code{hessian_method = "cpp"}, the default) is a Richardson
+#' central difference of that gradient. Starting values: \code{start} when
+#' given; otherwise those of \code{\link{brs}} for the fixed effects and
+#' \eqn{\log} of the between-group SD of the cell centres (at least 0.1) for
+#' the random effects.
+#'
+#' @section Diagnostics:
+#' The checks of \code{\link{brs}} ('Fit diagnostics') apply, with the
+#' compiled gradient (a central difference with step \eqn{10^{-3}} if it is
+#' not finite). In addition:
+#' \describe{
+#'   \item{\dQuote{Variance component at the boundary}}{A random-effect term
+#'     has log SD below \eqn{-6}, or raises the log-likelihood by less than
+#'     \eqn{10^{-3}} over the same fit with that SD at zero. Its variance is
+#'     essentially zero; the standard error of its log SD is meaningless. Test
+#'     the term with \code{\link{anova.brsmm}} (chi-bar-square mixture) and
+#'     drop it if not needed. When the gain is negative the message adds that
+#'     SD \eqn{\approx 0} has a higher log-likelihood: \code{optim} stopped
+#'     short of the maximum.}
+#'   \item{\dQuote{group(s) have no positive-definite random-effect mode}}{Those
+#'     groups contribute the penalty value; the fit is not reliable. Simplify
+#'     the random-effects structure or check the data of those groups.}
 #' }
+#' \code{fit$diagnostics} stores \code{re_boundary}, \code{re_gain} and
+#' \code{inner} (number of such groups, largest gradient norm at the modes).
+#' Rank-deficient fixed-effect or random-effect design matrices are an error.
 #'
-#' @param formula Model formula. Supports one- or two-part formulas:
-#'   \code{y ~ x1 + x2} or \code{y ~ x1 + x2 | z1 + z2}.
-#' @param random Random-effects specification of the form
-#'   \code{~ terms | group}, e.g. \code{~ 1 | id} or \code{~ 1 + x | id}.
-#' @param data Data frame.
-#' @param link Link for the first parameter (the mean under
-#'   \code{repar = 1, 2}; the shape \eqn{p} under \code{repar = 0}).
-#'   \code{NULL} (default) selects the link implied by \code{repar}; see
-#'   the 'Reparameterizations and links' section of \code{\link{brs}}.
-#' @param link_phi Link for the second parameter; \code{NULL} (default)
-#'   selects the link implied by \code{repar}.
-#' @param repar Beta reparameterization code (0, 1, 2); see
-#'   \code{\link{brs_repar}}.
-#' @param ncuts Number of categories on the original scale. \code{NULL}
-#'   (default) uses \code{attr(data, "ncuts")} from \code{\link{brs_prep}},
-#'   or 100; an explicit different value is ignored with a warning.
-#' @param lim Half-width of the score cell in \eqn{(0, 0.5]}
-#'   (\code{interval = "mid"} only). \code{NULL} (default) uses
-#'   \code{attr(data, "lim")}, or 0.5; same rule as \code{ncuts}.
-#' @param interval Direction of the uncertainty interval, \code{"mid"},
-#'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
-#'   \code{NULL} (default) uses \code{attr(data, "interval")}, or
-#'   \code{"mid"}; same rule as \code{ncuts}.
-#' @param int_method Integration method: \code{"laplace"} (default),
-#'   \code{"aghq"}, or \code{"qmc"}. AGHQ and QMC centre the nodes at each
-#'   group's mode and scale them by the symmetric root of its curvature. With
-#'   two or more random effects QMC (a deterministic importance sampler on a
-#'   Halton grid) underestimates the log-likelihood: at 1024 points the error
-#'   averaged -0.05 over 30 two-effect data sets. Prefer \code{"aghq"} when
-#'   there are at most three random effects.
-#' @param n_points Number of quadrature points for \code{int_method="aghq"}.
-#'   Ignored for other methods. Default is 11.
-#' @param qmc_points Number of QMC points for \code{int_method="qmc"}.
-#'   Default is 1024.
-#' @param start Optional numeric vector of starting values
-#'   (\code{beta}, \code{gamma}, and packed lower-Cholesky random parameters).
-#' @param method Optimizer passed to \code{\link[stats]{optim}}.
-#' @param hessian_method \code{"cpp"} (default), \code{"numDeriv"} or
-#'   \code{"optim"}. \code{"cpp"} differentiates the compiled gradient of the
-#'   marginal log-likelihood (Richardson central differences). That gradient,
-#'   also passed to \code{\link[stats]{optim}}, is the derivative of the chosen
-#'   approximation by the chain rule and the implicit-function theorem at the
-#'   group modes, with per-observation derivatives in the linear predictor
-#'   computed by central differences.
-#' @param control Control list for \code{\link[stats]{optim}}; its entries
-#'   are merged into the default \code{list(maxit = 2000L)}, so
-#'   \code{control = list(reltol = 1e-10)} keeps \code{maxit = 2000}.
+#' @param formula Model formula: \code{y ~ x1 + x2} or
+#'   \code{y ~ x1 + x2 | z1 + z2} (see \code{\link{brs}}).
+#' @param random Random-effects formula \code{~ terms | group}, e.g.
+#'   \code{~ 1 | id} or \code{~ 1 + x | id}.
+#' @param data Data frame (raw scores, or the output of
+#'   \code{\link{brs_prep}}).
+#' @param link,link_phi Links for the first and second parameter;
+#'   \code{NULL} (default) selects those implied by \code{repar} (see
+#'   \code{\link{brs}}).
+#' @param repar Parameterisation (0, 1 or 2); see \code{\link{brs_repar}}.
+#' @param ncuts Integer \eqn{K}: the maximum score (scale
+#'   \eqn{0, \ldots, K}). \code{NULL} (default) uses the value stored by
+#'   \code{\link{brs_prep}}, or 100; an explicit different value is ignored
+#'   with a warning.
+#' @param lim Half-width of the cell in \eqn{(0, 0.5]} (\code{interval =
+#'   "mid"} only); \code{NULL} uses the stored value, or 0.5.
+#' @param interval \code{"mid"}, \code{"right"} or \code{"left"} (see
+#'   \code{\link{brs_check}}); \code{NULL} uses the stored value, or
+#'   \code{"mid"}.
+#' @param int_method \code{"laplace"} (default), \code{"aghq"} or
+#'   \code{"qmc"}; see Details.
+#' @param n_points Nodes per dimension for \code{"aghq"} (default 11).
+#' @param qmc_points Halton points for \code{"qmc"} (default 1024).
+#' @param start Optional starting vector: fixed effects, precision
+#'   coefficients, then the packed Cholesky parameters.
+#' @param method \code{"BFGS"} (default) or \code{"L-BFGS-B"}.
+#' @param hessian_method \code{"cpp"} (default; Richardson differences of
+#'   the compiled gradient), \code{"numDeriv"} or \code{"optim"}.
+#' @param control Control list for \code{\link[stats]{optim}}, merged into
+#'   the default \code{list(maxit = 2000L)}.
 #'
-#' @return An object of class \code{"brsmm"}. \code{diagnostics} holds the
-#'   post-fit checks of \code{\link{brs}} (compiled gradient and the fit's
-#'   Hessian, clamps) plus \code{re_boundary} and \code{re_gain}, the
-#'   log-likelihood gain of each random-effect term over its removal, and
-#'   \code{inner} (groups without a positive-definite mode, largest
-#'   \eqn{|\nabla h|} at the modes). A term
-#'   with log SD below -6 or a gain below \eqn{10^{-3}} is reported as a
-#'   variance component on the boundary (test it with \code{\link{anova.brsmm}},
-#'   chi-bar-square mixture). Rank-deficient fixed-effect or random-effect
-#'   design matrices are an error.
+#' @return An object of class \code{"brsmm"} with the components of a
+#'   \code{"brs"} fit (\code{par}, \code{coefficients} with a \code{random}
+#'   part, \code{value}, \code{hessian}, \code{diagnostics}, ...) and
+#'   \code{random} (group variable, levels, conditional modes \code{mode_b},
+#'   \code{D}, \code{L} and the SDs \code{sd_b}), \code{ngroups},
+#'   \code{int_method}.
 #'
-#' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10),
-#'   id = factor(rep(1:4, each = 5))
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' fit_mm <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
-#' fit_mm
-#' }
+#' @seealso \code{\link{brs}}, \code{\link{summary.brsmm}},
+#'   \code{\link{anova.brsmm}}, \code{\link{brsmm_re_study}},
+#'   \code{\link{ranef.brsmm}}, \code{\link{predict.brsmm}}
 #'
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
@@ -120,6 +132,40 @@
 #' Beta regression for modelling rates and proportions.
 #' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
 #' \doi{10.1080/0266476042000214501}
+#'
+#' Pinheiro, J. C., and Bates, D. M. (1995). Approximations to the
+#' log-likelihood function in the nonlinear mixed-effects model.
+#' \emph{Journal of Computational and Graphical Statistics}, \bold{4}(1),
+#' 12--35. \doi{10.1080/10618600.1995.10474663}
+#'
+#' @examples
+#' # Synthetic NRS-11 scores (0-10) of 40 patients at 6h, 12h and 24h;
+#' # intercepts and time slopes vary by patient. Simulated, not real data.
+#' set.seed(21)
+#' nrs <- expand.grid(id = 1:40, time = c("6h", "12h", "24h"))
+#' nrs$tc <- c(-1, 0, 1)[nrs$time]                 # centred time for the slope
+#' b0 <- rnorm(40, sd = 0.8)
+#' b1 <- rnorm(40, sd = 0.5)
+#' eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + b0[nrs$id] + b1[nrs$id] * nrs$tc
+#' shp <- brs_repar(mu = plogis(eta), phi = 0.2, repar = 2)
+#' nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+#'
+#' # Random intercept per patient (Laplace): SD with its interval, no z-test
+#' m1 <- brsmm(y ~ time, random = ~ 1 | id, data = nrs, ncuts = 10)
+#' summary(m1)
+#'
+#' # Random intercept and slope: SDs and their correlation
+#' m2 <- brsmm(y ~ time, random = ~ 1 + tc | id, data = nrs, ncuts = 10)
+#' summary(m2)$varcorr
+#' head(ranef(m2))
+#'
+#' # Is the slope needed? One added random term: the p-value uses the
+#' # mixture 1/2 chi2(1) + 1/2 chi2(2) (see the printed heading)
+#' anova(m1, m2)
+#'
+#' # A known patient uses its conditional mode; a new one gets b = 0
+#' nd <- data.frame(time = "12h", tc = 0, id = c(1, 999))
+#' predict(m2, newdata = nd)
 #'
 #' @importFrom Formula as.Formula Formula
 #' @importFrom stats model.frame terms delete.response model.matrix

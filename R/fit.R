@@ -137,7 +137,8 @@
 #'   selects \code{"logit"} for \code{repar = 2} (dispersion on
 #'   \eqn{(0, 1)}) and \code{"log"} for \code{repar = 0, 1} (positive
 #'   shape/precision).
-#' @param ncuts  Number of scale categories. \code{NULL} (default) uses the
+#' @param ncuts  Integer \eqn{K}, the maximum score: the scale is
+#'   \eqn{0, 1, \ldots, K} (\eqn{K + 1} categories). \code{NULL} (default) uses the
 #'   value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
 #'   or 100 when \code{data} was not prepared. A value that differs from
 #'   the stored one is ignored with a warning (the endpoints were built
@@ -420,7 +421,8 @@ brs_fit_fixed <- function(formula, data,
 #'   shape/precision).
 #' @param hessian_method Character: \code{"cpp"} (default),
 #'   \code{"numDeriv"} or \code{"optim"} (see \code{\link{brs_fit_fixed}}).
-#' @param ncuts  Number of scale categories. \code{NULL} (default) uses the
+#' @param ncuts  Integer \eqn{K}, the maximum score: the scale is
+#'   \eqn{0, 1, \ldots, K} (\eqn{K + 1} categories). \code{NULL} (default) uses the
 #'   value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
 #'   or 100 when \code{data} was not prepared. A value that differs from
 #'   the stored one is ignored with a warning (the endpoints were built
@@ -703,101 +705,202 @@ brs_fit_var <- function(formula, data,
 #' Fit a beta interval regression model
 #'
 #' @description
-#' Unified interface that dispatches to \code{\link{brs_fit_fixed}}
-#' (fixed dispersion) or \code{\link{brs_fit_var}} (variable
-#' dispersion) based on the formula structure.
+#' Fits by maximum likelihood a beta regression for scores on a bounded scale,
+#' treated as coarsened (interval-censored) observations of a latent beta
+#' variable (Lopes, 2023). A one-part formula \code{y ~ x1 + x2} keeps the
+#' second parameter constant (\code{\link{brs_fit_fixed}}); a two-part formula
+#' \code{y ~ x1 + x2 | z1 + z2} also models it (\code{\link{brs_fit_var}}).
 #'
 #' @details
-#' If the formula contains a \code{|} separator
-#' (e.g., \code{y ~ x1 + x2 | z1}), the variable-dispersion model is
-#' fitted; otherwise, a fixed-dispersion model is used.
+#' The scores run over \eqn{0, 1, \ldots, K} with \eqn{K =} \code{ncuts}: the
+#' scale has \eqn{K + 1} categories and \eqn{K} is its maximum. A scale that
+#' starts at 1, such as a Likert item 1--5, must be shifted to 0--4 and
+#' fitted with \code{ncuts = 4}; otherwise the lowest category is read as an
+#' interior score and the censoring of the lower border is lost.
 #'
-#' @section Reparameterizations and links:
-#' The three schemes of \code{\link{brs_repar}} model different parameters,
-#' so the admissible links differ: parameters on \eqn{(0, 1)} use a
-#' \code{(0, 1)}-link, parameters on \eqn{(0, \infty)} use \code{"log"} or
-#' \code{"sqrt"}. \code{link = NULL} and \code{link_phi = NULL} (the
-#' defaults) select the first entry of each cell; any other combination is
-#' rejected with an error.
-#' \tabular{lll}{
-#'   \code{repar} \tab \code{link} (first parameter) \tab
-#'     \code{link_phi} (second parameter) \cr
-#'   0 (shapes \eqn{p, q}) \tab \code{log}, \code{sqrt} \tab
-#'     \code{log}, \code{sqrt} \cr
-#'   1 (mean, precision) \tab \code{logit}, \code{probit}, \code{cauchit},
-#'     \code{cloglog} \tab \code{log}, \code{sqrt} \cr
-#'   2 (mean, dispersion) \tab \code{logit}, \code{probit}, \code{cauchit},
-#'     \code{cloglog} \tab \code{logit}, \code{probit}, \code{cauchit},
-#'     \code{cloglog}
-#' }
-#' \code{"identity"}, \code{"inverse"} and \code{"1/mu^2"} are not accepted
-#' for positive parameters (their inverse does not map the real line onto
-#' \eqn{(0, \infty)}). With \code{"sqrt"} the inverse link is flat for
-#' \eqn{\eta \le 0}; a warning is issued after the fit when a fitted linear
-#' predictor lies on that plateau.
+#' Raw scores are converted to cells and censoring types by
+#' \code{\link{brs_check}} with \code{ncuts}, \code{lim} and \code{interval};
+#' data from \code{\link{brs_prep}} or \code{\link{brs_sim}} are used as they
+#' are, with their stored \code{ncuts}, \code{lim} and \code{interval}. Values
+#' in \eqn{(0, 1)} are exact observations. The model is
+#' \deqn{Y_i \sim \mathrm{Beta}(a_i, b_i), \qquad
+#'   g_1(\mu_i) = x_i^\top \beta, \qquad g_2(\phi_i) = z_i^\top \gamma,}
+#' with \eqn{(a_i, b_i)} obtained from \eqn{(\mu_i, \phi_i)} by
+#' \code{\link{brs_repar}}.
 #'
-#' Under \code{repar = 0} the fitted object stores the shape \eqn{p} in
-#' \code{hatmu} (and \code{predict(type = "link")} is its linear
-#' predictor), while \code{fitted()}, \code{predict(type = "response")},
-#' residuals and marginal effects use the mean \eqn{E[Y] = p / (p + q)}.
+#' @section Likelihood:
+#' With cell \eqn{[l_i, u_i]} and censoring type \eqn{\delta_i},
+#' \deqn{L(\beta, \gamma) = \prod_{i=1}^n f(y_i)^{I(\delta_i = 0)}\,
+#'   F(u_i)^{I(\delta_i = 1)}\, \{1 - F(l_i)\}^{I(\delta_i = 2)}\,
+#'   \{F(u_i) - F(l_i)\}^{I(\delta_i = 3)},}
+#' where \eqn{f} and \eqn{F} are the beta density and distribution function
+#' with shapes \eqn{(a_i, b_i)}. The four factors are exact values
+#' (\eqn{\delta = 0}), the lowest score (\eqn{\delta = 1}, left-censored),
+#' the highest score (\eqn{\delta = 2}, right-censored) and the other scores
+#' (\eqn{\delta = 3}, interval-censored). This is eq.
+#' \code{eqn_verossimilhanca_geral} of Lopes (2023); the table of censoring
+#' types in the same section swaps the labels \eqn{\delta = 1} and
+#' \eqn{\delta = 2}, and the package follows the equation.
 #'
-#' @section Interval direction:
-#' \code{interval} selects how a score \eqn{s} is coarsened into a cell of
-#' \eqn{(0, 1)}: \code{"mid"} \eqn{[s - \mathrm{lim}, s + \mathrm{lim}] / K}
-#' (default), \code{"right"} and \code{"left"} \eqn{[s, s + 1] / (K + 1)}
-#' (the dissertation's \eqn{r} and \eqn{l} directions; equal cells, a
-#' package normalisation). \code{"right"} and \code{"left"} give the same
-#' likelihood and coefficients and differ only in the latent score read
-#' back by \code{predict(type = "score")} (one unit). The modes are
-#' different coarsening models, so their log-likelihoods are not
-#' comparable; see \code{\link{brs_check}} and \code{\link{anova.brs}}.
+#' Numerical details: endpoints are clamped to
+#' \eqn{[10^{-5}, 1 - 10^{-5}]} and there is no probability floor; an
+#' interval probability uses lower-tail probabilities when the interval
+#' midpoint is at or below the mean \eqn{a/(a + b)} and upper tails
+#' otherwise, which avoids cancellation; below \eqn{10^{-240}} an endpoint
+#' Laplace approximation of the tail replaces it; a non-finite
+#' contribution becomes \eqn{-10^6}, as does a \code{NaN} parameter. The mean and the dispersion
+#' (\code{repar = 2}) are clamped to \eqn{[10^{-5}, 1 - 10^{-5}]}, the
+#' precision and the shape \eqn{p} to \eqn{[10^{-5}, 10^8]}, and the beta
+#' shapes to \eqn{[10^{-12}, 10^8]}.
+#'
+#' @section Estimation:
+#' \code{\link[stats]{optim}} (\code{method = "BFGS"}, the default, or
+#' \code{"L-BFGS-B"}; \code{maxit = 5000} unless \code{control} says
+#' otherwise) maximises the log-likelihood, which is evaluated in C++. The
+#' gradient uses the chain rule on the two linear predictors: the derivatives
+#' of each contribution with respect to \eqn{\eta_{1i}} and \eqn{\eta_{2i}}
+#' are Richardson central differences with step
+#' \eqn{10^{-4}\max(1, |\eta|)}, and the gradient is
+#' \eqn{X^\top d_1}{X'd1} and \eqn{Z^\top d_2}{Z'd2}. The Hessian behind
+#' \code{vcov()} is built the same way from the per-observation second
+#' derivatives (step \eqn{3 \times 10^{-4}\max(1, |\eta|)};
+#' \code{hessian_method = "cpp"}, the default):
+#' \deqn{H = \left(\begin{array}{cc} X^\top W_{11} X & X^\top W_{12} Z \\
+#'   Z^\top W_{12} X & Z^\top W_{22} Z \end{array}\right),}{H = [X'W11 X, X'W12 Z; Z'W12 X, Z'W22 Z],}
+#' with \eqn{W_{jk}} diagonal matrices of the second derivatives of each
+#' contribution in \eqn{(\eta_{1i}, \eta_{2i})}. \code{"numDeriv"}
+#' differentiates the log-likelihood with \code{numDeriv::hessian()} and
+#' \code{"optim"} takes the finite-difference Hessian of \code{optim}.
+#' Lopes (2023, "Estimacao") also uses BFGS with numerical derivatives; here
+#' they are taken on the linear predictors, not on the coefficients.
+#'
+#' Starting values: \code{start} when given (bootstrap and jackknife refits
+#' pass the parent estimate); otherwise a quasi-binomial GLM of the cell
+#' midpoints for the mean, and for the second parameter the moment estimate on
+#' the midpoints as the intercept with zero slopes; under \code{repar = 0}
+#' both shapes by the method of moments. The covariance matrix is
+#' \eqn{(-H)^{-1}} at the estimate (\code{\link{vcov.brs}}); no generalised
+#' inverse is used.
 #'
 #' @section Fit diagnostics:
-#' Before optimisation, an exactly rank-deficient mean or precision model
-#' matrix is an error naming the aliased columns, and a nearly collinear one
-#' (condition number of the unit-column matrix above \eqn{10^4}) a warning.
-#' After it, \code{fit$diagnostics} stores the largest absolute gradient
-#' (\code{grad_norm}), the log-likelihood gain \eqn{\frac12 g^\top (-H)^{-1} g}
-#' of the Newton step left to the optimum (\code{grad_gain}) and that step in
-#' SE units (\code{grad_step}), the extreme eigenvalues of \eqn{-H} (\code{min_eig},
-#' \code{max_eig}, \code{min_eig_scaled} in correlation form,
-#' \code{hessian_nd}) and the number of observations whose mean, second
-#' parameter or beta shapes sit on the clamps of the likelihood
-#' (\code{n_clamped}, \code{clamped}). One-line warnings flag a gradient
-#' not \eqn{\approx 0} (gain above 0.01), a Hessian that is not negative
-#' definite, and clamped observations (possible non-identifiability, e.g.
-#' every observation left-censored). \code{\link{vcov.brs}} then returns
-#' \code{NA} for variances it cannot estimate instead of a generalised
-#' inverse.
+#' Before \code{optim}, the mean and precision model matrices are checked
+#' (pivoted QR, tolerance \eqn{10^{-7}}; condition number of the matrix with
+#' unit-length columns). After it, \code{fit$diagnostics} holds
+#' \code{grad_norm} (largest absolute gradient), \code{grad_gain} (the
+#' log-likelihood a Newton step would still gain,
+#' \eqn{\frac12 g^\top (-H)^{-1} g}{g'(-H)^{-1}g / 2}), \code{grad_step} (that
+#' step in standard errors), \code{min_eig},
+#' \code{max_eig} and \code{min_eig_scaled} (eigenvalues of \eqn{-H}, the last
+#' in correlation form), \code{hessian_nd}, \code{n_clamped} and
+#' \code{clamped} (observations on the clamps of the likelihood). Each problem
+#' gives one line:
+#' \describe{
+#'   \item{\dQuote{model matrix is rank deficient} (error)}{Some columns are
+#'     linear combinations of others (the message names them). Remove or
+#'     recode them.}
+#'   \item{\dQuote{model matrix is nearly collinear}}{Condition number above
+#'     \eqn{10^4}: estimates and standard errors are unstable. Drop or combine
+#'     the named columns, or centre them.}
+#'   \item{\dQuote{Optimizer did not converge}}{\code{optim} stopped at its
+#'     iteration limit or failed. Try \code{method = "L-BFGS-B"}, rescale the
+#'     covariates or simplify the model.}
+#'   \item{\dQuote{Gradient not ~0 at the estimate}}{A Newton step would
+#'     still gain more than 0.01 in log-likelihood although \code{optim}
+#'     reported convergence. Refit with the other \code{method}; the message
+#'     asks to rescale the covariates when their scales differ by more than
+#'     \eqn{10^3} (e.g. a raw income next to a dummy).}
+#'   \item{\dQuote{Hessian near-singular or not negative definite (SEs
+#'     unreliable)}}{The likelihood is nearly flat or curved the wrong way in
+#'     some direction: a parameter that is not identified, or covariates on
+#'     very different scales (the message then asks to rescale them).
+#'     \code{vcov()} returns \code{NA} for variances it cannot estimate; use
+#'     likelihood-ratio tests (\code{\link{anova.brs}}) or
+#'     \code{\link{brs_bootstrap}} instead of Wald statements, rescale, or
+#'     simplify the model.}
+#'   \item{\dQuote{observations ... on the clamp boundary}}{Fitted means,
+#'     dispersions or shapes sit on the numerical limits above, typically
+#'     because a group of observations lies entirely at one end of the scale
+#'     (separation) or every observation is censored on the same side. The
+#'     coefficients drift towards infinity and are not interpretable; merge
+#'     sparse groups or remove the separating covariate.}
+#' }
+#' \code{\link{brsmm}} adds a check of the variance components.
+#'
+#' @section Reparameterizations and links:
+#' \tabular{llll}{
+#'   \code{repar} \tab parameters (Lopes, 2023) \tab \code{link} \tab
+#'     \code{link_phi} \cr
+#'   0 \tab shapes \eqn{p, q > 0}; eq. \code{eqn_beta_p1} (regression on the
+#'     shapes is a package extension) \tab \code{log}, \code{sqrt} \tab
+#'     \code{log}, \code{sqrt} \cr
+#'   1 \tab mean \eqn{\mu \in (0, 1)}, precision \eqn{\phi > 0};
+#'     "parametrizacao 1" (Ferrari and Cribari-Neto, 2004) \tab
+#'     \code{logit}, \code{probit}, \code{cauchit}, \code{cloglog} \tab
+#'     \code{log}, \code{sqrt} \cr
+#'   2 \tab mean \eqn{\mu \in (0, 1)}, dispersion \eqn{\phi \in (0, 1)};
+#'     "parametrizacao 2" (Bayer, 2011), written \eqn{\sigma} there
+#'     \tab \code{logit}, \code{probit}, \code{cauchit}, \code{cloglog} \tab
+#'     \code{logit}, \code{probit}, \code{cauchit}, \code{cloglog}
+#' }
+#' The first link of each cell is the default (\code{link = NULL},
+#' \code{link_phi = NULL}); any other combination is an error.
+#' \code{"identity"}, \code{"inverse"} and \code{"1/mu^2"} are not accepted
+#' for positive parameters. With \code{"sqrt"} the inverse link is flat for
+#' \eqn{\eta \le 0}, and a warning is issued when a fitted linear predictor
+#' lies there. The mean and variance of \eqn{Y} under each scheme are given
+#' in \code{\link{brs_repar}}. Under \code{repar = 0} the object stores the
+#' shape \eqn{p} in \code{hatmu}, while \code{fitted()},
+#' \code{predict(type = "response")}, residuals and marginal effects use
+#' \eqn{E[Y] = p/(p + q)}.
+#'
+#' @section Interval direction:
+#' \code{interval = "mid"} (default) uses the cells
+#' \eqn{[s - \mathrm{lim}, s + \mathrm{lim}]/K}; \code{"right"} and
+#' \code{"left"} use \eqn{K + 1} equal cells \eqn{[s, s + 1]/(K + 1)} (the
+#' dissertation's \eqn{r} and \eqn{l}, with a package normalisation).
+#' \code{"right"} and \code{"left"} give the same fit and differ only in
+#' \code{predict(type = "score")}; \code{"mid"} and \code{"right"}/\code{"left"}
+#' are different coarsening models, whose log-likelihoods and AIC are not
+#' comparable. Details: \code{\link{brs_check}}.
 #'
 #' @inheritParams brs_fit_var
+#' @param ncuts Integer \eqn{K}: the maximum score, so that the scale is
+#'   \eqn{0, 1, \ldots, K} (\eqn{K + 1} categories). \code{NULL} (default)
+#'   uses the value stored by \code{\link{brs_prep}} or \code{\link{brs_sim}},
+#'   or 100 for raw data.
+#' @param hessian_method How the Hessian for \code{vcov()} is computed:
+#'   \code{"cpp"} (default; compiled chain rule on the linear predictors),
+#'   \code{"numDeriv"} (\code{numDeriv::hessian()} of the log-likelihood) or
+#'   \code{"optim"} (the finite-difference Hessian returned by \code{optim}).
 #'
-#' @return An object of class \code{"brs"}; \code{diagnostics} holds the
-#'   post-fit checks described above.
+#' @return An object of class \code{"brs"}: a list with, among others,
+#'   \code{par} (estimates on the link scales), \code{coefficients}
+#'   (\code{mean} and \code{precision} parts), \code{value} (maximised
+#'   log-likelihood), \code{hessian}, \code{convergence}, \code{diagnostics}
+#'   (see 'Fit diagnostics'), \code{hatmu} (first parameter per observation:
+#'   the mean, or the shape \eqn{p} under \code{repar = 0}), \code{hatphi},
+#'   \code{Y} (columns \code{left}, \code{right}, \code{yt}, \code{y},
+#'   \code{delta}), \code{ncuts}, \code{lim}, \code{interval}, \code{repar},
+#'   \code{link} and \code{link_phi}.
 #'
-#' @examples
-#' \donttest{
-#' dat <- data.frame(
-#'   y = c(
-#'     0, 5, 20, 50, 75, 90, 100, 30, 60, 45,
-#'     10, 40, 55, 70, 85, 25, 35, 65, 80, 15
-#'   ),
-#'   x1 = rep(c(1, 2), 10),
-#'   x2 = rep(c(0, 0, 1, 1), 5)
-#' )
-#' prep <- brs_prep(dat, ncuts = 100)
-#' # Fixed dispersion
-#' fit1 <- brs(y ~ x1, data = prep)
-#' print(fit1)
-#' # Variable dispersion
-#' fit2 <- brs(y ~ x1 | x2, data = prep)
-#' print(fit2)
-#' }
+#' @seealso \code{\link{brs_check}}, \code{\link{brs_prep}},
+#'   \code{\link{brs_repar}}, \code{\link{summary.brs}},
+#'   \code{\link{predict.brs}}, \code{\link{residuals.brs}},
+#'   \code{\link{brs_predict_scoreprob}}, \code{\link{anova.brs}},
+#'   \code{\link{brsmm}}
 #'
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
 #' URI: https://hdl.handle.net/1884/86624.
+#'
+#' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
+#' Beta regression for modelling rates and proportions.
+#' \emph{Journal of Applied Statistics}, \bold{31}(7), 799--815.
+#' \doi{10.1080/0266476042000214501}
+#'
+#' Bayer, F. M. (2011). \emph{Modelagem e inferencia em regressao beta}.
+#' PhD thesis, Universidade Federal de Pernambuco.
 #'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
@@ -808,12 +911,40 @@ brs_fit_var <- function(formula, data,
 #' Arthritis Care and Research, 63(S11), S240-S252.
 #' \doi{10.1002/acr.20543}
 #'
-#' Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
-#' Studies comparing Numerical Rating Scales, Verbal Rating Scales, and
-#' Visual Analogue Scales for assessment of pain intensity in adults:
-#' a systematic literature review.
-#' Journal of Pain and Symptom Management, 41(6), 1073-1093.
-#' \doi{10.1016/j.jpainsymman.2010.08.016}
+#' @examples
+#' # Synthetic NRS-11 pain scores (0-10, so ncuts = 10): 4 groups x 3
+#' # post-operative times, patterned on the knee-surgery design of Lopes (2023).
+#' # Simulated, not real data.
+#' set.seed(2023)
+#' nrs <- expand.grid(id = 1:80, time = c("6h", "12h", "24h"))
+#' nrs$group <- factor(paste0("g", (nrs$id - 1) %% 4 + 1))
+#' eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + c(0, -0.1, 0.05, 0.1)[nrs$group]
+#' shp <- brs_repar(mu = plogis(eta), phi = 0.3, repar = 2)  # dispersion 0.3
+#' nrs$y <- round(10 * rbeta(nrow(nrs), shp$shape1, shp$shape2))
+#'
+#' # Default cells [s - 0.5, s + 0.5] / 10; scores 0 and 10 are censored
+#' fit <- brs(y ~ time + group, data = nrs, ncuts = 10)
+#' summary(fit)
+#' confint(fit)
+#'
+#' # Post-fit checks: no log-likelihood left to gain, negative definite Hessian, no clamps
+#' fit$diagnostics[c("grad_gain", "hessian_nd", "n_clamped")]
+#'
+#' # Same scores read with right-direction cells [s, s + 1] / 11
+#' fit_r <- brs(y ~ time + group, data = nrs, ncuts = 10, interval = "right")
+#' cbind(mid = coef(fit), right = coef(fit_r))
+#'
+#' # New patients: mean on (0, 1), latent score, expected score, P(S = s)
+#' nd <- data.frame(time = c("6h", "12h", "24h"), group = "g1")
+#' predict(fit, newdata = nd)
+#' predict(fit, newdata = nd, type = "score")
+#' predict(fit, newdata = nd, type = "expected_score")
+#' round(brs_predict_scoreprob(fit, newdata = nd), 3)
+#'
+#' # Randomized quantile residuals respect the censoring (N(0, 1) under the model)
+#' set.seed(1)
+#' summary(residuals(fit, type = "rqr"))
+#' plot(fit, which = 1:2)
 #'
 #' @importFrom Formula as.Formula Formula
 #' @export
