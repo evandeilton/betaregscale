@@ -86,7 +86,12 @@ test_that("L5-2: brsmm gradient and Hessian (q_re = 1 and 2) match finite differ
     P <- cs[[1]]; par <- cs[[2]]; np <- c(11L, 11L, 256L)[me + 1]
     f <- function(b) .l5_ll(P, b, me, np)
     g <- .l5_gr(P, par, me, np)
-    expect_lt(max(abs(g - .l5_fd(f, par, 1e-2))) / max(abs(g)), 1e-5)
+    # Reference R(h): Richardson of central differences at h and h/2 (h = 1e-2);
+    # its error is estimated by |R(h) - R(h/2)| and the tolerance is tied to it.
+    ref <- .l5_fd(f, par, 1e-2); ref2 <- .l5_fd(f, par, 5e-3)
+    sc <- max(abs(g)); ref_err <- max(abs(ref - ref2)) / sc
+    expect_lt(ref_err, 1e-4)   # the reference is itself accurate (no vacuous pass)
+    expect_lt(max(abs(g - ref)) / sc, max(1e-6, 10 * ref_err))
     if (me < 2L) {
       H <- .l5_he(P, par, me, np)
       Hn <- numDeriv::hessian(f, par, method.args = list(eps = 1e-2, d = 1e-2, zero.tol = Inf, r = 3))

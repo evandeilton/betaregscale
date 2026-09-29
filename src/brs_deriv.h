@@ -33,13 +33,14 @@ struct ObsDeriv {
 };
 
 // Relative steps (floored at 1) from the Lote 5 numDeriv study: H1 first
-// derivatives, H2 second / cross (brs Hessian), H3 third (O(h^2) stencils).
+// derivatives, H2 second / cross (brs Hessian), H3 third (O(h^4) stencils).
 // HC: curvature at the brsmm mode; larger than H2 so its roundoff (~eps/h^2)
 // does not make the Laplace value noisy (Richardson truncation stays ~h^4).
 static const double FD_H1 = 1.0e-4;
 static const double FD_H2 = 3.0e-4;
-static const double FD_H3 = 1.0e-3;
+static const double FD_H3 = 3.0e-3;
 static const double FD_HC = 1.0e-3;
+static const double FD_HN = 1.0e-5;   // plain central first derivative
 
 inline double fd_step(double eta, double h0) {
   return h0 * std::max(1.0, std::abs(eta));
@@ -59,9 +60,20 @@ inline double rich_d2(double fm2, double fm1, double f0, double fp1, double fp2,
   return (4.0 * a - b) / 3.0;
 }
 
-// Central third derivative from f(+-h), f(+-2h): O(h^2).
-inline double cent_d3(double fm2, double fm1, double fp1, double fp2, double h) {
-  return (fp2 - 2.0 * fp1 + 2.0 * fm1 - fm2) / (2.0 * h * h * h);
+// Third derivative from f(+-h), f(+-2h), f(+-3h): O(h^4).
+inline double cent_d3_o4(double fm3, double fm2, double fm1, double fp1, double fp2,
+                         double fp3, double h) {
+  return (-fp3 + 8.0 * fp2 - 13.0 * fp1 + 13.0 * fm1 - 8.0 * fm2 + fm3) /
+         (8.0 * h * h * h);
+}
+
+// d3 l / d eta_mu^2 d eta_phi from steps (h, k), O(h^2 + k^2).
+inline double cross21(double em, double ep, double h, double k, const ObsSpec &o,
+                      const LinkSpec &s) {
+  double fk = contrib_eta(em, ep + k, o, s), fmk = contrib_eta(em, ep - k, o, s);
+  double fpp = contrib_eta(em + h, ep + k, o, s), fpm = contrib_eta(em + h, ep - k, o, s);
+  double fmp = contrib_eta(em - h, ep + k, o, s), fmm = contrib_eta(em - h, ep - k, o, s);
+  return ((fpp - 2.0 * fk + fmp) - (fpm - 2.0 * fmk + fmm)) / (2.0 * k * h * h);
 }
 
 // Richardson mixed second derivative at steps (h, k) and (2h, 2k): O(h^4).
@@ -87,10 +99,11 @@ inline void obs_deriv_grad(double em, double ep, const ObsSpec &o,
                contrib_eta(em, ep + k, o, s), contrib_eta(em, ep + 2.0 * k, o, s), k);
 }
 
-// d1 and p1 by plain central differences (4 evaluations): quadrature nodes.
+// d1 and p1 by plain central differences at the roundoff-balanced step HN
+// (4 evaluations, error ~1e-9 relative): quadrature nodes.
 inline void obs_deriv_node(double em, double ep, const ObsSpec &o,
                            const LinkSpec &s, double &d1, double &p1) {
-  const double h = fd_step(em, FD_H1), k = fd_step(ep, FD_H1);
+  const double h = fd_step(em, FD_HN), k = fd_step(ep, FD_HN);
   d1 = (contrib_eta(em + h, ep, o, s) - contrib_eta(em - h, ep, o, s)) / (2.0 * h);
   p1 = (contrib_eta(em, ep + k, o, s) - contrib_eta(em, ep - k, o, s)) / (2.0 * k);
 }
@@ -156,7 +169,7 @@ inline void obs_deriv_hess(double em, double ep, const ObsSpec &o,
 }
 
 // Everything the brsmm gradient needs at the mode: f, d1, d2 (as obs_deriv_mu),
-// p1, c11 (Richardson), d3 and c21 at step H3 (31 evaluations).
+// p1, c11, d3 and c21, all O(h^4) (39 evaluations).
 inline void obs_deriv_mode(double em, double ep, const ObsSpec &o,
                            const LinkSpec &s, ObsDeriv &r) {
   obs_deriv_mu(em, ep, o, s, r);
@@ -164,12 +177,11 @@ inline void obs_deriv_mode(double em, double ep, const ObsSpec &o,
   r.p1 = rich_d1(contrib_eta(em, ep - 2.0 * k1, o, s), contrib_eta(em, ep - k1, o, s),
                  contrib_eta(em, ep + k1, o, s), contrib_eta(em, ep + 2.0 * k1, o, s), k1);
   r.c11 = rich_cross(em, ep, fd_step(em, FD_H2), fd_step(ep, FD_H2), o, s);
+  // third derivatives: their O(h^2) error was the gradient's accuracy limit (~1e-5)
   const double h3 = fd_step(em, FD_H3), k3 = fd_step(ep, FD_H3);
-  r.d3 = cent_d3(contrib_eta(em - 2.0 * h3, ep, o, s), contrib_eta(em - h3, ep, o, s),
-                 contrib_eta(em + h3, ep, o, s), contrib_eta(em + 2.0 * h3, ep, o, s), h3);
-  double fk = contrib_eta(em, ep + k3, o, s), fmk = contrib_eta(em, ep - k3, o, s);
-  double fpp = contrib_eta(em + h3, ep + k3, o, s), fpm = contrib_eta(em + h3, ep - k3, o, s);
-  double fmp = contrib_eta(em - h3, ep + k3, o, s), fmm = contrib_eta(em - h3, ep - k3, o, s);
-  r.c21 = ((fpp - 2.0 * fk + fmp) - (fpm - 2.0 * fmk + fmm)) / (2.0 * k3 * h3 * h3);
+  r.d3 = cent_d3_o4(contrib_eta(em - 3.0 * h3, ep, o, s), contrib_eta(em - 2.0 * h3, ep, o, s),
+                    contrib_eta(em - h3, ep, o, s), contrib_eta(em + h3, ep, o, s),
+                    contrib_eta(em + 2.0 * h3, ep, o, s), contrib_eta(em + 3.0 * h3, ep, o, s), h3);
+  r.c21 = (4.0 * cross21(em, ep, h3, k3, o, s) - cross21(em, ep, 2.0 * h3, 2.0 * k3, o, s)) / 3.0;
   r.p2 = 0.0;
 }
