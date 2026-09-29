@@ -7,10 +7,10 @@
 brs(
   formula,
   data,
-  link = "logit",
-  link_phi = "logit",
-  ncuts = 100L,
-  lim = 0.5,
+  link = NULL,
+  link_phi = NULL,
+  ncuts = NULL,
+  lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("numDeriv", "optim")
@@ -22,15 +22,30 @@ two parts: \code{y ~ x1 + x2 | z1 + z2}.}
 
 \item{data}{Data frame.}
 
-\item{link}{Mean link function (default \code{"logit"}).}
+\item{link}{Link for the first parameter (the mean under
+\code{repar = 1, 2}; the shape \eqn{p} under \code{repar = 0}).
+\code{NULL} (default) selects the link implied by \code{repar}:
+\code{"logit"} for \code{repar = 1, 2}, \code{"log"} for
+\code{repar = 0}. See the 'Reparameterizations and links' section of
+\code{\link{brs}} for the admissible values.}
 
-\item{link_phi}{Dispersion link function (default \code{"logit"}).}
+\item{link_phi}{Link for the second parameter. \code{NULL} (default)
+selects \code{"logit"} for \code{repar = 2} (dispersion on
+\eqn{(0, 1)}) and \code{"log"} for \code{repar = 0, 1} (positive
+shape/precision).}
 
-\item{ncuts}{Number of scale categories (default 100).}
+\item{ncuts}{Number of scale categories. \code{NULL} (default) uses the
+value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
+or 100 when \code{data} was not prepared. A value that differs from
+the stored one is ignored with a warning (the endpoints were built
+with the stored value).}
 
-\item{lim}{Uncertainty half-width (default 0.5).}
+\item{lim}{Uncertainty half-width. \code{NULL} (default) uses
+\code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
+rule as \code{ncuts}.}
 
-\item{repar}{Reparameterization scheme (default 2).}
+\item{repar}{Reparameterization scheme (default 2); see
+\code{\link{brs_repar}}.}
 
 \item{method}{Optimization method (default \code{"BFGS"}).}
 
@@ -50,6 +65,37 @@ If the formula contains a \code{|} separator
 (e.g., \code{y ~ x1 + x2 | z1}), the variable-dispersion model is
 fitted; otherwise, a fixed-dispersion model is used.
 }
+\section{Reparameterizations and links}{
+
+The three schemes of \code{\link{brs_repar}} model different parameters,
+so the admissible links differ: parameters on \eqn{(0, 1)} use a
+\code{(0, 1)}-link, parameters on \eqn{(0, \infty)} use \code{"log"} or
+\code{"sqrt"}. \code{link = NULL} and \code{link_phi = NULL} (the
+defaults) select the first entry of each cell; any other combination is
+rejected with an error.
+\tabular{lll}{
+  \code{repar} \tab \code{link} (first parameter) \tab
+    \code{link_phi} (second parameter) \cr
+  0 (shapes \eqn{p, q}) \tab \code{log}, \code{sqrt} \tab
+    \code{log}, \code{sqrt} \cr
+  1 (mean, precision) \tab \code{logit}, \code{probit}, \code{cauchit},
+    \code{cloglog} \tab \code{log}, \code{sqrt} \cr
+  2 (mean, dispersion) \tab \code{logit}, \code{probit}, \code{cauchit},
+    \code{cloglog} \tab \code{logit}, \code{probit}, \code{cauchit},
+    \code{cloglog}
+}
+\code{"identity"}, \code{"inverse"} and \code{"1/mu^2"} are not accepted
+for positive parameters (their inverse does not map the real line onto
+\eqn{(0, \infty)}). With \code{"sqrt"} the inverse link is flat for
+\eqn{\eta \le 0}; a warning is issued after the fit when a fitted linear
+predictor lies on that plateau.
+
+Under \code{repar = 0} the fitted object stores the shape \eqn{p} in
+\code{hatmu} (and \code{predict(type = "link")} is its linear
+predictor), while \code{fitted()}, \code{predict(type = "response")},
+residuals and marginal effects use the mean \eqn{E[Y] = p / (p + q)}.
+}
+
 \examples{
 \donttest{
 dat <- data.frame(

@@ -10,8 +10,8 @@ brs_sim(
   beta,
   phi = 1/5,
   zeta = NULL,
-  link = "logit",
-  link_phi = "logit",
+  link = NULL,
+  link_phi = NULL,
   ncuts = 100L,
   lim = 0.5,
   repar = 2L,
@@ -32,23 +32,28 @@ formulas.}
 \item{zeta}{Numeric vector of precision-model coefficients (link scale),
 required for two-part formulas.}
 
-\item{link}{Mean link function.}
+\item{link}{Link for the first parameter; \code{NULL} (default) selects
+the link implied by \code{repar} (see \code{\link{brs}}).}
 
-\item{link_phi}{Precision link function.}
+\item{link_phi}{Link for the second parameter; \code{NULL} (default)
+selects the link implied by \code{repar}.}
 
 \item{ncuts}{Number of scale categories.}
 
 \item{lim}{Half-width used in interval construction.}
 
-\item{repar}{Reparameterization scheme.}
+\item{repar}{Reparameterization scheme. \code{beta} and \code{phi} /
+\code{zeta} are on the link scale of the first and second parameter of
+that scheme (shapes \eqn{p, q} under \code{repar = 0}).}
 
 \item{delta}{Forced censoring type (\code{0,1,2,3}) or \code{NULL}.}
 }
 \value{
 A data frame with columns \code{left}, \code{right}, \code{yt},
   \code{y}, \code{delta}, plus simulated predictor columns from the model
-  matrices. When \code{delta != NULL}, the output carries
-  \code{attr(, "is_prepared") = TRUE}.
+  matrices. As for \code{\link{brs_prep}}, the output carries the
+  attributes \code{"is_prepared"} (\code{TRUE}), \code{"ncuts"} and
+  \code{"lim"}, which \code{\link{brs}} reuses.
 }
 \description{
 Simulates interval-censored responses from fixed- or variable-dispersion

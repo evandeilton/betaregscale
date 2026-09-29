@@ -93,6 +93,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item José Evandeilton Lopes \email{evandeilton@gmail.com} (\href{https://orcid.org/0009-0007-5887-4084}{ORCID})
   \item Wagner Hugo Bonat (\href{https://orcid.org/0000-0002-0349-7054}{ORCID})
 }
 

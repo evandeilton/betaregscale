@@ -7,11 +7,11 @@
 brs_fit_var(
   formula,
   data,
-  link = "logit",
-  link_phi = "logit",
+  link = NULL,
+  link_phi = NULL,
   hessian_method = c("numDeriv", "optim"),
-  ncuts = 100L,
-  lim = 0.5,
+  ncuts = NULL,
+  lim = NULL,
   repar = 2L,
   method = c("BFGS", "L-BFGS-B")
 )
@@ -22,18 +22,33 @@ two parts: \code{y ~ x1 + x2 | z1 + z2}.}
 
 \item{data}{Data frame.}
 
-\item{link}{Mean link function (default \code{"logit"}).}
+\item{link}{Link for the first parameter (the mean under
+\code{repar = 1, 2}; the shape \eqn{p} under \code{repar = 0}).
+\code{NULL} (default) selects the link implied by \code{repar}:
+\code{"logit"} for \code{repar = 1, 2}, \code{"log"} for
+\code{repar = 0}. See the 'Reparameterizations and links' section of
+\code{\link{brs}} for the admissible values.}
 
-\item{link_phi}{Dispersion link function (default \code{"logit"}).}
+\item{link_phi}{Link for the second parameter. \code{NULL} (default)
+selects \code{"logit"} for \code{repar = 2} (dispersion on
+\eqn{(0, 1)}) and \code{"log"} for \code{repar = 0, 1} (positive
+shape/precision).}
 
 \item{hessian_method}{Character: \code{"numDeriv"} or
 \code{"optim"}.}
 
-\item{ncuts}{Number of scale categories (default 100).}
+\item{ncuts}{Number of scale categories. \code{NULL} (default) uses the
+value stored by \code{\link{brs_prep}} in \code{attr(data, "ncuts")},
+or 100 when \code{data} was not prepared. A value that differs from
+the stored one is ignored with a warning (the endpoints were built
+with the stored value).}
 
-\item{lim}{Uncertainty half-width (default 0.5).}
+\item{lim}{Uncertainty half-width. \code{NULL} (default) uses
+\code{attr(data, "lim")} from \code{\link{brs_prep}}, or 0.5; same
+rule as \code{ncuts}.}
 
-\item{repar}{Reparameterization scheme (default 2).}
+\item{repar}{Reparameterization scheme (default 2); see
+\code{\link{brs_repar}}.}
 
 \item{method}{Optimization method (default \code{"BFGS"}).}
 }

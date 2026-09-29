@@ -26,15 +26,20 @@ Numeric vector of residuals.
 Extract residuals
 }
 \details{
-For Pearson residuals the variance formula depends on the
-reparameterization stored in \code{object$repar}:
+All residuals are computed from the fitted shapes \eqn{(a, b)} and the
+mean \eqn{E[Y] = a / (a + b)} (so they are consistent across
+reparameterizations). For Pearson residuals the variance is
 \describe{
   \item{repar = 1 (precision)}{V = mu(1 - mu) / (1 + phi)}
   \item{repar = 2 (mean-variance)}{V = mu(1 - mu) * phi}
+  \item{repar = 0 (shapes)}{V = pq / ((p + q)^2 (p + q + 1))}
 }
-The weighted and sweighted residuals use the digamma/trigamma
-formulation from the precision parameterization (repar = 1),
-so internal conversion is applied when \code{repar != 1}.
+The weighted and sweighted residuals use
+\eqn{y^* = \mathrm{logit}(y)}, \eqn{\mu^* = \psi(a) - \psi(b)} and
+\eqn{v = \psi'(a) + \psi'(b)} (Espinheira, Ferrari and Cribari-Neto,
+2008), with the precision \eqn{a + b}. Deviance residuals compare the
+fit with a saturated model that has mean \eqn{y} and the same
+precision \eqn{a + b}.
 }
 \examples{
 \donttest{

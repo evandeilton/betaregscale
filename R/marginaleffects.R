@@ -272,25 +272,28 @@ brs_marginaleffects <- function(object,
 #' @keywords internal
 .brs_me_predict <- function(object, data, par, model, type) {
   mt_mu <- stats::delete.response(object$terms$mean)
-  mf_mu <- stats::model.frame(mt_mu, data = data)
+  mf_mu <- stats::model.frame(mt_mu, data = data, xlev = object$xlevels$mean)
   X <- stats::model.matrix(mt_mu, mf_mu)
 
   beta <- par[seq_len(object$p)]
   eta_mu <- as.numeric(X %*% beta)
-  mu <- apply_inv_link(eta_mu, object$link)
+  mu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, object$link), object$repar)
 
   if (object$q > 1L && !is.null(object$terms$precision)) {
-    mf_z <- stats::model.frame(object$terms$precision, data = data)
+    mf_z <- stats::model.frame(object$terms$precision, data = data,
+                               xlev = object$xlevels$precision)
     Z <- stats::model.matrix(object$terms$precision, mf_z)
     zeta <- par[object$p + seq_len(object$q)]
     eta_phi <- as.numeric(Z %*% zeta)
   } else {
     eta_phi <- rep(par[object$p + 1L], length(mu))
   }
-  phi <- apply_inv_link(eta_phi, object$link_phi)
+  # Same clamp as predict.brs and the compiled likelihood.
+  phi <- .clamp_phi_by_repar(apply_inv_link(eta_phi, object$link_phi), object$repar)
 
   if (identical(model, "mean")) {
-    return(if (identical(type, "response")) mu else eta_mu)
+    # response scale = E[Y] (p / (p + q) under repar 0)
+    return(if (identical(type, "response")) .brs_mean(mu, phi, object$repar) else eta_mu)
   }
   if (identical(type, "response")) phi else eta_phi
 }

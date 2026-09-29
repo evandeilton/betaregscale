@@ -79,7 +79,7 @@ double betaregscale_loglik_fixed_cpp(const arma::vec &param, const arma::mat &X,
   double ll = 0.0;
   for (int i = 0; i < n; i++) {
     double mu_i = inv_link(eta(i), link_mu_code);
-    mu_i = clamp(mu_i, EPS_UNIT, 1.0 - EPS_UNIT);
+    mu_i = clamp_mu_by_repar(mu_i, repar);
 
     double a, b;
     beta_shapes(mu_i, phi, repar, a, b);
@@ -130,7 +130,7 @@ double betaregscale_loglik_variable_cpp(
     double mu_i = inv_link(eta_mu(i), link_mu_code);
     double phi_i = inv_link(eta_phi(i), link_phi_code);
 
-    mu_i = clamp(mu_i, EPS_UNIT, 1.0 - EPS_UNIT);
+    mu_i = clamp_mu_by_repar(mu_i, repar);
     phi_i = clamp_phi_by_repar(phi_i, repar);
 
     double a, b;

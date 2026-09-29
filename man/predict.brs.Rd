@@ -17,9 +17,10 @@
 
 \item{newdata}{Optional data frame for prediction.}
 
-\item{type}{Prediction type: \code{"response"} (default),
-\code{"link"}, \code{"precision"}, \code{"variance"}, or
-\code{"quantile"}.}
+\item{type}{Prediction type: \code{"response"} (default; the mean
+\eqn{E[Y] = a / (a + b)}), \code{"link"} (linear predictor of the
+first parameter), \code{"precision"} (second parameter on its own
+scale), \code{"variance"}, or \code{"quantile"}.}
 
 \item{at}{Numeric vector of probabilities for quantile
 predictions (default 0.5).}

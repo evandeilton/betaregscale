@@ -13,17 +13,25 @@
 #' @param formula A \code{\link[Formula]{Formula}} object (possibly
 #'   multi-part).
 #' @param data   Data frame.
-#' @param link   Mean link function name.
-#' @param link_phi Dispersion link function name.
+#' @param link   Mean link function name (\code{NULL}: default for
+#'   \code{repar}).
+#' @param link_phi Dispersion link function name (\code{NULL}: default for
+#'   \code{repar}).
 #' @param ncuts  Number of scale categories.
 #' @param lim    Uncertainty half-width.
+#' @param repar  Reparameterization scheme. Under \code{repar = 0} the
+#'   shapes are started by the method of moments on the midpoint response
+#'   (\eqn{f = m(1-m)/v - 1}, \eqn{p = m f}, \eqn{q = (1-m) f}).
 #'
 #' @return Named numeric vector of starting values.
 #' @keywords internal
-compute_start <- function(formula, data, link = "logit",
-                          link_phi = "logit", ncuts = 100L,
+compute_start <- function(formula, data, link = NULL,
+                          link_phi = NULL, ncuts = 100L,
                           lim = 0.5, repar = 2L) {
-  link <- match.arg(link, .mu_links)
+  repar <- as.integer(repar)
+  links <- .resolve_links(link, link_phi, repar)
+  link <- links$link
+  link_phi <- links$link_phi
 
   formula <- Formula::as.Formula(formula)
   if (length(formula)[2L] < 2L) {
@@ -44,6 +52,23 @@ compute_start <- function(formula, data, link = "logit",
   # Midpoint response for starting-value GLM
   y <- rowMeans(Y[, c("left", "right"), drop = FALSE], na.rm = TRUE)
 
+  # Moment estimates on the midpoints (dispersion start; shapes under repar 0)
+  y_safe <- pmin(pmax(y, 1e-4), 1 - 1e-4)
+  muy    <- mean(y_safe, na.rm = TRUE)
+  vy     <- stats::var(y_safe, na.rm = TRUE)
+  denom  <- muy * (1 - muy)
+
+  if (repar == 0L) {
+    # Shapes by moments (f = m(1-m)/v - 1, p = m f, q = (1-m) f), intercept
+    # only: the mean GLM below would start the shape p at the mean.
+    f <- if (!is.na(vy) && vy > 0 && denom > 0) denom / vy - 1 else NA_real_
+    if (!is.finite(f) || f <= 0) f <- 2
+    init_beta <- .brs_intercept_start(x, apply_link(muy * f, link))
+    init_phi <- .brs_intercept_start(z, apply_link((1 - muy) * f, link_phi))
+    names(init_phi) <- if (ncol(z) < 2L) "phi" else paste0("phi_", colnames(z))
+    return(c(init_beta, init_phi))
+  }
+
   # Mean-model starting values via quasi-binomial GLM
   glm_data <- data.frame(y = y, x)
   init_beta <- stats::coef(
@@ -54,46 +79,66 @@ compute_start <- function(formula, data, link = "logit",
   )
 
   # Dispersion starting values
+  # PERF-M04: moment-based estimate avoids a second GLM call.
+  # repar=1 precision: Var(Y) = mu*(1-mu)/(phi+1) => phi = mu*(1-mu)/Var(Y) - 1
+  # repar=2 mean-var:  Var(Y) = phi*mu*(1-mu)     => phi = Var(Y)/(mu*(1-mu))
+  phi_start <- if (!is.na(vy) && vy > 0 && denom > 0) {
+    if (repar == 1L) max(denom / vy - 1, 1.0)
+    else min(max(vy / denom, 0.05), 0.9)
+  } else {
+    if (repar == 2L) 0.3 else 5.0
+  }
+  # Clamp phi_start to the valid domain of the forward link to avoid NaN.
+  phi_start_clamped <- if (link_phi %in% c("logit", "probit", "cauchit", "cloglog")) {
+    min(max(phi_start, 1e-6), 1 - 1e-6)
+  } else {
+    max(phi_start, 1e-6)
+  }
+  init_phi0 <- apply_link(phi_start_clamped, link_phi)
+  if (!is.finite(init_phi0)) init_phi0 <- 0
+
   if (is.null(z) || ncol(z) < 2L) {
-    # PERF-M04: moment-based estimate avoids a second GLM call.
-    # repar=1 precision: Var(Y) = mu*(1-mu)/(phi+1) => phi = mu*(1-mu)/Var(Y) - 1
-    # repar=2 mean-var:  Var(Y) = phi*mu*(1-mu)     => phi = Var(Y)/(mu*(1-mu))
-    y_safe <- pmin(pmax(y, 1e-4), 1 - 1e-4)
-    muy    <- mean(y_safe, na.rm = TRUE)
-    vy     <- stats::var(y_safe, na.rm = TRUE)
-    denom  <- muy * (1 - muy)
-    phi_start <- if (!is.na(vy) && vy > 0 && denom > 0) {
-      if (repar == 1L) max(denom / vy - 1, 1.0)
-      else if (repar == 2L) min(max(vy / denom, 0.05), 0.9)
-      else muy
-    } else {
-      if (repar == 2L) 0.3 else 5.0
-    }
-    # Clamp phi_start to the valid domain of the forward link to avoid NaN.
-    phi_start_clamped <- if (link_phi %in% c("logit", "probit", "cauchit", "cloglog")) {
-      min(max(phi_start, 1e-6), 1 - 1e-6)
-    } else {
-      max(phi_start, 1e-6)
-    }
-    init_phi <- apply_link(phi_start_clamped, link_phi)
-    if (!is.finite(init_phi)) init_phi <- 0
+    init_phi <- init_phi0
     names(init_phi) <- "phi"
+  } else if (repar == 1L) {
+    # Precision on (0, Inf): a quasi-binomial GLM of the mean says nothing
+    # about it, so moment intercept + zero slopes.
+    init_phi <- .brs_intercept_start(z, init_phi0)
+    names(init_phi) <- paste0("phi_", colnames(z))
   } else {
     glm_data_z <- if (ncol(z) == 1L) {
       data.frame(y = y, z)
     } else {
       data.frame(y = y, z[, -1L, drop = FALSE])
     }
-    init_phi <- stats::coef(
-      stats::glm(y ~ .,
-        data = glm_data_z,
-        family = stats::quasibinomial(link = link_phi)
-      )
+    # repar 2: GLM start as before; on failure fall back to the moment intercept.
+    init_phi <- tryCatch(
+      stats::coef(
+        stats::glm(y ~ .,
+          data = glm_data_z,
+          family = stats::quasibinomial(link = link_phi)
+        )
+      ),
+      error = function(e) NULL
     )
+    if (is.null(init_phi) || length(init_phi) != ncol(z) ||
+      any(!is.finite(init_phi))) {
+      init_phi <- .brs_intercept_start(z, init_phi0)
+    }
     names(init_phi) <- paste0("phi_", colnames(z))
   }
 
   c(init_beta, init_phi)
+}
+
+# Intercept-only starting vector for a design matrix: `value` on the
+# "(Intercept)" column (if any), zero elsewhere.
+.brs_intercept_start <- function(M, value) {
+  start <- rep(0, ncol(M))
+  names(start) <- colnames(M)
+  j <- match("(Intercept)", colnames(M))
+  if (!is.na(j)) start[j] <- value
+  start
 }
 
 
@@ -161,17 +206,22 @@ compute_start <- function(formula, data, link = "logit",
 #'   formulas.
 #' @param zeta Numeric vector of precision-model coefficients (link scale),
 #'   required for two-part formulas.
-#' @param link Mean link function.
-#' @param link_phi Precision link function.
+#' @param link Link for the first parameter; \code{NULL} (default) selects
+#'   the link implied by \code{repar} (see \code{\link{brs}}).
+#' @param link_phi Link for the second parameter; \code{NULL} (default)
+#'   selects the link implied by \code{repar}.
 #' @param ncuts Number of scale categories.
 #' @param lim Half-width used in interval construction.
-#' @param repar Reparameterization scheme.
+#' @param repar Reparameterization scheme. \code{beta} and \code{phi} /
+#'   \code{zeta} are on the link scale of the first and second parameter of
+#'   that scheme (shapes \eqn{p, q} under \code{repar = 0}).
 #' @param delta Forced censoring type (\code{0,1,2,3}) or \code{NULL}.
 #'
 #' @return A data frame with columns \code{left}, \code{right}, \code{yt},
 #'   \code{y}, \code{delta}, plus simulated predictor columns from the model
-#'   matrices. When \code{delta != NULL}, the output carries
-#'   \code{attr(, "is_prepared") = TRUE}.
+#'   matrices. As for \code{\link{brs_prep}}, the output carries the
+#'   attributes \code{"is_prepared"} (\code{TRUE}), \code{"ncuts"} and
+#'   \code{"lim"}, which \code{\link{brs}} reuses.
 #'
 #' @examples
 #' \donttest{
@@ -220,8 +270,8 @@ brs_sim <- function(formula,
                     beta,
                     phi = 1 / 5,
                     zeta = NULL,
-                    link = "logit",
-                    link_phi = "logit",
+                    link = NULL,
+                    link_phi = NULL,
                     ncuts = 100L,
                     lim = 0.5,
                     repar = 2L,
@@ -235,9 +285,10 @@ brs_sim <- function(formula,
     delta <- as.integer(delta)
   }
 
-  link <- match.arg(link, .mu_links)
-  link_phi <- match.arg(link_phi, .phi_links)
   repar <- as.integer(repar)
+  links <- .resolve_links(link, link_phi, repar)
+  link <- links$link
+  link_phi <- links$link_phi
 
   design <- .sim_design_matrices(formula, data)
   X <- design$X
@@ -294,9 +345,10 @@ brs_sim <- function(formula,
 
   result <- data.frame(out_y, predictors)
 
-  if (!is.null(delta)) {
-    attr(result, "is_prepared") <- TRUE
-  }
+  # Same attributes as brs_prep(): brs() reuses the columns and ncuts/lim.
+  attr(result, "is_prepared") <- TRUE
+  attr(result, "ncuts") <- ncuts
+  attr(result, "lim") <- lim
 
   result
 }
@@ -310,8 +362,8 @@ brs_sim_var <- function(formula_x = ~ x1 + x2,
                         data,
                         beta = c(0, 0.5, -0.2),
                         zeta = c(1, 0.5, 0.2),
-                        link = "logit",
-                        link_phi = "logit",
+                        link = NULL,
+                        link_phi = NULL,
                         ncuts = 100L,
                         lim = 0.5,
                         repar = 2L,

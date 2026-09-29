@@ -29,10 +29,10 @@
 #'   and the last element is the (link-scale) dispersion parameter.
 #' @param formula One-sided or two-sided formula for the mean model.
 #' @param data   Data frame containing the response and predictors.
-#' @param link   Character: link function for the mean (default
-#'   \code{"logit"}).
-#' @param link_phi Character: link function for the dispersion
-#'   (default \code{"logit"}).
+#' @param link   Character: link function for the first parameter
+#'   (\code{NULL}: the default for \code{repar}, see \code{\link{brs}}).
+#' @param link_phi Character: link function for the second parameter
+#'   (\code{NULL}: the default for \code{repar}).
 #' @param ncuts  Integer: number of scale categories (default 100).
 #' @param lim    Numeric: half-width of uncertainty region (default
 #'   0.5).
@@ -64,15 +64,16 @@
 brs_loglik <- function(param,
                        formula,
                        data,
-                       link = "logit",
-                       link_phi = "logit",
+                       link = NULL,
+                       link_phi = NULL,
                        ncuts = 100L,
                        lim = 0.5,
                        repar = 2L) {
-  # Validate links
-  link <- match.arg(link, .mu_links)
-  link_phi <- match.arg(link_phi, .phi_links)
+  # Validate links (defaults and compatibility depend on repar)
   repar <- as.integer(repar)
+  links <- .resolve_links(link, link_phi, repar)
+  link <- links$link
+  link_phi <- links$link_phi
 
   # Build model matrices
   mf <- stats::model.frame(formula, data = data)
@@ -135,15 +136,16 @@ brs_loglik <- function(param,
 brs_loglik_var <- function(param,
                            formula = y ~ x1 + x2 | z1,
                            data,
-                           link = "logit",
-                           link_phi = "logit",
+                           link = NULL,
+                           link_phi = NULL,
                            ncuts = 100L,
                            lim = 0.5,
                            repar = 2L) {
-  # Validate
-  link <- match.arg(link, .mu_links)
-  link_phi <- match.arg(link_phi, .phi_links)
+  # Validate (link defaults and compatibility depend on repar)
   repar <- as.integer(repar)
+  links <- .resolve_links(link, link_phi, repar)
+  link <- links$link
+  link_phi <- links$link_phi
 
   # Parse multi-part formula
   formula <- Formula::as.Formula(formula)
@@ -173,4 +175,108 @@ brs_loglik_var <- function(param,
     link_phi_code = link_to_code(link_phi),
     repar         = repar
   )
+}
+
+
+#' Per-observation log-likelihood contributions (R mirror of the C++ backend)
+#'
+#' @description
+#' Vectorised R implementation of the censored beta contributions used by
+#' the compiled likelihood (\code{src/brs_common.h}, keep both in sync):
+#' exact (\code{delta = 0}), left-censored (1), right-censored (2) and
+#' interval-censored (3). Same rules as the C++ code: endpoints clamped to
+#' \code{[1e-5, 1 - 1e-5]}, no probability floor, tail chosen by the mean
+#' \eqn{a/(a+b)}, \code{pbeta()} in plain scale, and the endpoint Laplace
+#' approximation below \code{1e-240}. Non-finite contributions become
+#' \code{-1e6} (\code{LOG_PENALTY}).
+#'
+#' @param delta Integer censoring indicators.
+#' @param left,right Interval endpoints on (0, 1).
+#' @param yt Exact response on (0, 1) (used when \code{delta = 0}).
+#' @param a,b Beta shape parameters (vectors, one per observation, or scalars).
+#' @return Numeric vector of log-contributions.
+#' @keywords internal
+#' @noRd
+.brs_obs_loglik <- function(delta, left, right, yt, a, b) {
+  eps <- 1e-5
+  p_tiny <- 1e-240
+  n <- length(delta)
+  a <- rep_len(as.numeric(a), n)
+  b <- rep_len(as.numeric(b), n)
+  left  <- pmin(pmax(left,  eps), 1 - eps)
+  right <- pmin(pmax(right, eps), 1 - eps)
+  yt    <- pmin(pmax(yt,    eps), 1 - eps)
+
+  log1mexp <- function(z) {
+    ifelse(z > log(2), log1p(-exp(-z)), log(-expm1(-z)))
+  }
+  # Endpoint Laplace approximation of the tail mass beyond x (vectorised):
+  # log f(x) - log|g'| + log(1 + g''/g'^2) + log(1 - exp(-|g'| width)),
+  # g = log f; -Inf when x is on the wrong side of the mode.
+  laplace <- function(x, a, b, width, lower) {
+    gp  <- (a - 1) / x - (b - 1) / (1 - x)
+    ok  <- ifelse(lower, gp > 0, gp < 0)
+    ok[is.na(ok)] <- FALSE
+    s   <- abs(gp)
+    gpp <- -(a - 1) / x^2 - (b - 1) / (1 - x)^2
+    corr <- 1 + gpp / s^2
+    v <- stats::dbeta(x, a, b, log = TRUE) - log(s)
+    add <- is.finite(corr) & corr > 0
+    v[add] <- v[add] + log(corr[add])
+    fw <- is.finite(width)
+    v[fw] <- v[fw] + log1mexp((s * width)[fw])
+    v[!ok] <- -Inf
+    v
+  }
+  # log(p) when p is trustworthy, else the Laplace fallback
+  tail_log <- function(p, x, a, b, width, lower) {
+    out <- rep(-Inf, length(p))
+    use <- is.finite(p) & p >= p_tiny
+    out[use] <- log(p[use])
+    if (any(!use)) {
+      out[!use] <- laplace(x[!use], a[!use], b[!use], width[!use], lower[!use])
+    }
+    out
+  }
+
+  lp <- rep(-Inf, n)
+  i0 <- delta == 0L
+  i1 <- delta == 1L
+  i2 <- delta == 2L
+  i3 <- delta == 3L
+  if (any(i0)) {
+    lp[i0] <- stats::dbeta(yt[i0], a[i0], b[i0], log = TRUE)
+  }
+  if (any(i1)) {
+    lp[i1] <- tail_log(stats::pbeta(right[i1], a[i1], b[i1]),
+                       right[i1], a[i1], b[i1], rep(Inf, sum(i1)),
+                       rep(TRUE, sum(i1)))
+  }
+  if (any(i2)) {
+    lp[i2] <- tail_log(stats::pbeta(left[i2], a[i2], b[i2], lower.tail = FALSE),
+                       left[i2], a[i2], b[i2], rep(Inf, sum(i2)),
+                       rep(FALSE, sum(i2)))
+  }
+  if (any(i3)) {
+    l <- left[i3]; u <- right[i3]; a3 <- a[i3]; b3 <- b[i3]
+    lower <- 0.5 * (l + u) <= a3 / (a3 + b3)
+    lower[is.na(lower)] <- TRUE
+    p1 <- ifelse(lower, stats::pbeta(u, a3, b3),
+                        stats::pbeta(l, a3, b3, lower.tail = FALSE))
+    p2 <- ifelse(lower, stats::pbeta(l, a3, b3),
+                        stats::pbeta(u, a3, b3, lower.tail = FALSE))
+    v <- rep(-Inf, length(l))
+    use <- is.finite(p1) & p1 >= p_tiny
+    area <- p1 - p2
+    ok <- use & is.finite(area) & area > 0
+    v[ok] <- log(area[ok])
+    if (any(!use)) {
+      v[!use] <- laplace(ifelse(lower, u, l)[!use], a3[!use], b3[!use],
+                         (u - l)[!use], lower[!use])
+    }
+    v[!(u > l)] <- -Inf
+    lp[i3] <- v
+  }
+  lp[!is.finite(lp)] <- -1e6
+  lp
 }

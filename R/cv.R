@@ -173,40 +173,23 @@ brs_cv <- function(formula,
     lim = fit$lim
   )
 
-  mu <- predict(fit, newdata = newdata, type = "response")
-  phi <- predict(fit, newdata = newdata, type = "precision")
-  shp <- brs_repar(mu = mu, phi = phi, repar = fit$repar)
+  # First parameter and phi for the shapes; E[Y] for the point metrics.
+  pp <- .brs_predict_params(fit, newdata = newdata)
+  shp <- brs_repar(mu = pp$mu, phi = pp$phi, repar = fit$repar)
+  mu <- .brs_mean(pp$mu, pp$phi, fit$repar)
 
   delta <- as.integer(Y[, "delta"])
   left <- as.numeric(Y[, "left"])
   right <- as.numeric(Y[, "right"])
   yt <- as.numeric(Y[, "yt"])
 
-  eps <- 1e-15
-  p <- numeric(length(delta))
-
-  i0 <- delta == 0L
-  i1 <- delta == 1L
-  i2 <- delta == 2L
-  i3 <- delta == 3L
-
-  if (any(i0)) {
-    p[i0] <- stats::dbeta(yt[i0], shp$shape1[i0], shp$shape2[i0])
-  }
-  if (any(i1)) {
-    p[i1] <- stats::pbeta(right[i1], shp$shape1[i1], shp$shape2[i1])
-  }
-  if (any(i2)) {
-    p[i2] <- 1 - stats::pbeta(left[i2], shp$shape1[i2], shp$shape2[i2])
-  }
-  if (any(i3)) {
-    p[i3] <- stats::pbeta(right[i3], shp$shape1[i3], shp$shape2[i3]) -
-      stats::pbeta(left[i3], shp$shape1[i3], shp$shape2[i3])
-  }
-  p <- pmax(p, eps)
+  # Same per-observation contributions as the compiled likelihood: log-space,
+  # no probability floor (a floor made held-out tail observations score a
+  # constant log(1e-15) regardless of the model).
+  lp <- .brs_obs_loglik(delta, left, right, yt, shp$shape1, shp$shape2)
 
   list(
-    log_score = mean(log(p)),
+    log_score = mean(lp),
     rmse_yt = sqrt(mean((yt - mu)^2)),
     mae_yt = mean(abs(yt - mu))
   )

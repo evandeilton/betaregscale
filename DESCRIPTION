@@ -52,5 +52,5 @@ LinkingTo:
 VignetteBuilder: knitr
 Encoding: UTF-8
 NeedsCompilation: yes
-RoxygenNote: 7.3.3
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0

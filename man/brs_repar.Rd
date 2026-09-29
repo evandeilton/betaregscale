@@ -7,9 +7,13 @@
 brs_repar(mu, phi, repar = 2L)
 }
 \arguments{
-\item{mu}{Numeric vector of mean values in \eqn{(0, 1)}.}
+\item{mu}{Numeric vector: the first parameter. The mean, in
+\eqn{(0, 1)}, for \code{repar = 1, 2}; the shape \eqn{p > 0} for
+\code{repar = 0}.}
 
-\item{phi}{Numeric vector (or scalar) of dispersion values.}
+\item{phi}{Numeric vector (or scalar): the second parameter
+(precision \eqn{\phi > 0}, dispersion \eqn{\phi \in (0, 1)}, or shape
+\eqn{q > 0}).}
 
 \item{repar}{Integer (0, 1, or 2) selecting the scheme.}
 }
@@ -25,15 +29,25 @@ three reparameterization schemes.
 \details{
 The three schemes are:
 \describe{
-  \item{\code{repar = 0}}{Direct: \eqn{a = \mu,\; b = \phi}.}
-  \item{\code{repar = 1}}{Ferrari–Cribari-Neto:
-    \eqn{a = \mu\phi,\; b = (1 - \mu)\phi}, where \eqn{\phi}
-    acts as a precision parameter.}
-  \item{\code{repar = 2}}{Mean–variance:
+  \item{\code{repar = 0}}{Shapes: \eqn{a = p,\; b = q} with
+    \eqn{p, q > 0} (the first argument is \eqn{p}, the second
+    \eqn{q}). Both parameters live on \eqn{(0, \infty)} and the
+    mean is \eqn{E[Y] = p / (p + q)}. Regression directly on the
+    shapes is a package extension: the dissertation presents the
+    \eqn{(p, q)} form (its eq. \code{eqn_beta_p1}) and builds the
+    regression models on the two reparameterizations below.}
+  \item{\code{repar = 1}}{Ferrari–Cribari-Neto (dissertation
+    "parametrização 1", eq. \code{eqn_beta_p2}):
+    \eqn{a = \mu\phi,\; b = (1 - \mu)\phi}, where \eqn{\mu \in (0, 1)}
+    is the mean and \eqn{\phi > 0} acts as a precision parameter.}
+  \item{\code{repar = 2}}{Mean–dispersion (dissertation
+    "parametrização 2", eq. \code{eqn_beta_p3}):
     \eqn{a = \mu(1-\phi)/\phi,\; b = (1-\mu)(1-\phi)/\phi},
-    where \eqn{\phi \in (0,1)} is analogous to a coefficient
-    of variation.}
+    where \eqn{\mu \in (0, 1)} is the mean and \eqn{\phi \in (0,1)}
+    is a dispersion parameter (\eqn{Var[Y] = \phi\,\mu(1-\mu)}).}
 }
+The admissible link functions follow from these domains; see the
+'Reparameterizations and links' section of \code{\link{brs}}.
 }
 \examples{
 brs_repar(mu = 0.5, phi = 0.2, repar = 2)

@@ -20,7 +20,8 @@ static const double EPS_PROB    = 1.0e-15;
 static const double LOG_PENALTY = -1.0e6;
 // EPS_UNIT : clamp margin for (0,1)-scale endpoints (y, phi in repar=2)
 // EPS_SHAPE: minimum allowed beta shape parameter value
-// EPS_PROB : minimum probability before applying LOG_PENALTY
+// EPS_PROB : tiny threshold used only by the inverse / 1/mu^2 links
+// LOG_PENALTY: value returned for a non-finite contribution (never a floor)
 static const double EPS_UNIT   = 1.0e-5;
 
 // ------------------------------------------------------------------ helpers --
@@ -68,6 +69,17 @@ inline double clamp_phi_by_repar(double phi, int repar) {
   return clamp(phi, EPS_UNIT, MAX_SHAPE);
 }
 
+// Clamp the first parameter: the mean in (0, 1) for repar 1/2, the shape p > 0
+// for repar 0 (a (0, 1) clamp there capped p at 1 - EPS_UNIT). Mirror: R .clamp_mu_by_repar().
+inline double clamp_mu_by_repar(double mu, int repar) {
+  if (repar == 0) {
+    if (!std::isfinite(mu)) return MAX_SHAPE;
+    return clamp(mu, EPS_UNIT, MAX_SHAPE);
+  }
+  if (!std::isfinite(mu)) return 1.0 - EPS_UNIT;
+  return clamp(mu, EPS_UNIT, 1.0 - EPS_UNIT);
+}
+
 // Convert (mu, phi) to beta shape parameters (a, b) under the chosen reparameterisation.
 // repar = 0: a = mu,            b = phi
 // repar = 1: a = mu*phi,        b = (1-mu)*phi  [Ferrari & Cribari-Neto 2004]
@@ -89,50 +101,107 @@ inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) 
 }
 
 // ------------------------------------------------- log-likelihood building blocks --
-
-// log P(left < Y < right | a, b)
 //
-// The interval probability is the dominant quantity of the whole package
-// (every interval-censored observation). Computing it as
-// pbeta(hi, lower) - pbeta(lo, lower) suffers catastrophic cancellation when
-// both endpoints sit in the upper tail (both CDF values ~= 1, common when the
-// fitted mean is near 1). We pick the tail that keeps both terms small:
-//   * interval in the lower half  -> subtract lower tails
-//   * interval in the upper half  -> subtract upper tails (survival)
-inline double log_interval_prob(double left, double right, double a, double b) {
-  double lo = clamp(left,  EPS_UNIT, 1.0 - EPS_UNIT);
-  double hi = clamp(right, EPS_UNIT, 1.0 - EPS_UNIT);
-  double area;
-  if (lo + hi > 1.0) {
-    // upper region: P(lo<Y<hi) = S(lo) - S(hi), both small, no cancellation
-    area = R::pbeta(lo, a, b, 0, 0) - R::pbeta(hi, a, b, 0, 0);
-  } else {
-    area = R::pbeta(hi, a, b, 1, 0) - R::pbeta(lo, a, b, 1, 0);
-  }
-  if (area < EPS_PROB) area = EPS_PROB;
-  return std::log(area);
-}
+// Censored contributions are log(probabilities). Rules (mirrored 1:1 by the
+// R helper .brs_obs_loglik() in R/loglik.R, keep both in sync):
+//
+//  * Endpoints are clamped to [EPS_UNIT, 1 - EPS_UNIT]: that is the only
+//    protection of the borders of the support. There is NO probability
+//    floor. The former floor (1e-15) turned every far-tail observation into
+//    a constant with zero gradient, so the optimiser maximised a trimmed
+//    likelihood that ignored outliers (audit 2026-09, finding C2).
+//
+//  * The tail is chosen by the distribution, not by the position of the
+//    interval on (0, 1): an interval whose midpoint lies at or below the
+//    mean a/(a+b) is measured with lower-tail CDFs, otherwise with upper
+//    tails (survival). Both probabilities are then "small" quantities and
+//    their difference p1 - p2 is well conditioned. The old rule (lower tail
+//    iff lo + hi <= 1) subtracted two values equal to 1 to machine precision
+//    whenever the interval sat far above a small mean (or below a large
+//    one): catastrophic cancellation, and the floor hid it.
+//
+//  * pbeta() is evaluated in PLAIN scale. It is accurate to ~1e-10 relative
+//    for p >= 1e-240; between underflow and ~1e-263 bratio can return
+//    values wrong by up to ~10%, hence the threshold. It never warns. The
+//    log-scale variant (log_p = TRUE) can emit "bpser(...) underflow to
+//    -Inf" R warnings for large shapes, in a way that is not predictable
+//    from log f alone, so it is not used.
+//
+//  * Below P_TINY the plain probability is unreliable or underflows. There
+//    the endpoint Laplace approximation of the tail integral takes over
+//    (log_tail_laplace): for x below the mode
+//        F(x)  ~ f(x) / g'(x)  * (1 + g''(x)/g'(x)^2),   g = log f,
+//    and for x above the mode the same with |g'|. Its error there is
+//    <= 4e-4 log-lik units (checked against log-scale pbeta where the
+//    latter is reliable), it is smooth in (a, b), and it keeps a usable
+//    gradient while the optimiser is still far from the optimum. It only
+//    applies on the correct side of the mode (g' > 0 for a lower tail,
+//    g' < 0 for an upper tail); otherwise the contribution is -Inf, which
+//    obs_loglik() maps to LOG_PENALTY, as it does for any non-finite value.
 
-// log f(yt | a, b)  [exact / uncensored]
+// Plain-scale probabilities below this are not trusted (see above).
+static const double P_TINY = 1.0e-240;
+
+// log f(yt | a, b)  [exact / uncensored]. The clamp keeps an exact response
+// inside the open support (0, 1), where the density can diverge.
 inline double log_density(double yt, double a, double b) {
   double y = clamp(yt, EPS_UNIT, 1.0 - EPS_UNIT);
   return R::dbeta(y, a, b, 1);  // log = TRUE
+}
+
+// log of the tail mass beyond x by the endpoint Laplace approximation.
+//   lower_tail = true : log P(x - width < Y < x)  (x is the upper endpoint)
+//   lower_tail = false: log P(x < Y < x + width)  (x is the lower endpoint)
+// width = R_PosInf gives the one-sided tail log F(x) or log S(x).
+// log P ~ log f(x) - log|g'| + log(1 + g''/g'^2) + log(1 - exp(-|g'| width))
+inline double log_tail_laplace(double x, double a, double b, double width,
+                               bool lower_tail) {
+  double gp  = (a - 1.0) / x - (b - 1.0) / (1.0 - x);            // g'(x)
+  if (lower_tail ? !(gp > 0.0) : !(gp < 0.0)) return R_NegInf;  // wrong side
+  double s   = std::abs(gp);
+  double gpp = -(a - 1.0) / (x * x) - (b - 1.0) / ((1.0 - x) * (1.0 - x));
+  double corr = 1.0 + gpp / (s * s);
+  double v = log_density(x, a, b) - std::log(s);
+  if (corr > 0.0) v += std::log(corr);
+  if (R_FINITE(width)) v += Rf_log1mexp(s * width);
+  return v;
+}
+
+// log P(left < Y < right | a, b)  [interval-censored contribution]
+inline double log_interval_prob(double left, double right, double a, double b) {
+  double lo = clamp(left,  EPS_UNIT, 1.0 - EPS_UNIT);
+  double hi = clamp(right, EPS_UNIT, 1.0 - EPS_UNIT);
+  if (!(hi > lo)) return R_NegInf;
+  bool lower = 0.5 * (lo + hi) <= a / (a + b);
+  double p1, p2;  // p1 = mass beyond the endpoint nearest the bulk (>= p2)
+  if (lower) {
+    p1 = R::pbeta(hi, a, b, 1, 0);
+    p2 = R::pbeta(lo, a, b, 1, 0);
+  } else {
+    p1 = R::pbeta(lo, a, b, 0, 0);
+    p2 = R::pbeta(hi, a, b, 0, 0);
+  }
+  if (p1 >= P_TINY) {
+    double area = p1 - p2;
+    return (area > 0.0) ? std::log(area) : R_NegInf;
+  }
+  return log_tail_laplace(lower ? hi : lo, a, b, hi - lo, lower);
 }
 
 // log F(y | a, b)  [left-censored contribution]
 inline double log_cdf(double y, double a, double b) {
   double yc = clamp(y, EPS_UNIT, 1.0 - EPS_UNIT);
   double p  = R::pbeta(yc, a, b, 1, 0);
-  if (p < EPS_PROB) p = EPS_PROB;
-  return std::log(p);
+  if (p >= P_TINY) return std::log(p);
+  return log_tail_laplace(yc, a, b, R_PosInf, true);
 }
 
-// log (1 - F(y | a, b))  [right-censored contribution; uses upper tail for accuracy]
+// log (1 - F(y | a, b))  [right-censored contribution]
 inline double log_survival(double y, double a, double b) {
   double yc = clamp(y, EPS_UNIT, 1.0 - EPS_UNIT);
   double p  = R::pbeta(yc, a, b, 0, 0);  // upper tail
-  if (p < EPS_PROB) p = EPS_PROB;
-  return std::log(p);
+  if (p >= P_TINY) return std::log(p);
+  return log_tail_laplace(yc, a, b, R_PosInf, false);
 }
 
 // Per-observation log-likelihood contribution.

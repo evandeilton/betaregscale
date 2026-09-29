@@ -1,3 +1,104 @@
+# betaregscale (development version)
+
+Fixes from the 2026-09 audit of the R code and the compiled backend. No change
+to the user-facing API for the default `repar = 2`; see "Reparameterizations
+and links" for `repar = 0, 1`.
+
+## Reparameterizations and links
+
+* The three schemes of `brs_repar()` model different parameters, so the
+  admissible links now depend on `repar` and incompatible combinations are
+  rejected with an error that prints the table: `repar = 0` (shapes `p, q`,
+  both on `(0, Inf)`): `link` and `link_phi` in `{log, sqrt}`; `repar = 1`
+  (mean, precision): `link` in `{logit, probit, cauchit, cloglog}`,
+  `link_phi` in `{log, sqrt}`; `repar = 2` (mean, dispersion): both in
+  `{logit, probit, cauchit, cloglog}`. `identity`, `inverse` and `1/mu^2`
+  are no longer accepted for positive parameters (their inverse does not map
+  the real line onto `(0, Inf)`); with `sqrt` a warning is issued after the
+  fit when a fitted linear predictor is `<= 0` (flat inverse link). Link
+  names are matched exactly (no partial matching).
+
+* `link` and `link_phi` default to `NULL` in `brs()`, `brs_fit_fixed()`,
+  `brs_fit_var()`, `brsmm()` and `brs_sim()`, and resolve by `repar`:
+  `0 -> log/log`, `1 -> logit/log`, `2 -> logit/logit`. The old default
+  `link_phi = "logit"` under `repar = 1` squashed the precision into
+  `(0, 1)`: with true precision 20 it estimated 0.999999 (log-likelihood
+  -2483 against -1885 with the `log` link).
+
+* Under `repar = 0` the fitted object keeps the shape `p` in `hatmu` /
+  `fitted_mu` (and `brs_repar(mu = )` takes `p > 0`), but every user-facing
+  mean now is `E[Y] = a / (a + b)`: `fitted()`, `predict(type =
+  "response")`, response/Pearson residuals, marginal effects and the
+  calibration plots. `predict()` used to return `p` (0.949 where the mean
+  was 0.493). Weighted/sweighted residuals are computed from the shapes
+  (`digamma(a) - digamma(b)`, `trigamma(a) + trigamma(b)`), the pseudo
+  R-squared compares `E[Y]` and `y` on the logit scale under `repar = 0`,
+  and starting values for the shapes come from the method of moments.
+  `brs_predict_scoreprob(newdata = )`, `brs_cv()` and the CDF plot no
+  longer feed `predict(type = "response")` back into `brs_repar()`.
+  Identical results under `repar = 1, 2`.
+
+* `brsmm()` now runs the same input validation as `brs()`: `repar` outside
+  `0:2` (which used to fall into the C++ `default:` branch silently),
+  `ncuts`, `lim` and the links.
+
+* `ncuts` and `lim` default to `NULL` in `brs()` and `brsmm()` and are taken
+  from the attributes that `brs_prep()` (and now `brs_sim()`) store on the
+  data; an explicit value that differs from the stored one is ignored with
+  a warning. Refitting prepared data with another `ncuts` made
+  `brs_predict_scoreprob()` rows sum to 0.05 instead of 1. `brs_sim()`
+  always attaches `is_prepared`, `ncuts` and `lim` (it did so only when
+  `delta` was given).
+
+* The compiled likelihood clamped the inverse-linked first parameter to
+  `(1e-5, 1 - 1e-5)` for every `repar`, so under `repar = 0` the truth and
+  the "MLE" were both evaluated with the shape `p` capped at `0.99999`.
+  `clamp_mu_by_repar()` in `src/brs_common.h` now uses `[1e-5, 1e8]` for
+  the shape and `[1e-5, 1 - 1e-5]` for the mean, and the R side (`hatmu`,
+  `hatphi`, `predict()`) applies the same clamps.
+
+## Row alignment and input validation
+
+* `.extract_response()` and `.brsmm_row_index()` treated numeric row names as
+  row positions. After `data[-10, ]`, a permutation, or any subset that keeps
+  the original row names, `left`/`right`/`delta` and the grouping variable
+  were taken from the wrong rows, silently corrupting `brs()` on subsetted
+  data, `brs_cv()`, the BCa jackknife in `brs_bootstrap()` and `brsmm()`.
+  Rows are now always mapped by `match(rownames(mf), rownames(data))`.
+
+* The compiled `brsmm()` likelihood did no dimension checks. With a `NA` in a
+  random-slope variable, `model.matrix()` dropped a row and the group builder
+  wrote past its buffers (AddressSanitizer heap-buffer-overflow). Vector
+  lengths, `group >= 1` and `delta` in `0:3` are now validated in C++, and a
+  `NA` in a random-effects variable gives a clear R-side error.
+
+* `brs_prep()` Mode 3 rows (only `left`/`right` known) had `y = NA`, so
+  `model.frame()` dropped them and those censored observations never reached
+  the fit. They are now kept.
+
+## Likelihood: no probability floor, exact tails
+
+* The compiled likelihood floored every censored probability at `1e-15`
+  before taking the log, and chose the CDF tail by the position of the
+  interval on (0, 1) rather than by the fitted distribution. An interval far
+  above a small fitted mean (or below a large one) was computed as
+  `F(right) - F(left)` with both terms equal to 1 to machine precision, so it
+  hit the floor: the observation contributed the constant `log(1e-15)` with
+  zero gradient, and the optimiser maximised a trimmed likelihood that ignored
+  outliers. Now the tail is chosen by the mean `a / (a + b)`, `pbeta()` is
+  evaluated in plain scale on the small side, there is no floor, and below
+  `1e-240` (where R's `bratio` loses accuracy) an endpoint Laplace
+  approximation of the tail integral takes over. The endpoint clamp to
+  `[1e-5, 1 - 1e-5]` is unchanged. An R mirror of the same rules,
+  `.brs_obs_loglik()`, is used by `brs_cv()` for the log-score.
+
+  User-visible consequences: `logLik()`, `AIC()` and `brs_cv()` change on data
+  with observations far in a tail, and the precision estimate can drop a lot.
+  In the audit example (200 observations, 4 outliers) the estimated precision
+  went from 328 to 32; the old value was an artefact of the trimmed
+  likelihood. An interval-censored observation with `left == right`
+  (probability zero) now contributes `-1e6` instead of `log(1e-15)`.
+
 # betaregscale 2.7.4
 
 Resubmission addressing CRAN feedback on vignette build time (Uwe Ligges,
