@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/evandeilton/betaregscale/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/evandeilton/betaregscale/blob/v3.0.0/DESCRIPTION)
 
 Lopes J, Bonat W (2026). *betaregscale: Beta Regression for
 Interval-Censored Scale-Derived Outcomes*. R package version 3.0.0,
