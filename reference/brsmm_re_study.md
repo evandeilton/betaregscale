@@ -101,6 +101,6 @@ print(rs)
 #>  (Intercept)   0.5339    0.0012   0.446          0.6976     0.824
 rs$summary
 #>          term  sd_model   mean_mode   sd_mode shrinkage_ratio shapiro_p
-#> 1 (Intercept) 0.5339185 0.001151003 0.4459554       0.6976425 0.8240296
+#> 1 (Intercept) 0.5339184 0.001150958 0.4459553       0.6976425 0.8240296
 # }
 ```

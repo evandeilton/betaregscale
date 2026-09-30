@@ -738,7 +738,7 @@ summary(fit_var)
 #> ---
 #> Log-likelihood: -936.0499 on 5 Df | AIC: 1882.0998 | BIC: 1899.7071 
 #> Pseudo R-squared: 0.1164  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 38 (BFGS) 
+#> Number of iterations: 43 (BFGS) 
 #> Censoring: 181 interval | 23 left | 46 right
 ```
 

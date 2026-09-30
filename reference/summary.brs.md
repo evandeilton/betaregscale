@@ -112,7 +112,7 @@ s
 #> 
 s$coefficients$mean
 #>               Estimate Std. Error   z value     Pr(>|z|)
-#> (Intercept) -1.3079316  0.1627663 -8.035643 9.308939e-16
+#> (Intercept) -1.3079316  0.1627663 -8.035643 9.308940e-16
 #> time12h      0.5245223  0.2155579  2.433324 1.496090e-02
 #> time24h      0.4992069  0.2150869  2.320955 2.028928e-02
 c(AIC = s$AIC, BIC = s$BIC, pseudo_R2 = s$pseudo.r2)

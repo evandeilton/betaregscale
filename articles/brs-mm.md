@@ -218,7 +218,7 @@ summary(fit_mm)
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)    
 #> (Intercept)  0.36831    0.15429   2.387    0.017 *  
-#> x1           0.63301    0.09467   6.687 2.29e-11 ***
+#> x1           0.63301    0.09467   6.687 2.28e-11 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 #> 

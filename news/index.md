@@ -2,12 +2,10 @@
 
 ## betaregscale 3.0.0
 
-Major release after an audit of the R code and the compiled backend
-(2026-09), checked against Lopes (2023). The major version reflects that
-some calls accepted by 2.7.4 now stop and some results change. With the
-defaults (`repar = 2`, `interval = "mid"`, `lim = 0.5`) and well-behaved
-data, estimates agree with 2.7.4 to optimiser tolerance; the sections
-below give every change and its reason.
+Major release: some calls accepted by 2.7.4 now stop and some results
+change. With the defaults (`repar = 2`, `interval = "mid"`, `lim = 0.5`)
+and well-behaved data, estimates agree with 2.7.4 to optimiser
+tolerance; the sections below give every change and its reason.
 
 ### Breaking changes
 
@@ -93,11 +91,11 @@ below give every change and its reason.
   [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
   warns on rows covering the whole scale. Marginal effects honour
   `| 0 + z`; repar 2 variable-dispersion starts use the moment intercept
-  with zero slopes. This changes some fits: in a validation battery 22
-  of 136 fits moved, all to an equal or higher log-likelihood with fewer
-  iterations, and a `brsmm` variable-dispersion fit (200 groups x 25)
-  that had “converged” to a wrong point (intercept 0.94, true 0.2) now
-  gains 1214 in log-likelihood (intercept 0.14).
+  with zero slopes. This changes some fits, to an equal or higher
+  log-likelihood with fewer iterations, and a `brsmm`
+  variable-dispersion fit (200 groups x 25) that had “converged” to a
+  wrong point (intercept 0.94, true 0.2) now gains 1214 in
+  log-likelihood (intercept 0.14).
 
 ### Interval direction (`interval`)
 
@@ -277,8 +275,8 @@ below give every change and its reason.
   [`AIC()`](https://rdrr.io/r/stats/AIC.html) and
   [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
   change on data with observations far in a tail, and the precision
-  estimate can drop a lot. In the audit example (200 observations, 4
-  outliers) the estimated precision went from 328 to 32; the old value
+  estimate can drop a lot. In an example with 200 observations and 4
+  outliers the estimated precision went from 328 to 32; the old value
   was an artefact of the trimmed likelihood. An interval-censored
   observation with `left == right` (probability zero) now contributes
   `-1e6` instead of `log(1e-15)`.
@@ -288,8 +286,7 @@ below give every change and its reason.
 - The mixed-model backend
   ([`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md))
   is now written in RcppArmadillo, like the rest of the package;
-  RcppEigen is no longer a dependency. The port was checked against the
-  Eigen code to rounding before any change of method.
+  RcppEigen is no longer a dependency.
 - Gradients and Hessians use the chain rule on the linear predictors
   (per-observation central differences, cost independent of the number
   of coefficients). The new default `hessian_method = "cpp"` is about
@@ -342,10 +339,10 @@ below give every change and its reason.
 
 ### Documentation
 
-- Help pages aligned with Lopes (2023) and checked against the code: the
-  complete likelihood with the four censoring types (the dissertation’s
-  table swaps `delta = 1` and `2`; the package follows its equation),
-  the three parameterisations with their links, mean and variance
+- Help pages aligned with Lopes (2023) and with the code: the complete
+  likelihood with the four censoring types (the dissertation’s table
+  swaps `delta = 1` and `2`; the package follows its equation), the
+  three parameterisations with their links, mean and variance
   (`repar = 2` dispersion is `1 / (1 + a + b)`, not a coefficient of
   variation), the interval directions, the border handling that replaces
   the dissertation’s edge transformation, the residual types, estimation

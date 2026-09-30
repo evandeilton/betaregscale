@@ -44,7 +44,7 @@ random = ~ 1 | id gives a random intercept per group,
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Fit a mixed-effects beta interval regression model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v3.0.0/R/brsmm.R" class="external-link"><code>R/brsmm.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/brsmm.R" class="external-link"><code>R/brsmm.R</code></a></small>
       <div class="d-none name"><code>brsmm.Rd</code></div>
     </div>
 
@@ -323,16 +323,16 @@ log-likelihood function in the nonlinear mixed-effects model.
 <span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu">brsmm</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">tc</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">nrs</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m2</span><span class="op">)</span><span class="op">$</span><span class="va">varcorr</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  term type  estimate      lower     upper se_transformed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      SD (Intercept)   sd 0.6328837  0.3894570 1.0284620      0.2477255</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2               SD tc   sd 0.5474364  0.2490143 1.2034916      0.4019135</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083615 0.9748538      0.6672098</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      SD (Intercept)   sd 0.6328837  0.3894562 1.0284643      0.2477267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               SD tc   sd 0.5474364  0.2490126 1.2034998      0.4019169</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083700 0.9748543      0.6672150</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="ranef.html">ranef</a></span><span class="op">(</span><span class="va">m2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   (Intercept)         tc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.3540762  0.1152133</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   0.1124897 -0.1982327</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   1.1300445  0.6532920</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4  -0.2328539 -0.1960478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0.9638750  0.8034316</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0.9638750  0.8034315</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   0.1412063  0.1006265</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Is the slope needed? One added random term: the p-value uses the</span></span></span>

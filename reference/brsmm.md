@@ -285,16 +285,16 @@ summary(m1)
 m2 <- brsmm(y ~ time, random = ~ 1 + tc | id, data = nrs, ncuts = 10)
 summary(m2)$varcorr
 #>                  term type  estimate      lower     upper se_transformed
-#> 1      SD (Intercept)   sd 0.6328837  0.3894570 1.0284620      0.2477255
-#> 2               SD tc   sd 0.5474364  0.2490143 1.2034916      0.4019135
-#> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083615 0.9748538      0.6672098
+#> 1      SD (Intercept)   sd 0.6328837  0.3894562 1.0284643      0.2477267
+#> 2               SD tc   sd 0.5474364  0.2490126 1.2034998      0.4019169
+#> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083700 0.9748543      0.6672150
 head(ranef(m2))
 #>   (Intercept)         tc
 #> 1   0.3540762  0.1152133
 #> 2   0.1124897 -0.1982327
 #> 3   1.1300445  0.6532920
 #> 4  -0.2328539 -0.1960478
-#> 5   0.9638750  0.8034316
+#> 5   0.9638750  0.8034315
 #> 6   0.1412063  0.1006265
 
 # Is the slope needed? One added random term: the p-value uses the

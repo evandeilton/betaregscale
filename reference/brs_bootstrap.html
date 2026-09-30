@@ -42,7 +42,7 @@ variable-dispersion) objects are supported; "brsmm" is not supported.'><meta pro
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Parametric bootstrap confidence intervals for brs models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v3.0.0/R/bootstrap.R" class="external-link"><code>R/bootstrap.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/bootstrap.R" class="external-link"><code>R/bootstrap.R</code></a></small>
       <div class="d-none name"><code>brs_bootstrap.Rd</code></div>
     </div>
 
@@ -202,8 +202,8 @@ samples, and reserve <code>"bca"</code> for a final result.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     parameter   estimate   se_boot    ci_lower   ci_upper mcse_lower mcse_upper</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -1.2953746 0.2011046 -1.71296642 -0.9501425 0.07569263 0.04900518</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2     time12h  0.7657720 0.2290701  0.29264721  1.1319112 0.05329737 0.09006074</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     time24h  0.3854151 0.2849472 -0.06794233  0.8036531 0.04243362 0.04330853</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       (phi) -0.8166662 0.1422067 -1.12895854 -0.6751089 0.03337507 0.01822655</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     time24h  0.3854151 0.2849472 -0.06794233  0.8036531 0.04243363 0.04330853</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       (phi) -0.8166662 0.1422067 -1.12895854 -0.6751088 0.03337507 0.01822657</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   wald_lower wald_upper level</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 -1.6863745 -0.9043747  0.95</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.2513386  1.2802054  0.95</span>
@@ -216,7 +216,7 @@ samples, and reserve <code>"bca"</code> for a final result.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 (Intercept) -1.71296642 -0.9501425 -1.6863745 -0.9043747</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2     time12h  0.29264721  1.1319112  0.2513386  1.2802054</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3     time24h -0.06794233  0.8036531 -0.1363913  0.9072215</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       (phi) -1.12895854 -0.6751089 -1.0759353 -0.5573970</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       (phi) -1.12895854 -0.6751088 -1.0759353 -0.5573970</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">bt</span><span class="op">$</span><span class="va">se_boot</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)     time12h     time24h       (phi) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        1.01        0.87        1.07        1.08 </span>
