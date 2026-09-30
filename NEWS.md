@@ -1,8 +1,35 @@
-# betaregscale (development version)
+# betaregscale 3.0.0
 
-Fixes from the 2026-09 audit of the R code and the compiled backend. No change
-to the user-facing API for the defaults (`repar = 2`, `interval = "mid"`,
-`lim = 0.5`); see "Reparameterizations and links" and "Interval direction".
+Major release after an audit of the R code and the compiled backend
+(2026-09), checked against Lopes (2023). The major version reflects that some
+calls accepted by 2.7.4 now stop and some results change. With the defaults
+(`repar = 2`, `interval = "mid"`, `lim = 0.5`) and well-behaved data,
+estimates agree with 2.7.4 to optimiser tolerance; the sections below give
+every change and its reason.
+
+## Breaking changes
+
+* Links are checked against `repar`: `identity`, `inverse` and `1/mu^2` are
+  rejected for positive parameters, and under `repar = 1` the default
+  `link_phi` is now `"log"` (it was `"logit"`, which capped the precision
+  at 1).
+* Fits change on data with observations far in a tail (the `1e-15`
+  probability floor of the likelihood is gone), and new starting values move
+  some variable-dispersion fits to higher optima.
+* Input accepted with a warning or silently now stops: `lim` outside
+  `(0, 0.5]`, scores outside `0..ncuts`, `delta = 3` with `left == right`,
+  `NA` in a prepared `delta`, rank-deficient designs.
+* `anova()` refuses fits with different `interval`, `ncuts`, `lim` or `nobs`.
+* `summary()` of a `brsmm` fit reports SD/Corr intervals instead of z-tests
+  on `log(sd)`; the ICC of `brsmm_re_study()` uses the beta level-1 variance
+  instead of `pi^2/3`.
+* `vcov()` returns `NA` (it returned 0) for variances it cannot estimate. The
+  default Hessian is the compiled one (`hessian_method = "cpp"`; standard
+  errors agree with `numDeriv` to 1e-8).
+* `brs_check()` treats values in `(0, 1)` as exact per observation, as
+  `brs_prep()` does.
+* QMC with two or more random effects is a different estimator
+  (symmetric-root scaling of the nodes).
 
 ## Bootstrap, fit diagnostics and mixed-model inference
 
