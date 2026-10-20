@@ -216,7 +216,7 @@ autoplot.brsmm <- function(object,
   probs <- .brs_score_prob_matrix(
     mu = object$fitted_mu, phi = object$fitted_phi,
     repar = object$repar, ncuts = K, lim = object$lim, scores = scores,
-    interval = interval
+    interval = interval, cuts = .brs_cuts_of(object)
   )
   exp_counts <- colSums(probs)
   df <- rbind(

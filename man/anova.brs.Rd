@@ -42,6 +42,11 @@ Stram and Lee, 1994); for one variance component alone this is
 printed heading names the rows that use it. When more than one random term
 is added at once, the naive \eqn{\chi^2_{df}} p-value is kept and flagged
 as conservative.
+
+A fit with \code{cutpoints = "fixed"} is nested in the same model with
+\code{cutpoints = "boundary"} at an interior point of the cutpoint
+parameters (section 'Boundary cutpoints' of \code{\link{brs}}), so their
+comparison is a regular \eqn{\chi^2_2} test; the heading names those rows.
 }
 \examples{
 # Synthetic NRS-11 scores: 4 groups x 3 times. Simulated, not real data.

@@ -186,6 +186,8 @@ brs_cv <- function(formula,
     lim = fit$lim,
     interval = .brs_interval_of(fit)
   )
+  # Cells of the estimated boundary cutpoints (unchanged under the fixed map)
+  Y <- .brs_apply_fit_cuts(Y, fit)
 
   # First parameter and phi for the shapes; E[Y] for the point metrics.
   pp <- .brs_predict_params(fit, newdata = newdata)

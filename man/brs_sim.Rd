@@ -16,7 +16,8 @@ brs_sim(
   lim = 0.5,
   repar = 2L,
   delta = NULL,
-  interval = c("mid", "right", "left")
+  interval = c("mid", "right", "left"),
+  cutpoints = NULL
 )
 }
 \arguments{
@@ -46,6 +47,11 @@ over \eqn{0, \ldots, K}.}
 forced on every row; see Details.}
 
 \item{interval}{\code{"mid"} (default), \code{"right"} or \code{"left"}.}
+
+\item{cutpoints}{\code{NULL} (default: the cells of \code{interval}) or
+\code{c(c_lo, c_hi)}, the boundary cutpoints on \eqn{(0, 1)} between
+scores 0 and 1 and between \eqn{K - 1} and \eqn{K}; they must keep every
+cell non-empty (\eqn{c_{lo} < u_1}, \eqn{c_{hi} > l_{K-1}}). See Details.}
 }
 \value{
 A data frame with columns \code{left}, \code{right}, \code{yt},
@@ -82,6 +88,13 @@ finite maximum and \code{\link{brs}} returns diverging coefficients, with
 clamp warnings. \code{brs_sim()} warns in that case, and also whenever all
 simulated rows fall on the same border.
 
+\code{cutpoints = c(c_lo, c_hi)} coarsens with estimated boundary
+cutpoints (the model of \code{brs(..., cutpoints = "boundary")}): score 0
+below \eqn{c_{lo}}, score \eqn{K} at or above \eqn{c_{hi}}, the cells of
+\code{interval} in between. It needs \code{delta = NULL} and \code{lim =
+0.5}; the returned cells are those of the map, as \code{\link{brs}} expects
+for score data.
+
 A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
 \code{brs_sim()} and \code{brs()} over a fixed design; see the vignette
 \code{vignette("brs-advanced-workflows")}.
@@ -116,6 +129,11 @@ attributes(s2)[c("ncuts", "lim", "interval")]
 sr <- brs_sim(~ x, data = d, beta = c(0.3, 0.6), phi = qlogis(0.2),
               ncuts = 10, interval = "right")
 table(sr$delta)
+
+# Heaping at the borders: score 0 covers (0, 0.11), score 10 covers (0.9, 1)
+sb <- brs_sim(~ x, data = d, beta = c(0.3, 0.6), phi = qlogis(0.2),
+              ncuts = 10, cutpoints = c(0.11, 0.9))
+table(sb$y)
 
 # Forcing delta = 1 on every row is informative censoring: a warning
 sl <- brs_sim(~ x, data = d, beta = c(0.3, 0.6), phi = qlogis(0.2),

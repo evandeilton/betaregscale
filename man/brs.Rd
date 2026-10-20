@@ -16,7 +16,8 @@ brs(
   hessian_method = c("cpp", "numDeriv", "optim"),
   interval = NULL,
   start = NULL,
-  control = list()
+  control = list(),
+  cutpoints = c("fixed", "boundary")
 )
 }
 \arguments{
@@ -69,6 +70,10 @@ estimate here.}
 
 \item{control}{Control list for \code{\link[stats]{optim}}; its entries
 are merged into the default \code{list(maxit = 5000L)}.}
+
+\item{cutpoints}{\code{"fixed"} (default) keeps the cutpoints of the
+interval map; \code{"boundary"} also estimates the two boundary
+cutpoints (see the section 'Boundary cutpoints' of \code{\link{brs}}).}
 }
 \value{
 An object of class \code{"brs"}: a list with, among others,
@@ -78,8 +83,13 @@ An object of class \code{"brs"}: a list with, among others,
   (see 'Fit diagnostics'), \code{hatmu} (first parameter per observation:
   the mean, or the shape \eqn{p} under \code{repar = 0}), \code{hatphi},
   \code{Y} (columns \code{left}, \code{right}, \code{yt}, \code{y},
-  \code{delta}), \code{ncuts}, \code{lim}, \code{interval}, \code{repar},
-  \code{link} and \code{link_phi}.
+  \code{delta}; with \code{cutpoints = "boundary"} the cells of the
+  estimated cutpoints), \code{ncuts}, \code{lim}, \code{interval},
+  \code{repar}, \code{link}, \code{link_phi}, \code{cutpoints} (the type)
+  and \code{cut} (\code{NULL} under the fixed map; otherwise a list with
+  \code{par}, the logit-scale estimates, \code{value}, the cutpoints on
+  \eqn{(0, 1)}, \code{jacobian}, \code{fixed}, the map's cutpoints, and
+  \code{start}, their logit-scale values).
 }
 \description{
 Fits by maximum likelihood a beta regression for scores on a bounded scale,
@@ -250,6 +260,57 @@ are different coarsening models, whose log-likelihoods and AIC are not
 comparable. Details: \code{\link{brs_check}}.
 }
 
+\section{Boundary cutpoints}{
+
+Under the fixed map score \eqn{s} has the cell \eqn{(c_{s-1}, c_s)} with
+cutpoints fixed by \code{interval}, so the model is an ordinal threshold
+model whose thresholds are the scale labels. \code{cutpoints = "boundary"}
+estimates the two border cutpoints: \eqn{c_{lo}} between scores 0 and 1 and
+\eqn{c_{hi}} between \eqn{K - 1} and \eqn{K}; all other cutpoints keep the
+values of the map. Score 0 then has the cell \eqn{(0, c_{lo})}, score 1
+\eqn{(c_{lo}, u_1)}, score \eqn{K - 1} \eqn{(l_{K-1}, c_{hi})} and score
+\eqn{K} \eqn{(c_{hi}, 1)}, where \eqn{u_1} and \eqn{l_{K-1}} are the ends
+given by the map. The parameters are unconstrained and keep the order:
+\deqn{c_{lo} = u_1\, \mathrm{logit}^{-1}(g_{lo}), \qquad
+  c_{hi} = l_{K-1} + (1 - l_{K-1})\, \mathrm{logit}^{-1}(g_{hi}).}{c_lo =
+  u_1 plogis(g_lo), c_hi = l_(K-1) + (1 - l_(K-1)) plogis(g_hi).}
+For \eqn{K = 2} score 1 lies between the two free cutpoints and the order
+is kept by \eqn{c_{lo} = \mathrm{logit}^{-1}(g_{lo})},
+\eqn{c_{hi} = c_{lo} + (1 - c_{lo})\, \mathrm{logit}^{-1}(g_{hi})}.
+The map is the interior point \eqn{g_{lo} = \mathrm{logit}(1/3)},
+\eqn{g_{hi} = \mathrm{logit}(2/3)} under \code{"mid"} (\eqn{K \ge 3}) and
+\eqn{g_{lo} = g_{hi} = 0} under \code{"right"}/\code{"left"}, so the fixed
+model is nested in the boundary model and \code{\link{anova.brs}} gives a
+regular likelihood-ratio test on 2 degrees of freedom. The fit starts at the
+map.
+
+\code{g_lo} and \code{g_hi} are the last two coefficients,
+\code{"(cut_lo)"} and \code{"(cut_hi)"} (\code{coef(fit, model =
+"cutpoints")}); \code{summary()} reports \eqn{c_{lo}} and \eqn{c_{hi}} on
+\eqn{(0, 1)} and on the latent score scale of \code{interval} (the scale of
+\code{predict(type = "score")}), with delta-method standard errors. Their
+gradient is analytic: \eqn{\pm f(c)/\{F(u_i) - F(l_i)\}} for each row whose
+cell ends at \eqn{c} (plus when \eqn{c} is the upper end), times the
+Jacobian of the map above. The compiled Hessian covers the regression
+coefficients; the rows and columns of the cutpoint parameters come from
+\code{numDeriv::jacobian()} of the gradient (\code{hessian_method =
+"cpp"}). The fitted cells (\code{fit$Y}), score probabilities, expected
+scores, randomized quantile residuals, \code{\link{brs_bootstrap}} and
+\code{\link{brs_cv}} use the estimated cutpoints; \code{\link{brs_sim}}
+simulates from given ones.
+
+The extension needs score data: every row the cell of a score
+\eqn{0, \ldots, K} (no exact values, no analyst-supplied censoring or
+bounds from \code{\link{brs_prep}}), \code{lim = 0.5}, \eqn{K \ge 2},
+and the scores next to each free cutpoint observed (0, 1, \eqn{K - 1},
+\eqn{K}); otherwise \code{brs()} stops, since a cutpoint with an
+unobserved neighbour is not identified. With few categories
+(\eqn{K \le 3}) the cutpoints are identified mainly by the shape of the
+beta distribution and can be weakly determined (see \code{fit$diagnostics}).
+A logit-scale estimate beyond \eqn{\pm 10} warns: the cell next to that
+cutpoint is collapsing and the cutpoint is not identified.
+}
+
 \examples{
 # Synthetic NRS-11 pain scores (0-10, so ncuts = 10): 4 groups x 3
 # post-operative times, patterned on the knee-surgery design of Lopes (2023).
@@ -279,6 +340,11 @@ predict(fit, newdata = nd)
 predict(fit, newdata = nd, type = "score")
 predict(fit, newdata = nd, type = "expected_score")
 round(brs_predict_scoreprob(fit, newdata = nd), 3)
+
+# Estimated boundary cutpoints: a 2-df likelihood-ratio test against the map
+fit_b <- brs(y ~ time + group, data = nrs, ncuts = 10, cutpoints = "boundary")
+summary(fit_b)$cutpoints
+anova(fit, fit_b)
 
 # Randomized quantile residuals respect the censoring (N(0, 1) under the model)
 set.seed(1)

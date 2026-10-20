@@ -4,13 +4,17 @@
 \alias{vcov.brsmm}
 \title{Variance-covariance matrix for brsmm coefficients}
 \usage{
-\method{vcov}{brsmm}(object, model = c("full", "mean", "precision", "random"), ...)
+\method{vcov}{brsmm}(
+  object,
+  model = c("full", "mean", "precision", "random", "cutpoints"),
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
 \item{model}{Character: \code{"full"}, \code{"mean"},
-\code{"precision"}, or \code{"random"}.}
+\code{"precision"}, \code{"random"} or \code{"cutpoints"}.}
 
 \item{...}{Currently ignored.}
 }

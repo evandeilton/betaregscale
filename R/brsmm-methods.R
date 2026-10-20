@@ -21,7 +21,8 @@
 #'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param model Character: \code{"full"} (default), \code{"mean"},
-#'   \code{"precision"}, or \code{"random"}.
+#'   \code{"precision"}, \code{"random"} or \code{"cutpoints"} (fits with
+#'   \code{cutpoints = "boundary"}).
 #' @param ... Currently ignored.
 #'
 #' @return Named numeric vector.
@@ -50,7 +51,7 @@
 #' @importFrom stats coef
 #' @export
 coef.brsmm <- function(object,
-                       model = c("full", "mean", "precision", "random"),
+                       model = c("full", "mean", "precision", "random", "cutpoints"),
                        ...) {
   .check_class_mm(object)
   model <- match.arg(model)
@@ -58,7 +59,8 @@ coef.brsmm <- function(object,
     full = object$par,
     mean = object$coefficients$mean,
     precision = object$coefficients$precision,
-    random = object$coefficients$random
+    random = object$coefficients$random,
+    cutpoints = object$par[.brs_cut_index(object)]
   )
 }
 
@@ -67,7 +69,7 @@ coef.brsmm <- function(object,
 #'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param model Character: \code{"full"}, \code{"mean"},
-#'   \code{"precision"}, or \code{"random"}.
+#'   \code{"precision"}, \code{"random"} or \code{"cutpoints"}.
 #' @param ... Currently ignored.
 #'
 #' @return Numeric matrix.
@@ -94,7 +96,7 @@ coef.brsmm <- function(object,
 #' @importFrom stats vcov
 #' @export
 vcov.brsmm <- function(object,
-                       model = c("full", "mean", "precision", "random"),
+                       model = c("full", "mean", "precision", "random", "cutpoints"),
                        ...) {
   .check_class_mm(object)
   model <- match.arg(model)
@@ -112,7 +114,11 @@ vcov.brsmm <- function(object,
     full = V,
     mean = V[idx_mean, idx_mean, drop = FALSE],
     precision = V[idx_precision, idx_precision, drop = FALSE],
-    random = V[idx_random, idx_random, drop = FALSE]
+    random = V[idx_random, idx_random, drop = FALSE],
+    cutpoints = {
+      idx <- .brs_cut_index(object)
+      V[idx, idx, drop = FALSE]
+    }
   )
 }
 
@@ -197,7 +203,8 @@ model.matrix.brsmm <- function(object,
 #' @param object A fitted \code{"brsmm"} object.
 #' @param parm   Character or integer: which parameters.
 #' @param level  Confidence level (default 0.95).
-#' @param model  Character: \code{"full"}, \code{"mean"}, \code{"precision"}, or \code{"random"}.
+#' @param model  Character: \code{"full"}, \code{"mean"}, \code{"precision"},
+#'   \code{"random"} or \code{"cutpoints"}.
 #' @param ...    Currently ignored.
 #'
 #' @return Matrix with columns for lower and upper confidence bounds.
@@ -224,7 +231,7 @@ model.matrix.brsmm <- function(object,
 #' @importFrom stats confint qnorm
 #' @export
 confint.brsmm <- function(object, parm, level = 0.95,
-                          model = c("full", "mean", "precision", "random"),
+                          model = c("full", "mean", "precision", "random", "cutpoints"),
                           ...) {
   .check_class_mm(object)
   model <- match.arg(model)
@@ -811,7 +818,8 @@ summary.brsmm <- function(object, level = 0.95, ...) {
     censoring = cens_counts,
     repar = object$repar,
     ngroups = object$ngroups,
-    integration = object$int_method
+    integration = object$int_method,
+    cutpoints = .brs_cut_table(object, V)
   )
   class(out) <- "summary.brsmm"
   out
@@ -901,6 +909,10 @@ print.summary.brsmm <- function(x,
   vc_tab <- as.matrix(vc[, c("estimate", "lower", "upper")])
   dimnames(vc_tab) <- list(vc$term, c("Estimate", "Lower", "Upper"))
   print(round(vc_tab, digits))
+  if (!is.null(x$cutpoints)) {
+    cat("\n")
+    .brs_print_cut_table(x$cutpoints, digits)
+  }
 
   cat("---\n")
   cat("Mixed beta interval model (", method_name, ")\n", sep = "")
@@ -1001,6 +1013,7 @@ print.brsmm <- function(x,
     cat("Random SDs:\n")
     print(round(re_sd, digits))
   }
+  .brs_print_cuts(x, digits)
 
   cat("---\n")
   cat("Mixed beta interval model (", method_name, ")\n", sep = "")

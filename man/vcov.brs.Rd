@@ -4,13 +4,13 @@
 \alias{vcov.brs}
 \title{Variance-covariance matrix of estimated coefficients}
 \usage{
-\method{vcov}{brs}(object, model = c("full", "mean", "precision"), ...)
+\method{vcov}{brs}(object, model = c("full", "mean", "precision", "cutpoints"), ...)
 }
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
 
 \item{model}{Character: which component (\code{"full"},
-\code{"mean"}, or \code{"precision"}).}
+\code{"mean"}, \code{"precision"} or \code{"cutpoints"}).}
 
 \item{...}{Ignored.}
 }

@@ -20,7 +20,8 @@ brsmm(
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("cpp", "numDeriv", "optim"),
   control = list(maxit = 2000L),
-  interval = NULL
+  interval = NULL,
+  cutpoints = c("fixed", "boundary")
 )
 }
 \arguments{
@@ -68,6 +69,17 @@ the default \code{list(maxit = 2000L)}.}
 \item{interval}{\code{"mid"}, \code{"right"} or \code{"left"} (see
 \code{\link{brs_check}}); \code{NULL} uses the stored value, or
 \code{"mid"}.}
+
+\item{cutpoints}{\code{"fixed"} (default) or \code{"boundary"}: also
+estimate the cutpoints between scores 0 and 1 and between \eqn{K - 1} and
+\eqn{K} (section 'Boundary cutpoints' of \code{\link{brs}}; same
+requirements). Their two parameters come last in \code{coef()}. The
+gradient in them is a Richardson central difference of the marginal
+log-likelihood (steps \eqn{10^{-3}\max(1, |g|)} and half); the
+Hessian (\code{"cpp"}) adds to the compiled block the
+\code{numDeriv::jacobian()} of the compiled gradient in the cutpoint
+parameters and the \code{numDeriv::hessian()} of the marginal
+log-likelihood in them.}
 }
 \value{
 An object of class \code{"brsmm"} with the components of a
@@ -75,7 +87,8 @@ An object of class \code{"brsmm"} with the components of a
   part, \code{value}, \code{hessian}, \code{diagnostics}, ...) and
   \code{random} (group variable, levels, conditional modes \code{mode_b},
   \code{D}, \code{L} and the SDs \code{sd_b}), \code{ngroups},
-  \code{int_method}.
+  \code{int_method}, \code{cutpoints} and \code{cut} (as in
+  \code{\link{brs}}).
 }
 \description{
 Beta interval regression (\code{\link{brs}}) with Gaussian random effects

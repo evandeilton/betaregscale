@@ -249,7 +249,7 @@ autoplot.brs <- function(object,
   probs <- .brs_score_prob_matrix(
     mu = object$hatmu, phi = object$hatphi,
     repar = object$repar, ncuts = K, lim = object$lim, scores = scores,
-    interval = interval
+    interval = interval, cuts = .brs_cuts_of(object)
   )
   exp_counts <- colSums(probs)
   df <- rbind(
@@ -282,14 +282,20 @@ autoplot.brs <- function(object,
 
 #' @keywords internal
 .brs_score_prob_matrix <- function(mu, phi, repar, ncuts, lim, scores,
-                                   interval = "mid") {
+                                   interval = "mid", cuts = NULL) {
   eps <- 1e-10
   shp <- brs_repar(mu = mu, phi = phi, repar = repar)
 
   # P(S = s) = F(u_s) - F(l_s) with the cells of `interval`; the border
-  # cells extend to 0 and 1
+  # cells extend to 0 and 1. `cuts` = estimated (c_lo, c_hi) of a boundary fit.
   P <- sapply(scores, function(s) {
     cell <- .brs_cell(s, ncuts, lim, interval)
+    if (!is.null(cuts)) {
+      if (s == 0L) cell$right <- cuts[1L]
+      if (s == 1L) cell$left <- cuts[1L]
+      if (s == ncuts - 1L) cell$right <- cuts[2L]
+      if (s == ncuts) cell$left <- cuts[2L]
+    }
     if (s == 0L) {
       return(stats::pbeta(cell$right, shp$shape1, shp$shape2))
     }

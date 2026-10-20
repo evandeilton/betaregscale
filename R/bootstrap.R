@@ -33,7 +33,9 @@
 #' instrument) the bootstrap is conservative, and for Mode 2 rows with a
 #' forced \eqn{\delta} (a threshold built from the score itself, which is
 #' informative) it is only an approximation. The response must be a variable
-#' (not an expression such as \code{I(y / 10)}).
+#' (not an expression such as \code{I(y / 10)}). A fit with
+#' \code{cutpoints = "boundary"} re-coarsens with its estimated boundary
+#' cutpoints and re-estimates them in every replicate.
 #'
 #' Each refit starts from the estimate of \code{object} and uses the compiled
 #' Hessian (\code{hessian_method = "cpp"}), so replicates are cheap.
@@ -379,7 +381,8 @@ print.brs_bootstrap <- function(x, ...) {
       method = meth,
       hessian_method = "cpp",
       interval = .brs_interval_of(object),
-      start = unname(object$par)
+      start = unname(object$par),
+      cutpoints = .brs_cut_type_of(object)
     ))),
     error = function(e) NULL
   )
@@ -432,7 +435,9 @@ print.brs_bootstrap <- function(x, ...) {
   Y <- object$Y
   delta <- as.integer(object$delta)
   mech <- ifelse(delta == 0L, "exact", "score")
-  if (prepared) {
+  cuts <- .brs_cuts_of(object)
+  # A boundary fit holds score rows only (checked when it was fitted)
+  if (prepared && is.null(cuts)) {
     # A censored row is a score row only if it is exactly the cell of its score
     y <- as.numeric(Y[, "y"])
     is_score <- delta != 0L & !is.na(y) & abs(y - round(y)) < 1e-8 &
@@ -457,7 +462,7 @@ print.brs_bootstrap <- function(x, ...) {
     shape2 = pmin(pmax(sh$shape2, 1e-12), 1e8),
     y_unit = as.numeric(Y[, "y"]) > 0 & as.numeric(Y[, "y"]) < 1,
     left = as.numeric(Y[, "left"]), right = as.numeric(Y[, "right"]),
-    delta = delta, K = K, lim = object$lim, interval = interval
+    delta = delta, K = K, lim = object$lim, interval = interval, cuts = cuts
   )
 }
 
@@ -472,8 +477,9 @@ print.brs_bootstrap <- function(x, ...) {
   ex <- setup$mech == "exact"
   sc <- setup$mech == "score"
   an <- setup$mech == "analyst"
-  # Scores by the likelihood's own coarsening (Lote 4 mapping)
-  s <- .brs_score_from_unit(yc, K, iv)
+  # Scores by the likelihood's own coarsening (estimated boundary cutpoints
+  # of a boundary fit)
+  s <- .brs_score_from_unit_cut(yc, K, iv, setup$cuts)
   data <- setup$data
   rows <- setup$rows
 

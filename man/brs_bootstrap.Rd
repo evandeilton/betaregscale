@@ -73,7 +73,9 @@ more thresholds than a row records (e.g. Mode 4 intervals cut from a finer
 instrument) the bootstrap is conservative, and for Mode 2 rows with a
 forced \eqn{\delta} (a threshold built from the score itself, which is
 informative) it is only an approximation. The response must be a variable
-(not an expression such as \code{I(y / 10)}).
+(not an expression such as \code{I(y / 10)}). A fit with
+\code{cutpoints = "boundary"} re-coarsens with its estimated boundary
+cutpoints and re-estimates them in every replicate.
 
 Each refit starts from the estimate of \code{object} and uses the compiled
 Hessian (\code{hessian_method = "cpp"}), so replicates are cheap.

@@ -8,7 +8,7 @@
   object,
   parm,
   level = 0.95,
-  model = c("full", "mean", "precision", "random"),
+  model = c("full", "mean", "precision", "random", "cutpoints"),
   ...
 )
 }
@@ -19,7 +19,8 @@
 
 \item{level}{Confidence level (default 0.95).}
 
-\item{model}{Character: \code{"full"}, \code{"mean"}, \code{"precision"}, or \code{"random"}.}
+\item{model}{Character: \code{"full"}, \code{"mean"}, \code{"precision"},
+\code{"random"} or \code{"cutpoints"}.}
 
 \item{...}{Currently ignored.}
 }
