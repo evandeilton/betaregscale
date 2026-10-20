@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,22 @@
       <small>Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="betaregscale-development-version">betaregscale (development version)<a class="anchor" aria-label="anchor" href="#betaregscale-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/brs.html">brs()</a></code> and <code><a href="../reference/brsmm.html">brsmm()</a></code> gain <code>cutpoints = c("fixed", "boundary")</code>. <code>"boundary"</code> estimates the cutpoint between scores 0 and 1 and the one between <code>K - 1</code> and <code>K</code>, keeping all other cutpoints of the interval map. Rating data often pile up at the ends of the scale more than the half-width border cells allow; the fixed map is nested at an interior point, so <code>anova(fixed, boundary)</code> is a regular 2-df likelihood-ratio test when both cutpoints are identified (<code>ncuts &gt;= 4</code> in practice). Works with the three <code>interval</code> maps, fixed and variable dispersion, and Laplace, AGHQ and QMC integration. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the cutpoints on (0, 1) and on the score scale with delta-method standard errors; score probabilities, expected scores, quantile residuals, <code><a href="../reference/brs_bootstrap.html">brs_bootstrap()</a></code> and <code><a href="../reference/brs_cv.html">brs_cv()</a></code> use the estimated cutpoints. It requires score data (no exact values or analyst-supplied censoring), <code>lim = 0.5</code>, <code>ncuts &gt;= 3</code> (with a warning of weak identification for 3) and observed scores 0, 1, <code>K - 1</code> and <code>K</code>; a collapsing border cell warns.</li>
+<li>
+<code><a href="../reference/brs_sim.html">brs_sim()</a></code> gains <code>cutpoints = c(c_lo, c_hi)</code> to simulate scores coarsened with given boundary cutpoints.</li>
+<li>
+<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> and <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code> accept <code>model = "cutpoints"</code>; <code><a href="../reference/brs_est.html">brs_est()</a></code> gives no z-test for the cutpoint parameters.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-changes-development-version">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-development-version"></a></h3>
+<ul><li>Fits whose Hessian is not negative definite now also warn when the largest absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot be measured there; this can add a warning to fixed-map fits.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="3.0.0" id="betaregscale-300">betaregscale 3.0.0<a class="anchor" aria-label="anchor" href="#betaregscale-300"></a></h2>
 <p>Major release: some calls accepted by 2.7.4 now stop and some results change. With the defaults (<code>repar = 2</code>, <code>interval = "mid"</code>, <code>lim = 0.5</code>) and well-behaved data, estimates agree with 2.7.4 to optimiser tolerance; the sections below give every change and its reason.</p>

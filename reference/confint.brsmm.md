@@ -10,7 +10,7 @@ confint(
   object,
   parm,
   level = 0.95,
-  model = c("full", "mean", "precision", "random"),
+  model = c("full", "mean", "precision", "random", "cutpoints"),
   ...
 )
 ```
@@ -31,7 +31,8 @@ confint(
 
 - model:
 
-  Character: `"full"`, `"mean"`, `"precision"`, or `"random"`.
+  Character: `"full"`, `"mean"`, `"precision"`, `"random"` or
+  `"cutpoints"`.
 
 - ...:
 

@@ -6,7 +6,11 @@ Extract coefficients from a brsmm fit
 
 ``` r
 # S3 method for class 'brsmm'
-coef(object, model = c("full", "mean", "precision", "random"), ...)
+coef(
+  object,
+  model = c("full", "mean", "precision", "random", "cutpoints"),
+  ...
+)
 ```
 
 ## Arguments
@@ -17,7 +21,8 @@ coef(object, model = c("full", "mean", "precision", "random"), ...)
 
 - model:
 
-  Character: `"full"` (default), `"mean"`, `"precision"`, or `"random"`.
+  Character: `"full"` (default), `"mean"`, `"precision"`, `"random"` or
+  `"cutpoints"` (fits with `cutpoints = "boundary"`).
 
 - ...:
 

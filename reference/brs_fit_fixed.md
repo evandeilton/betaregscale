@@ -20,7 +20,8 @@ brs_fit_fixed(
   method = c("BFGS", "L-BFGS-B"),
   interval = NULL,
   start = NULL,
-  control = list()
+  control = list(),
+  cutpoints = c("fixed", "boundary")
 )
 ```
 
@@ -103,6 +104,13 @@ brs_fit_fixed(
 
   Control list for [`optim`](https://rdrr.io/r/stats/optim.html); its
   entries are merged into the default `list(maxit = 5000L)`.
+
+- cutpoints:
+
+  `"fixed"` (default) keeps the cutpoints of the interval map;
+  `"boundary"` also estimates the two boundary cutpoints (see the
+  section 'Boundary cutpoints' of
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 ## Value
 

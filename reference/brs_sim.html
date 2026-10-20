@@ -13,7 +13,7 @@ brs as it is."><meta property="og:image" content="https://evandeilton.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,8 @@ likelihood of <code><a href="brs.html">brs</a></code> assumes. The output can be
 <span>  lim <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  repar <span class="op">=</span> <span class="fl">2L</span>,</span>
 <span>  delta <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mid"</span>, <span class="st">"right"</span>, <span class="st">"left"</span><span class="op">)</span></span>
+<span>  interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mid"</span>, <span class="st">"right"</span>, <span class="st">"left"</span><span class="op">)</span>,</span>
+<span>  cutpoints <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -123,6 +124,13 @@ forced on every row; see Details.</p></dd>
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
 <dd><p><code>"mid"</code> (default), <code>"right"</code> or <code>"left"</code>.</p></dd>
 
+
+<dt id="arg-cutpoints">cutpoints<a class="anchor" aria-label="anchor" href="#arg-cutpoints"></a></dt>
+<dd><p><code>NULL</code> (default: the cells of <code>interval</code>) or
+<code>c(c_lo, c_hi)</code>, the boundary cutpoints on \((0, 1)\) between
+scores 0 and 1 and between \(K - 1\) and \(K\); they must keep every
+cell non-empty (\(c_{lo} &lt; u_1\), \(c_{hi} &gt; l_{K-1}\)). See Details.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -153,6 +161,12 @@ threshold depend on \(Y\) (informative censoring): the likelihood has no
 finite maximum and <code><a href="brs.html">brs</a></code> returns diverging coefficients, with
 clamp warnings. <code>brs_sim()</code> warns in that case, and also whenever all
 simulated rows fall on the same border.</p>
+<p><code>cutpoints = c(c_lo, c_hi)</code> coarsens with estimated boundary
+cutpoints (the model of <code>brs(..., cutpoints = "boundary")</code>): score 0
+below \(c_{lo}\), score \(K\) at or above \(c_{hi}\), the cells of
+<code>interval</code> in between. It needs <code>delta = NULL</code> and <code>lim =
+0.5</code>; the returned cells are those of the map, as <code><a href="brs.html">brs</a></code> expects
+for score data.</p>
 <p>A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
 <code>brs_sim()</code> and <code><a href="brs.html">brs()</a></code> over a fixed design; see the vignette
 <code><a href="../articles/brs-advanced-workflows.html">vignette("brs-advanced-workflows")</a></code>.</p>
@@ -245,6 +259,14 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1   2   3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  15  25 260 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Heaping at the borders: score 0 covers (0, 0.11), score 10 covers (0.9, 1)</span></span></span>
+<span class="r-in"><span><span class="va">sb</span> <span class="op">&lt;-</span> <span class="fu">brs_sim</span><span class="op">(</span><span class="op">~</span> <span class="va">x</span>, data <span class="op">=</span> <span class="va">d</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.6</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>              ncuts <span class="op">=</span> <span class="fl">10</span>, cutpoints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.11</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">sb</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0  1  2  3  4  5  6  7  8  9 10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8  7 27 27 22 35 37 42 42 24 29 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Forcing delta = 1 on every row is informative censoring: a warning</span></span></span>
 <span class="r-in"><span><span class="va">sl</span> <span class="op">&lt;-</span> <span class="fu">brs_sim</span><span class="op">(</span><span class="op">~</span> <span class="va">x</span>, data <span class="op">=</span> <span class="va">d</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.6</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>,</span></span>

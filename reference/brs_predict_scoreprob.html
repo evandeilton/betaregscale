@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,7 +101,9 @@ for \(s = K\) and \(F((s + \mathrm{lim})/K) - F((s - \mathrm{lim})/K)\)
 otherwise; under <code>"right"</code>/<code>"left"</code> the cells are
 \([s, s + 1]/(K + 1)\). The rows sum to 1 whenever the cells partition
 \([0, 1]\) (always for <code>"right"</code>/<code>"left"</code>; <code>lim = 0.5</code>
-for <code>"mid"</code>).</p>
+for <code>"mid"</code>). A fit with <code>cutpoints = "boundary"</code> uses its
+estimated cutpoints: \(u_0 = l_1 = \hat c_{lo}\) and
+\(u_{K-1} = l_K = \hat c_{hi}\).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

@@ -11,7 +11,7 @@ scale, with \(SE_j\) from vcov.brs (Lopes, 2023,
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ scale, with \(SE_j\) from <code><a href="vcov.brs.html">vcov.brs</a></code> (Lop
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">parm</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"full"</span>, <span class="st">"mean"</span>, <span class="st">"precision"</span><span class="op">)</span>,</span>
+<span>  model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"full"</span>, <span class="st">"mean"</span>, <span class="st">"precision"</span>, <span class="st">"cutpoints"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -80,8 +80,9 @@ parameters of <code>model</code> are returned.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
-<dd><p>Character: <code>"full"</code>, <code>"mean"</code> or
-<code>"precision"</code>.</p></dd>
+<dd><p>Character: <code>"full"</code>, <code>"mean"</code>,
+<code>"precision"</code> or <code>"cutpoints"</code> (logit scale; see
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> for the cutpoints on (0, 1)).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

@@ -23,7 +23,8 @@ brs_sim(
   lim = 0.5,
   repar = 2L,
   delta = NULL,
-  interval = c("mid", "right", "left")
+  interval = c("mid", "right", "left"),
+  cutpoints = NULL
 )
 ```
 
@@ -78,6 +79,13 @@ brs_sim(
 
   `"mid"` (default), `"right"` or `"left"`.
 
+- cutpoints:
+
+  `NULL` (default: the cells of `interval`) or `c(c_lo, c_hi)`, the
+  boundary cutpoints on \\(0, 1)\\ between scores 0 and 1 and between
+  \\K - 1\\ and \\K\\; they must keep every cell non-empty (\\c\_{lo} \<
+  u_1\\, \\c\_{hi} \> l\_{K-1}\\). See Details.
+
 ## Value
 
 A data frame with columns `left`, `right`, `yt`, `y` (score), `delta`
@@ -112,6 +120,14 @@ its own score. The last two make the threshold depend on \\Y\\
 returns diverging coefficients, with clamp warnings. `brs_sim()` warns
 in that case, and also whenever all simulated rows fall on the same
 border.
+
+`cutpoints = c(c_lo, c_hi)` coarsens with estimated boundary cutpoints
+(the model of `brs(..., cutpoints = "boundary")`): score 0 below
+\\c\_{lo}\\, score \\K\\ at or above \\c\_{hi}\\, the cells of
+`interval` in between. It needs `delta = NULL` and `lim = 0.5`; the
+returned cells are those of the map, as
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+expects for score data.
 
 A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
 `brs_sim()` and
@@ -211,6 +227,14 @@ table(sr$delta)
 #> 
 #>   1   2   3 
 #>  15  25 260 
+
+# Heaping at the borders: score 0 covers (0, 0.11), score 10 covers (0.9, 1)
+sb <- brs_sim(~ x, data = d, beta = c(0.3, 0.6), phi = qlogis(0.2),
+              ncuts = 10, cutpoints = c(0.11, 0.9))
+table(sb$y)
+#> 
+#>  0  1  2  3  4  5  6  7  8  9 10 
+#>  8  7 27 27 22 35 37 42 42 24 29 
 
 # Forcing delta = 1 on every row is informative censoring: a warning
 sl <- brs_sim(~ x, data = d, beta = c(0.3, 0.6), phi = qlogis(0.2),

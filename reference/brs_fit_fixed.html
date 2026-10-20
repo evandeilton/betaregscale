@@ -15,7 +15,7 @@ types."><meta property="og:image" content="https://evandeilton.github.io/betareg
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,8 @@ types.</p>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BFGS"</span>, <span class="st">"L-BFGS-B"</span><span class="op">)</span>,</span>
 <span>  interval <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  start <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  cutpoints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"boundary"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -154,6 +155,12 @@ estimate here.</p></dd>
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
 <dd><p>Control list for <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>; its entries
 are merged into the default <code>list(maxit = 5000L)</code>.</p></dd>
+
+
+<dt id="arg-cutpoints">cutpoints<a class="anchor" aria-label="anchor" href="#arg-cutpoints"></a></dt>
+<dd><p><code>"fixed"</code> (default) keeps the cutpoints of the
+interval map; <code>"boundary"</code> also estimates the two boundary
+cutpoints (see the section 'Boundary cutpoints' of <code><a href="brs.html">brs</a></code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

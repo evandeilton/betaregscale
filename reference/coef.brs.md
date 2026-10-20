@@ -6,7 +6,7 @@ Extract model coefficients
 
 ``` r
 # S3 method for class 'brs'
-coef(object, model = c("full", "mean", "precision"), ...)
+coef(object, model = c("full", "mean", "precision", "cutpoints"), ...)
 ```
 
 ## Arguments
@@ -19,7 +19,10 @@ coef(object, model = c("full", "mean", "precision"), ...)
 
   Character: which component to return. `"full"` (default) returns all
   parameters, `"mean"` returns only the mean-model coefficients,
-  `"precision"` returns only the precision coefficients.
+  `"precision"` returns only the precision coefficients, `"cutpoints"`
+  the logit-scale boundary cutpoint parameters of a fit with
+  `cutpoints = "boundary"` (see
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 - ...:
 

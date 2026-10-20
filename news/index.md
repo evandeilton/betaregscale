@@ -1,5 +1,48 @@
 # Changelog
 
+## betaregscale (development version)
+
+### New features
+
+- [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+  and
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  gain `cutpoints = c("fixed", "boundary")`. `"boundary"` estimates the
+  cutpoint between scores 0 and 1 and the one between `K - 1` and `K`,
+  keeping all other cutpoints of the interval map. Rating data often
+  pile up at the ends of the scale more than the half-width border cells
+  allow; the fixed map is nested at an interior point, so
+  `anova(fixed, boundary)` is a regular 2-df likelihood-ratio test when
+  both cutpoints are identified (`ncuts >= 4` in practice). Works with
+  the three `interval` maps, fixed and variable dispersion, and Laplace,
+  AGHQ and QMC integration.
+  [`summary()`](https://rdrr.io/r/base/summary.html) reports the
+  cutpoints on (0, 1) and on the score scale with delta-method standard
+  errors; score probabilities, expected scores, quantile residuals,
+  [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+  and
+  [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
+  use the estimated cutpoints. It requires score data (no exact values
+  or analyst-supplied censoring), `lim = 0.5`, `ncuts >= 3` (with a
+  warning of weak identification for 3) and observed scores 0, 1,
+  `K - 1` and `K`; a collapsing border cell warns.
+- [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  gains `cutpoints = c(c_lo, c_hi)` to simulate scores coarsened with
+  given boundary cutpoints.
+- [`coef()`](https://rdrr.io/r/stats/coef.html),
+  [`vcov()`](https://rdrr.io/r/stats/vcov.html) and
+  [`confint()`](https://rdrr.io/r/stats/confint.html) accept
+  `model = "cutpoints"`;
+  [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
+  gives no z-test for the cutpoint parameters.
+
+### Other changes
+
+- Fits whose Hessian is not negative definite now also warn when the
+  largest absolute gradient exceeds 0.1, since the remaining
+  log-likelihood gain cannot be measured there; this can add a warning
+  to fixed-map fits.
+
 ## betaregscale 3.0.0
 
 Major release: some calls accepted by 2.7.4 now stop and some results

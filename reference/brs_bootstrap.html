@@ -13,7 +13,7 @@ variable-dispersion) objects are supported; "brsmm" is not supported.'><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,7 +117,8 @@ parameter draws in attribute <code>"boot_draws"</code>.</p></dd>
   <code>"n_success"</code> gives the number of replicates that converged.
   Additional attributes include <code>"R"</code>, <code>"n_attempted"</code>,
   <code>"n_failed"</code>, <code>"fail_rate"</code>, <code>"n_jack_failed"</code> (BCa
-  only), <code>"ci_type"</code>, and optionally <code>"boot_draws"</code>.</p>
+  only), <code>"fail_reasons"</code> (counts of the failure messages, or
+  <code>NULL</code>), <code>"ci_type"</code>, and optionally <code>"boot_draws"</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -140,7 +141,12 @@ more thresholds than a row records (e.g. Mode 4 intervals cut from a finer
 instrument) the bootstrap is conservative, and for Mode 2 rows with a
 forced \(\delta\) (a threshold built from the score itself, which is
 informative) it is only an approximation. The response must be a variable
-(not an expression such as <code>I(y / 10)</code>).</p>
+(not an expression such as <code>I(y / 10)</code>). A fit with
+<code>cutpoints = "boundary"</code> re-coarsens with its estimated boundary
+cutpoints and re-estimates them in every replicate; a replicate without
+one of the scores 0, 1, \(K - 1\) or \(K\) cannot be refitted and
+counts as failed. The reasons of failed replicates are kept in
+<code>attr(, "fail_reasons")</code> and printed.</p>
 <p>Each refit starts from the estimate of <code>object</code> and uses the compiled
 Hessian (<code>hessian_method = "cpp"</code>), so replicates are cheap.</p>
 <p>Replicates that fail (refit error, non-convergence, non-finite estimates)

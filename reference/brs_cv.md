@@ -47,6 +47,11 @@ The `log_score` is the mean log predictive contribution under the
 complete likelihood contribution implied by each observation's censoring
 type (`delta`).
 
+With `cutpoints = "boundary"` in `...`, held-out rows use the cells of
+the training fit's cutpoints. A training fold without one of the scores
+0, 1, \\K - 1\\ or \\K\\ cannot be fitted: its row has
+`converged = FALSE` and the message in `error`.
+
 ## References
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.

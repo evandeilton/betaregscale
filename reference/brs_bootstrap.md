@@ -66,7 +66,8 @@ estimate), `se_boot` (bootstrap standard error), `ci_lower`, `ci_upper`,
 `mcse_lower`, `mcse_upper`, `wald_lower`, `wald_upper`, and `level`. The
 attribute `"n_success"` gives the number of replicates that converged.
 Additional attributes include `"R"`, `"n_attempted"`, `"n_failed"`,
-`"fail_rate"`, `"n_jack_failed"` (BCa only), `"ci_type"`, and optionally
+`"fail_rate"`, `"n_jack_failed"` (BCa only), `"fail_reasons"` (counts of
+the failure messages, or `NULL`), `"ci_type"`, and optionally
 `"boot_draws"`.
 
 ## Details
@@ -94,7 +95,12 @@ original design had more thresholds than a row records (e.g. Mode 4
 intervals cut from a finer instrument) the bootstrap is conservative,
 and for Mode 2 rows with a forced \\\delta\\ (a threshold built from the
 score itself, which is informative) it is only an approximation. The
-response must be a variable (not an expression such as `I(y / 10)`).
+response must be a variable (not an expression such as `I(y / 10)`). A
+fit with `cutpoints = "boundary"` re-coarsens with its estimated
+boundary cutpoints and re-estimates them in every replicate; a replicate
+without one of the scores 0, 1, \\K - 1\\ or \\K\\ cannot be refitted
+and counts as failed. The reasons of failed replicates are kept in
+`attr(, "fail_reasons")` and printed.
 
 Each refit starts from the estimate of `object` and uses the compiled
 Hessian (`hessian_method = "cpp"`), so replicates are cheap.

@@ -15,7 +15,7 @@ y ~ x1 + x2 | z1 + z2 also models it (brs_fit_var)."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,8 @@ second parameter constant (<code><a href="brs_fit_fixed.html">brs_fit_fixed</a><
 <span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cpp"</span>, <span class="st">"numDeriv"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
 <span>  interval <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  start <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  cutpoints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fixed"</span>, <span class="st">"boundary"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -151,6 +152,12 @@ estimate here.</p></dd>
 <dd><p>Control list for <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>; its entries
 are merged into the default <code>list(maxit = 5000L)</code>.</p></dd>
 
+
+<dt id="arg-cutpoints">cutpoints<a class="anchor" aria-label="anchor" href="#arg-cutpoints"></a></dt>
+<dd><p><code>"fixed"</code> (default) keeps the cutpoints of the
+interval map; <code>"boundary"</code> also estimates the two boundary
+cutpoints (see the section 'Boundary cutpoints' of <code>brs</code>).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -161,8 +168,13 @@ are merged into the default <code>list(maxit = 5000L)</code>.</p></dd>
   (see 'Fit diagnostics'), <code>hatmu</code> (first parameter per observation:
   the mean, or the shape \(p\) under <code>repar = 0</code>), <code>hatphi</code>,
   <code>Y</code> (columns <code>left</code>, <code>right</code>, <code>yt</code>, <code>y</code>,
-  <code>delta</code>), <code>ncuts</code>, <code>lim</code>, <code>interval</code>, <code>repar</code>,
-  <code>link</code> and <code>link_phi</code>.</p>
+  <code>delta</code>; with <code>cutpoints = "boundary"</code> the cells and cell
+  centers of the estimated cutpoints), <code>ncuts</code>, <code>lim</code>, <code>interval</code>,
+  <code>repar</code>, <code>link</code>, <code>link_phi</code>, <code>cutpoints</code> (the type)
+  and <code>cut</code> (<code>NULL</code> under the fixed map; otherwise a list with
+  <code>par</code>, the logit-scale estimates, <code>value</code>, the cutpoints on
+  \((0, 1)\), <code>jacobian</code>, <code>fixed</code>, the map's cutpoints, and
+  <code>start</code>, their logit-scale values).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -271,7 +283,8 @@ gives one line:</p><dl><dt>“model matrix is rank deficient” (error)</dt>
   <dt>“Gradient not ~0 at the estimate”</dt>
 <dd><p>A Newton step would
     still gain more than 0.01 in log-likelihood although <code>optim</code>
-    reported convergence. Refit with the other <code>method</code>; the message
+    reported convergence (or, when the Hessian is not negative definite,
+    the largest absolute gradient exceeds 0.1). Refit with the other <code>method</code>; the message
     asks to rescale the covariates when their scales differ by more than
     \(10^3\) (e.g. a raw income next to a dummy).</p></dd>
 
@@ -326,6 +339,67 @@ dissertation's \(r\) and \(l\), with a package normalisation).
 <code>predict(type = "score")</code>; <code>"mid"</code> and <code>"right"</code>/<code>"left"</code>
 are different coarsening models, whose log-likelihoods and AIC are not
 comparable. Details: <code><a href="brs_check.html">brs_check</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="boundary-cutpoints">Boundary cutpoints<a class="anchor" aria-label="anchor" href="#boundary-cutpoints"></a></h2>
+
+
+<p>Under the fixed map score \(s\) has the cell \((c_{s-1}, c_s)\) with
+cutpoints fixed by <code>interval</code>, so the model is an ordinal threshold
+model whose thresholds are the scale labels. <code>cutpoints = "boundary"</code>
+estimates the two border cutpoints: \(c_{lo}\) between scores 0 and 1 and
+\(c_{hi}\) between \(K - 1\) and \(K\); all other cutpoints keep the
+values of the map. Score 0 then has the cell \((0, c_{lo})\), score 1
+\((c_{lo}, u_1)\), score \(K - 1\) \((l_{K-1}, c_{hi})\) and score
+\(K\) \((c_{hi}, 1)\), where \(u_1\) and \(l_{K-1}\) are the ends
+given by the map. With \(\epsilon = 10^{-5}\), the border clamp of the
+likelihood, the parameters are unconstrained and keep the order:
+$$c_{lo} = \epsilon + (u_1 - \epsilon)\, \mathrm{logit}^{-1}(g_{lo}),
+  \qquad c_{hi} = l_{K-1} + (1 - \epsilon - l_{K-1})\,
+  \mathrm{logit}^{-1}(g_{hi}),$$
+so the free cutpoints never enter the clamp and the likelihood is smooth in
+\((g_{lo}, g_{hi})\). The map is the interior point
+\(g_{lo} = \mathrm{logit}\{(u_0 - \epsilon)/(u_1 - \epsilon)\}\),
+\(g_{hi} = \mathrm{logit}\{(l_K - l_{K-1})/(1 - \epsilon - l_{K-1})\}\)
+(about \(\mathrm{logit}(1/3)\) and \(\mathrm{logit}(2/3)\) under
+<code>"mid"</code>, about 0 under <code>"right"</code>/<code>"left"</code>), so the fixed
+model is nested in the boundary model. When both cutpoints are identified
+(\(K \ge 4\) in practice, see below) <code><a href="anova.brs.html">anova.brs</a></code> gives a
+regular likelihood-ratio test on 2 degrees of freedom. The fit starts at the
+map.</p>
+<p><code>g_lo</code> and <code>g_hi</code> are the last two coefficients,
+<code>"(cut_lo)"</code> and <code>"(cut_hi)"</code> (<code>coef(fit, model =
+"cutpoints")</code>); <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports \(c_{lo}\) and \(c_{hi}\) on
+\((0, 1)\) and on the latent score scale of <code>interval</code> (the scale of
+<code>predict(type = "score")</code>), with delta-method standard errors. Their
+gradient is analytic: \(\pm f(c)/\{F(u_i) - F(l_i)\}\) for each row whose
+cell ends at \(c\) (plus when \(c\) is the upper end), times the
+Jacobian of the map above. The compiled Hessian covers the regression
+coefficients; the rows and columns of the cutpoint parameters come from
+<code><a href="https://rdrr.io/pkg/numDeriv/man/jacobian.html" class="external-link">numDeriv::jacobian()</a></code> of the gradient (<code>hessian_method =
+"cpp"</code>). The fitted cells (<code>fit$Y</code>), score probabilities, expected
+scores, randomized quantile residuals, <code><a href="brs_bootstrap.html">brs_bootstrap</a></code> and
+<code><a href="brs_cv.html">brs_cv</a></code> use the estimated cutpoints; <code><a href="brs_sim.html">brs_sim</a></code>
+simulates from given ones.</p>
+<p>The extension needs score data: every row the cell of a score
+\(0, \ldots, K\) (no exact values, no analyst-supplied censoring or
+bounds from <code><a href="brs_prep.html">brs_prep</a></code>), <code>lim = 0.5</code>, \(K \ge 3\),
+and the scores next to each free cutpoint observed (0, 1, \(K - 1\),
+\(K\)); otherwise <code>brs()</code> stops, since a cutpoint with an
+unobserved neighbor is not identified. With \(K = 2\) the two cutpoints
+are not identified and <code>brs()</code> stops; with \(K = 3\) they rest
+mainly on the shape of the beta distribution and a warning says they are
+weakly identified, so the \(\chi^2_2\) reference is not trustworthy there.
+A border cell holding less than \(10^{-4}\) of the range its cutpoint
+can take (\(c_{lo} - \epsilon\) or \(u_1 - c_{lo}\) relative to
+\(u_1 - \epsilon\), and the same for \(c_{hi}\)) warns: that cell is
+collapsing and its cutpoint is not identified. The cell centers in
+<code>fit$Y[, "yt"]</code> (midpoint residuals, pseudo \(R^2\)) are those of the
+estimated cells: \(c_{lo}/2\), \((c_{lo} + u_1)/2\),
+\((l_{K-1} + c_{hi})/2\) and \((c_{hi} + 1)/2\). The border centers
+differ by construction from those of the fixed map (\(10^{-5}\) and
+\(1 - 10^{-5}\) under <code>"mid"</code>), so pseudo \(R^2\) and midpoint
+residuals are not directly comparable between fixed-map and boundary fits.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -452,6 +526,23 @@ Arthritis Care and Research, 63(S11), S240-S252.
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]   0.010    0.001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [2,]   0.040    0.009</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]   0.024    0.005</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Estimated boundary cutpoints: a 2-df likelihood-ratio test against the map</span></span></span>
+<span class="r-in"><span><span class="va">fit_b</span> <span class="op">&lt;-</span> <span class="fu">brs</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span> <span class="op">+</span> <span class="va">group</span>, data <span class="op">=</span> <span class="va">nrs</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, cutpoints <span class="op">=</span> <span class="st">"boundary"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_b</span><span class="op">)</span><span class="op">$</span><span class="va">cutpoints</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Estimate Std. Error   cutpoint    SE(cut)     score SE(score)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c_lo (0|1)  -0.7199896  0.3077951 0.04911602 0.01016615 0.4911602 0.1016615</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c_hi (9|10) -0.6608022  0.7372195 0.90108051 0.02483292 9.0108051 0.2483292</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             fixed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c_lo (0|1)    0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> c_hi (9|10)   9.5</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit_b</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Likelihood-ratio comparison of brs/brsmm models</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Rows M2: cutpoints "fixed" vs "boundary" (2 cutpoint parameters; the fixed map is an interior point; chi2 reference when both cutpoints are identified).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Df  logLik    AIC    BIC  Chisq Chi Df Pr(&gt;Chisq)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> M1 (brs)  7 -502.64 1019.3 1043.7                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> M2 (brs)  9 -500.90 1019.8 1051.1 3.4878      2     0.1748</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Randomized quantile residuals respect the censoring (N(0, 1) under the model)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>

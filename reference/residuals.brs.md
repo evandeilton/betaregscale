@@ -40,12 +40,18 @@ Numeric vector of residuals, one per observation.
 Let \\(a_i, b_i)\\ be the fitted shapes, \\\hat\mu_i = a_i/(a_i + b_i)\\
 the fitted mean and \\V_i\\ the fitted variance
 ([`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md)).
-All types except `"rqr"` use \\y_i =\\ `yt`, the centre of the cell:
+All types except `"rqr"` use \\y_i =\\ `yt`, the center of the cell:
 \\s/K\\ under `interval = "mid"`, so that the border scores sit at
 \\10^{-5}\\ and \\1 - 10^{-5}\\, and \\(s + 0.5)/(K + 1)\\ under
-`"right"`/`"left"`; exact values are used as they are. This is the
-midpoint convention of Lopes (2023, "Analise de residuos"); it makes
-these residuals unreliable at the borders of the scale.
+`"right"`/`"left"`; exact values are used as they are. With
+`cutpoints = "boundary"` scores 0, 1, \\K - 1\\ and \\K\\ use the
+centers of their estimated cells (see
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md));
+since the centers of scores 0 and \\K\\ differ by construction, these
+residuals and the pseudo \\R^2\\ are not directly comparable between
+fixed-map and boundary fits. This is the midpoint convention of Lopes
+(2023, "Analise de residuos"); it makes these residuals unreliable at
+the borders of the scale.
 
 - `"response"`:
 

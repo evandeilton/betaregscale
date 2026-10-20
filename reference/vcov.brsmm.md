@@ -6,7 +6,11 @@ Variance-covariance matrix for brsmm coefficients
 
 ``` r
 # S3 method for class 'brsmm'
-vcov(object, model = c("full", "mean", "precision", "random"), ...)
+vcov(
+  object,
+  model = c("full", "mean", "precision", "random", "cutpoints"),
+  ...
+)
 ```
 
 ## Arguments
@@ -17,7 +21,8 @@ vcov(object, model = c("full", "mean", "precision", "random"), ...)
 
 - model:
 
-  Character: `"full"`, `"mean"`, `"precision"`, or `"random"`.
+  Character: `"full"`, `"mean"`, `"precision"`, `"random"` or
+  `"cutpoints"`.
 
 - ...:
 

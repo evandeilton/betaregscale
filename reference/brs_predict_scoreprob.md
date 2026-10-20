@@ -57,7 +57,9 @@ For a score \\s\\ with cell \\\[l_s, u_s\]\\ of the fit's `interval`
 \mathrm{lim})/K)\\ for \\s = K\\ and \\F((s + \mathrm{lim})/K) - F((s -
 \mathrm{lim})/K)\\ otherwise; under `"right"`/`"left"` the cells are
 \\\[s, s + 1\]/(K + 1)\\. The rows sum to 1 whenever the cells partition
-\\\[0, 1\]\\ (always for `"right"`/`"left"`; `lim = 0.5` for `"mid"`).
+\\\[0, 1\]\\ (always for `"right"`/`"left"`; `lim = 0.5` for `"mid"`). A
+fit with `cutpoints = "boundary"` uses its estimated cutpoints: \\u_0 =
+l_1 = \hat c\_{lo}\\ and \\u\_{K-1} = l_K = \hat c\_{hi}\\.
 
 ## References
 

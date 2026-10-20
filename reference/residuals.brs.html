@@ -13,7 +13,7 @@ recommended ones; the other types are evaluated at one point of the cell
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,10 +89,15 @@ recommended ones; the other types are evaluated at one point of the cell
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Let \((a_i, b_i)\) be the fitted shapes, \(\hat\mu_i = a_i/(a_i + b_i)\)
 the fitted mean and \(V_i\) the fitted variance (<code><a href="brs_repar.html">brs_repar</a></code>).
-All types except <code>"rqr"</code> use \(y_i =\) <code>yt</code>, the centre of the
+All types except <code>"rqr"</code> use \(y_i =\) <code>yt</code>, the center of the
 cell: \(s/K\) under <code>interval = "mid"</code>, so that the border scores
 sit at \(10^{-5}\) and \(1 - 10^{-5}\), and \((s + 0.5)/(K + 1)\)
-under <code>"right"</code>/<code>"left"</code>; exact values are used as they are. This
+under <code>"right"</code>/<code>"left"</code>; exact values are used as they are.
+With <code>cutpoints = "boundary"</code> scores 0, 1, \(K - 1\) and \(K\)
+use the centers of their estimated cells (see <code><a href="brs.html">brs</a></code>); since
+the centers of scores 0 and \(K\) differ by construction, these residuals
+and the pseudo \(R^2\) are not directly comparable between fixed-map and
+boundary fits. This
 is the midpoint convention of Lopes (2023, "Analise de residuos"); it makes
 these residuals unreliable at the borders of the scale.</p><dl><dt><code>"response"</code></dt>
 <dd><p>\(y_i - \hat\mu_i\).</p></dd>

@@ -51,6 +51,14 @@ names the rows that use it. When more than one random term is added at
 once, the naive \\\chi^2\_{df}\\ p-value is kept and flagged as
 conservative.
 
+A fit with `cutpoints = "fixed"` is nested in the same model with
+`cutpoints = "boundary"` at an interior point of the cutpoint parameters
+(section 'Boundary cutpoints' of
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)),
+so their comparison is a regular \\\chi^2_2\\ test when both cutpoints
+are identified (\\K \ge 4\\ in practice; with \\K = 3\\ the fit warns
+that they are weakly identified); the heading names those rows.
+
 ## References
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.

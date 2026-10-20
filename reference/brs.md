@@ -23,7 +23,8 @@ brs(
   hessian_method = c("cpp", "numDeriv", "optim"),
   interval = NULL,
   start = NULL,
-  control = list()
+  control = list(),
+  cutpoints = c("fixed", "boundary")
 )
 ```
 
@@ -108,6 +109,12 @@ brs(
   Control list for [`optim`](https://rdrr.io/r/stats/optim.html); its
   entries are merged into the default `list(maxit = 5000L)`.
 
+- cutpoints:
+
+  `"fixed"` (default) keeps the cutpoints of the interval map;
+  `"boundary"` also estimates the two boundary cutpoints (see the
+  section 'Boundary cutpoints' of `brs`).
+
 ## Value
 
 An object of class `"brs"`: a list with, among others, `par` (estimates
@@ -115,8 +122,13 @@ on the link scales), `coefficients` (`mean` and `precision` parts),
 `value` (maximised log-likelihood), `hessian`, `convergence`,
 `diagnostics` (see 'Fit diagnostics'), `hatmu` (first parameter per
 observation: the mean, or the shape \\p\\ under `repar = 0`), `hatphi`,
-`Y` (columns `left`, `right`, `yt`, `y`, `delta`), `ncuts`, `lim`,
-`interval`, `repar`, `link` and `link_phi`.
+`Y` (columns `left`, `right`, `yt`, `y`, `delta`; with
+`cutpoints = "boundary"` the cells and cell centers of the estimated
+cutpoints), `ncuts`, `lim`, `interval`, `repar`, `link`, `link_phi`,
+`cutpoints` (the type) and `cut` (`NULL` under the fixed map; otherwise
+a list with `par`, the logit-scale estimates, `value`, the cutpoints on
+\\(0, 1)\\, `jacobian`, `fixed`, the map's cutpoints, and `start`, their
+logit-scale values).
 
 ## Details
 
@@ -225,9 +237,11 @@ the likelihood). Each problem gives one line:
 - “Gradient not ~0 at the estimate”:
 
   A Newton step would still gain more than 0.01 in log-likelihood
-  although `optim` reported convergence. Refit with the other `method`;
-  the message asks to rescale the covariates when their scales differ by
-  more than \\10^3\\ (e.g. a raw income next to a dummy).
+  although `optim` reported convergence (or, when the Hessian is not
+  negative definite, the largest absolute gradient exceeds 0.1). Refit
+  with the other `method`; the message asks to rescale the covariates
+  when their scales differ by more than \\10^3\\ (e.g. a raw income next
+  to a dummy).
 
 - “Hessian near-singular or not negative definite (SEs unreliable)”:
 
@@ -283,6 +297,74 @@ differ only in `predict(type = "score")`; `"mid"` and `"right"`/`"left"`
 are different coarsening models, whose log-likelihoods and AIC are not
 comparable. Details:
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
+
+## Boundary cutpoints
+
+Under the fixed map score \\s\\ has the cell \\(c\_{s-1}, c_s)\\ with
+cutpoints fixed by `interval`, so the model is an ordinal threshold
+model whose thresholds are the scale labels. `cutpoints = "boundary"`
+estimates the two border cutpoints: \\c\_{lo}\\ between scores 0 and 1
+and \\c\_{hi}\\ between \\K - 1\\ and \\K\\; all other cutpoints keep
+the values of the map. Score 0 then has the cell \\(0, c\_{lo})\\, score
+1 \\(c\_{lo}, u_1)\\, score \\K - 1\\ \\(l\_{K-1}, c\_{hi})\\ and score
+\\K\\ \\(c\_{hi}, 1)\\, where \\u_1\\ and \\l\_{K-1}\\ are the ends
+given by the map. With \\\epsilon = 10^{-5}\\, the border clamp of the
+likelihood, the parameters are unconstrained and keep the order:
+\$\$c\_{lo} = \epsilon + (u_1 - \epsilon)\\
+\mathrm{logit}^{-1}(g\_{lo}), \qquad c\_{hi} = l\_{K-1} + (1 -
+\epsilon - l\_{K-1})\\ \mathrm{logit}^{-1}(g\_{hi}),\$\$ so the free
+cutpoints never enter the clamp and the likelihood is smooth in
+\\(g\_{lo}, g\_{hi})\\. The map is the interior point \\g\_{lo} =
+\mathrm{logit}\\(u_0 - \epsilon)/(u_1 - \epsilon)\\\\, \\g\_{hi} =
+\mathrm{logit}\\(l_K - l\_{K-1})/(1 - \epsilon - l\_{K-1})\\\\ (about
+\\\mathrm{logit}(1/3)\\ and \\\mathrm{logit}(2/3)\\ under `"mid"`, about
+0 under `"right"`/`"left"`), so the fixed model is nested in the
+boundary model. When both cutpoints are identified (\\K \ge 4\\ in
+practice, see below)
+[`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
+gives a regular likelihood-ratio test on 2 degrees of freedom. The fit
+starts at the map.
+
+`g_lo` and `g_hi` are the last two coefficients, `"(cut_lo)"` and
+`"(cut_hi)"` (`coef(fit, model = "cutpoints")`);
+[`summary()`](https://rdrr.io/r/base/summary.html) reports \\c\_{lo}\\
+and \\c\_{hi}\\ on \\(0, 1)\\ and on the latent score scale of
+`interval` (the scale of `predict(type = "score")`), with delta-method
+standard errors. Their gradient is analytic: \\\pm f(c)/\\F(u_i) -
+F(l_i)\\\\ for each row whose cell ends at \\c\\ (plus when \\c\\ is the
+upper end), times the Jacobian of the map above. The compiled Hessian
+covers the regression coefficients; the rows and columns of the cutpoint
+parameters come from
+[`numDeriv::jacobian()`](https://rdrr.io/pkg/numDeriv/man/jacobian.html)
+of the gradient (`hessian_method = "cpp"`). The fitted cells (`fit$Y`),
+score probabilities, expected scores, randomized quantile residuals,
+[`brs_bootstrap`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+and
+[`brs_cv`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
+use the estimated cutpoints;
+[`brs_sim`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+simulates from given ones.
+
+The extension needs score data: every row the cell of a score \\0,
+\ldots, K\\ (no exact values, no analyst-supplied censoring or bounds
+from
+[`brs_prep`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)),
+`lim = 0.5`, \\K \ge 3\\, and the scores next to each free cutpoint
+observed (0, 1, \\K - 1\\, \\K\\); otherwise `brs()` stops, since a
+cutpoint with an unobserved neighbor is not identified. With \\K = 2\\
+the two cutpoints are not identified and `brs()` stops; with \\K = 3\\
+they rest mainly on the shape of the beta distribution and a warning
+says they are weakly identified, so the \\\chi^2_2\\ reference is not
+trustworthy there. A border cell holding less than \\10^{-4}\\ of the
+range its cutpoint can take (\\c\_{lo} - \epsilon\\ or \\u_1 - c\_{lo}\\
+relative to \\u_1 - \epsilon\\, and the same for \\c\_{hi}\\) warns:
+that cell is collapsing and its cutpoint is not identified. The cell
+centers in `fit$Y[, "yt"]` (midpoint residuals, pseudo \\R^2\\) are
+those of the estimated cells: \\c\_{lo}/2\\, \\(c\_{lo} + u_1)/2\\,
+\\(l\_{K-1} + c\_{hi})/2\\ and \\(c\_{hi} + 1)/2\\. The border centers
+differ by construction from those of the fixed map (\\10^{-5}\\ and
+\\1 - 10^{-5}\\ under `"mid"`), so pseudo \\R^2\\ and midpoint residuals
+are not directly comparable between fixed-map and boundary fits.
 
 ## References
 
@@ -416,6 +498,23 @@ round(brs_predict_scoreprob(fit, newdata = nd), 3)
 #> [1,]   0.010    0.001
 #> [2,]   0.040    0.009
 #> [3,]   0.024    0.005
+
+# Estimated boundary cutpoints: a 2-df likelihood-ratio test against the map
+fit_b <- brs(y ~ time + group, data = nrs, ncuts = 10, cutpoints = "boundary")
+summary(fit_b)$cutpoints
+#>               Estimate Std. Error   cutpoint    SE(cut)     score SE(score)
+#> c_lo (0|1)  -0.7199896  0.3077951 0.04911602 0.01016615 0.4911602 0.1016615
+#> c_hi (9|10) -0.6608022  0.7372195 0.90108051 0.02483292 9.0108051 0.2483292
+#>             fixed
+#> c_lo (0|1)    0.5
+#> c_hi (9|10)   9.5
+anova(fit, fit_b)
+#> Likelihood-ratio comparison of brs/brsmm models
+#> Rows M2: cutpoints "fixed" vs "boundary" (2 cutpoint parameters; the fixed map is an interior point; chi2 reference when both cutpoints are identified).
+#> 
+#>          Df  logLik    AIC    BIC  Chisq Chi Df Pr(>Chisq)
+#> M1 (brs)  7 -502.64 1019.3 1043.7                         
+#> M2 (brs)  9 -500.90 1019.8 1051.1 3.4878      2     0.1748
 
 # Randomized quantile residuals respect the censoring (N(0, 1) under the model)
 set.seed(1)

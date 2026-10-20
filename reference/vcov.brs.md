@@ -6,7 +6,7 @@ Variance-covariance matrix of estimated coefficients
 
 ``` r
 # S3 method for class 'brs'
-vcov(object, model = c("full", "mean", "precision"), ...)
+vcov(object, model = c("full", "mean", "precision", "cutpoints"), ...)
 ```
 
 ## Arguments
@@ -17,7 +17,8 @@ vcov(object, model = c("full", "mean", "precision"), ...)
 
 - model:
 
-  Character: which component (`"full"`, `"mean"`, or `"precision"`).
+  Character: which component (`"full"`, `"mean"`, `"precision"` or
+  `"cutpoints"`).
 
 - ...:
 

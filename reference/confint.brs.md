@@ -13,7 +13,7 @@ confint(
   object,
   parm,
   level = 0.95,
-  model = c("full", "mean", "precision"),
+  model = c("full", "mean", "precision", "cutpoints"),
   ...
 )
 ```
@@ -35,7 +35,9 @@ confint(
 
 - model:
 
-  Character: `"full"`, `"mean"` or `"precision"`.
+  Character: `"full"`, `"mean"`, `"precision"` or `"cutpoints"` (logit
+  scale; see [`summary()`](https://rdrr.io/r/base/summary.html) for the
+  cutpoints on (0, 1)).
 
 - ...:
 

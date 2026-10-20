@@ -20,7 +20,11 @@ brs_est(object, alpha = 0.05)
 
 ## Value
 
-Data frame of estimates, standard errors, z-values, and p-values.
+Data frame of estimates, standard errors, z-values, p-values and Wald
+intervals. The cutpoint parameters of a `cutpoints = "boundary"` fit get
+`NA` z- and p-values (their zero is not a hypothesis of interest; see
+[`summary()`](https://rdrr.io/r/base/summary.html) and
+[`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)).
 
 ## References
 

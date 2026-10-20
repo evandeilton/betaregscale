@@ -9,7 +9,7 @@ AIC, BIC and likelihood-ratio tests (Lopes, 2023, "Inferencia").'><meta property
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,6 +95,12 @@ Stram and Lee, 1994); for one variance component alone this is
 printed heading names the rows that use it. When more than one random term
 is added at once, the naive \(\chi^2_{df}\) p-value is kept and flagged
 as conservative.</p>
+<p>A fit with <code>cutpoints = "fixed"</code> is nested in the same model with
+<code>cutpoints = "boundary"</code> at an interior point of the cutpoint
+parameters (section 'Boundary cutpoints' of <code><a href="brs.html">brs</a></code>), so their
+comparison is a regular \(\chi^2_2\) test when both cutpoints are
+identified (\(K \ge 4\) in practice; with \(K = 3\) the fit warns that
+they are weakly identified); the heading names those rows.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

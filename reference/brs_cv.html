@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,6 +86,10 @@
     <p>The <code>log_score</code> is the mean log predictive contribution under the
 complete likelihood contribution implied by each observation's
 censoring type (<code>delta</code>).</p>
+<p>With <code>cutpoints = "boundary"</code> in <code>...</code>, held-out rows use the
+cells of the training fit's cutpoints. A training fold without one of the
+scores 0, 1, \(K - 1\) or \(K\) cannot be fitted: its row has
+<code>converged = FALSE</code> and the message in <code>error</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

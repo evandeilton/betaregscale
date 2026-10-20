@@ -27,7 +27,8 @@ brsmm(
   method = c("BFGS", "L-BFGS-B"),
   hessian_method = c("cpp", "numDeriv", "optim"),
   control = list(maxit = 2000L),
-  interval = NULL
+  interval = NULL,
+  cutpoints = c("fixed", "boundary")
 )
 ```
 
@@ -108,12 +109,30 @@ brsmm(
   [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md));
   `NULL` uses the stored value, or `"mid"`.
 
+- cutpoints:
+
+  `"fixed"` (default) or `"boundary"`: also estimate the cutpoints
+  between scores 0 and 1 and between \\K - 1\\ and \\K\\ (section
+  'Boundary cutpoints' of
+  [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md);
+  same requirements). Their two parameters come last in
+  [`coef()`](https://rdrr.io/r/stats/coef.html). The gradient in them is
+  a Richardson central difference of the marginal log-likelihood (steps
+  \\10^{-3}\max(1, \|g\|)\\ and half); the Hessian (`"cpp"`) adds to the
+  compiled block the
+  [`numDeriv::jacobian()`](https://rdrr.io/pkg/numDeriv/man/jacobian.html)
+  of the compiled gradient in the cutpoint parameters and the
+  [`numDeriv::hessian()`](https://rdrr.io/pkg/numDeriv/man/hessian.html)
+  of the marginal log-likelihood in them.
+
 ## Value
 
 An object of class `"brsmm"` with the components of a `"brs"` fit
 (`par`, `coefficients` with a `random` part, `value`, `hessian`,
 `diagnostics`, ...) and `random` (group variable, levels, conditional
-modes `mode_b`, `D`, `L` and the SDs `sd_b`), `ngroups`, `int_method`.
+modes `mode_b`, `D`, `L` and the SDs `sd_b`), `ngroups`, `int_method`,
+`cutpoints` and `cut` (as in
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 ## Details
 
