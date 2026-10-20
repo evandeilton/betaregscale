@@ -60,5 +60,6 @@ head(predict(fit, type = "precision"))
 }
 \seealso{
 \code{\link{brsmm}}, \code{\link{fitted.brsmm}},
-  \code{\link{brs_predict_scoreprob}}
+  \code{\link{brs_predict_scoreprob}}; \code{\link{brs_marginal}} for
+  population-averaged (marginal) quantities with standard errors
 }

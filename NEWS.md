@@ -21,6 +21,22 @@
   with given boundary cutpoints.
 * `coef()`, `vcov()` and `confint()` accept `model = "cutpoints"`;
   `brs_est()` gives no z-test for the cutpoint parameters.
+* New `brs_marginal()`: score probabilities, expected scores and exceedance
+  probabilities `P(S >= k)` with standard errors and intervals, and
+  differences between rows (e.g. time contrasts). For `brsmm()` fits the
+  random effects are integrated out (population-averaged values), or set to
+  zero with `conditional = TRUE`; under a nonlinear link these differ.
+  Standard errors use the delta method over all parameters (including the
+  random-effect and cutpoint parameters) or parameter draws.
+* New `brs_loglik_contrib()`: log-likelihood contributions per observation
+  (`brs`) or per group (`brsmm`, marginal over the random effects), also for
+  new data at the fitted parameters; they add up to `logLik()`.
+* New `brsmm_cv()`: cross-validation with folds formed by group, scoring
+  held-out groups by their marginal log-likelihood (log probability of the
+  observed scores), with reusable folds and a `seed` argument.
+* `BIC()` for `brsmm` fits gains `n = c("obs", "groups")`. `BIC()` of `brs`
+  and `brsmm` fits returns a `df`/`BIC` table for several models, whatever
+  the order; the single-model value is unchanged.
 
 ## Other changes
 

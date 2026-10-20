@@ -4,24 +4,29 @@
 \alias{BIC.brsmm}
 \title{BIC for brsmm models}
 \usage{
-\method{BIC}{brsmm}(object, ...)
+\method{BIC}{brsmm}(object, ..., n = c("obs", "groups"))
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
-\item{...}{Currently ignored.}
+\item{...}{Further fitted models; with \code{n = "groups"} they must be
+\code{"brsmm"} fits, otherwise their own \code{BIC()} is used.}
+
+\item{n}{\code{"obs"} (default; \code{nobs(object)}) or \code{"groups"}
+(\code{object$ngroups}).}
 }
 \value{
-Numeric scalar.
+Numeric scalar; with several models, a data frame with columns
+  \code{df} and \code{BIC}, one row per model, as \code{stats::BIC()}.
 }
 \description{
-\eqn{-2\ell + \log(n)\,k} with \eqn{n} = the number of observations
-(\code{nobs(object)}), as \code{lme4} does, and \eqn{k} the number of
-parameters (fixed effects, precision and packed random-effect
-parameters). There is no single sample size for a mixed model: counting
-groups instead (\eqn{n = } \code{object$ngroups}) penalises more and is a
-common alternative, \code{-2 * logLik(object) + log(object$ngroups) * k}.
-Compare BIC values only between fits with the same convention.
+\eqn{-2\ell + \log(n)\,k}, with \eqn{k} the number of parameters (fixed
+effects, precision, packed random-effect and cutpoint parameters) and
+\eqn{n} the number of observations (\code{n = "obs"}, the default, as
+\code{lme4} does) or of groups (\code{n = "groups"}). There is no single
+sample size for a mixed model; counting groups penalizes less when groups
+have several observations each. Compare BIC values only between fits with
+the same convention.
 }
 \examples{
 \donttest{
@@ -36,6 +41,7 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 BIC(fit)
+BIC(fit, n = "groups")
 }
 
 }

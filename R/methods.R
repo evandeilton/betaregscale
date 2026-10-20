@@ -247,9 +247,11 @@ AIC.brs <- function(object, ..., k = 2) {
 #' Bayesian information criterion
 #'
 #' @param object A fitted \code{"brs"} object.
-#' @param ... Ignored.
+#' @param ... Further fitted models (\code{brs}, \code{brsmm} or others with a
+#'   \code{BIC()} method).
 #'
-#' @return Scalar BIC value.
+#' @return Scalar BIC value; with several models, a data frame with columns
+#'   \code{df} and \code{BIC}, one row per model, as \code{stats::BIC()}.
 #'
 #' @seealso \code{\link{brs}}, \code{\link{logLik.brs}}, \code{\link{AIC.brs}},
 #'   \code{\link{brs_gof}}
@@ -273,7 +275,14 @@ AIC.brs <- function(object, ..., k = 2) {
 #' @export
 BIC.brs <- function(object, ...) {
   .check_class(object)
-  log(object$nobs) * object$npar - 2 * object$value
+  dots <- list(...)
+  if (!length(dots)) {
+    return(log(object$nobs) * object$npar - 2 * object$value)
+  }
+  # Several models: each by its own BIC() (n = observations for brsmm)
+  cl <- match.call()
+  .brs_bic_table(c(list(object), dots), as.character(cl[-1L]),
+                 function(m) stats::BIC(m))
 }
 
 

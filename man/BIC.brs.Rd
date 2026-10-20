@@ -9,10 +9,12 @@
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
 
-\item{...}{Ignored.}
+\item{...}{Further fitted models (\code{brs}, \code{brsmm} or others with a
+\code{BIC()} method).}
 }
 \value{
-Scalar BIC value.
+Scalar BIC value; with several models, a data frame with columns
+  \code{df} and \code{BIC}, one row per model, as \code{stats::BIC()}.
 }
 \description{
 Bayesian information criterion
