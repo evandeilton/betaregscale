@@ -330,16 +330,18 @@ AIC.brsmm <- function(object, ..., k = 2) {
 #' BIC for brsmm models
 #'
 #' @description
-#' \eqn{-2\ell + \log(n)\,k} with \eqn{n} = the number of observations
-#' (\code{nobs(object)}), as \code{lme4} does, and \eqn{k} the number of
-#' parameters (fixed effects, precision and packed random-effect
-#' parameters). There is no single sample size for a mixed model: counting
-#' groups instead (\eqn{n = } \code{object$ngroups}) penalises more and is a
-#' common alternative, \code{-2 * logLik(object) + log(object$ngroups) * k}.
-#' Compare BIC values only between fits with the same convention.
+#' \eqn{-2\ell + \log(n)\,k}, with \eqn{k} the number of parameters (fixed
+#' effects, precision, packed random-effect and cutpoint parameters) and
+#' \eqn{n} the number of observations (\code{n = "obs"}, the default, as
+#' \code{lme4} does) or of groups (\code{n = "groups"}). There is no single
+#' sample size for a mixed model; counting groups penalizes less when groups
+#' have several observations each. Compare BIC values only between fits with
+#' the same convention.
 #'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param ... Currently ignored.
+#' @param n \code{"obs"} (default; \code{nobs(object)}) or \code{"groups"}
+#'   (\code{object$ngroups}).
 #'
 #' @return Numeric scalar.
 #'
@@ -359,14 +361,17 @@ AIC.brsmm <- function(object, ..., k = 2) {
 #' prep <- brs_prep(dat, ncuts = 100)
 #' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 #' BIC(fit)
+#' BIC(fit, n = "groups")
 #' }
 #'
 #' @method BIC brsmm
 #' @importFrom stats BIC
 #' @export
-BIC.brsmm <- function(object, ...) {
+BIC.brsmm <- function(object, ..., n = c("obs", "groups")) {
   .check_class_mm(object)
-  -2 * object$value + log(object$nobs) * object$npar
+  n <- match.arg(n)
+  nn <- if (n == "obs") object$nobs else object$ngroups
+  -2 * object$value + log(nn) * object$npar
 }
 
 
@@ -466,7 +471,8 @@ fitted.brsmm <- function(object, type = c("mu", "phi"), ...) {
 #'   \code{"q_0.5"}) and one row per observation.
 #'
 #' @seealso \code{\link{brsmm}}, \code{\link{fitted.brsmm}},
-#'   \code{\link{brs_predict_scoreprob}}
+#'   \code{\link{brs_predict_scoreprob}}; \code{\link{brs_marginal}} for
+#'   population-averaged (marginal) quantities with standard errors
 #'
 #' @examples
 #' \donttest{

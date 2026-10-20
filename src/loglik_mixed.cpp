@@ -596,6 +596,29 @@ inline double group_quadrature(const MixedSetup &m, int g, const ModeResult &mr,
 
 // ====================================================== Main exported fns === //
 
+// Per-group marginal log-likelihood by Laplace / AGHQ / QMC; a group without a
+// valid mode gives LOG_PENALTY, an empty group 0.
+inline arma::vec group_loglik(MixedSetup &m, int method) {
+  const int q = m.q_re;
+  std::vector<double> lt;
+  arma::vec out(m.G, arma::fill::zeros);
+  for (int g = 0; g < m.G; ++g) {
+    if (m.groups[g].n() == 0) continue;
+    ModeResult mr = find_mode_vec(m.groups[g], m.rs, m.s, cached_start(g, m.G, q));
+    cache_store(g, mr.mode);
+    if (!mr.ok) { out(g) = LOG_PENALTY; continue; }
+    if (method == 0) {
+      // Laplace: h(mode) + (q/2) log 2pi - 0.5 log|C|
+      double logdet = 0.0;
+      for (int j = 0; j < q; ++j) logdet += std::log(mr.ev(j));
+      out(g) = mr.h_at_mode + 0.5 * q * std::log(2.0 * M_PI) - 0.5 * logdet;
+    } else {
+      out(g) = group_quadrature(m, g, mr, method, lt);
+    }
+  }
+  return out;
+}
+
 // Marginal log-likelihood by Laplace / AGHQ / QMC; param = [beta, gamma, theta_re].
 // Structural errors stop; a group without a valid mode adds LOG_PENALTY.
 // [[Rcpp::export(name = ".brsmm_loglik_eigen", rng = false)]]
@@ -608,24 +631,26 @@ double brsmm_loglik_eigen(const arma::vec &param, const arma::mat &X,
                           int link_phi, int repar, int method, int n_points) {
   MixedSetup m = mixed_setup(param, X, Z, Xr, y_left, y_right, yt, delta, group,
                              link_mu, link_phi, repar, method, n_points);
-  const int q = m.q_re;
-  std::vector<double> lt;
+  const arma::vec lg = group_loglik(m, method);
+  // Sequential sum, in group order
   double total = 0.0;
-  for (int g = 0; g < m.G; ++g) {
-    if (m.groups[g].n() == 0) continue;
-    ModeResult mr = find_mode_vec(m.groups[g], m.rs, m.s, cached_start(g, m.G, q));
-    cache_store(g, mr.mode);
-    if (!mr.ok) { total += LOG_PENALTY; continue; }
-    if (method == 0) {
-      // Laplace: h(mode) + (q/2) log 2pi - 0.5 log|C|
-      double logdet = 0.0;
-      for (int j = 0; j < q; ++j) logdet += std::log(mr.ev(j));
-      total += mr.h_at_mode + 0.5 * q * std::log(2.0 * M_PI) - 0.5 * logdet;
-    } else {
-      total += group_quadrature(m, g, mr, method, lt);
-    }
-  }
+  for (int g = 0; g < m.G; ++g) total += lg(g);
   return total;
+}
+
+// Marginal log-likelihood contribution of each group (length G, group order);
+// the terms that brsmm_loglik_eigen() adds up.
+// [[Rcpp::export(name = ".brsmm_loglik_groups_cpp", rng = false)]]
+arma::vec brsmm_loglik_groups_cpp(const arma::vec &param, const arma::mat &X,
+                                  const arma::mat &Z, const arma::mat &Xr,
+                                  const arma::vec &y_left, const arma::vec &y_right,
+                                  const arma::vec &yt,
+                                  const Rcpp::IntegerVector &delta,
+                                  const Rcpp::IntegerVector &group, int link_mu,
+                                  int link_phi, int repar, int method, int n_points) {
+  MixedSetup m = mixed_setup(param, X, Z, Xr, y_left, y_right, yt, delta, group,
+                             link_mu, link_phi, repar, method, n_points);
+  return group_loglik(m, method);
 }
 
 // Posterior mode of each group's random effects (G x q_re).

@@ -77,3 +77,6 @@ a systematic literature review.
 Journal of Pain and Symptom Management, 41(6), 1073-1093.
 \doi{10.1016/j.jpainsymman.2010.08.016}
 }
+\seealso{
+\code{\link{brsmm_cv}} for mixed models (folds by group).
+}
