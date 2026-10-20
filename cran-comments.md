@@ -14,8 +14,6 @@ Update of `betaregscale`. The changes are listed in `NEWS.md`.
 
 * The installed size can be reported as large on Linux builds that add `-g`
   to `CXXFLAGS`: the shared library then carries debug information.
-* `CXX_STD = CXX17` is set because the package supports R >= 4.1.0, which
-  does not default to C++17.
 
 ## Reverse dependencies
 
