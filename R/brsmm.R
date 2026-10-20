@@ -210,7 +210,7 @@ brsmm <- function(formula,
   n_points <- as.integer(n_points)
   qmc_points <- as.integer(qmc_points)
 
-  # Same checks as brs(); an unknown repar used to reach the C++ `default:` branch.
+  # Same checks as brs(), so an unknown repar never reaches the C++ `default:` branch.
   validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi,
                                         interval)
   ncuts <- validated$ncuts
@@ -297,7 +297,7 @@ brsmm <- function(formula,
         call. = FALSE
       )
     }
-    # QUAL-L04: estimate sigma_b from between-group variance of y_mid
+    # Start sigma_b at the between-group SD of y_mid
     y_mid_start <- as.numeric(Y[, "yt"])
     group_means <- tapply(y_mid_start, group_index, mean)
     sigma_b_init <- max(stats::sd(as.numeric(group_means)), 0.1, na.rm = TRUE)
@@ -409,7 +409,7 @@ brsmm <- function(formula,
     control = .brs_merge_control(list(maxit = 2000L), control)
   )
 
-  # BUG-H04: warn if optimizer did not converge
+  # Warn if the optimizer did not converge
   if (opt$convergence != 0L) {
     warning(
       "Optimizer did not converge (code ", opt$convergence, ")",

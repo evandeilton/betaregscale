@@ -22,8 +22,8 @@
   if (length(unique(nobs_vec)) != 1L) {
     stop("All models must be fitted to the same number of observations.", call. = FALSE)
   }
-  # Different coarsenings (interval/ncuts/lim) are different response models:
-  # their log-likelihoods are not comparable
+  # No LR test across coarsenings: different interval maps (or lim) are not
+  # nested, and different ncuts describe different responses
   for (what in c("interval", "ncuts", "lim")) {
     # lim only defines the cells under "mid" (ignored for right/left)
     if (what == "lim" && !identical(.brs_interval_of(models[[1L]]), "mid")) next
@@ -32,10 +32,21 @@
       format(v)
     }, character(1))
     if (length(unique(vals)) != 1L) {
+      # Each map is a pmf of the same scores (mid needs lim = 0.5, the other
+      # maps ignore lim): then only the LR test fails and AIC/BIC still apply
+      full_cells <- vapply(models, function(m) {
+        lim_m <- if (is.null(m$lim)) 0.5 else m$lim
+        !identical(.brs_interval_of(m), "mid") ||
+          lim_m >= 0.5 - sqrt(.Machine$double.eps)
+      }, logical(1))
+      reason <- if (what == "interval" && all(full_cells)) {
+        "fits with different interval maps are not nested; compare them with AIC() or BIC()."
+      } else {
+        "fits with different coarsenings of the response are not comparable."
+      }
       stop(
         "All models must use the same `", what, "` (found: ",
-        paste(unique(vals), collapse = ", "), "); fits with different ",
-        "coarsenings of the response are not comparable.",
+        paste(unique(vals), collapse = ", "), "); ", reason,
         call. = FALSE
       )
     }
@@ -119,7 +130,7 @@
   rownames(out) <- out$Model
   out$Model <- NULL
   class(out) <- c("anova", "data.frame")
-  # print.anova() prints the heading (the old attr "note" was never shown)
+  # print.anova() prints the "heading" attribute above the table
   attr(out, "heading") <- c(heading, "")
   out
 }
@@ -137,7 +148,12 @@
 #' \eqn{p = P(\chi^2_{df} > LR)}. The models must be nested; this is not
 #' checked. They must also describe the same response: the same observations,
 #' \code{interval}, \code{ncuts} and (under \code{"mid"}) \code{lim}, or the
-#' call stops, since different coarsenings are different likelihoods.
+#' call stops: fits under different \code{interval} maps or \code{lim} are
+#' not nested, and different \code{ncuts} describe different responses. Fits
+#' of the same scores under different maps (with \code{lim = 0.5}) can still
+#' be compared by \code{AIC()} and \code{BIC()}, since each map gives a
+#' probability mass function over the same scores (section 'Interval
+#' direction' of \code{\link{brs}}).
 #'
 #' When the larger model adds one random-effect term (a \code{"brs"} model
 #' against a random-intercept \code{"brsmm"}, or one more correlated random
@@ -197,9 +213,10 @@
 #' m2 <- brs(y ~ time + group, data = nrs, ncuts = 10)
 #' anova(m1, m2)
 #'
-#' # Fits under different interval directions are different response models
+#' # Interval maps are not nested: no LR test, but AIC is comparable
 #' m2_right <- brs(y ~ time + group, data = nrs, ncuts = 10, interval = "right")
 #' try(anova(m2, m2_right))
+#' c(mid = AIC(m2), right = AIC(m2_right))
 #'
 #' @method anova brs
 #' @importFrom stats anova pchisq

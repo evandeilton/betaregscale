@@ -1,4 +1,4 @@
-testthat::test_that("brs_repar valida dominio e comprimentos", {
+testthat::test_that("brs_repar validates domains and lengths", {
   testthat::expect_error(
     brs_repar(mu = c(0.3, 0.4), phi = c(0.2), repar = 2),
     NA
@@ -17,7 +17,7 @@ testthat::test_that("brs_repar valida dominio e comprimentos", {
   )
 })
 
-testthat::test_that(".extract_response alinha prepared data com rownames nao numericos", {
+testthat::test_that(".extract_response aligns prepared data with non-numeric rownames", {
   dat <- data.frame(
     y = c(10, 20, 30),
     x = c(1, 2, 3),
@@ -38,7 +38,7 @@ testthat::test_that(".extract_response alinha prepared data com rownames nao num
   testthat::expect_equal(as.integer(ymat[, "delta"]), c(0L, 1L, 3L))
 })
 
-testthat::test_that("fitted/predict de precision retornam comprimentos corretos", {
+testthat::test_that("fitted/predict of the precision return the correct lengths", {
   set.seed(42)
   n <- 80
   dat <- data.frame(x1 = stats::rnorm(n), x2 = stats::rnorm(n))
@@ -61,7 +61,7 @@ testthat::test_that("fitted/predict de precision retornam comprimentos corretos"
   )
 })
 
-testthat::test_that("residuals rqr funciona com observacoes censuradas", {
+testthat::test_that("rqr residuals work with censored observations", {
   set.seed(123)
   n <- 60
   dat <- data.frame(x1 = stats::rnorm(n))

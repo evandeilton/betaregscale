@@ -295,7 +295,7 @@ brs_prep <- function(data, y = "y", delta = "delta",
   out_right <- pmin(pmax(ep$right, eps), 1 - eps)
   out_yt <- pmin(pmax(ep$yt, eps), 1 - eps)
 
-  # Zero-width delta = 3 intervals: squeezed by the clamp, or empty (D2)
+  # Zero-width delta = 3 intervals: squeezed by the clamp, or empty (left == right)
   .brs_stop_zero_width(out_delta == 3L & out_left >= out_right,
                        ep$right - ep$left, ep$score_based)
 

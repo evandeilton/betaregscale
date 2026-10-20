@@ -118,7 +118,11 @@ default **0.5**, used by `"mid"` only). The $K+1$ cells of `"right"` and
 `"left"` are equal and partition $[0,1]$; this normalization is a package
 choice (the dissertation divides by $K$). `"right"` and `"left"` give the
 same fit and differ only in `predict(type = "score")`. The three directions
-are different coarsening models, so `anova()` refuses to compare them.
+are different coarsening models of the same scores. With `lim = 0.5` each
+one gives a probability mass function over $0,\dots,K$, so log-likelihoods,
+AIC and BIC of fits under different directions are comparable; the
+directions are not nested, so `anova()` refuses a likelihood-ratio test
+between them.
 
 The borders need no special transformation: score 0 is left-censored and
 score $K$ right-censored, and endpoints are only clamped to

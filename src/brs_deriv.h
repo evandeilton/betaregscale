@@ -32,7 +32,7 @@ struct ObsDeriv {
   double f, d1, d2, d3, p1, p2, c11, c21;
 };
 
-// Relative steps (floored at 1) from the Lote 5 numDeriv study: H1 first
+// Relative steps (floored at 1), chosen by comparison with numDeriv: H1 first
 // derivatives, H2 second / cross (brs Hessian), H3 third (O(h^4) stencils).
 // HC: curvature at the brsmm mode; larger than H2 so its roundoff (~eps/h^2)
 // does not make the Laplace value noisy (Richardson truncation stays ~h^4).

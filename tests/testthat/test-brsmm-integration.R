@@ -1,5 +1,5 @@
 # Tests for brsmm integration methods
-# These tests verify that the new backend methods (AGHQ, QMC) run and produce
+# These tests verify that the integration methods (AGHQ, QMC) run and produce
 # consistent results with the baseline Laplace approximation.
 
 test_that("brsmm runs with different integration methods", {
@@ -127,7 +127,7 @@ test_that("brsmm supports random intercept and slope with Laplace", {
   expect_equal(dim(fit$random$D), c(2L, 2L))
 })
 
-test_that("random-effects study and new autoplot diagnostics run", {
+test_that("random-effects study and autoplot diagnostics run", {
   skip_on_cran()
   skip_if_not_installed("ggplot2")
 

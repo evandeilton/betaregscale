@@ -148,7 +148,7 @@
 }
 
 # Stop on delta = 3 intervals of zero width after the 1e-5 clamp: a cell
-# squeezed by the clamp (positive raw width) or an empty interval (D2).
+# squeezed by the clamp (positive raw width) or an empty interval (left == right).
 .brs_stop_zero_width <- function(zero, raw_width, score_based) {
   if (!any(zero, na.rm = TRUE)) {
     return(invisible(NULL))
@@ -213,9 +213,11 @@
 #' the two directions differ by \eqn{1/K} and chapter 4 reports opposite
 #' intercept biases for them, while here they give the same likelihood and
 #' the same coefficients. The three directions are different coarsening
-#' models of the same scores: their log-likelihoods are not comparable, and
-#' \code{\link{anova.brs}} refuses such comparisons. \code{lim} applies to
-#' \code{"mid"} only.
+#' models of the same scores. With \code{lim = 0.5} each one gives a
+#' probability mass function over \eqn{0, \ldots, K}, so their
+#' log-likelihoods, AIC and BIC are comparable; the models are not nested, so
+#' \code{\link{anova.brs}} refuses a likelihood-ratio test between them.
+#' \code{lim} applies to \code{"mid"} only.
 #'
 #' @section Scale change and borders:
 #' Lopes (2023, "Mudanca de escala intervalar") rescales scores by the range
@@ -434,7 +436,7 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL,
   y_left <- pmin(pmax(y_left, eps), 1 - eps)
   y_right <- pmin(pmax(y_right, eps), 1 - eps)
 
-  # Zero-width delta = 3 cells: squeezed by the clamp, or empty (D2)
+  # Zero-width delta = 3 cells: squeezed by the clamp, or empty (left == right)
   .brs_stop_zero_width(d == 3L & y_left >= y_right, raw_width, rep(TRUE, n))
 
   # Cell center (y itself for exact values), clamped like the endpoints

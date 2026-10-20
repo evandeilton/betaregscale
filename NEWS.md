@@ -61,6 +61,11 @@
 
 ## Other changes
 
+* The help of `brs()`, `brs_check()` and `anova()` states that `logLik()`,
+  `AIC()` and `BIC()` are comparable across `interval` maps for score data
+  (each map gives a probability mass function over the same scores); only the
+  likelihood-ratio test is unavailable, since the maps are not nested.
+  `anova()` gives this reason when it refuses fits with different maps.
 * Fits whose Hessian is not negative definite now also warn when the largest
   absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot
   be measured there; this can add a warning to fixed-map fits.
@@ -340,10 +345,8 @@ every change and its reason.
 
 # betaregscale 2.7.4
 
-Resubmission addressing CRAN feedback on vignette build time (Uwe Ligges,
-2026-08-23): *"Please reduce the vignette build timings ... Otherwise we cannot
-afford checking the vignette regularly on CRAN."* No change to the statistical
-methods or to the user-facing API.
+Resubmission that reduces the vignette build time for CRAN. No change to the
+statistical methods or to the user-facing API.
 
 ## Vignette build time
 
@@ -478,8 +481,8 @@ and collects packaging and documentation cleanups for CRAN submission.
 # betaregscale 2.7.1
 
 This is a maintenance release focused on correctness, numerical robustness, and
-performance. It carries the fixes from a deep audit of the C++ backends and the R
-interface. No user-facing API changes.
+performance in the C++ backends and the R interface. No user-facing API
+changes.
 
 ## Bug fixes
 
@@ -577,7 +580,7 @@ interface. No user-facing API changes.
 
 ## Testing
 
-* Added `tests/testthat/test-re-and-autoplot-improvements.R` with 15 new tests covering:
+* Added a new test file with 15 tests covering:
   `.pretty_phi_names()`, `.pretty_re_names()`, `brsmm_re_study()` ICC and VarCorr output,
   `plot.brsmm()` panels 7 and 8, `autoplot.brsmm()` and `autoplot.brs()` title/xlab/ylab,
   theme arg (object and function), `type = "all"`, `...` forwarding.
@@ -612,7 +615,7 @@ interface. No user-facing API changes.
 * Standardized `print.brsmm()` to explicitly display mean, precision, and random-effect coefficient blocks side-by-side, mirroring the verbose visual style of `print.brs()`.
 
 ## Documentation
-* **Complete `@examples` audit**: added runnable `\donttest{}` examples to all ~30 previously undocumented exported functions, including all S3 methods for `brs` and `brsmm` objects (`coef()`, `vcov()`, `logLik()`, `AIC()`, `BIC()`, `nobs()`, `formula()`, `model.matrix()`, `fitted()`, `residuals()`, `confint()`, `predict()`, `print()`, `summary()`, `ranef()`, `anova()`, `plot()`, `autoplot()`).
+* **Examples**: added runnable `\donttest{}` examples to all ~30 previously undocumented exported functions, including all S3 methods for `brs` and `brsmm` objects (`coef()`, `vcov()`, `logLik()`, `AIC()`, `BIC()`, `nobs()`, `formula()`, `model.matrix()`, `fitted()`, `residuals()`, `confint()`, `predict()`, `print()`, `summary()`, `ranef()`, `anova()`, `plot()`, `autoplot()`).
 * **Removed all `set.seed()` calls from examples** across 15+ files (`fit.R`, `brsmm.R`, `bootstrap.R`, `cv.R`, `marginaleffects.R`, `scoreprob.R`, `table.R`, `simulate.R`, `prepare.R`, `autoplot.R`, `autoplot-brsmm.R`, `loglik.R`). All examples now use deterministic toy datasets.
 * **No `\dontrun{}` anywhere**: all examples are either direct or wrapped in `\donttest{}` as appropriate.
 * **Ferrari & Cribari-Neto (2004) DOI** (`10.1080/0266476042000214501`) added to every occurrence of that reference across `betaregscale-package.R`, `brsmm.R`, `methods.R`, `anova-methods.R`, and `brsmm-random-effects-study.R`.
@@ -626,7 +629,7 @@ interface. No user-facing API changes.
 ---
 
 # betaregscale 2.6.7
-## CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)
+## CRAN resubmission
 
 ### Bug fixes and CRAN policy compliance
 
@@ -640,7 +643,7 @@ interface. No user-facing API changes.
 
 # betaregscale 2.6.6
 
-## CRAN resubmission (Uwe Ligges review, 18 Feb 2026)
+## CRAN resubmission
 
 * DESCRIPTION: function names in Title/Description now use parentheses (e.g. `logLik()`, `coef()`) per CRAN policy.
 * URL updated to GitHub repository (https://github.com/evandeilton/betaregscale) while pkgdown site is deployed.

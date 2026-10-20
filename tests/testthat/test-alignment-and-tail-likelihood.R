@@ -1,8 +1,9 @@
 # ============================================================================ #
-# Regression tests for the 2026-09 audit findings (named, known cases)
+# Row alignment of prepared data, brsmm input checks, one-sided analyst rows,
+# and exact tail probabilities of the interval likelihood
 # ============================================================================ #
 
-.audit_prep <- function(seed = 11L, n = 200L, g = 20L) {
+.at_prep <- function(seed = 11L, n = 200L, g = 20L) {
   set.seed(seed)
   x <- rnorm(n)
   id <- factor(rep(seq_len(g), length.out = n))
@@ -13,10 +14,10 @@
   brs_prep(data.frame(y = y, x = x, id = id), ncuts = 10L)
 }
 
-# C1 -------------------------------------------------------------------------- #
+# Row alignment ---------------------------------------------------------------- #
 
-test_that("C1: brs on subsetted prepared data keeps rows aligned", {
-  p <- suppressMessages(.audit_prep())
+test_that("brs on subsetted prepared data keeps rows aligned", {
+  p <- suppressMessages(.at_prep())
   sub <- p[-(1:50), ]
   fit_sub <- brs(y ~ x, data = sub, ncuts = 10L)
   # Fitting the same rows after resetting rownames must give the same answer
@@ -25,21 +26,21 @@ test_that("C1: brs on subsetted prepared data keeps rows aligned", {
   fit_ref <- brs(y ~ x, data = sub2, ncuts = 10L)
   expect_equal(unname(fit_sub$Y[, "left"]), unname(fit_ref$Y[, "left"]))
   expect_equal(coef(fit_sub), coef(fit_ref), tolerance = 1e-6)
-  # Named case from the audit: dropping one row (jackknife) flipped the slope
+  # Dropping one row (jackknife) must not flip the slope
   fit_jk <- brs(y ~ x, data = p[-10, ], ncuts = 10L)
   expect_true(abs(coef(fit_jk)[["x"]] - coef(fit_ref)[["x"]]) < 0.3)
 })
 
-test_that("C1: brs_cv works on data from brs_prep", {
-  p <- suppressMessages(.audit_prep())
+test_that("brs_cv works on data from brs_prep", {
+  p <- suppressMessages(.at_prep())
   set.seed(1L)
   cv <- brs_cv(y ~ x, data = p, k = 3L, ncuts = 10L)
   expect_s3_class(cv, "brs_cv")
   expect_true(all(is.finite(cv$log_score)))
 })
 
-test_that("C1: brsmm is invariant to row permutation and subsetting", {
-  p <- suppressMessages(.audit_prep())
+test_that("brsmm is invariant to row permutation and subsetting", {
+  p <- suppressMessages(.at_prep())
   ctrl <- list(maxit = 300L)
   fit0 <- brsmm(y ~ x, random = ~ 1 | id, data = p, ncuts = 10L,
                 control = ctrl)
@@ -48,17 +49,17 @@ test_that("C1: brsmm is invariant to row permutation and subsetting", {
                     ncuts = 10L, control = ctrl)
   expect_equal(fit_perm$value, fit0$value, tolerance = 1e-4)
   expect_equal(fit_perm$random$sigma_b, fit0$random$sigma_b, tolerance = 1e-2)
-  # Every-other-row subset used to error with "Grouping variable contains
-  # missing values"; it must simply fit.
+  # An every-other-row subset fits (the grouping variable has no missing
+  # values after subsetting).
   fit_odd <- brsmm(y ~ x, random = ~ 1 | id, data = p[seq(1, nrow(p), 2), ],
                    ncuts = 10L, control = ctrl)
   expect_s3_class(fit_odd, "brsmm")
 })
 
-# C3 -------------------------------------------------------------------------- #
+# brsmm input checks ----------------------------------------------------------- #
 
-test_that("C3: compiled brsmm likelihood rejects inconsistent dimensions", {
-  p <- suppressMessages(.audit_prep(n = 40L, g = 4L))
+test_that("compiled brsmm likelihood rejects inconsistent dimensions", {
+  p <- suppressMessages(.at_prep(n = 40L, g = 4L))
   X <- cbind(1, p$x); Z <- matrix(1, nrow(p), 1); Xr <- matrix(1, nrow(p), 1)
   par <- c(0, 0, 0, log(0.5))
   args <- list(par, X, Z, Xr, p$left, p$right, p$yt, as.integer(p$delta),
@@ -72,8 +73,8 @@ test_that("C3: compiled brsmm likelihood rejects inconsistent dimensions", {
   expect_error(do.call(betaregscale:::.brsmm_loglik_eigen, bad), "rows")
 })
 
-test_that("C3: NA in a random-slope variable gives a clear error", {
-  p <- suppressMessages(.audit_prep())
+test_that("NA in a random-slope variable gives a clear error", {
+  p <- suppressMessages(.at_prep())
   p$z <- rnorm(nrow(p)); p$z[nrow(p)] <- NA
   expect_error(
     brsmm(y ~ x, random = ~ z | id, data = p, ncuts = 10L),
@@ -81,9 +82,9 @@ test_that("C3: NA in a random-slope variable gives a clear error", {
   )
 })
 
-# C4 -------------------------------------------------------------------------- #
+# One-sided analyst rows ------------------------------------------------------- #
 
-test_that("C4: Mode 3 (left/right only) observations are kept in the fit", {
+test_that("Mode 3 (left/right only) observations are kept in the fit", {
   set.seed(5L)
   n <- 120L
   x <- rnorm(n)
@@ -102,10 +103,10 @@ test_that("C4: Mode 3 (left/right only) observations are kept in the fit", {
   expect_equal(sum(fit$Y[, "delta"] == 1L), 40L)
 })
 
-# C2 -------------------------------------------------------------------------- #
+# Tail probabilities ----------------------------------------------------------- #
 
 # Reference: interval log-probability in log-space, tail chosen by the median.
-.audit_log_int <- function(l, u, mu, prec) {
+.at_log_int <- function(l, u, mu, prec) {
   a <- mu * prec; b <- (1 - mu) * prec
   lF <- function(x, lt) pbeta(x, a, b, lower.tail = lt, log.p = TRUE)
   m <- qbeta(0.5, a, b)
@@ -114,14 +115,14 @@ test_that("C4: Mode 3 (left/right only) observations are kept in the fit", {
   else return(log(pbeta(u, a, b) - pbeta(l, a, b)))
   x1 + log1p(-exp(x2 - x1))
 }
-.audit_pkg_int <- function(l, u, mu, prec) {
+.at_pkg_int <- function(l, u, mu, prec) {
   # repar = 1 (precision), link_mu logit (0), link_phi log (4)
   betaregscale:::.brs_loglik_fixed_cpp(
     c(qlogis(mu), log(prec)), matrix(1), l, u, (l + u) / 2, 3L, 0L, 4L, 1L
   )
 }
 # Count R warnings raised while evaluating expr (they are muffled).
-.audit_n_warnings <- function(expr) {
+.at_n_warnings <- function(expr) {
   n <- 0L
   withCallingHandlers(expr, warning = function(w) {
     n <<- n + 1L
@@ -130,7 +131,7 @@ test_that("C4: Mode 3 (left/right only) observations are kept in the fit", {
   n
 }
 # Random mixed-censoring data for the compiled likelihood (delta 0..3).
-.audit_ll_data <- function(seed, n, mu_fun, prec, extra = NULL) {
+.at_ll_data <- function(seed, n, mu_fun, prec, extra = NULL) {
   set.seed(seed)
   x1 <- rnorm(n); x2 <- rnorm(n); z1 <- rnorm(n)
   mu <- mu_fun(x1, x2); a <- mu * prec; b <- (1 - mu) * prec
@@ -152,8 +153,8 @@ test_that("C4: Mode 3 (left/right only) observations are kept in the fit", {
   d
 }
 
-test_that("C2: tail interval probabilities are exact, not floored at 1e-15", {
-  # Named cases from the audit: the old code returned log(1e-15) = -34.54
+test_that("tail interval probabilities are exact, not floored at 1e-15", {
+  # Known cases; a 1e-15 probability floor would give log(1e-15) = -34.54
   cases <- rbind(
     c(0.495, 0.505, 0.90, 500),   # exact ~ -184.36
     c(0.120, 0.130, 0.01, 400),   # exact ~ -40.77
@@ -162,16 +163,16 @@ test_that("C2: tail interval probabilities are exact, not floored at 1e-15", {
   )
   for (k in seq_len(nrow(cases))) {
     r <- cases[k, ]
-    expect_equal(.audit_pkg_int(r[1], r[2], r[3], r[4]),
-                 .audit_log_int(r[1], r[2], r[3], r[4]),
+    expect_equal(.at_pkg_int(r[1], r[2], r[3], r[4]),
+                 .at_log_int(r[1], r[2], r[3], r[4]),
                  tolerance = 1e-8)
   }
 })
 
-test_that("C2: gradient is non-zero and stable in the former cancellation zone", {
+test_that("gradient is non-zero and stable in the cancellation zone", {
   f <- function(b0) betaregscale:::.brs_loglik_fixed_cpp(
     c(b0, log(500)), matrix(1), 0.085, 0.095, 0.09, 3L, 0L, 4L, 1L)
-  fa <- function(b0) .audit_log_int(0.085, 0.095, plogis(b0), 500)
+  fa <- function(b0) .at_log_int(0.085, 0.095, plogis(b0), 500)
   b0 <- qlogis(0.01)
   for (h in c(1e-4, 1e-6)) {
     d_pkg <- (f(b0 + h) - f(b0 - h)) / (2 * h)
@@ -183,7 +184,7 @@ test_that("C2: gradient is non-zero and stable in the former cancellation zone",
   expect_true(abs(g[1]) > 1)
 })
 
-test_that("C2: outliers are not trimmed from the likelihood (precision fit)", {
+test_that("outliers are not trimmed from the likelihood (precision fit)", {
   set.seed(42L); n <- 200L
   d <- data.frame(x1 = rnorm(n))
   mu <- plogis(-1.4 + 0.3 * d$x1); prec <- 300
@@ -195,17 +196,17 @@ test_that("C2: outliers are not trimmed from the likelihood (precision fit)", {
   llex <- function(p) {
     m <- plogis(X %*% p[1:2]); ph <- exp(p[3])
     sum(vapply(seq_len(n), function(i)
-      .audit_log_int(prep$left[i], prep$right[i], m[i], ph), 1))
+      .at_log_int(prep$left[i], prep$right[i], m[i], ph), 1))
   }
   expect_equal(fit$value, llex(fit$par), tolerance = 1e-6)
   ex <- optim(fit$par, function(p) -llex(p), method = "BFGS",
               control = list(reltol = 1e-12, maxit = 1000L))
   expect_equal(exp(fit$par[3]), exp(ex$par[3]), tolerance = 0.02)
-  expect_true(exp(fit$par[3]) < 100)   # old floored fit gave ~328
+  expect_true(exp(fit$par[3]) < 100)   # a floored likelihood gives ~328
 })
 
-test_that("C2: R mirror .brs_obs_loglik equals the compiled likelihood", {
-  d <- .audit_ll_data(21L, 120L, function(x1, x2) plogis(0.3 + 0.6 * x1 - 0.4 * x2), 25)
+test_that("R mirror .brs_obs_loglik equals the compiled likelihood", {
+  d <- .at_ll_data(21L, 120L, function(x1, x2) plogis(0.3 + 0.6 * x1 - 0.4 * x2), 25)
   expect_setequal(unique(d$delta), 0:3)
   beta <- c(0.1, 0.4, -0.3)
   # (link_mu, link_phi, repar, gamma): both link families, all reparameterizations
@@ -247,7 +248,7 @@ test_that("C2: R mirror .brs_obs_loglik equals the compiled likelihood", {
     c(0.4, 7), matrix(1), 0.3, 0.3, 0.3, 3L, 8L, 8L, 1L), -1e6)
 })
 
-test_that("C2: compiled gradients match numDeriv at random and tail points", {
+test_that("compiled gradients match numDeriv at random and tail points", {
   chk <- function(d, pf, pv, lm = 0L, lp = 4L, rp = 1L) {
     fnf <- function(p) betaregscale:::.brs_loglik_fixed_cpp(
       p, d$X, d$l, d$r, d$yt, d$delta, lm, lp, rp)
@@ -265,20 +266,20 @@ test_that("C2: compiled gradients match numDeriv at random and tail points", {
     }
   }
   # three random points on ordinary data
-  d1 <- .audit_ll_data(1L, 150L, function(x1, x2) plogis(0.2 + 0.5 * x1 - 0.3 * x2), 30)
+  d1 <- .at_ll_data(1L, 150L, function(x1, x2) plogis(0.2 + 0.5 * x1 - 0.3 * x2), 30)
   set.seed(11L)
   for (k in 1:3) {
     pf <- c(rnorm(3, 0, 0.5), log(runif(1, 5, 80)))
     pv <- c(pf[1:3], log(runif(1, 5, 80)), rnorm(1, 0, 0.3))
     chk(d1, pf, pv)
   }
-  # former cancellation zone: mu ~ 0.01, precision ~ 500, intervals of width 0.01
-  d2 <- .audit_ll_data(2L, 150L, function(x1, x2) plogis(qlogis(0.01) + 0.1 * x1), 500)
+  # cancellation zone: mu ~ 0.01, precision ~ 500, intervals of width 0.01
+  d2 <- .at_ll_data(2L, 150L, function(x1, x2) plogis(qlogis(0.01) + 0.1 * x1), 500)
   p2f <- c(qlogis(0.01), 0.1, 0.05, log(500)); p2v <- c(p2f, 0.1)
   chk(d2, p2f, p2v)
   # same, plus two outliers far in the upper tail: [0.5, 0.51] (log p ~ -324,
   # plain-scale pbeta) and [0.8, 0.81] (log p ~ -776, Laplace regime)
-  d3 <- .audit_ll_data(2L, 150L, function(x1, x2) plogis(qlogis(0.01) + 0.1 * x1), 500,
+  d3 <- .at_ll_data(2L, 150L, function(x1, x2) plogis(qlogis(0.01) + 0.1 * x1), 500,
                        extra = list(c(0.5, 0.51), c(0.8, 0.81)))
   tails <- betaregscale:::.brs_obs_loglik(c(3L, 3L), c(0.5, 0.8), c(0.51, 0.81),
                                           c(0.505, 0.805), 5, 495)
@@ -290,7 +291,7 @@ test_that("C2: compiled gradients match numDeriv at random and tail points", {
   chk(d1, c(0.2, 0.5, -0.3, -1.2), c(0.2, 0.5, -0.3, -1.2, 0.2), lm = 3L, lp = 0L, rp = 2L)
 })
 
-test_that("C2: no R warnings from the likelihood at extreme shapes", {
+test_that("no R warnings from the likelihood at extreme shapes", {
   # identity links (code 8), repar 1, X = 1: param = c(mu, phi) gives
   # a = mu * phi, b = (1 - mu) * phi, so any (a, b) with a + b <= 1e8 is reachable
   cpp1 <- function(d, l, r, yt, a, b) betaregscale:::.brs_loglik_fixed_cpp(
@@ -306,7 +307,7 @@ test_that("C2: no R warnings from the likelihood at extreme shapes", {
                            r = c(0.685, 0.96)))
   yt <- (g$x + g$r) / 2
   n_penalty <- 0L
-  nw <- .audit_n_warnings({
+  nw <- .at_n_warnings({
     for (d in 0:3) {
       vc <- mapply(function(a, b, x, r, yt) cpp1(d, x, r, yt, a, b),
                    g$a, g$b, g$x, g$r, yt)
@@ -329,7 +330,7 @@ test_that("C2: no R warnings from the likelihood at extreme shapes", {
   expect_equal(n_penalty, 0L)   # the Laplace fallback always applied
 })
 
-test_that("C2: the Laplace fallback joins the exact tail continuously", {
+test_that("the Laplace fallback joins the exact tail continuously", {
   cpp1 <- function(d, l, r, yt, a, b) betaregscale:::.brs_loglik_fixed_cpp(
     c(a / (a + b), a + b), matrix(1), l, r, yt, as.integer(d), 8L, 8L, 1L)
   # upper tail (right-censored and interval) of Beta(5, 495): S(x) crosses
@@ -354,8 +355,8 @@ test_that("C2: the Laplace fallback joins the exact tail continuously", {
   expect_true(all(diff(v) > 0))
   d2 <- abs(diff(v, differences = 2))
   expect_lt(max(d2[(i - 3):(i + 3)]), 10 * median(d2))
-  # D1 (validator): just above DBL_MIN, plain-scale pbeta() is off by up to
-  # ~10% (pbeta(0.8665, 4975, 25) = 2.2228e-266 vs 2.4013e-266), which gave
+  # Just above DBL_MIN, plain-scale pbeta() is off by up to ~10%
+  # (pbeta(0.8665, 4975, 25) = 2.2228e-266 vs 2.4013e-266), which would give
   # -611.689 with a 1e-290 threshold; with 1e-240 the Laplace branch is used
   a <- 4975; b <- (1 - 0.995) * 5000
   expect_true(abs(betaregscale:::.brs_obs_loglik(3L, 0.8655, 0.8665, 0.866, a, b) -

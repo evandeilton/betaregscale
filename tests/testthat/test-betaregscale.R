@@ -73,7 +73,7 @@ test_that("brs_check handles unit-interval input as uncensored", {
 })
 
 test_that("brs_check stops when max(y) > ncuts", {
-  # a score beyond ncuts has no cell (it used to warn and contribute -1e6)
+  # a score beyond ncuts has no cell
   y <- c(5, 10, 150)
   expect_error(brs_check(y, ncuts = 100), "exceeds")
 })
@@ -959,7 +959,7 @@ test_that("simulate delta=1 produces all left-censored observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  # Lote 7: forcing one side on every row is informative censoring (warns)
+  # forcing one side on every row is informative censoring (warns)
   expect_warning(sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
@@ -977,7 +977,7 @@ test_that("simulate delta=2 produces all right-censored observations", {
   set.seed(42)
   n <- 100
   dat <- data.frame(x1 = rnorm(n), x2 = rnorm(n))
-  # Lote 7: forcing one side on every row is informative censoring (warns)
+  # forcing one side on every row is informative censoring (warns)
   expect_warning(sim <- brs_sim(
     formula = ~ x1 + x2, data = dat,
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
@@ -1102,7 +1102,7 @@ test_that("simulate delta=1 -> betaregscale converges", {
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 1
   ), "informative censoring")
-  # Lote 7: optim reports convergence but no finite MLE exists; the fit says so
+  # optim reports convergence but no finite MLE exists; the fit says so
   fit <- suppressWarnings(brs(y ~ x1 + x2, data = sim))
   expect_equal(fit$convergence, 0L)
   expect_gt(fit$diagnostics$n_clamped, 0L)
@@ -1117,7 +1117,7 @@ test_that("simulate delta=2 -> betaregscale converges", {
     beta = c(0.2, -0.5, 0.3), phi = 1 / 5,
     delta = 2
   ), "informative censoring")
-  # Lote 7: optim reports convergence but no finite MLE exists; the fit says so
+  # optim reports convergence but no finite MLE exists; the fit says so
   fit <- suppressWarnings(brs(y ~ x1 + x2, data = sim))
   expect_equal(fit$convergence, 0L)
   expect_gt(fit$diagnostics$n_clamped, 0L)

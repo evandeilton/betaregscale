@@ -248,8 +248,8 @@
 #'   containing \eqn{g^{-1}(\eta)}.
 #'
 #' @keywords internal
-# BUG-H07: use direct formulas instead of make.link() which allocates a list
-# of 4 closures on every call.
+# Direct formulas: make.link() would allocate a list of 4 closures on every
+# call.
 apply_inv_link <- function(eta, link) {
   switch(link,
     logit    = stats::plogis(eta),

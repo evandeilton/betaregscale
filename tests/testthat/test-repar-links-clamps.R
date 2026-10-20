@@ -1,17 +1,18 @@
 # ============================================================================ #
-# Lote 3 (2026-09 audit): reparameterizations x links, E[Y], clamps, attributes
-# Named cases L3-*. Numeric identities use 1e-10; numDeriv comparisons 1e-6
-# where the likelihood is smooth (the clamps are kinks: see L3-6b).
+# Reparameterizations x links, E[Y], clamps, attributes.
+# Numeric identities use 1e-10; numDeriv comparisons 1e-6 where the
+# likelihood is smooth (the clamps are kinks: see "gradients near the clamps").
 # ============================================================================ #
 
-.l3_design <- function(seed = 31L, n = 200L) {
+.rl_design <- function(seed = 31L, n = 200L) {
   set.seed(seed)
   data.frame(x = runif(n, -1, 1), z = runif(n, -1, 1))
 }
 
 # Simulate from the DGP of each repar with the default links. The repar 0
-# case uses p, q < 1 (U-shaped densities); p >= 1 is covered by L3-3b/L3-7c.
-.l3_truth <- function(repar) {
+# case uses p, q < 1 (U-shaped densities); p >= 1 is covered by the
+# "shape p >= 1" recovery and clamp tests.
+.rl_truth <- function(repar) {
   switch(as.character(repar),
     "0" = list(beta = c(log(0.5), 0.25), zeta = c(log(0.6), -0.2)),
     "1" = list(beta = c(0.3, 0.8), zeta = c(log(20), 0.4)),
@@ -19,9 +20,9 @@
   )
 }
 
-.l3_sim <- function(repar, seed = 31L, n = 200L, fixed = FALSE) {
-  d <- .l3_design(seed, n)
-  tr <- .l3_truth(repar)
+.rl_sim <- function(repar, seed = 31L, n = 200L, fixed = FALSE) {
+  d <- .rl_design(seed, n)
+  tr <- .rl_truth(repar)
   if (fixed) {
     brs_sim(y ~ x, data = d, beta = tr$beta, phi = tr$zeta[1], repar = repar)
   } else {
@@ -29,14 +30,14 @@
   }
 }
 
-# L3-1: link compatibility matrix and defaults --------------------------------
+# Link compatibility matrix and defaults --------------------------------
 
-test_that("L3-1a: NULL links resolve by repar (0 log/log, 1 logit/log, 2 logit/logit)", {
+test_that("NULL links resolve by repar (0 log/log, 1 logit/log, 2 logit/logit)", {
   expect_equal(unname(betaregscale:::.brs_default_links(0L)), c("log", "log"))
   expect_equal(unname(betaregscale:::.brs_default_links(1L)), c("logit", "log"))
   expect_equal(unname(betaregscale:::.brs_default_links(2L)), c("logit", "logit"))
   for (rp in 0:2) {
-    s <- .l3_sim(rp, fixed = TRUE)
+    s <- .rl_sim(rp, fixed = TRUE)
     f <- brs(y ~ x, data = s, repar = rp)
     def <- betaregscale:::.brs_default_links(rp)
     expect_identical(f$link, def[["link"]])
@@ -45,10 +46,10 @@ test_that("L3-1a: NULL links resolve by repar (0 log/log, 1 logit/log, 2 logit/l
   }
 })
 
-test_that("L3-1b: incompatible link/repar combinations stop with the table", {
-  s1 <- .l3_sim(1L, fixed = TRUE)
-  s2 <- .l3_sim(2L, fixed = TRUE)
-  s0 <- .l3_sim(0L, fixed = TRUE)
+test_that("incompatible link/repar combinations stop with the table", {
+  s1 <- .rl_sim(1L, fixed = TRUE)
+  s2 <- .rl_sim(2L, fixed = TRUE)
+  s0 <- .rl_sim(0L, fixed = TRUE)
   expect_error(brs(y ~ x, data = s1, repar = 1L, link_phi = "logit"),
                "not compatible with `repar = 1`")
   expect_error(brs(y ~ x, data = s2, repar = 2L, link_phi = "log"),
@@ -63,9 +64,9 @@ test_that("L3-1b: incompatible link/repar combinations stop with the table", {
     expect_error(brs(y ~ x, data = s0, repar = 0L, link = bad),
                  "not accepted for positive parameters", fixed = TRUE)
   }
-  # exact matching: "logi" used to partially match "logit"
+  # exact matching: "logi" does not partially match "logit"
   expect_error(brs(y ~ x, data = s2, link = "logi"), "not compatible")
-  expect_error(brs_sim(y ~ x, data = .l3_design(), beta = c(0, 0), phi = 0,
+  expect_error(brs_sim(y ~ x, data = .rl_design(), beta = c(0, 0), phi = 0,
                        repar = 1L, link_phi = "cloglog"), "not compatible")
   expect_error(brsmm(y ~ x, random = ~ 1 | x, data = s1, repar = 1L,
                      link_phi = "probit"), "not compatible")
@@ -73,9 +74,9 @@ test_that("L3-1b: incompatible link/repar combinations stop with the table", {
                "single link name")
 })
 
-test_that("L3-1c: every allowed combination fits and stores the resolved links", {
+test_that("every allowed combination fits and stores the resolved links", {
   tab <- betaregscale:::.brs_link_table
-  d <- .l3_design(n = 120L)
+  d <- .rl_design(n = 120L)
   for (rp in 0:2) {
     for (lk in tab[[as.character(rp)]]$mu) {
       for (lp in tab[[as.character(rp)]]$phi) {
@@ -94,10 +95,10 @@ test_that("L3-1c: every allowed combination fits and stores the resolved links",
   }
 })
 
-# L3-2: brsmm validation -------------------------------------------------------
+# Brsmm validation -------------------------------------------------------
 
-test_that("L3-2: brsmm() validates repar, ncuts, lim and links", {
-  s <- .l3_sim(2L, fixed = TRUE, n = 60L)
+test_that("brsmm() validates repar, ncuts, lim and links", {
+  s <- .rl_sim(2L, fixed = TRUE, n = 60L)
   # raw (non-prepared) scores: explicit ncuts/lim are not overridden by attributes
   d <- data.frame(y = round(100 * s$yt), x = s$x,
                   id = factor(rep(1:6, length.out = nrow(s))))
@@ -113,13 +114,13 @@ test_that("L3-2: brsmm() validates repar, ncuts, lim and links", {
                "`data` must be a data.frame")
 })
 
-# L3-3: parameter recovery and E[Y] per repar ---------------------------------
+# Parameter recovery and E[Y] per repar ---------------------------------
 
-test_that("L3-3a: each repar recovers its parameters within 3 SE and E[Y] = a/(a+b)", {
+test_that("each repar recovers its parameters within 3 SE and E[Y] = a/(a+b)", {
   for (rp in 0:2) {
-    s <- .l3_sim(rp, n = 400L)
+    s <- .rl_sim(rp, n = 400L)
     f <- brs(y ~ x | z, data = s, repar = rp)
-    tr <- .l3_truth(rp)
+    tr <- .rl_truth(rp)
     truth <- c(tr$beta, tr$zeta)
     se <- sqrt(diag(vcov(f)))
     expect_true(all(abs(coef(f) - truth) < 3 * se),
@@ -133,9 +134,9 @@ test_that("L3-3a: each repar recovers its parameters within 3 SE and E[Y] = a/(a
   }
 })
 
-test_that("L3-3b: repar 0 recovers a shape p >= 1 (the compiled code used to cap p at 1 - 1e-5)", {
+test_that("repar 0 recovers a shape p >= 1 (no cap of p at 1 - 1e-5)", {
   set.seed(3L)
-  d <- .l3_design(n = 400L)
+  d <- .rl_design(n = 400L)
   s <- brs_sim(y ~ x, data = d, beta = c(log(3), 0.3), phi = log(2), repar = 0L)
   f <- brs(y ~ x, data = s, repar = 0L)
   truth <- c(log(3), 0.3, log(2))
@@ -143,30 +144,30 @@ test_that("L3-3b: repar 0 recovers a shape p >= 1 (the compiled code used to cap
   expect_true(all(is.finite(se)) && all(se > 0))
   expect_true(all(abs(coef(f) - truth) < 3 * se),
               info = paste(round((coef(f) - truth) / se, 2), collapse = " "))
-  # the MLE must not be beaten by the truth (it was: -1836.7 vs -2145.9)
+  # the MLE must not be beaten by the truth
   ll_truth <- betaregscale:::brs_loglik(truth, y ~ x, s, repar = 0L)
   expect_gte(as.numeric(logLik(f)), ll_truth)
   expect_true(all(f$hatmu > 1))
   expect_true(all(fitted(f) > 0 & fitted(f) < 1))
 })
 
-test_that("L3-3c: audit A2 - repar 1 default link recovers a precision of 20", {
+test_that("repar 1 default link recovers a precision of 20", {
   set.seed(42L)
-  d <- .l3_design(n = 300L)
+  d <- .rl_design(n = 300L)
   s <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = log(20), repar = 1L)
   f <- brs(y ~ x, data = s, repar = 1L)
   expect_identical(f$link_phi, "log")
   phi_hat <- unname(f$hatphi)
   expect_lt(abs(phi_hat - 20) / 20, 0.3)
-  # the old default (logit on the precision) is no longer reachable
+  # logit on the precision is not compatible with repar 1
   expect_error(brs(y ~ x, data = s, repar = 1L, link_phi = "logit"), "not compatible")
 })
 
-# L3-4: repar 1/2 results unchanged; repar 0 means everywhere -----------------
+# Fitted means: hatmu under repar 1/2, p/(p+q) under repar 0 ------------------
 
-test_that("L3-4a: under repar 1 and 2 the fitted mean is hatmu itself", {
+test_that("under repar 1 and 2 the fitted mean is hatmu itself", {
   for (rp in 1:2) {
-    s <- .l3_sim(rp)
+    s <- .rl_sim(rp)
     f <- brs(y ~ x | z, data = s, repar = rp)
     expect_identical(fitted(f), f$hatmu)
     expect_identical(predict(f), f$hatmu)
@@ -194,8 +195,8 @@ test_that("L3-4a: under repar 1 and 2 the fitted mean is hatmu itself", {
   }
 })
 
-test_that("L3-4b: under repar 0 every user-facing mean is p/(p+q), hatmu stays p", {
-  s <- .l3_sim(0L)
+test_that("under repar 0 every user-facing mean is p/(p+q), hatmu stays p", {
+  s <- .rl_sim(0L)
   f <- brs(y ~ x | z, data = s, repar = 0L)
   shp <- brs_repar(f$hatmu, f$hatphi, repar = 0L)
   expect_equal(unname(f$hatmu), unname(shp$shape1), tolerance = 1e-10)
@@ -227,8 +228,8 @@ test_that("L3-4b: under repar 0 every user-facing mean is p/(p+q), hatmu stays p
   expect_equal(pp$phi, unname(f$hatphi), tolerance = 1e-10)
 })
 
-test_that("L3-4c: weighted residuals under repar 0 equal repar 1 with the same (a, b)", {
-  s <- .l3_sim(1L)
+test_that("weighted residuals under repar 0 equal repar 1 with the same (a, b)", {
+  s <- .rl_sim(1L)
   f1 <- brs(y ~ x | z, data = s, repar = 1L)
   sh <- brs_repar(f1$hatmu, f1$hatphi, repar = 1L)
   f0 <- f1
@@ -243,7 +244,7 @@ test_that("L3-4c: weighted residuals under repar 0 equal repar 1 with the same (
   expect_equal(brs_predict_scoreprob(f0), brs_predict_scoreprob(f1), tolerance = 1e-10)
 })
 
-test_that("L3-4d: repar 0 also works in brsmm (fitted mean, residuals, predict)", {
+test_that("repar 0 also works in brsmm (fitted mean, residuals, predict)", {
   skip_on_cran()
   set.seed(8L)
   g <- 12L
@@ -265,7 +266,6 @@ test_that("L3-4d: repar 0 also works in brsmm (fitted mean, residuals, predict)"
   expect_equal(unname(residuals(f)), unname(f$Y[, "yt"] - ey), tolerance = 1e-10)
   expect_true(all(is.finite(residuals(f, type = "weighted"))))
   # deviance: saturated mean y with the same precision a + b, as residuals.brs
-  # (the old form was dbeta at E[Y] with the fitted shapes: 60% exact zeros)
   y_safe <- pmin(pmax(f$Y[, "yt"], 1e-7), 1 - 1e-7)
   prec <- shp$shape1 + shp$shape2
   rd_ref <- sign(f$Y[, "yt"] - ey) * sqrt(abs(2 * (
@@ -282,9 +282,9 @@ test_that("L3-4d: repar 0 also works in brsmm (fitted mean, residuals, predict)"
   expect_equal(unname(rowSums(P)), rep(1, n), tolerance = 1e-7)
 })
 
-# L3-5: ncuts/lim attributes from brs_prep() and brs_sim() --------------------
+# Ncuts/lim attributes from brs_prep() and brs_sim() --------------------
 
-test_that("L3-5a: brs() honors attr(data, 'ncuts'/'lim') from brs_prep()", {
+test_that("brs() honors attr(data, 'ncuts'/'lim') from brs_prep()", {
   set.seed(5L)
   n <- 150L
   x <- rnorm(n)
@@ -301,7 +301,7 @@ test_that("L3-5a: brs() honors attr(data, 'ncuts'/'lim') from brs_prep()", {
   expect_silent(f10 <- brs(y ~ x, data = p10, ncuts = 10))
   expect_identical(as.integer(f10$ncuts), 10L)
   # lim
-  # lim < 0.5 now warns (partial coarsening, Lote 4); the attribute rule is the point here
+  # lim < 0.5 warns (partial coarsening); the attribute rule is the point here
   p25 <- suppressWarnings(suppressMessages(
     brs_prep(data.frame(y = y, x = x), ncuts = 10, lim = 0.25)
   ))
@@ -316,8 +316,8 @@ test_that("L3-5a: brs() honors attr(data, 'ncuts'/'lim') from brs_prep()", {
   expect_equal(fd$lim, 0.5)
 })
 
-test_that("L3-5b: brs_sim() output carries the attributes and feeds every fitter", {
-  d <- .l3_design(n = 90L)
+test_that("brs_sim() output carries the attributes and feeds every fitter", {
+  d <- .rl_design(n = 90L)
   s <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = -1.5, ncuts = 20)
   expect_identical(attr(s, "is_prepared"), TRUE)
   expect_equal(attr(s, "ncuts"), 20)
@@ -335,9 +335,9 @@ test_that("L3-5b: brs_sim() output carries the attributes and feeds every fitter
   expect_identical(attr(bt, "n_success"), 10L)
 })
 
-# L3-6: gradients vs numDeriv -------------------------------------------------
+# Gradients vs numDeriv -------------------------------------------------
 
-.l3_grad_case <- function(rp, lk, lp, d, seed = 77L) {
+.rl_grad_case <- function(rp, lk, lp, d, seed = 77L) {
   set.seed(seed)
   beta <- switch(lk, log = c(-0.6, 0.2), sqrt = c(0.8, 0.1), c(0.3, 0.6))
   zeta <- switch(lp, log = c(2.5, 0.3), sqrt = c(4, 0.5), c(-1.5, 0.4))
@@ -359,13 +359,13 @@ test_that("L3-5b: brs_sim() output carries the attributes and feeds every fitter
   c(fixed = max(abs(gf - gnf)) / max(abs(gnf)), variable = max(abs(gv - gnv)) / max(abs(gnv)))
 }
 
-test_that("L3-6a: C++ gradients match numDeriv for every allowed (repar, link, link_phi)", {
+test_that("C++ gradients match numDeriv for every allowed (repar, link, link_phi)", {
   tab <- betaregscale:::.brs_link_table
-  d <- .l3_design(seed = 202L, n = 150L)
+  d <- .rl_design(seed = 202L, n = 150L)
   for (rp in 0:2) {
     for (lk in tab[[as.character(rp)]]$mu) {
       for (lp in tab[[as.character(rp)]]$phi) {
-        err <- .l3_grad_case(rp, lk, lp, d)
+        err <- .rl_grad_case(rp, lk, lp, d)
         expect_lt(err[["fixed"]], 1e-6, label = paste("fixed", rp, lk, lp))
         expect_lt(err[["variable"]], 1e-6, label = paste("variable", rp, lk, lp))
       }
@@ -373,9 +373,9 @@ test_that("L3-6a: C++ gradients match numDeriv for every allowed (repar, link, l
   }
 })
 
-test_that("L3-6b: gradients near the clamps: smooth just inside, exactly flat outside", {
+test_that("gradients near the clamps: smooth just inside, exactly flat outside", {
   set.seed(9L)
-  d <- .l3_design(seed = 9L, n = 120L)
+  d <- .rl_design(seed = 9L, n = 120L)
   s <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.6), phi = -1.5)
   X <- cbind(1, s$x)
   grads <- function(par, rp, lk, lp) {
@@ -402,12 +402,12 @@ test_that("L3-6b: gradients near the clamps: smooth just inside, exactly flat ou
   # straddle it (C++ h = 1e-6, numDeriv Richardson) legitimately disagree there.
 })
 
-# L3-7: clamp mirrors R vs C++ ------------------------------------------------
+# Clamp mirrors R vs C++ ------------------------------------------------
 
-test_that("L3-7a: .clamp_phi_by_repar / .clamp_mu_by_repar values at the boundaries", {
+test_that(".clamp_phi_by_repar / .clamp_mu_by_repar values at the boundaries", {
   cp <- betaregscale:::.clamp_phi_by_repar
   cm <- betaregscale:::.clamp_mu_by_repar
-  # Lote 5 semantics: +-Inf -> the bounds, NaN / NA propagate (likelihood penalty)
+  # +-Inf -> the bounds, NaN / NA propagate (likelihood penalty)
   x <- c(-1, 0, 1e-6, 1e-5, 2e-5, 0.5, 1 - 2e-5, 1 - 1e-5, 1 - 1e-6, 1, 1e8, 1e9, Inf, -Inf, NaN, NA)
   expect_equal(cp(x, 2L), c(1e-5, 1e-5, 1e-5, 1e-5, 2e-5, 0.5, 1 - 2e-5, 1 - 1e-5,
                             1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1 - 1e-5, 1e-5,
@@ -422,7 +422,7 @@ test_that("L3-7a: .clamp_phi_by_repar / .clamp_mu_by_repar values at the boundar
                c(1e-5, 1e-5, 0.5, 1, 2, 1e8, 1e8, 1e-5, NaN))
 })
 
-.l3_clamp_fixture <- function() {
+.rl_clamp_fixture <- function() {
   set.seed(7L)
   y <- round(100 * rbeta(40, 2, 3))
   Yc <- brs_check(y, ncuts = 100)
@@ -432,7 +432,7 @@ test_that("L3-7a: .clamp_phi_by_repar / .clamp_mu_by_repar values at the boundar
   Yc
 }
 
-.l3_cpp_vs_mirror <- function(rp, lk, lp, mus, phis, Yc) {
+.rl_cpp_vs_mirror <- function(rp, lk, lp, mus, phis, Yc) {
   X <- matrix(1, nrow(Yc), 1)
   worst <- 0
   for (mu in mus) {
@@ -451,28 +451,28 @@ test_that("L3-7a: .clamp_phi_by_repar / .clamp_mu_by_repar values at the boundar
   worst
 }
 
-test_that("L3-7b: C++ log-likelihood equals the R mirror on a grid through the clamps", {
-  Yc <- .l3_clamp_fixture()
+test_that("C++ log-likelihood equals the R mirror on a grid through the clamps", {
+  Yc <- .rl_clamp_fixture()
   mus <- c(1e-7, 1e-6, 1e-5, 2e-5, 0.5, 1 - 2e-5, 1 - 1e-5, 1 - 1e-6)
-  expect_lt(.l3_cpp_vs_mirror(2L, "logit", "logit", mus,
+  expect_lt(.rl_cpp_vs_mirror(2L, "logit", "logit", mus,
     c(1e-7, 1e-6, 1e-5, 2e-5, 0.3, 1 - 2e-5, 1 - 1e-5, 1 - 1e-6), Yc), 1e-10)
-  expect_lt(.l3_cpp_vs_mirror(1L, "logit", "log", mus,
+  expect_lt(.rl_cpp_vs_mirror(1L, "logit", "log", mus,
     c(1e-6, 1e-5, 2e-5, 20, 1e8 - 1, 1e8, 1e9), Yc), 1e-10)
-  # repar 0 with p < 1 (p >= 1 up to the 1e8 clamp: L3-7c)
-  expect_lt(.l3_cpp_vs_mirror(0L, "log", "log",
+  # repar 0 with p < 1 (p >= 1 up to the 1e8 clamp: next test)
+  expect_lt(.rl_cpp_vs_mirror(0L, "log", "log",
     c(1e-6, 1e-5, 2e-5, 0.5, 0.99999), c(1e-6, 1e-5, 0.5, 5, 1e8, 1e9), Yc), 1e-10)
 })
 
-test_that("L3-7c: repar 0 first-parameter clamp [1e-5, 1e8] agrees R vs C++ for p >= 1", {
-  Yc <- .l3_clamp_fixture()
-  expect_lt(.l3_cpp_vs_mirror(0L, "log", "log",
+test_that("repar 0 first-parameter clamp [1e-5, 1e8] agrees R vs C++ for p >= 1", {
+  Yc <- .rl_clamp_fixture()
+  expect_lt(.rl_cpp_vs_mirror(0L, "log", "log",
     c(1e-6, 1e-5, 2e-5, 0.5, 0.99999, 1, 2, 1e8, 1e9),
     c(1e-6, 1e-5, 0.5, 5, 1e8, 1e9), Yc), 1e-10)
 })
 
-# L3-8: finiteness at the clamps ---------------------------------------------
+# Finiteness at the clamps ---------------------------------------------
 
-.l3_check_finite <- function(f, label) {
+.rl_check_finite <- function(f, label) {
   expect_true(all(is.finite(fitted(f))), label = paste(label, "fitted"))
   expect_true(all(is.finite(predict(f, type = "variance"))), label = paste(label, "variance"))
   for (type in c("response", "pearson", "deviance", "weighted", "sweighted", "rqr")) {
@@ -485,8 +485,8 @@ test_that("L3-7c: repar 0 first-parameter clamp [1e-5, 1e8] agrees R vs C++ for 
   expect_equal(unname(rowSums(P)), rep(1, nrow(P)), tolerance = 1e-7)
 }
 
-test_that("L3-8a: E[Y], residuals, pseudo-R2 and scoreprob stay finite at every clamp", {
-  s <- .l3_sim(2L, fixed = TRUE, n = 60L)
+test_that("E[Y], residuals, pseudo-R2 and scoreprob stay finite at every clamp", {
+  s <- .rl_sim(2L, fixed = TRUE, n = 60L)
   f <- brs(y ~ x, data = s)
   n <- nrow(s)
   cases <- list(
@@ -504,7 +504,7 @@ test_that("L3-8a: E[Y], residuals, pseudo-R2 and scoreprob stay finite at every 
     g$hatphi <- cs$phi
     g$residuals <- s$yt - betaregscale:::.brs_mean(g$hatmu, g$hatphi, cs$repar)
     set.seed(1L)
-    .l3_check_finite(g, sprintf("repar %d mu=%g phi=%g", cs$repar, cs$mu, cs$phi))
+    .rl_check_finite(g, sprintf("repar %d mu=%g phi=%g", cs$repar, cs$mu, cs$phi))
     ey <- fitted(g)
     r2 <- betaregscale:::.brs_pseudo_r2(rep(0, n), ey, s$yt, "logit", cs$repar)
     expect_true(is.na(r2) || is.finite(r2))
@@ -514,21 +514,21 @@ test_that("L3-8a: E[Y], residuals, pseudo-R2 and scoreprob stay finite at every 
   expect_true(is.finite(sqrt(2e-10 * (trigamma(1e-10) + trigamma(1e-10)))))
 })
 
-test_that("L3-8b: fits with every observation censored at one border stay finite", {
+test_that("fits with every observation censored at one border stay finite", {
   set.seed(2L)
   for (yb in c(0, 100)) {
     d <- data.frame(y = rep(yb, 30), x = rnorm(30))
     f <- suppressWarnings(suppressMessages(brs(y ~ x, data = d)))
     expect_true(all(is.finite(coef(f))))
     expect_true(all(f$hatmu >= 1e-5 & f$hatmu <= 1 - 1e-5))
-    .l3_check_finite(f, paste("border", yb))
+    .rl_check_finite(f, paste("border", yb))
     expect_true(is.na(f$pseudo.r.squared) || is.finite(f$pseudo.r.squared))
   }
 })
 
-# L3-9: small n, intercept-only, factors, newdata levels ----------------------
+# Small n, intercept-only, factors, newdata levels ----------------------
 
-test_that("L3-9a: n = 8, intercept-only and single-covariate fits", {
+test_that("n = 8, intercept-only and single-covariate fits", {
   set.seed(11L)
   ds <- brs_sim(y ~ x, data = data.frame(x = rnorm(8)), beta = c(0.2, 0.3), phi = -1)
   f1 <- brs(y ~ 1, data = ds)
@@ -537,16 +537,16 @@ test_that("L3-9a: n = 8, intercept-only and single-covariate fits", {
   expect_equal(length(unique(fitted(f1))), 1L)
   f2 <- brs(y ~ x, data = ds)
   expect_true(is.finite(f2$pseudo.r.squared))
-  .l3_check_finite(f2, "n = 8")
+  .rl_check_finite(f2, "n = 8")
   for (rp in 0:1) {
-    s <- .l3_sim(rp, fixed = TRUE, n = 8L)
+    s <- .rl_sim(rp, fixed = TRUE, n = 8L)
     st <- betaregscale:::compute_start(y ~ x, s, repar = rp)
     expect_true(all(is.finite(st)))
     expect_s3_class(brs(y ~ 1, data = s, repar = rp), "brs")
   }
 })
 
-test_that("L3-9b: factor covariates; newdata with a subset of levels or a new level", {
+test_that("factor covariates; newdata with a subset of levels or a new level", {
   set.seed(12L)
   n <- 150L
   dg <- data.frame(x = rnorm(n), g = factor(sample(c("a", "b", "c"), n, TRUE)))
@@ -578,9 +578,9 @@ test_that("L3-9b: factor covariates; newdata with a subset of levels or a new le
   expect_length(predict(fm, newdata = data.frame(x = c(0, 1), g = "b", id = "1")), 2L)
 })
 
-# L3-10: sqrt plateau, U-shaped repar 0, moment start guard -------------------
+# Sqrt plateau, U-shaped repar 0, moment start guard -------------------
 
-test_that("L3-10a: sqrt link warns when a fitted linear predictor is on the plateau", {
+test_that("sqrt link warns when a fitted linear predictor is on the plateau", {
   expect_warning(betaregscale:::.warn_sqrt_plateau(c(1, 0, -1), "sqrt", "link_phi"),
                  "<= 0 for 2 observation")
   expect_silent(betaregscale:::.warn_sqrt_plateau(c(1, 0.5), "sqrt", "link_phi"))
@@ -599,7 +599,7 @@ test_that("L3-10a: sqrt link warns when a fitted linear predictor is on the plat
   expect_true(all(is.finite(fitted(f))))
 })
 
-test_that("L3-10b: U-shaped repar 0 (p, q < 1): start, fit, means and scoreprob", {
+test_that("U-shaped repar 0 (p, q < 1): start, fit, means and scoreprob", {
   set.seed(6L)
   n <- 300L
   su <- brs_sim(y ~ x, data = data.frame(x = rnorm(n)), beta = c(log(0.5), 0),
@@ -610,7 +610,7 @@ test_that("L3-10b: U-shaped repar 0 (p, q < 1): start, fit, means and scoreprob"
   f <- brs(y ~ x, data = su, repar = 0L)
   se <- sqrt(diag(vcov(f)))
   expect_true(all(abs(coef(f) - c(log(0.5), 0, log(0.5))) < 3 * se))
-  .l3_check_finite(f, "U-shaped")
+  .rl_check_finite(f, "U-shaped")
   expect_true(all(fitted(f) > 0 & fitted(f) < 1))
   # moment start guard: degenerate midpoints (f <= 0 or v = 0) still give a start
   dz <- data.frame(y = rep(0, 20), x = rnorm(20))
@@ -618,14 +618,14 @@ test_that("L3-10b: U-shaped repar 0 (p, q < 1): start, fit, means and scoreprob"
   expect_true(all(is.finite(st0)))
 })
 
-test_that("L3-10c: repar 1 starting values with the log precision link are moment-based", {
-  s <- .l3_sim(1L)
+test_that("repar 1 starting values with the log precision link are moment-based", {
+  s <- .rl_sim(1L)
   st <- betaregscale:::compute_start(y ~ x | z, s, repar = 1L)
   expect_true(all(is.finite(st)))
   expect_equal(unname(st[4]), 0)          # zero slope on the precision
   expect_gt(exp(st[3]), 1)                # precision start on (0, Inf)
   # repar 2 keeps the GLM-based start
-  s2 <- .l3_sim(2L)
+  s2 <- .rl_sim(2L)
   st2 <- betaregscale:::compute_start(y ~ x | z, s2, repar = 2L)
   expect_true(all(is.finite(st2)))
 })

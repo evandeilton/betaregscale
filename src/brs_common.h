@@ -1,11 +1,11 @@
 // brs_common.h — shared constants and inline helpers for betaregscale C++ backends
 //
-// Include this header from loglik.cpp and loglik_mixed_eigen.cpp ONLY.
-// All definitions are inline to avoid ODR violations across translation units.
+// Included by loglik.cpp, loglik_mixed.cpp and brs_deriv.h, so both backends
+// share one implementation. All definitions are inline to avoid ODR violations
+// across translation units.
 //
-// BUG-H01  : eliminates code duplication between the two backends.
-// BUG-C01  : inv_link case 6 (inverse) always returns positive value.
-// BUG-H05  : inv_link case 5 (sqrt) guards eta < 0 to keep gradient sign correct.
+// inv_link case 6 (inverse) always returns a positive value; case 5 (sqrt)
+// guards eta < 0 to keep the gradient sign correct.
 
 #pragma once
 #include <Rmath.h>
@@ -46,8 +46,8 @@ inline double inv_link(double eta, int code) {
     return eta >= 0.0 ? eta * eta : (std::isnan(eta) ? eta : 0.0);
   case 6:
     // inverse link: g^{-1}(eta) = 1/eta.
-    // BUG-C01: for |eta|~0 we must return a finite POSITIVE value (dispersion
-    // is always positive). Old code returned -MAX_SHAPE for eta<0, which is wrong.
+    // For |eta| ~ 0 return a finite POSITIVE value (the dispersion is always
+    // positive), also for eta < 0.
     if (std::abs(eta) < EPS_PROB) return MAX_SHAPE;
     return 1.0 / eta;
   case 7:
@@ -104,18 +104,18 @@ inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) 
 //
 //  * Endpoints are clamped to [EPS_UNIT, 1 - EPS_UNIT]: that is the only
 //    protection of the borders of the support. There is NO probability
-//    floor. The former floor (1e-15) turned every far-tail observation into
-//    a constant with zero gradient, so the optimizer maximized a trimmed
-//    likelihood that ignored outliers (audit 2026-09, finding C2).
+//    floor: a floor (e.g. 1e-15) would turn every far-tail observation into
+//    a constant with zero gradient, so the optimizer would maximize a trimmed
+//    likelihood that ignores outliers.
 //
 //  * The tail is chosen by the distribution, not by the position of the
 //    interval on (0, 1): an interval whose midpoint lies at or below the
 //    mean a/(a+b) is measured with lower-tail CDFs, otherwise with upper
 //    tails (survival). Both probabilities are then "small" quantities and
-//    their difference p1 - p2 is well conditioned. The old rule (lower tail
-//    iff lo + hi <= 1) subtracted two values equal to 1 to machine precision
-//    whenever the interval sat far above a small mean (or below a large
-//    one): catastrophic cancellation, and the floor hid it.
+//    their difference p1 - p2 is well conditioned. Choosing the tail by
+//    position (lower tail iff lo + hi <= 1) would subtract two values equal
+//    to 1 to machine precision whenever the interval sits far above a small
+//    mean (or below a large one): catastrophic cancellation.
 //
 //  * pbeta() is evaluated in PLAIN scale. It is accurate to ~1e-10 relative
 //    for p >= 1e-240; between underflow and ~1e-263 bratio can return
