@@ -169,9 +169,11 @@ from the dissertation, which divides \(r\) and \(l\) by \(K\); there
 the two directions differ by \(1/K\) and chapter 4 reports opposite
 intercept biases for them, while here they give the same likelihood and
 the same coefficients. The three directions are different coarsening
-models of the same scores: their log-likelihoods are not comparable, and
-<code><a href="anova.brs.html">anova.brs</a></code> refuses such comparisons. <code>lim</code> applies to
-<code>"mid"</code> only.</p>
+models of the same scores. With <code>lim = 0.5</code> each one gives a
+probability mass function over \(0, \ldots, K\), so their
+log-likelihoods, AIC and BIC are comparable; the models are not nested, so
+<code><a href="anova.brs.html">anova.brs</a></code> refuses a likelihood-ratio test between them.
+<code>lim</code> applies to <code>"mid"</code> only.</p>
     </div>
     <div class="section level2">
     <h2 id="scale-change-and-borders">Scale change and borders<a class="anchor" aria-label="anchor" href="#scale-change-and-borders"></a></h2>

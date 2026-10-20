@@ -300,8 +300,12 @@ this normalization is a package choice (the dissertation divides by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>).
 <code>"right"</code> and <code>"left"</code> give the same fit and
 differ only in <code>predict(type = "score")</code>. The three
-directions are different coarsening models, so <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>
-refuses to compare them.</p>
+directions are different coarsening models of the same scores. With
+<code>lim = 0.5</code> each one gives a probability mass function over
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">0,\dots,K</annotation></semantics></math>,
+so log-likelihoods, AIC and BIC of fits under different directions are
+comparable; the directions are not nested, so <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>
+refuses a likelihood-ratio test between them.</p>
 <p>The borders need no special transformation: score 0 is left-censored
 and score
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>

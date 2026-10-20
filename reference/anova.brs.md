@@ -37,8 +37,15 @@ models the statistic is \\LR = 2(\ell_1 - \ell_0)\\, with `Chi Df` the
 difference in the number of parameters, and \\p = P(\chi^2\_{df} \>
 LR)\\. The models must be nested; this is not checked. They must also
 describe the same response: the same observations, `interval`, `ncuts`
-and (under `"mid"`) `lim`, or the call stops, since different
-coarsenings are different likelihoods.
+and (under `"mid"`) `lim`, or the call stops: fits under different
+`interval` maps or `lim` are not nested, and different `ncuts` describe
+different responses. Fits of the same scores under different maps (with
+`lim = 0.5`) can still be compared by
+[`AIC()`](https://rdrr.io/r/stats/AIC.html) and
+[`BIC()`](https://rdrr.io/r/stats/AIC.html), since each map gives a
+probability mass function over the same scores (section 'Interval
+direction' of
+[`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 When the larger model adds one random-effect term (a `"brs"` model
 against a random-intercept `"brsmm"`, or one more correlated random
@@ -102,8 +109,11 @@ anova(m1, m2)
 #> M1 (brs)  4 -503.76 1015.5 1029.4                         
 #> M2 (brs)  7 -502.64 1019.3 1043.7 2.2383      3     0.5244
 
-# Fits under different interval directions are different response models
+# Interval maps are not nested: no LR test, but AIC is comparable
 m2_right <- brs(y ~ time + group, data = nrs, ncuts = 10, interval = "right")
 try(anova(m2, m2_right))
-#> Error : All models must use the same `interval` (found: mid, right); fits with different coarsenings of the response are not comparable.
+#> Error : All models must use the same `interval` (found: mid, right); fits with different interval maps are not nested; compare them with AIC() or BIC().
+c(mid = AIC(m2), right = AIC(m2_right))
+#>      mid    right 
+#> 1019.284 1019.964 
 ```

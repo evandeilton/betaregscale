@@ -337,8 +337,12 @@ shape \(p\) in <code>hatmu</code>, while <code><a href="https://rdrr.io/r/stats/
 dissertation's \(r\) and \(l\), with a package normalization).
 <code>"right"</code> and <code>"left"</code> give the same fit and differ only in
 <code>predict(type = "score")</code>; <code>"mid"</code> and <code>"right"</code>/<code>"left"</code>
-are different coarsening models, whose log-likelihoods and AIC are not
-comparable. Details: <code><a href="brs_check.html">brs_check</a></code>.</p>
+are different coarsening models. For score data (with <code>lim = 0.5</code>)
+each map gives a probability mass function over the same scores
+\(0, \ldots, K\), so <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, AIC and BIC of fits under
+different maps are comparable; the maps are not nested, so there is no
+likelihood-ratio test between them (<code><a href="anova.brs.html">anova.brs</a></code> stops).
+Details: <code><a href="brs_check.html">brs_check</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="boundary-cutpoints">Boundary cutpoints<a class="anchor" aria-label="anchor" href="#boundary-cutpoints"></a></h2>

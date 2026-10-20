@@ -131,10 +131,13 @@ s + 1\]\\ or \\\[s - 1, s\]\\ when \\y^\*\\ is in the cell of \\s\\. The
 which divides \\r\\ and \\l\\ by \\K\\; there the two directions differ
 by \\1/K\\ and chapter 4 reports opposite intercept biases for them,
 while here they give the same likelihood and the same coefficients. The
-three directions are different coarsening models of the same scores:
-their log-likelihoods are not comparable, and
+three directions are different coarsening models of the same scores.
+With `lim = 0.5` each one gives a probability mass function over \\0,
+\ldots, K\\, so their log-likelihoods, AIC and BIC are comparable; the
+models are not nested, so
 [`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
-refuses such comparisons. `lim` applies to `"mid"` only.
+refuses a likelihood-ratio test between them. `lim` applies to `"mid"`
+only.
 
 ## Scale change and borders
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This vignette presents analyst-oriented tools added to **betaregscale**
+This vignette presents the analyst-oriented tools of **betaregscale**
 for post-estimation workflows:
 
 - [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md):

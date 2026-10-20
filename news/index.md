@@ -95,6 +95,18 @@
 
 ### Other changes
 
+- The help of
+  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md),
+  [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
+  and [`anova()`](https://rdrr.io/r/stats/anova.html) states that
+  [`logLik()`](https://rdrr.io/r/stats/logLik.html),
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html) and
+  [`BIC()`](https://rdrr.io/r/stats/AIC.html) are comparable across
+  `interval` maps for score data (each map gives a probability mass
+  function over the same scores); only the likelihood-ratio test is
+  unavailable, since the maps are not nested.
+  [`anova()`](https://rdrr.io/r/stats/anova.html) gives this reason when
+  it refuses fits with different maps.
 - Fits whose Hessian is not negative definite now also warn when the
   largest absolute gradient exceeds 0.1, since the remaining
   log-likelihood gain cannot be measured there; this can add a warning
@@ -484,10 +496,8 @@ tolerance; the sections below give every change and its reason.
 
 CRAN release: 2026-08-23
 
-Resubmission addressing CRAN feedback on vignette build time (Uwe
-Ligges, 2026-08-23): *“Please reduce the vignette build timings …
-Otherwise we cannot afford checking the vignette regularly on CRAN.”* No
-change to the statistical methods or to the user-facing API.
+Resubmission that reduces the vignette build time for CRAN. No change to
+the statistical methods or to the user-facing API.
 
 ### Vignette build time
 
@@ -651,8 +661,8 @@ for CRAN submission.
 ## betaregscale 2.7.1
 
 This is a maintenance release focused on correctness, numerical
-robustness, and performance. It carries the fixes from a deep audit of
-the C++ backends and the R interface. No user-facing API changes.
+robustness, and performance in the C++ backends and the R interface. No
+user-facing API changes.
 
 ### Bug fixes
 
@@ -808,8 +818,8 @@ the C++ backends and the R interface. No user-facing API changes.
 
 ### Testing
 
-- Added `tests/testthat/test-re-and-autoplot-improvements.R` with 15 new
-  tests covering: `.pretty_phi_names()`, `.pretty_re_names()`,
+- Added a new test file with 15 tests covering: `.pretty_phi_names()`,
+  `.pretty_re_names()`,
   [`brsmm_re_study()`](https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.md)
   ICC and VarCorr output,
   [`plot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/plot.brsmm.md)
@@ -885,9 +895,9 @@ CRAN release: 2026-02-25
 
 ### Documentation
 
-- **Complete `@examples` audit**: added runnable `\donttest{}` examples
-  to all ~30 previously undocumented exported functions, including all
-  S3 methods for `brs` and `brsmm` objects
+- **Examples**: added runnable `\donttest{}` examples to all ~30
+  previously undocumented exported functions, including all S3 methods
+  for `brs` and `brsmm` objects
   ([`coef()`](https://rdrr.io/r/stats/coef.html),
   [`vcov()`](https://rdrr.io/r/stats/vcov.html),
   [`logLik()`](https://rdrr.io/r/stats/logLik.html),
@@ -939,7 +949,7 @@ CRAN release: 2026-02-25
 
 ## betaregscale 2.6.7
 
-### CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)
+### CRAN resubmission
 
 #### Bug fixes and CRAN policy compliance
 
@@ -970,7 +980,7 @@ CRAN release: 2026-02-25
 
 ## betaregscale 2.6.6
 
-### CRAN resubmission (Uwe Ligges review, 18 Feb 2026)
+### CRAN resubmission
 
 - DESCRIPTION: function names in Title/Description now use parentheses
   (e.g. [`logLik()`](https://rdrr.io/r/stats/logLik.html),

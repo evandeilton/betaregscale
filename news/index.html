@@ -64,7 +64,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="other-changes-development-version">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-development-version"></a></h3>
-<ul><li>Fits whose Hessian is not negative definite now also warn when the largest absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot be measured there; this can add a warning to fixed-map fits.</li>
+<ul><li>The help of <code><a href="../reference/brs.html">brs()</a></code>, <code><a href="../reference/brs_check.html">brs_check()</a></code> and <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> states that <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code> and <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> are comparable across <code>interval</code> maps for score data (each map gives a probability mass function over the same scores); only the likelihood-ratio test is unavailable, since the maps are not nested. <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> gives this reason when it refuses fits with different maps.</li>
+<li>Fits whose Hessian is not negative definite now also warn when the largest absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot be measured there; this can add a warning to fixed-map fits.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -154,7 +155,7 @@
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.4" id="betaregscale-274">betaregscale 2.7.4<a class="anchor" aria-label="anchor" href="#betaregscale-274"></a></h2><p class="text-muted">CRAN release: 2026-08-23</p>
-<p>Resubmission addressing CRAN feedback on vignette build time (Uwe Ligges, 2026-08-23): <em>“Please reduce the vignette build timings … Otherwise we cannot afford checking the vignette regularly on CRAN.”</em> No change to the statistical methods or to the user-facing API.</p>
+<p>Resubmission that reduces the vignette build time for CRAN. No change to the statistical methods or to the user-facing API.</p>
 <div class="section level3">
 <h3 id="vignette-build-time-2-7-4">Vignette build time<a class="anchor" aria-label="anchor" href="#vignette-build-time-2-7-4"></a></h3>
 <ul><li>
@@ -219,7 +220,7 @@
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.7.1" id="betaregscale-271">betaregscale 2.7.1<a class="anchor" aria-label="anchor" href="#betaregscale-271"></a></h2>
-<p>This is a maintenance release focused on correctness, numerical robustness, and performance. It carries the fixes from a deep audit of the C++ backends and the R interface. No user-facing API changes.</p>
+<p>This is a maintenance release focused on correctness, numerical robustness, and performance in the C++ backends and the R interface. No user-facing API changes.</p>
 <div class="section level3">
 <h3 id="bug-fixes-2-7-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-2-7-1"></a></h3>
 <ul><li>Fixed the inverse link for the precision (dispersion) submodel, which could return a negative shape near the origin; the dispersion parameter is now always positive.</li>
@@ -299,7 +300,7 @@
 </ul></div>
 <div class="section level3">
 <h3 id="testing-2-7-0">Testing<a class="anchor" aria-label="anchor" href="#testing-2-7-0"></a></h3>
-<ul><li>Added <code>tests/testthat/test-re-and-autoplot-improvements.R</code> with 15 new tests covering: <code>.pretty_phi_names()</code>, <code>.pretty_re_names()</code>, <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> ICC and VarCorr output, <code><a href="../reference/plot.brsmm.html">plot.brsmm()</a></code> panels 7 and 8, <code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> and <code><a href="../reference/autoplot.brs.html">autoplot.brs()</a></code> title/xlab/ylab, theme arg (object and function), <code>type = "all"</code>, <code>...</code> forwarding.</li>
+<ul><li>Added a new test file with 15 tests covering: <code>.pretty_phi_names()</code>, <code>.pretty_re_names()</code>, <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> ICC and VarCorr output, <code><a href="../reference/plot.brsmm.html">plot.brsmm()</a></code> panels 7 and 8, <code><a href="../reference/autoplot.brsmm.html">autoplot.brsmm()</a></code> and <code><a href="../reference/autoplot.brs.html">autoplot.brs()</a></code> title/xlab/ylab, theme arg (object and function), <code>type = "all"</code>, <code>...</code> forwarding.</li>
 </ul><hr></div>
 </div>
     <div class="section level2">
@@ -335,7 +336,7 @@
 <div class="section level3">
 <h3 id="documentation-2-6-8">Documentation<a class="anchor" aria-label="anchor" href="#documentation-2-6-8"></a></h3>
 <ul><li>
-<strong>Complete <code>@examples</code> audit</strong>: added runnable <code>\donttest{}</code> examples to all ~30 previously undocumented exported functions, including all S3 methods for <code>brs</code> and <code>brsmm</code> objects (<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>, <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code>, <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code>, <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code>, <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="../reference/ranef.html">ranef()</a></code>, <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>).</li>
+<strong>Examples</strong>: added runnable <code>\donttest{}</code> examples to all ~30 previously undocumented exported functions, including all S3 methods for <code>brs</code> and <code>brsmm</code> objects (<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code>, <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code>, <code><a href="https://rdrr.io/r/stats/nobs.html" class="external-link">nobs()</a></code>, <code><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula()</a></code>, <code><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, <code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code>, <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="../reference/ranef.html">ranef()</a></code>, <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>).</li>
 <li>
 <strong>Removed all <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> calls from examples</strong> across 15+ files (<code>fit.R</code>, <code>brsmm.R</code>, <code>bootstrap.R</code>, <code>cv.R</code>, <code>marginaleffects.R</code>, <code>scoreprob.R</code>, <code>table.R</code>, <code>simulate.R</code>, <code>prepare.R</code>, <code>autoplot.R</code>, <code>autoplot-brsmm.R</code>, <code>loglik.R</code>). All examples now use deterministic toy datasets.</li>
 <li>
@@ -358,7 +359,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.7" id="betaregscale-267">betaregscale 2.6.7<a class="anchor" aria-label="anchor" href="#betaregscale-267"></a></h2>
 <div class="section level3">
-<h3 id="cran-resubmission-konstanze-lauseker-review-feb-2-6-7">CRAN resubmission (Konstanze Lauseker review, 20 Feb 2026)<a class="anchor" aria-label="anchor" href="#cran-resubmission-konstanze-lauseker-review-feb-2-6-7"></a></h3>
+<h3 id="cran-resubmission-2-6-7">CRAN resubmission<a class="anchor" aria-label="anchor" href="#cran-resubmission-2-6-7"></a></h3>
 <div class="section level4">
 <h4 id="bug-fixes-and-cran-policy-compliance-2-6-7">Bug fixes and CRAN policy compliance<a class="anchor" aria-label="anchor" href="#bug-fixes-and-cran-policy-compliance-2-6-7"></a></h4>
 <ul><li>Added <code>\value</code> documentation to <code><a href="../reference/print.brs.html">print.brs()</a></code> and <code><a href="../reference/print.summary.brs.html">print.summary.brs()</a></code> methods.</li>
@@ -372,7 +373,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.6.6" id="betaregscale-266">betaregscale 2.6.6<a class="anchor" aria-label="anchor" href="#betaregscale-266"></a></h2>
 <div class="section level3">
-<h3 id="cran-resubmission-uwe-ligges-review-feb-2-6-6">CRAN resubmission (Uwe Ligges review, 18 Feb 2026)<a class="anchor" aria-label="anchor" href="#cran-resubmission-uwe-ligges-review-feb-2-6-6"></a></h3>
+<h3 id="cran-resubmission-2-6-6">CRAN resubmission<a class="anchor" aria-label="anchor" href="#cran-resubmission-2-6-6"></a></h3>
 <ul><li>DESCRIPTION: function names in Title/Description now use parentheses (e.g. <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>) per CRAN policy.</li>
 <li>URL updated to GitHub repository (<a href="https://github.com/evandeilton/betaregscale" class="external-link uri">https://github.com/evandeilton/betaregscale</a>) while pkgdown site is deployed.</li>
 </ul><hr></div>

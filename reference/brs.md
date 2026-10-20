@@ -294,8 +294,13 @@ Under `repar = 0` the object stores the shape \\p\\ in `hatmu`, while
 \\\[s, s + 1\]/(K + 1)\\ (the dissertation's \\r\\ and \\l\\, with a
 package normalization). `"right"` and `"left"` give the same fit and
 differ only in `predict(type = "score")`; `"mid"` and `"right"`/`"left"`
-are different coarsening models, whose log-likelihoods and AIC are not
-comparable. Details:
+are different coarsening models. For score data (with `lim = 0.5`) each
+map gives a probability mass function over the same scores \\0, \ldots,
+K\\, so [`logLik()`](https://rdrr.io/r/stats/logLik.html), AIC and BIC
+of fits under different maps are comparable; the maps are not nested, so
+there is no likelihood-ratio test between them
+([`anova.brs`](https://evandeilton.github.io/betaregscale/reference/anova.brs.md)
+stops). Details:
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md).
 
 ## Boundary cutpoints
