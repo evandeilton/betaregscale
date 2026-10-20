@@ -21,6 +21,11 @@ Data simulation for Monte Carlo studies.
 
 - [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
   : Simulate data from beta interval models
+- [`brsmm_sim()`](https://evandeilton.github.io/betaregscale/reference/brsmm_sim.md)
+  : Simulate clustered scores from a mixed beta interval model
+- [`simulate(`*`<brs>`*`)`](https://evandeilton.github.io/betaregscale/reference/simulate.brs.md)
+  [`simulate(`*`<brsmm>`*`)`](https://evandeilton.github.io/betaregscale/reference/simulate.brs.md)
+  : Simulate responses from a fitted beta interval model
 
 ## S3 Methods - Fixed Effects Models
 

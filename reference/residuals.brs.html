@@ -58,7 +58,8 @@ recommended ones; the other types are evaluated at one point of the cell
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'brs'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"pearson"</span>, <span class="st">"deviance"</span>, <span class="st">"rqr"</span>, <span class="st">"weighted"</span>, <span class="st">"sweighted"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"response"</span>, <span class="st">"pearson"</span>, <span class="st">"deviance"</span>, <span class="st">"rqr"</span>, <span class="st">"weighted"</span>, <span class="st">"sweighted"</span>,</span>
+<span>    <span class="st">"cell_deviance"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -73,8 +74,8 @@ recommended ones; the other types are evaluated at one point of the cell
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Residual type: <code>"response"</code> (default), <code>"pearson"</code>,
-<code>"deviance"</code>, <code>"rqr"</code>, <code>"weighted"</code> or
-<code>"sweighted"</code>.</p></dd>
+<code>"deviance"</code>, <code>"rqr"</code>, <code>"weighted"</code>, <code>"sweighted"</code>
+or <code>"cell_deviance"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -105,7 +106,7 @@ these residuals unreliable at the borders of the scale.</p><dl><dt><code>"respon
   <dt><code>"pearson"</code></dt>
 <dd><p>\((y_i - \hat\mu_i)/\sqrt{V_i}\). Lopes (2023)
     writes \(V_i\) as \(\mu(1 - \mu)/(1 + \phi)\)
-    (parameterisation 1); it is the same variance under every
+    (parameterization 1); it is the same variance under every
     <code>repar</code>.</p></dd>
 
   <dt><code>"deviance"</code></dt>
@@ -135,6 +136,20 @@ these residuals unreliable at the borders of the scale.</p><dl><dt><code>"respon
     and \(v_i = \psi'(a_i) + \psi'(b_i)\) (Espinheira, Ferrari and
     Cribari-Neto, 2008).</p></dd>
 
+  <dt><code>"cell_deviance"</code></dt>
+<dd><p>Deviance residuals of the censored
+    likelihood: \(d_i = \mathrm{sign}_i \sqrt{-2 \log P_i}\), with
+    \(P_i\) the fitted probability of the observed cell (the
+    contribution of row \(i\) to <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>). The saturated model
+    gives each cell probability 1, so \(-2 \log P_i\) is the deviance
+    contribution and, for score data, \(\sum_i d_i^2 = -2\,
+    \mathrm{logLik}\). \(\mathrm{sign}_i = +1\) when the observed score is at
+    least the expected score \(\sum_s s\, P(S = s) / \sum_s P(S = s)\)
+    (the denominator is 1 unless the cells leave gaps, <code>interval =
+    "mid"</code> with <code>lim &lt; 0.5</code>) and \(-1\) otherwise; censored rows that are not score cells (analyst intervals)
+    compare the cell center with the fitted mean \(E[Y_i]\). Exact rows
+    (\(\delta_i = 0\)) give <code>NA</code> (use <code>"deviance"</code>).</p></dd>
+
 
 </dl><p>Lopes (2023) also recommends the adjusted quantile residuals of Pereira
 (2019), which are not implemented.</p>
@@ -160,7 +175,8 @@ Beta regression for modelling rates and proportions.
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="brs.html">brs</a></code>, <code><a href="fitted.brs.html">fitted.brs</a></code>, <code><a href="plot.brs.html">plot.brs</a></code></p></div>
+    <div class="dont-index"><p><code><a href="brs.html">brs</a></code>, <code><a href="fitted.brs.html">fitted.brs</a></code>, <code><a href="plot.brs.html">plot.brs</a></code>,
+  <code><a href="residuals.brsmm.html">residuals.brsmm</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -185,6 +201,11 @@ Beta regression for modelling rates and proportions.
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">r_p</span>, <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">nrs</span><span class="op">$</span><span class="va">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">9</span>, <span class="fl">10</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0"</span>, <span class="st">"1-9"</span>, <span class="st">"10"</span><span class="op">)</span><span class="op">)</span>, <span class="va">mean</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          0        1-9         10 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -1.0762665  0.2507079  2.5712711 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Deviance residuals from the cell probabilities add up to -2 logLik</span></span></span>
+<span class="r-in"><span><span class="va">r_d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"cell_deviance"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">r_d</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1002.346 1002.346</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

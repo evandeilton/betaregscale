@@ -71,7 +71,9 @@ A data frame of class `"brsmm_cv"` with one row per fold: `repeat`,
 `warning` (messages of the fold fit). Attributes: `log_score` (total per
 repeat; `NA` if a fold failed), `group_scores` (held-out contribution of
 each group, one vector per repeat), `folds` (fold of each group, one
-vector per repeat) and `score_points`.
+vector per repeat, named by group level: integer for drawn folds, the
+type of the supplied `folds` otherwise, character for a factor) and
+`score_points`.
 
 ## Details
 

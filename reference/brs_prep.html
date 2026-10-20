@@ -3,7 +3,7 @@
 \(\delta_i\) used by brs and brsmm. Scores
 run over \(0, 1, \ldots, K\) with \(K =\) ncuts the maximum;
 shift a scale that starts at 1 (a Likert item 1–5 becomes 0–4,
-ncuts = 4). Four input modes are recognised per row:
+ncuts = 4). Four input modes are recognized per row:
 Score only (y): the cell of the score and
     \(\delta\) from the score, exactly as brs_check
     (0 \(\to\) 1, \(K\) \(\to\) 2, otherwise 3; a value in
@@ -18,7 +18,7 @@ Covariate columns are kept unchanged."><meta property="og:description" content="
 \(\delta_i\) used by brs and brsmm. Scores
 run over \(0, 1, \ldots, K\) with \(K =\) ncuts the maximum;
 shift a scale that starts at 1 (a Likert item 1–5 becomes 0–4,
-ncuts = 4). Four input modes are recognised per row:
+ncuts = 4). Four input modes are recognized per row:
 Score only (y): the cell of the score and
     \(\delta\) from the score, exactly as brs_check
     (0 \(\to\) 1, \(K\) \(\to\) 2, otherwise 3; a value in
@@ -75,7 +75,7 @@ Covariate columns are kept unchanged."><meta property="og:image" content="https:
 \(\delta_i\) used by <code><a href="brs.html">brs</a></code> and <code><a href="brsmm.html">brsmm</a></code>. Scores
 run over \(0, 1, \ldots, K\) with \(K =\) <code>ncuts</code> the maximum;
 shift a scale that starts at 1 (a Likert item 1–5 becomes 0–4,
-<code>ncuts = 4</code>). Four input modes are recognised per row:</p><ol><li><p><strong>Score only</strong> (<code>y</code>): the cell of the score and
+<code>ncuts = 4</code>). Four input modes are recognized per row:</p><ol><li><p><strong>Score only</strong> (<code>y</code>): the cell of the score and
     \(\delta\) from the score, exactly as <code><a href="brs_check.html">brs_check</a></code>
     (0 \(\to\) 1, \(K\) \(\to\) 2, otherwise 3; a value in
     \((0, 1)\) \(\to\) 0, per observation).</p></li>
@@ -143,7 +143,7 @@ largest <code>y</code>; bounds may reach the latent range given in Details.</p><
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame with columns <code>left</code>, <code>right</code> (cell on
-  \((0, 1)\)), <code>yt</code> (cell centre), <code>y</code> (score, or the filled
+  \((0, 1)\)), <code>yt</code> (cell center), <code>y</code> (score, or the filled
   latent score for rows without one) and <code>delta</code>, followed by the
   covariates. Attributes <code>"is_prepared"</code> (<code>TRUE</code>),
   <code>"ncuts"</code>, <code>"lim"</code> and <code>"interval"</code> are reused by
@@ -156,7 +156,7 @@ largest <code>y</code>; bounds may reach the latent range given in Details.</p><
 the pattern of <code>left</code>, <code>right</code> and <code>y</code> (here
 \(K = 10\), <code>interval = "mid"</code>):</p><table class="table table"><tr><td><code>left</code></td><td><code>right</code></td><td><code>y</code></td><td>cell on \((0, 1)\)</td><td>\(\delta\)</td></tr><tr><td><code>NA</code></td><td>3</td><td><code>NA</code></td><td>\([\epsilon, 0.3]\) (below 3)</td><td>1</td></tr><tr><td>7</td><td><code>NA</code></td><td><code>NA</code></td><td>\([0.7, 1 - \epsilon]\) (above 7)</td><td>2</td></tr><tr><td>2</td><td>5</td><td><code>NA</code></td><td>\([0.2, 0.5]\)</td><td>3</td></tr><tr><td>4</td><td>6</td><td>5</td><td>\([0.4, 0.6]\) (analyst interval)</td><td>3</td></tr><tr><td>-0.5</td><td>4</td><td><code>NA</code></td><td>\([\epsilon, 0.4]\) (reaches 0)</td><td>1</td></tr><tr><td>3</td><td>10.5</td><td><code>NA</code></td><td>\([0.3, 1 - \epsilon]\) (reaches 1)</td><td>2</td></tr><tr><td>(no columns)</td><td></td><td>5</td><td>\([0.45, 0.55]\) (Mode 1)</td><td>3</td></tr><tr><td><code>NA</code></td><td><code>NA</code></td><td>5</td><td>0.5 (exact reading)</td><td>0</td></tr><tr><td><code>NA</code></td><td><code>NA</code></td><td>0</td><td>\([\epsilon, 0.05]\)</td><td>1</td></tr><tr><td><code>NA</code></td><td><code>NA</code></td><td>10</td><td>\([0.95, 1 - \epsilon]\)</td><td>2</td></tr></table><p>When the data have <code>left</code>/<code>right</code> columns, a row that gives
 only an interior score (both bounds <code>NA</code>) is an exact value at the
-cell centre, with a density contribution; without those columns the same
+cell center, with a density contribution; without those columns the same
 score is interval-censored (Mode 1). An analyst interval that reaches 0
 (or 1) on the unit scale is left- (or right-) censored; one that reaches
 both borders covers the whole scale, stays \(\delta = 3\) and gives a
@@ -176,7 +176,7 @@ so that the dissertation's intervals \([s - 0.5, s + 0.5]\),
 They must lie in the latent range of the direction:
 \([-0.5, K + 0.5]\) (<code>"mid"</code>), \([0, K + 1]\) (<code>"right"</code>)
 or \([-1, K]\) (<code>"left"</code>); a bound outside it is an error. Rows
-with no score get <code>y</code> = the latent score of their cell centre, so
+with no score get <code>y</code> = the latent score of their cell center, so
 that <code><a href="https://rdrr.io/r/stats/model.frame.html" class="external-link">model.frame()</a></code> keeps them.</p>
 <p>Endpoints are clamped to \([\epsilon, 1 - \epsilon]\),
 \(\epsilon = 10^{-5}\) (why this replaces the edge-effect transformation

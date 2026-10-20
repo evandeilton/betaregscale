@@ -113,7 +113,7 @@ over \(0, \ldots, K\).</p></dd>
 
 
 <dt id="arg-repar">repar<a class="anchor" aria-label="anchor" href="#arg-repar"></a></dt>
-<dd><p>Parameterisation (0, 1 or 2); see <code><a href="brs_repar.html">brs_repar</a></code>.</p></dd>
+<dd><p>Parameterization (0, 1 or 2); see <code><a href="brs_repar.html">brs_repar</a></code>.</p></dd>
 
 
 <dt id="arg-delta">delta<a class="anchor" aria-label="anchor" href="#arg-delta"></a></dt>
@@ -146,7 +146,7 @@ cell non-empty (\(c_{lo} &lt; u_1\), \(c_{hi} &gt; l_{K-1}\)). See Details.</p><
 (<code>~ x1 + x2 | z1</code>) the coefficients <code>zeta</code>. A left-hand side is
 ignored. For each row, \(Y \sim \mathrm{Beta}(a, b)\) with the shapes of
 <code><a href="brs_repar.html">brs_repar</a></code>, and the score is \(s = \mathrm{round}(K Y)\)
-under <code>"mid"</code> (cells centred on the score; exact only for
+under <code>"mid"</code> (cells centered on the score; exact only for
 <code>lim = 0.5</code>) or \(s = \lfloor (K + 1) Y \rfloor\) under
 <code>"right"</code>/<code>"left"</code> (\(K + 1\) equal cells). The cells and
 censoring types then come from <code><a href="brs_check.html">brs_check</a></code> with the same
@@ -199,7 +199,7 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># One design, three parameterisations with their default links</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># One design, three parameterizations with their default links</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

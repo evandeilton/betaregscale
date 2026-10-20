@@ -42,12 +42,12 @@ statistics and p-values are `NA` (see 'Fit diagnostics' in
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)).
 
 \\\mathrm{AIC} = -2\ell + 2k\\ and \\\mathrm{BIC} = -2\ell + k\log n\\,
-with \\\ell\\ the maximised log-likelihood, \\k\\ the number of
+with \\\ell\\ the maximized log-likelihood, \\k\\ the number of
 coefficients and \\n\\ the number of observations. The pseudo \\R^2\\ is
 the squared correlation between the fitted linear predictor of the mean
-and \\g_1(y_i)\\ at the cell centres `yt` (Ferrari and Cribari-Neto,
+and \\g_1(y_i)\\ at the cell centers `yt` (Ferrari and Cribari-Neto,
 2004); under `repar = 0` both sides are on the logit scale. It uses the
-cell centres, so it is rough when most observations are censored (the
+cell centers, so it is rough when most observations are censored (the
 print says so).
 
 The randomized quantile residuals
@@ -112,7 +112,7 @@ s
 #> 
 s$coefficients$mean
 #>               Estimate Std. Error   z value     Pr(>|z|)
-#> (Intercept) -1.3079316  0.1627663 -8.035643 9.308939e-16
+#> (Intercept) -1.3079316  0.1627663 -8.035643 9.308940e-16
 #> time12h      0.5245223  0.2155579  2.433324 1.496090e-02
 #> time24h      0.4992069  0.2150869  2.320955 2.028928e-02
 c(AIC = s$AIC, BIC = s$BIC, pseudo_R2 = s$pseudo.r2)

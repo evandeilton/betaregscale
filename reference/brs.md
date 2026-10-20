@@ -119,7 +119,7 @@ brs(
 
 An object of class `"brs"`: a list with, among others, `par` (estimates
 on the link scales), `coefficients` (`mean` and `precision` parts),
-`value` (maximised log-likelihood), `hessian`, `convergence`,
+`value` (maximized log-likelihood), `hessian`, `convergence`,
 `diagnostics` (see 'Fit diagnostics'), `hatmu` (first parameter per
 observation: the mean, or the shape \\p\\ under `repar = 0`), `hatphi`,
 `Y` (columns `left`, `right`, `yt`, `y`, `delta`; with
@@ -179,7 +179,7 @@ to \\\[10^{-5}, 1 - 10^{-5}\]\\, the precision and the shape \\p\\ to
 
 [`optim`](https://rdrr.io/r/stats/optim.html) (`method = "BFGS"`, the
 default, or `"L-BFGS-B"`; `maxit = 5000` unless `control` says
-otherwise) maximises the log-likelihood, which is evaluated in C++. The
+otherwise) maximizes the log-likelihood, which is evaluated in C++. The
 gradient uses the chain rule on the two linear predictors: the
 derivatives of each contribution with respect to \\\eta\_{1i}\\ and
 \\\eta\_{2i}\\ are Richardson central differences with step
@@ -205,7 +205,7 @@ on the midpoints as the intercept with zero slopes; under `repar = 0`
 both shapes by the method of moments. The covariance matrix is
 \\(-H)^{-1}\\ at the estimate
 ([`vcov.brs`](https://evandeilton.github.io/betaregscale/reference/vcov.brs.md));
-no generalised inverse is used.
+no generalized inverse is used.
 
 ## Fit diagnostics
 
@@ -227,7 +227,7 @@ the likelihood). Each problem gives one line:
 - “model matrix is nearly collinear”:
 
   Condition number above \\10^4\\: estimates and standard errors are
-  unstable. Drop or combine the named columns, or centre them.
+  unstable. Drop or combine the named columns, or center them.
 
 - “Optimizer did not converge”:
 
@@ -292,7 +292,7 @@ Under `repar = 0` the object stores the shape \\p\\ in `hatmu`, while
 `interval = "mid"` (default) uses the cells \\\[s - \mathrm{lim}, s +
 \mathrm{lim}\]/K\\; `"right"` and `"left"` use \\K + 1\\ equal cells
 \\\[s, s + 1\]/(K + 1)\\ (the dissertation's \\r\\ and \\l\\, with a
-package normalisation). `"right"` and `"left"` give the same fit and
+package normalization). `"right"` and `"left"` give the same fit and
 differ only in `predict(type = "score")`; `"mid"` and `"right"`/`"left"`
 are different coarsening models, whose log-likelihoods and AIC are not
 comparable. Details:
@@ -444,7 +444,7 @@ summary(fit)
 #> ---
 #> Log-likelihood: -502.6418 on 7 Df | AIC: 1019.2835 | BIC: 1043.6480 
 #> Pseudo R-squared: 0.0801  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 38 (BFGS) 
+#> Number of iterations: 39 (BFGS) 
 #> Censoring: 187 interval | 50 left | 3 right 
 #> 
 confint(fit)
@@ -460,7 +460,7 @@ confint(fit)
 # Post-fit checks: no log-likelihood left to gain, negative definite Hessian, no clamps
 fit$diagnostics[c("grad_gain", "hessian_nd", "n_clamped")]
 #> $grad_gain
-#> [1] 1.556122e-11
+#> [1] 1.549109e-11
 #> 
 #> $hessian_nd
 #> [1] TRUE

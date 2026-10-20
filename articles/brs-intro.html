@@ -296,7 +296,7 @@ the half-width (<code>lim</code>, default <strong>0.5</strong>, used by
 cells of <code>"right"</code> and <code>"left"</code> are equal and
 partition
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0,1]</annotation></semantics></math>;
-this normalisation is a package choice (the dissertation divides by
+this normalization is a package choice (the dissertation divides by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>).
 <code>"right"</code> and <code>"left"</code> give the same fit and
 differ only in <code>predict(type = "score")</code>. The three
@@ -920,12 +920,12 @@ based on the standard normal distribution.</p>
 <div class="section level3">
 <h3 id="estimation-and-fit-diagnostics">Estimation and fit diagnostics<a class="anchor" aria-label="anchor" href="#estimation-and-fit-diagnostics"></a>
 </h3>
-<p><code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> (BFGS) maximises the log-likelihood, evaluated
+<p><code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> (BFGS) maximizes the log-likelihood, evaluated
 in C++. The gradient and, by default, the Hessian use the chain rule on
 the two linear predictors, with per-observation derivatives by
 Richardson central differences (<code>hessian_method = "cpp"</code>;
 <code>"numDeriv"</code> is also available). Standard errors come from
-the inverse of the negative Hessian; no generalised inverse is used.
+the inverse of the negative Hessian; no generalized inverse is used.
 <code><a href="../reference/brs.html">brs()</a></code> also accepts <code>start</code> and
 <code>control</code> (merged into <code>list(maxit = 5000)</code>).</p>
 <p>After the fit, <code><a href="../reference/brs.html">brs()</a></code> checks the result and stores the
@@ -961,7 +961,7 @@ numbers:</p>
 <td align="left">condition number above
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^4</annotation></semantics></math>
 </td>
-<td align="left">drop, combine or centre the named columns</td>
+<td align="left">drop, combine or center the named columns</td>
 </tr>
 <tr class="odd">
 <td align="left">Gradient not ~0 at the estimate</td>
@@ -1216,7 +1216,7 @@ at the borders) and return
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">Φ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Phi^{-1}(u_i)</annotation></semantics></math>:
 they are standard normal under the model whatever the censoring, and are
 the recommended type. Pearson, deviance and weighted residuals are
-evaluated at the cell centre (the midpoint convention of Lopes, 2023)
+evaluated at the cell center (the midpoint convention of Lopes, 2023)
 and are unreliable at the borders of the scale. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 draws the quantile residuals without changing the RNG state.</p>
 <p>The <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method provides six diagnostic panels. By
@@ -1681,7 +1681,7 @@ simulation.</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -936.0499 on 5 Df | AIC: 1882.0998 | BIC: 1899.7071 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.1164  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 38 (BFGS) </span></span>
+<span><span class="co">#&gt; Number of iterations: 43 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 181 interval | 23 left | 46 right</span></span></code></pre></div>
 <p>Notice the <code>(phi)_</code> prefix in the precision coefficient
 names, following the <code>betareg</code> convention.</p>

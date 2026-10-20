@@ -20,7 +20,7 @@ cross-validation and marginal effects.
 For observation \\i\\, \$\$Y_i \sim \mathrm{Beta}(a_i, b_i), \qquad
 g_1(\mu_i) = x_i^\top \beta, \qquad g_2(\phi_i) = z_i^\top \gamma,\$\$
 where \\(a_i, b_i)\\ follow from \\(\mu_i, \phi_i)\\ under one of three
-parameterisations
+parameterizations
 ([`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md)).
 The default, `repar = 2`, uses the mean \\\mu\\ and the dispersion
 \\\phi = 1/(1 + a + b)\\, written \\\sigma\\ in Lopes (2023). The score

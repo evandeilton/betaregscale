@@ -1,6 +1,6 @@
 # Link functions allowed under each reparameterization
 
-Each parameter of the beta distribution is modelled through a link whose
+Each parameter of the beta distribution is modeled through a link whose
 inverse maps the real line onto the parameter's domain. Parameters on
 \\(0, 1)\\ (the mean under `repar = 1, 2`; the dispersion under
 `repar = 2`) use `"logit"`, `"probit"`, `"cauchit"` or `"cloglog"`.

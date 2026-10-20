@@ -67,7 +67,7 @@ brs_sim(
 
 - repar:
 
-  Parameterisation (0, 1 or 2); see
+  Parameterization (0, 1 or 2); see
   [`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 - delta:
@@ -103,7 +103,7 @@ one-part formula (`~ x1 + x2`) uses the scalar `phi`, a two-part formula
 For each row, \\Y \sim \mathrm{Beta}(a, b)\\ with the shapes of
 [`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md),
 and the score is \\s = \mathrm{round}(K Y)\\ under `"mid"` (cells
-centred on the score; exact only for `lim = 0.5`) or \\s = \lfloor
+centered on the score; exact only for `lim = 0.5`) or \\s = \lfloor
 (K + 1) Y \rfloor\\ under `"right"`/`"left"` (\\K + 1\\ equal cells).
 The cells and censoring types then come from
 [`brs_check`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
@@ -167,7 +167,7 @@ literature review. Journal of Pain and Symptom Management, 41(6),
 ## Examples
 
 ``` r
-# One design, three parameterisations with their default links
+# One design, three parameterizations with their default links
 set.seed(42)
 d <- data.frame(x = rnorm(300))
 

@@ -119,7 +119,9 @@ that scores held-out groups; <code>NULL</code> for the default (see Details).</p
   the fold fit). Attributes: <code>log_score</code> (total per repeat; <code>NA</code>
   if a fold failed), <code>group_scores</code> (held-out contribution of each
   group, one vector per repeat), <code>folds</code> (fold of each group, one
-  vector per repeat) and <code>score_points</code>.</p>
+  vector per repeat, named by group level: integer for drawn folds, the
+  type of the supplied <code>folds</code> otherwise, character for a factor)
+  and <code>score_points</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

@@ -47,6 +47,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_cv.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_sim.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/compute_start.html</loc></url>
@@ -89,6 +90,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/ranef.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/residuals.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/residuals.brsmm.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/simulate.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/summary.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/summary.brsmm.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/vcov.brs.html</loc></url>

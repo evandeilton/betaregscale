@@ -163,7 +163,7 @@ cutpoints (see the section 'Boundary cutpoints' of <code>brs</code>).</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>"brs"</code>: a list with, among others,
   <code>par</code> (estimates on the link scales), <code>coefficients</code>
-  (<code>mean</code> and <code>precision</code> parts), <code>value</code> (maximised
+  (<code>mean</code> and <code>precision</code> parts), <code>value</code> (maximized
   log-likelihood), <code>hessian</code>, <code>convergence</code>, <code>diagnostics</code>
   (see 'Fit diagnostics'), <code>hatmu</code> (first parameter per observation:
   the mean, or the shape \(p\) under <code>repar = 0</code>), <code>hatphi</code>,
@@ -226,7 +226,7 @@ shapes to \([10^{-12}, 10^8]\).</p>
 
 <p><code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code> (<code>method = "BFGS"</code>, the default, or
 <code>"L-BFGS-B"</code>; <code>maxit = 5000</code> unless <code>control</code> says
-otherwise) maximises the log-likelihood, which is evaluated in C++. The
+otherwise) maximizes the log-likelihood, which is evaluated in C++. The
 gradient uses the chain rule on the two linear predictors: the derivatives
 of each contribution with respect to \(\eta_{1i}\) and \(\eta_{2i}\)
 are Richardson central differences with step
@@ -248,7 +248,7 @@ pass the parent estimate); otherwise a quasi-binomial GLM of the cell
 midpoints for the mean, and for the second parameter the moment estimate on
 the midpoints as the intercept with zero slopes; under <code>repar = 0</code>
 both shapes by the method of moments. The covariance matrix is
-\((-H)^{-1}\) at the estimate (<code><a href="vcov.brs.html">vcov.brs</a></code>); no generalised
+\((-H)^{-1}\) at the estimate (<code><a href="vcov.brs.html">vcov.brs</a></code>); no generalized
 inverse is used.</p>
     </div>
     <div class="section level2">
@@ -273,7 +273,7 @@ gives one line:</p><dl><dt>“model matrix is rank deficient” (error)</dt>
   <dt>“model matrix is nearly collinear”</dt>
 <dd><p>Condition number above
     \(10^4\): estimates and standard errors are unstable. Drop or combine
-    the named columns, or centre them.</p></dd>
+    the named columns, or center them.</p></dd>
 
   <dt>“Optimizer did not converge”</dt>
 <dd><p><code>optim</code> stopped at its
@@ -334,7 +334,7 @@ shape \(p\) in <code>hatmu</code>, while <code><a href="https://rdrr.io/r/stats/
 <p><code>interval = "mid"</code> (default) uses the cells
 \([s - \mathrm{lim}, s + \mathrm{lim}]/K\); <code>"right"</code> and
 <code>"left"</code> use \(K + 1\) equal cells \([s, s + 1]/(K + 1)\) (the
-dissertation's \(r\) and \(l\), with a package normalisation).
+dissertation's \(r\) and \(l\), with a package normalization).
 <code>"right"</code> and <code>"left"</code> give the same fit and differ only in
 <code>predict(type = "score")</code>; <code>"mid"</code> and <code>"right"</code>/<code>"left"</code>
 are different coarsening models, whose log-likelihoods and AIC are not
@@ -472,7 +472,7 @@ Arthritis Care and Research, 63(S11), S240-S252.
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Log-likelihood: -502.6418 on 7 Df | AIC: 1019.2835 | BIC: 1043.6480 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Pseudo R-squared: 0.0801  (midpoint approx.; interpret with caution for heavily censored data) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Number of iterations: 38 (BFGS) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of iterations: 39 (BFGS) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Censoring: 187 interval | 50 left | 3 right </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -488,7 +488,7 @@ Arthritis Care and Research, 63(S11), S240-S252.
 <span class="r-in"><span><span class="co"># Post-fit checks: no log-likelihood left to gain, negative definite Hessian, no clamps</span></span></span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">diagnostics</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grad_gain"</span>, <span class="st">"hessian_nd"</span>, <span class="st">"n_clamped"</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $grad_gain</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.556122e-11</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.549109e-11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $hessian_nd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>

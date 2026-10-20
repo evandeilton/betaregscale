@@ -6,7 +6,7 @@ Turns analyst data into the cells \\\[l_i, u_i\]\\ and censoring types
 [`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md).
 Scores run over \\0, 1, \ldots, K\\ with \\K =\\ `ncuts` the maximum;
 shift a scale that starts at 1 (a Likert item 1–5 becomes 0–4,
-`ncuts = 4`). Four input modes are recognised per row:
+`ncuts = 4`). Four input modes are recognized per row:
 
 1.  **Score only** (`y`): the cell of the score and \\\delta\\ from the
     score, exactly as
@@ -80,7 +80,7 @@ brs_prep(
 ## Value
 
 A data frame with columns `left`, `right` (cell on \\(0, 1)\\), `yt`
-(cell centre), `y` (score, or the filled latent score for rows without
+(cell center), `y` (score, or the filled latent score for rows without
 one) and `delta`, followed by the covariates. Attributes `"is_prepared"`
 (`TRUE`), `"ncuts"`, `"lim"` and `"interval"` are reused by
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) and
@@ -108,7 +108,7 @@ pattern of `left`, `right` and `y` (here \\K = 10\\,
 | `NA`         | `NA`    | 10   | \\\[0.95, 1 - \epsilon\]\\            | 2          |
 
 When the data have `left`/`right` columns, a row that gives only an
-interior score (both bounds `NA`) is an exact value at the cell centre,
+interior score (both bounds `NA`) is an exact value at the cell center,
 with a density contribution; without those columns the same score is
 interval-censored (Mode 1). An analyst interval that reaches 0 (or 1) on
 the unit scale is left- (or right-) censored; one that reaches both
@@ -130,7 +130,7 @@ dissertation's intervals \\\[s - 0.5, s + 0.5\]\\, \\\[s, s + 1\]\\ and
 latent range of the direction: \\\[-0.5, K + 0.5\]\\ (`"mid"`), \\\[0,
 K + 1\]\\ (`"right"`) or \\\[-1, K\]\\ (`"left"`); a bound outside it is
 an error. Rows with no score get `y` = the latent score of their cell
-centre, so that
+center, so that
 [`model.frame()`](https://rdrr.io/r/stats/model.frame.html) keeps them.
 
 Endpoints are clamped to \\\[\epsilon, 1 - \epsilon\]\\, \\\epsilon =

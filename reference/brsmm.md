@@ -57,7 +57,7 @@ brsmm(
 
 - repar:
 
-  Parameterisation (0, 1 or 2); see
+  Parameterization (0, 1 or 2); see
   [`brs_repar`](https://evandeilton.github.io/betaregscale/reference/brs_repar.md).
 
 - ncuts:
@@ -170,9 +170,9 @@ The inner mode is found by a Levenberg–Marquardt Newton method,
 warm-started from the modes of the previous evaluation (the cache is
 cleared at the start of each fit). A group whose curvature is not
 positive definite at its mode adds the penalty value \\-10^6\\ instead
-of a silently regularised term, and `brsmm()` warns.
+of a silently regularized term, and `brsmm()` warns.
 
-\\D = LL^\top\\ is parameterised by its lower Cholesky factor: the log
+\\D = LL^\top\\ is parameterized by its lower Cholesky factor: the log
 of each diagonal entry and the off-diagonal entries as they are
 (`(re_chol_logsd)_` and `(re_chol)_` in
 [`coef()`](https://rdrr.io/r/stats/coef.html)).
@@ -183,7 +183,7 @@ the intraclass correlation.
 
 ## Estimation
 
-[`optim`](https://rdrr.io/r/stats/optim.html) maximises the marginal
+[`optim`](https://rdrr.io/r/stats/optim.html) maximizes the marginal
 log-likelihood with its compiled gradient: the derivative of the chosen
 approximation by the chain rule on the linear predictor and the
 implicit-function theorem at the group modes (including the movement of
@@ -194,7 +194,7 @@ the default) is a Richardson central difference of that gradient.
 Starting values: `start` when given; otherwise those of
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md) for
 the fixed effects and \\\log\\ of the between-group SD of the cell
-centres (at least 0.1) for the random effects.
+centers (at least 0.1) for the random effects.
 
 ## Diagnostics
 
@@ -256,7 +256,7 @@ of Computational and Graphical Statistics*, **4**(1), 12–35.
 # intercepts and time slopes vary by patient. Simulated, not real data.
 set.seed(21)
 nrs <- expand.grid(id = 1:40, time = c("6h", "12h", "24h"))
-nrs$tc <- c(-1, 0, 1)[nrs$time]                 # centred time for the slope
+nrs$tc <- c(-1, 0, 1)[nrs$time]                 # centered time for the slope
 b0 <- rnorm(40, sd = 0.8)
 b1 <- rnorm(40, sd = 0.5)
 eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + b0[nrs$id] + b1[nrs$id] * nrs$tc
@@ -304,16 +304,16 @@ summary(m1)
 m2 <- brsmm(y ~ time, random = ~ 1 + tc | id, data = nrs, ncuts = 10)
 summary(m2)$varcorr
 #>                  term type  estimate      lower     upper se_transformed
-#> 1      SD (Intercept)   sd 0.6328837  0.3894570 1.0284620      0.2477255
-#> 2               SD tc   sd 0.5474364  0.2490143 1.2034916      0.4019135
-#> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083615 0.9748538      0.6672098
+#> 1      SD (Intercept)   sd 0.6328837  0.3894562 1.0284643      0.2477267
+#> 2               SD tc   sd 0.5474364  0.2490126 1.2034998      0.4019169
+#> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083700 0.9748543      0.6672150
 head(ranef(m2))
 #>   (Intercept)         tc
 #> 1   0.3540762  0.1152133
 #> 2   0.1124897 -0.1982327
 #> 3   1.1300445  0.6532920
 #> 4  -0.2328539 -0.1960478
-#> 5   0.9638750  0.8034316
+#> 5   0.9638750  0.8034315
 #> 6   0.1412063  0.1006265
 
 # Is the slope needed? One added random term: the p-value uses the

@@ -1,6 +1,6 @@
 # Beta shape parameters from the parameters of each scheme
 
-Converts the pair `(mu, phi)` of one of three parameterisations into the
+Converts the pair `(mu, phi)` of one of three parameterizations into the
 shapes \\(a, b)\\ of the beta density \\f(y) = y^{a - 1}(1 - y)^{b -
 1}/B(a, b)\\, \\0 \< y \< 1\\.
 
@@ -73,7 +73,7 @@ thesis, Universidade Federal de Pernambuco.
 ## Examples
 
 ``` r
-# One beta distribution in the three parameterisations: shapes (6, 14)
+# One beta distribution in the three parameterizations: shapes (6, 14)
 brs_repar(mu = 0.3, phi = 20, repar = 1)      # mean 0.3, precision 20
 #>   shape1 shape2
 #> 1      6     14
@@ -92,7 +92,7 @@ c(mean = sh$shape1 / (sh$shape1 + sh$shape2),
 #>        mean   precision  dispersion 
 #>  0.30000000 20.00000000  0.04761905 
 
-# E[Y] and Var[Y] agree across parameterisations: 0.3 and 0.21 / 21 = 0.01
+# E[Y] and Var[Y] agree across parameterizations: 0.3 and 0.21 / 21 = 0.01
 mu <- 0.3
 c(var_repar1 = mu * (1 - mu) / (1 + 20),
   var_repar2 = mu * (1 - mu) * (1 / 21),
@@ -100,7 +100,7 @@ c(var_repar1 = mu * (1 - mu) / (1 + 20),
 #> var_repar1 var_repar2 var_shapes 
 #>       0.01       0.01       0.01 
 
-# Vectorised: one row per observation
+# Vectorized: one row per observation
 brs_repar(mu = c(0.2, 0.5, 0.8), phi = 0.1, repar = 2)
 #>   shape1 shape2
 #> 1    1.8    7.2

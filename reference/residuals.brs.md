@@ -11,7 +11,8 @@ recommended ones; the other types are evaluated at one point of the cell
 # S3 method for class 'brs'
 residuals(
   object,
-  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted"),
+  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted",
+    "cell_deviance"),
   ...
 )
 ```
@@ -25,7 +26,7 @@ residuals(
 - type:
 
   Residual type: `"response"` (default), `"pearson"`, `"deviance"`,
-  `"rqr"`, `"weighted"` or `"sweighted"`.
+  `"rqr"`, `"weighted"`, `"sweighted"` or `"cell_deviance"`.
 
 - ...:
 
@@ -60,7 +61,7 @@ the borders of the scale.
 - `"pearson"`:
 
   \\(y_i - \hat\mu_i)/\sqrt{V_i}\\. Lopes (2023) writes \\V_i\\ as
-  \\\mu(1 - \mu)/(1 + \phi)\\ (parameterisation 1); it is the same
+  \\\mu(1 - \mu)/(1 + \phi)\\ (parameterization 1); it is the same
   variance under every `repar`.
 
 - `"deviance"`:
@@ -91,6 +92,22 @@ the borders of the scale.
   \\\mu_i^\* = \psi(a_i) - \psi(b_i)\\ and \\v_i = \psi'(a_i) +
   \psi'(b_i)\\ (Espinheira, Ferrari and Cribari-Neto, 2008).
 
+- `"cell_deviance"`:
+
+  Deviance residuals of the censored likelihood: \\d_i =
+  \mathrm{sign}\_i \sqrt{-2 \log P_i}\\, with \\P_i\\ the fitted
+  probability of the observed cell (the contribution of row \\i\\ to
+  [`logLik()`](https://rdrr.io/r/stats/logLik.html)). The saturated
+  model gives each cell probability 1, so \\-2 \log P_i\\ is the
+  deviance contribution and, for score data, \\\sum_i d_i^2 = -2\\
+  \mathrm{logLik}\\. \\\mathrm{sign}\_i = +1\\ when the observed score
+  is at least the expected score \\\sum_s s\\ P(S = s) / \sum_s P(S =
+  s)\\ (the denominator is 1 unless the cells leave gaps,
+  `interval = "mid"` with `lim < 0.5`) and \\-1\\ otherwise; censored
+  rows that are not score cells (analyst intervals) compare the cell
+  center with the fitted mean \\E\[Y_i\]\\. Exact rows (\\\delta_i =
+  0\\) give `NA` (use `"deviance"`).
+
 Lopes (2023) also recommends the adjusted quantile residuals of Pereira
 (2019), which are not implemented.
 
@@ -120,7 +137,8 @@ Pereira, G. H. A. (2019). On quantile residuals in beta regression.
 
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md),
 [`fitted.brs`](https://evandeilton.github.io/betaregscale/reference/fitted.brs.md),
-[`plot.brs`](https://evandeilton.github.io/betaregscale/reference/plot.brs.md)
+[`plot.brs`](https://evandeilton.github.io/betaregscale/reference/plot.brs.md),
+[`residuals.brsmm`](https://evandeilton.github.io/betaregscale/reference/residuals.brsmm.md)
 
 ## Examples
 
@@ -145,4 +163,9 @@ r_p <- residuals(fit, type = "pearson")
 tapply(r_p, cut(nrs$y, c(-1, 0, 9, 10), labels = c("0", "1-9", "10")), mean)
 #>          0        1-9         10 
 #> -1.0762665  0.2507079  2.5712711 
+
+# Deviance residuals from the cell probabilities add up to -2 logLik
+r_d <- residuals(fit, type = "cell_deviance")
+c(sum(r_d^2), -2 * as.numeric(logLik(fit)))
+#> [1] 1002.346 1002.346
 ```

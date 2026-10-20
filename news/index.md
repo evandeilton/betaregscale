@@ -61,6 +61,37 @@
   `n = c("obs", "groups")`. [`BIC()`](https://rdrr.io/r/stats/AIC.html)
   of `brs` and `brsmm` fits returns a `df`/`BIC` table for several
   models, whatever the order; the single-model value is unchanged.
+  [`BIC()`](https://rdrr.io/r/stats/AIC.html) of a `brs` fit accepts `n`
+  and stops for `n = "groups"` with the message of the `brsmm` method
+  (it failed with “no ‘nobs’ method”).
+- New
+  [`brsmm_sim()`](https://evandeilton.github.io/betaregscale/reference/brsmm_sim.md):
+  clustered scores from the
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  model, with random effects `b ~ N(0, D)` given by their SDs and
+  correlations, the coarsening of
+  [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  (interval maps, boundary cutpoints) and the true random effects and
+  parameters (in [`coef()`](https://rdrr.io/r/stats/coef.html) order) as
+  attributes.
+- New [`simulate()`](https://rdrr.io/r/stats/simulate.html) methods for
+  `brs` and `brsmm` fits (`nsim`, `seed`). For `brsmm`,
+  `re = "marginal"` (default) draws new random effects and
+  `re = "conditional"` keeps the conditional modes.
+- [`residuals()`](https://rdrr.io/r/stats/residuals.html) of `brsmm`
+  fits gains `re = c("conditional", "marginal", "posterior")` for
+  `type = "rqr"` and `"cell_deviance"`: marginal residuals integrate the
+  random effects out; posterior residuals use one draw of each group’s
+  random effects from its posterior (importance resampling from the
+  Gaussian approximation at the mode). Both are N(0, 1) under the model,
+  without the shrinkage of the conditional modes. The default is
+  unchanged.
+- New residual type `"cell_deviance"` for `brs` and `brsmm` fits:
+  `sign * sqrt(-2 log P)` from the probability of the observed cell,
+  with the sign of the observed minus the expected score; for score data
+  their squares add up to `-2 logLik`.
+- `attr(brsmm_cv(), "folds")` keeps the type of user folds whether they
+  are given per row or by group (it was character for per-row folds).
 
 ### Other changes
 
@@ -73,7 +104,7 @@
 
 Major release: some calls accepted by 2.7.4 now stop and some results
 change. With the defaults (`repar = 2`, `interval = "mid"`, `lim = 0.5`)
-and well-behaved data, estimates agree with 2.7.4 to optimiser
+and well-behaved data, estimates agree with 2.7.4 to optimizer
 tolerance; the sections below give every change and its reason.
 
 ### Breaking changes
@@ -130,7 +161,7 @@ tolerance; the sections below give every change and its reason.
   one-line warnings; the gradient check is the log-likelihood gain of
   the remaining Newton step, above 0.01).
   [`vcov()`](https://rdrr.io/r/stats/vcov.html) no longer uses a
-  generalised inverse: variances it cannot estimate are `NA` (they were
+  generalized inverse: variances it cannot estimate are `NA` (they were
   0).
   [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
   flags a variance component on the boundary.
@@ -158,7 +189,7 @@ tolerance; the sections below give every change and its reason.
   (informative censoring, no finite MLE) and keeps covariates of `0 + x`
   formulas;
   [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
-  warns on rows covering the whole scale. Marginal effects honour
+  warns on rows covering the whole scale. Marginal effects honor
   `| 0 + z`; repar 2 variable-dispersion starts use the moment intercept
   with zero slopes. This changes some fits, to an equal or higher
   log-likelihood with fewer iterations, and a `brsmm`
@@ -328,7 +359,7 @@ tolerance; the sections below give every change and its reason.
   far above a small fitted mean (or below a large one) was computed as
   `F(right) - F(left)` with both terms equal to 1 to machine precision,
   so it hit the floor: the observation contributed the constant
-  `log(1e-15)` with zero gradient, and the optimiser maximised a trimmed
+  `log(1e-15)` with zero gradient, and the optimizer maximized a trimmed
   likelihood that ignored outliers. Now the tail is chosen by the mean
   `a / (a + b)`, [`pbeta()`](https://rdrr.io/r/stats/Beta.html) is
   evaluated in plain scale on the small side, there is no floor, and
@@ -346,7 +377,7 @@ tolerance; the sections below give every change and its reason.
   change on data with observations far in a tail, and the precision
   estimate can drop a lot. In an example with 200 observations and 4
   outliers the estimated precision went from 328 to 32; the old value
-  was an artefact of the trimmed likelihood. An interval-censored
+  was an artifact of the trimmed likelihood. An interval-censored
   observation with `left == right` (probability zero) now contributes
   `-1e6` instead of `log(1e-15)`.
 
@@ -385,7 +416,7 @@ tolerance; the sections below give every change and its reason.
   Newton method with warm starts. It no longer returns `b = 0` when the
   curvature there is indefinite, and the silent eigenvalue floor of 1e-8
   (which added up to `+9.2` per direction to the Laplace value) is gone;
-  a group without a positive-definite mode is penalised and reported in
+  a group without a positive-definite mode is penalized and reported in
   `fit$diagnostics$inner`.
 - AGHQ and QMC scale the nodes by the symmetric root `C^(-1/2)` of the
   curvature, so their values no longer depend on the eigenvector sign
@@ -403,7 +434,7 @@ tolerance; the sections below give every change and its reason.
   with a clear message; a `NaN` parameter gives the likelihood penalty,
   `+-Inf` the bounds. An `NA` in a prepared `delta` column now stops in
   R and in C++; before, it reached the compiled code as `NaN` and was
-  cast to an integer (undefined behaviour: rejected with a misleading
+  cast to an integer (undefined behavior: rejected with a misleading
   message on x86-64, silently read as an exact observation on arm64).
 
 ### Documentation
@@ -411,7 +442,7 @@ tolerance; the sections below give every change and its reason.
 - Help pages aligned with Lopes (2023) and with the code: the complete
   likelihood with the four censoring types (the dissertation’s table
   swaps `delta = 1` and `2`; the package follows its equation), the
-  three parameterisations with their links, mean and variance
+  three parameterizations with their links, mean and variance
   (`repar = 2` dispersion is `1 / (1 + a + b)`, not a coefficient of
   variation), the interval directions, the border handling that replaces
   the dissertation’s edge transformation, the residual types, estimation
@@ -429,19 +460,19 @@ tolerance; the sections below give every change and its reason.
 - New examples, runnable without `\donttest`: a synthetic NRS-11 study
   (times x groups), the four
   [`brs_prep()`](https://evandeilton.github.io/betaregscale/reference/brs_prep.md)
-  modes and a Likert item, one simulation per parameterisation, random
+  modes and a Likert item, one simulation per parameterization, random
   intercept and slope with
   [`anova()`](https://rdrr.io/r/stats/anova.html), bootstrap with a
   factor, cross-validation, marginal effects.
 - Vignettes rewritten where they disagreed with the code: likelihood,
-  directions, parameterisations, diagnostics, residuals (brs-intro); a
+  directions, parameterizations, diagnostics, residuals (brs-intro); a
   Monte Carlo study in the dissertation’s design
   (brs-advanced-workflows); ICC, SD/Corr intervals and the
   chi-bar-square test (brs-mm); marginal effects and score probabilities
   (brs-analyst-tools). The intro vignette uses a percentile bootstrap
   instead of BCa, which lowers the build time.
 - README: removed the claims of an analytical gradient, of new
-  methodology (the parameterisation is Bayer, 2011) and of exactly
+  methodology (the parameterization is Bayer, 2011) and of exactly
   normal quantile residuals; `ncuts` wording fixed; references added.
   The package page attributes the M1/M2/M3 comparison to the
   dissertation’s study.

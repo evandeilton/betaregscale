@@ -57,7 +57,7 @@ brs_check(
 ## Value
 
 A numeric matrix with one row per observation and columns `left`
-(\\l_i\\), `right` (\\u_i\\), `yt` (cell centre), `y` (the input) and
+(\\l_i\\), `right` (\\u_i\\), `yt` (cell center), `y` (the input) and
 `delta`.
 
 ## Details
@@ -77,7 +77,7 @@ the cell endpoints of the score:
 |            |                                           |                  |
 |------------|-------------------------------------------|------------------|
 | \\\delta\\ | \\l_i\\                                   | \\u_i\\          |
-| 0          | cell centre (or \\y\\ when in \\(0, 1)\\) | same             |
+| 0          | cell center (or \\y\\ when in \\(0, 1)\\) | same             |
 | 1          | \\\epsilon\\                              | \\u_s\\          |
 | 2          | \\l_s\\                                   | \\1 - \epsilon\\ |
 | 3          | \\l_s\\                                   | \\u_s\\          |
@@ -96,7 +96,7 @@ and so is a \\\delta = 3\\ observation with \\l_i \ge u_i\\
 width (a cell narrower than \\10^{-5}\\ at a border, i.e. `ncuts` too
 large or `lim` too small), the error says so.
 
-`yt` is the cell centre: \\s/K\\ under `"mid"` (so the border scores sit
+`yt` is the cell center: \\s/K\\ under `"mid"` (so the border scores sit
 at \\\epsilon\\ and \\1 - \epsilon\\) and \\(s + 0.5)/(K + 1)\\
 otherwise; exact values are kept. It is the density argument for
 \\\delta = 0\\ and the point used by the midpoint residuals; censored

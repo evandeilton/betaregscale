@@ -47,7 +47,7 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'brs'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"obs"</span>, <span class="st">"groups"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -61,6 +61,12 @@
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Further fitted models (<code>brs</code>, <code>brsmm</code> or others with a
 <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> method).</p></dd>
+
+
+<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dd><p><code>"obs"</code> (default): the number of observations. <code>"groups"</code>
+applies to <code>brsmm</code> fits only (see <code><a href="BIC.brsmm.html">BIC.brsmm</a></code>) and is an
+error here.</p></dd>
 
 </dl></div>
     <div class="section level2">

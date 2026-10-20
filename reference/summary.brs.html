@@ -87,12 +87,12 @@ scale (\(H_0: \theta_j = 0\)). When \(-H\) is singular, or its inverse
 has negative variances, the affected standard errors, statistics and
 p-values are <code>NA</code> (see 'Fit diagnostics' in <code><a href="brs.html">brs</a></code>).</p>
 <p>\(\mathrm{AIC} = -2\ell + 2k\) and \(\mathrm{BIC} = -2\ell + k\log n\),
-with \(\ell\) the maximised log-likelihood, \(k\) the number of
+with \(\ell\) the maximized log-likelihood, \(k\) the number of
 coefficients and \(n\) the number of observations. The pseudo
 \(R^2\) is the squared correlation between the fitted linear predictor
-of the mean and \(g_1(y_i)\) at the cell centres <code>yt</code> (Ferrari and
+of the mean and \(g_1(y_i)\) at the cell centers <code>yt</code> (Ferrari and
 Cribari-Neto, 2004); under <code>repar = 0</code> both sides are on the logit
-scale. It uses the cell centres, so it is rough when most observations are
+scale. It uses the cell centers, so it is rough when most observations are
 censored (the print says so).</p>
 <p>The randomized quantile residuals (<code><a href="residuals.brs.html">residuals.brs</a></code>,
 <code>type = "rqr"</code>) are drawn without changing the caller's RNG state.</p>
@@ -152,7 +152,7 @@ Beta regression for modelling rates and proportions.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">coefficients</span><span class="op">$</span><span class="va">mean</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               Estimate Std. Error   z value     Pr(&gt;|z|)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.3079316  0.1627663 -8.035643 9.308939e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.3079316  0.1627663 -8.035643 9.308940e-16</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> time12h      0.5245223  0.2155579  2.433324 1.496090e-02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> time24h      0.4992069  0.2150869  2.320955 2.028928e-02</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>AIC <span class="op">=</span> <span class="va">s</span><span class="op">$</span><span class="va">AIC</span>, BIC <span class="op">=</span> <span class="va">s</span><span class="op">$</span><span class="va">BIC</span>, pseudo_R2 <span class="op">=</span> <span class="va">s</span><span class="op">$</span><span class="va">pseudo.r2</span><span class="op">)</span></span></span>

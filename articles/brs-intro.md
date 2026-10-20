@@ -109,7 +109,7 @@ $`l`$ of Lopes, 2023):
 
 $`K`$ is the maximum score (`ncuts`) and $`h`$ the half-width (`lim`,
 default **0.5**, used by `"mid"` only). The $`K+1`$ cells of `"right"`
-and `"left"` are equal and partition $`[0,1]`$; this normalisation is a
+and `"left"` are equal and partition $`[0,1]`$; this normalization is a
 package choice (the dissertation divides by $`K`$). `"right"` and
 `"left"` give the same fit and differ only in `predict(type = "score")`.
 The three directions are different coarsening models, so
@@ -419,12 +419,12 @@ z-tests and $`p`$-values based on the standard normal distribution.
 
 ### Estimation and fit diagnostics
 
-[`optim()`](https://rdrr.io/r/stats/optim.html) (BFGS) maximises the
+[`optim()`](https://rdrr.io/r/stats/optim.html) (BFGS) maximizes the
 log-likelihood, evaluated in C++. The gradient and, by default, the
 Hessian use the chain rule on the two linear predictors, with
 per-observation derivatives by Richardson central differences
 (`hessian_method = "cpp"`; `"numDeriv"` is also available). Standard
-errors come from the inverse of the negative Hessian; no generalised
+errors come from the inverse of the negative Hessian; no generalized
 inverse is used.
 [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
 also accepts `start` and `control` (merged into `list(maxit = 5000)`).
@@ -449,7 +449,7 @@ Each problem gives a one-line warning:
 | Warning | Meaning | What to do |
 |:---|:---|:---|
 | model matrix is rank deficient (error) | aliased columns | remove the named columns |
-| model matrix is nearly collinear | condition number above $`10^4`$ | drop, combine or centre the named columns |
+| model matrix is nearly collinear | condition number above $`10^4`$ | drop, combine or center the named columns |
 | Gradient not ~0 at the estimate | a Newton step would still gain more than 0.01 in log-likelihood | refit with `method = "L-BFGS-B"`; rescale covariates whose scales differ widely (the message says so) |
 | Hessian near-singular or not negative definite | a direction is nearly flat (not identified, or covariates on very different scales) | [`vcov()`](https://rdrr.io/r/stats/vcov.html) gives `NA` where it cannot estimate; rescale, use LR tests or the bootstrap, simplify |
 | observations on the clamp boundary | means or shapes at $`10^{-5}`$ or $`1-10^{-5}`$, e.g. a group entirely at one border | merge sparse groups or drop the separating covariate |
@@ -525,7 +525,7 @@ types. Randomized quantile residuals (`type = "rqr"`, Dunn and Smyth,
 $`(F(l_i),1)`$ at the borders) and return $`\Phi^{-1}(u_i)`$: they are
 standard normal under the model whatever the censoring, and are the
 recommended type. Pearson, deviance and weighted residuals are evaluated
-at the cell centre (the midpoint convention of Lopes, 2023) and are
+at the cell center (the midpoint convention of Lopes, 2023) and are
 unreliable at the borders of the scale.
 [`summary()`](https://rdrr.io/r/base/summary.html) draws the quantile
 residuals without changing the RNG state.
@@ -738,7 +738,7 @@ summary(fit_var)
 #> ---
 #> Log-likelihood: -936.0499 on 5 Df | AIC: 1882.0998 | BIC: 1899.7071 
 #> Pseudo R-squared: 0.1164  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 38 (BFGS) 
+#> Number of iterations: 43 (BFGS) 
 #> Censoring: 181 interval | 23 left | 46 right
 ```
 

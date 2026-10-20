@@ -6,7 +6,7 @@ Bayesian information criterion
 
 ``` r
 # S3 method for class 'brs'
-BIC(object, ...)
+BIC(object, ..., n = c("obs", "groups"))
 ```
 
 ## Arguments
@@ -19,6 +19,13 @@ BIC(object, ...)
 
   Further fitted models (`brs`, `brsmm` or others with a
   [`BIC()`](https://rdrr.io/r/stats/AIC.html) method).
+
+- n:
+
+  `"obs"` (default): the number of observations. `"groups"` applies to
+  `brsmm` fits only (see
+  [`BIC.brsmm`](https://evandeilton.github.io/betaregscale/reference/BIC.brsmm.md))
+  and is an error here.
 
 ## Value
 

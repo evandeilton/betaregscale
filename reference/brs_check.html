@@ -121,7 +121,7 @@ direction'.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A numeric matrix with one row per observation and columns
   <code>left</code> (\(l_i\)), <code>right</code> (\(u_i\)), <code>yt</code> (cell
-  centre), <code>y</code> (the input) and <code>delta</code>.</p>
+  center), <code>y</code> (the input) and <code>delta</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -133,7 +133,7 @@ rescaled scores) and gives one warning; rescale it if the values in
 \((0, 1)\) are meant as scores (half-point scores 0, 0.5, 1, ...: use
 <code>y * 2</code> and <code>ncuts * 2</code>). A user-supplied <code>delta</code> (the
 mechanism <code><a href="brs_sim.html">brs_sim</a></code> uses in Monte Carlo studies) forces the
-type per observation and keeps the cell endpoints of the score:</p><table class="table table"><tr><td>\(\delta\)</td><td>\(l_i\)</td><td>\(u_i\)</td></tr><tr><td>0</td><td>cell centre (or \(y\) when in \((0, 1)\))</td><td>same</td></tr><tr><td>1</td><td>\(\epsilon\)</td><td>\(u_s\)</td></tr><tr><td>2</td><td>\(l_s\)</td><td>\(1 - \epsilon\)</td></tr><tr><td>3</td><td>\(l_s\)</td><td>\(u_s\)</td></tr></table><p>A forced \(\delta = 1\) or 2 uses the cell of the observed score as the
+type per observation and keeps the cell endpoints of the score:</p><table class="table table"><tr><td>\(\delta\)</td><td>\(l_i\)</td><td>\(u_i\)</td></tr><tr><td>0</td><td>cell center (or \(y\) when in \((0, 1)\))</td><td>same</td></tr><tr><td>1</td><td>\(\epsilon\)</td><td>\(u_s\)</td></tr><tr><td>2</td><td>\(l_s\)</td><td>\(1 - \epsilon\)</td></tr><tr><td>3</td><td>\(l_s\)</td><td>\(u_s\)</td></tr></table><p>A forced \(\delta = 1\) or 2 uses the cell of the observed score as the
 censoring threshold, so the threshold depends on \(Y\): applied to every
 observation this is informative censoring and the likelihood has no finite
 maximum (<code><a href="brs_sim.html">brs_sim</a></code> warns).
@@ -144,7 +144,7 @@ and so is a \(\delta = 3\) observation with \(l_i \ge u_i\)
 (zero-probability interval). When the clamp squeezes a cell to zero width
 (a cell narrower than \(10^{-5}\) at a border, i.e. <code>ncuts</code> too
 large or <code>lim</code> too small), the error says so.</p>
-<p><code>yt</code> is the cell centre: \(s/K\) under <code>"mid"</code> (so the border
+<p><code>yt</code> is the cell center: \(s/K\) under <code>"mid"</code> (so the border
 scores sit at \(\epsilon\) and \(1 - \epsilon\)) and
 \((s + 0.5)/(K + 1)\) otherwise; exact values are kept. It is the
 density argument for \(\delta = 0\) and the point used by the midpoint
