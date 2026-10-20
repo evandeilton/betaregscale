@@ -191,6 +191,13 @@ compute_start <- function(formula, data, link = NULL,
 #' clamp warnings. \code{brs_sim()} warns in that case, and also whenever all
 #' simulated rows fall on the same border.
 #'
+#' \code{cutpoints = c(c_lo, c_hi)} coarsens with estimated boundary
+#' cutpoints (the model of \code{brs(..., cutpoints = "boundary")}): score 0
+#' below \eqn{c_{lo}}, score \eqn{K} at or above \eqn{c_{hi}}, the cells of
+#' \code{interval} in between. It needs \code{delta = NULL} and \code{lim =
+#' 0.5}; the returned cells are those of the map, as \code{\link{brs}} expects
+#' for score data.
+#'
 #' A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
 #' \code{brs_sim()} and \code{brs()} over a fixed design; see the vignette
 #' \code{vignette("brs-advanced-workflows")}.
@@ -211,6 +218,10 @@ compute_start <- function(formula, data, link = NULL,
 #' @param delta \code{NULL} (default) or one censoring type (0, 1, 2 or 3)
 #'   forced on every row; see Details.
 #' @param interval \code{"mid"} (default), \code{"right"} or \code{"left"}.
+#' @param cutpoints \code{NULL} (default: the cells of \code{interval}) or
+#'   \code{c(c_lo, c_hi)}, the boundary cutpoints on \eqn{(0, 1)} between
+#'   scores 0 and 1 and between \eqn{K - 1} and \eqn{K}; they must keep every
+#'   cell non-empty (\eqn{c_{lo} < u_1}, \eqn{c_{hi} > l_{K-1}}). See Details.
 #'
 #' @return A data frame with columns \code{left}, \code{right}, \code{yt},
 #'   \code{y} (score), \code{delta} and the non-intercept columns of the model
@@ -272,6 +283,11 @@ compute_start <- function(formula, data, link = NULL,
 #'               ncuts = 10, interval = "right")
 #' table(sr$delta)
 #'
+#' # Heaping at the borders: score 0 covers (0, 0.11), score 10 covers (0.9, 1)
+#' sb <- brs_sim(~ x, data = d, beta = c(0.3, 0.6), phi = qlogis(0.2),
+#'               ncuts = 10, cutpoints = c(0.11, 0.9))
+#' table(sb$y)
+#'
 #' # Forcing delta = 1 on every row is informative censoring: a warning
 #' sl <- brs_sim(~ x, data = d, beta = c(0.3, 0.6), phi = qlogis(0.2),
 #'               ncuts = 10, delta = 1)
@@ -291,7 +307,8 @@ brs_sim <- function(formula,
                     lim = 0.5,
                     repar = 2L,
                     delta = NULL,
-                    interval = c("mid", "right", "left")) {
+                    interval = c("mid", "right", "left"),
+                    cutpoints = NULL) {
   if (!is.null(delta)) {
     if (length(delta) != 1L || !(delta %in% 0:3)) {
       stop("'delta' must be NULL or a single integer in {0, 1, 2, 3}.",
@@ -303,6 +320,16 @@ brs_sim <- function(formula,
   interval <- match.arg(interval)
   # Generator-specific warning: round() matches the mid likelihood only at 0.5
   .brs_lim_check(lim, interval, warn = TRUE, generator = TRUE)
+  if (!is.null(cutpoints)) {
+    # Boundary cutpoints coarsen score data on cells that partition (0, 1)
+    if (!is.null(delta)) {
+      stop("`cutpoints` needs delta = NULL (score data).", call. = FALSE)
+    }
+    if (abs(lim - 0.5) > sqrt(.Machine$double.eps)) {
+      stop("`cutpoints` needs lim = 0.5.", call. = FALSE)
+    }
+    cutpoints <- .brs_cut_check_values(cutpoints, ncuts, interval)
+  }
 
   repar <- as.integer(repar)
   links <- .resolve_links(link, link_phi, repar)
@@ -353,7 +380,8 @@ brs_sim <- function(formula,
   y_raw <- stats::rbeta(n, shape1 = pars$shape1, shape2 = pars$shape2)
 
   out_y <- .build_simulated_response(
-    y_raw = y_raw, delta = delta, ncuts = ncuts, lim = lim, interval = interval
+    y_raw = y_raw, delta = delta, ncuts = ncuts, lim = lim, interval = interval,
+    cuts = cutpoints
   )
   # All rows censored on one side: no finite MLE (forced: also informative)
   d_out <- as.integer(out_y[, "delta"])
@@ -437,7 +465,8 @@ brs_sim_var <- function(formula_x = ~ x1 + x2,
 #' @return A numeric matrix with \eqn{n} rows and columns
 #'   \code{left}, \code{right}, \code{yt}, \code{y}, \code{delta}.
 #' @noRd
-.build_simulated_response <- function(y_raw, delta, ncuts, lim, interval = "mid") {
+.build_simulated_response <- function(y_raw, delta, ncuts, lim, interval = "mid",
+                                      cuts = NULL) {
   n <- length(y_raw)
   eps <- 1e-5
 
@@ -448,8 +477,9 @@ brs_sim_var <- function(formula_x = ~ x1 + x2,
   }
 
   # Score by the likelihood's own coarsening (round for mid, floor over K + 1
-  # cells for right/left); brs_sim() already validated lim, so no warnings
-  y_grid <- .brs_score_from_unit(y_raw, ncuts, interval)
+  # cells for right/left; `cuts` moves the two boundary cutpoints); brs_sim()
+  # already validated lim, so no warnings
+  y_grid <- .brs_score_from_unit_cut(y_raw, ncuts, interval, cuts)
   if (!is.null(delta) && delta == 3L) {
     # Interval-censored everywhere: keep away from the border scores
     y_grid <- pmin(pmax(y_grid, 1L), ncuts - 1L)

@@ -59,7 +59,9 @@
 #' @param model  Character: which component to return.
 #'   \code{"full"} (default) returns all parameters,
 #'   \code{"mean"} returns only the mean-model coefficients,
-#'   \code{"precision"} returns only the precision coefficients.
+#'   \code{"precision"} returns only the precision coefficients,
+#'   \code{"cutpoints"} the logit-scale boundary cutpoint parameters of a
+#'   fit with \code{cutpoints = "boundary"} (see \code{\link{brs}}).
 #' @param ... Ignored.
 #'
 #' @return Named numeric vector of estimated parameters.
@@ -86,14 +88,15 @@
 #' @importFrom stats coef
 #' @export
 coef.brs <- function(object,
-                     model = c("full", "mean", "precision"),
+                     model = c("full", "mean", "precision", "cutpoints"),
                      ...) {
   .check_class(object)
   model <- match.arg(model)
   switch(model,
     full      = object$par,
     mean      = object$coefficients$mean,
-    precision = object$coefficients$precision
+    precision = object$coefficients$precision,
+    cutpoints = object$par[.brs_cut_index(object)]
   )
 }
 
@@ -104,7 +107,7 @@ coef.brs <- function(object,
 #'
 #' @param object A fitted \code{"brs"} object.
 #' @param model  Character: which component (\code{"full"},
-#'   \code{"mean"}, or \code{"precision"}).
+#'   \code{"mean"}, \code{"precision"} or \code{"cutpoints"}).
 #' @param ... Ignored.
 #'
 #' @details
@@ -136,7 +139,7 @@ coef.brs <- function(object,
 #' @importFrom stats vcov
 #' @export
 vcov.brs <- function(object,
-                     model = c("full", "mean", "precision"),
+                     model = c("full", "mean", "precision", "cutpoints"),
                      ...) {
   .check_class(object)
   model <- match.arg(model)
@@ -152,6 +155,10 @@ vcov.brs <- function(object,
     },
     precision = {
       idx <- object$p + seq_len(object$q)
+      V[idx, idx, drop = FALSE]
+    },
+    cutpoints = {
+      idx <- .brs_cut_index(object)
       V[idx, idx, drop = FALSE]
     }
   )
@@ -529,7 +536,8 @@ summary.brs <- function(object, ...) {
     iterations   = object$iterations,
     method       = object$optim_method,
     censoring    = cens_counts,
-    repar        = object$repar
+    repar        = object$repar,
+    cutpoints    = .brs_cut_table(object, V)
   )
   class(out) <- "summary.brs"
   out
@@ -606,6 +614,10 @@ print.summary.brs <- function(x,
     signif.stars = TRUE,
     ...
   )
+  if (!is.null(x$cutpoints)) {
+    cat("\n")
+    .brs_print_cut_table(x$cutpoints, digits)
+  }
 
   cat("---\n")
 
@@ -690,6 +702,7 @@ print.brs <- function(x,
   names(prec_display) <- .pretty_phi_names(names(prec_display))
   print(round(prec_display, digits))
   cat("\n")
+  .brs_print_cuts(x, digits)
 
   invisible(x)
 }
@@ -752,10 +765,15 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #' @details
 #' Let \eqn{(a_i, b_i)} be the fitted shapes, \eqn{\hat\mu_i = a_i/(a_i + b_i)}
 #' the fitted mean and \eqn{V_i} the fitted variance (\code{\link{brs_repar}}).
-#' All types except \code{"rqr"} use \eqn{y_i =} \code{yt}, the centre of the
+#' All types except \code{"rqr"} use \eqn{y_i =} \code{yt}, the center of the
 #' cell: \eqn{s/K} under \code{interval = "mid"}, so that the border scores
 #' sit at \eqn{10^{-5}} and \eqn{1 - 10^{-5}}, and \eqn{(s + 0.5)/(K + 1)}
-#' under \code{"right"}/\code{"left"}; exact values are used as they are. This
+#' under \code{"right"}/\code{"left"}; exact values are used as they are.
+#' With \code{cutpoints = "boundary"} scores 0, 1, \eqn{K - 1} and \eqn{K}
+#' use the centers of their estimated cells (see \code{\link{brs}}); since
+#' the centers of scores 0 and \eqn{K} differ by construction, these residuals
+#' and the pseudo \eqn{R^2} are not directly comparable between fixed-map and
+#' boundary fits. This
 #' is the midpoint convention of Lopes (2023, "Analise de residuos"); it makes
 #' these residuals unreliable at the borders of the scale.
 #' \describe{
@@ -961,8 +979,9 @@ residuals.brs <- function(object,
 #' @param parm Character or integer: which parameters. If missing, all
 #'   parameters of \code{model} are returned.
 #' @param level Confidence level (default 0.95).
-#' @param model Character: \code{"full"}, \code{"mean"} or
-#'   \code{"precision"}.
+#' @param model Character: \code{"full"}, \code{"mean"},
+#'   \code{"precision"} or \code{"cutpoints"} (logit scale; see
+#'   \code{summary()} for the cutpoints on (0, 1)).
 #' @param ... Currently ignored.
 #'
 #' @return Matrix with the lower and upper limits.
@@ -988,7 +1007,7 @@ residuals.brs <- function(object,
 #' @importFrom stats confint qnorm
 #' @export
 confint.brs <- function(object, parm, level = 0.95,
-                        model = c("full", "mean", "precision"),
+                        model = c("full", "mean", "precision", "cutpoints"),
                         ...) {
   .check_class(object)
   model <- match.arg(model)
@@ -1019,7 +1038,8 @@ confint.brs <- function(object, parm, level = 0.95,
   K <- as.integer(object$ncuts)
   P <- .brs_score_prob_matrix(
     mu = mu, phi = phi, repar = object$repar, ncuts = K, lim = object$lim,
-    scores = 0:K, interval = .brs_interval_of(object)
+    scores = 0:K, interval = .brs_interval_of(object),
+    cuts = .brs_cuts_of(object)
   )
   as.numeric(P %*% (0:K))
 }
@@ -1226,8 +1246,10 @@ brs_gof <- function(object) {
 #' @param object A fitted \code{"brs"} object.
 #' @param alpha  Significance level (default 0.05).
 #'
-#' @return Data frame of estimates, standard errors, z-values, and
-#'   p-values.
+#' @return Data frame of estimates, standard errors, z-values, p-values and
+#'   Wald intervals. The cutpoint parameters of a \code{cutpoints =
+#'   "boundary"} fit get \code{NA} z- and p-values (their zero is not a
+#'   hypothesis of interest; see \code{summary()} and \code{\link{anova.brs}}).
 #'
 #' @seealso \code{\link{brs}}, \code{\link{brs_gof}}, \code{\link{brs_hessian}},
 #'   \code{\link{summary.brs}}
@@ -1282,6 +1304,8 @@ brs_est <- function(object, alpha = 0.05) {
   V <- vcov(object)
   se <- sqrt(diag(V))
   z <- object$par / se
+  # Cutpoint parameters: g = 0 is no null hypothesis of interest (no test)
+  z[names(object$par) %in% c("(cut_lo)", "(cut_hi)")] <- NA_real_
   p <- 2 * stats::pnorm(-abs(z))
   z_alpha <- stats::qnorm(1 - alpha / 2)
 

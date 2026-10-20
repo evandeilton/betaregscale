@@ -91,6 +91,18 @@
         "effect (variance on the boundary); Pr(>Chisq) from the chi-bar-square ",
         "mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df)."))
     }
+    # Fixed map vs estimated boundary cutpoints: the map is an interior point
+    # of the boundary model, so the chi2(Df) reference is regular
+    ncut <- vapply(models, function(m) {
+      as.numeric(identical(.brs_cut_type_of(m), "boundary"))
+    }, numeric(1))
+    dcut <- c(NA_real_, diff(ncut))
+    if (any(valid & !is.na(dcut) & dcut != 0)) {
+      heading <- c(heading, paste0(
+        "Rows ", paste0("M", which(valid & dcut != 0), collapse = ", "), ": ",
+        "cutpoints \"fixed\" vs \"boundary\" (2 cutpoint parameters; the fixed map ",
+        "is an interior point; chi2 reference when both cutpoints are identified)."))
+    }
     other <- valid & !is.na(dre) & dre != 0 & !mix
     if (any(other)) {
       heading <- c(heading, paste0(
@@ -137,6 +149,13 @@
 #' printed heading names the rows that use it. When more than one random term
 #' is added at once, the naive \eqn{\chi^2_{df}} p-value is kept and flagged
 #' as conservative.
+#'
+#' A fit with \code{cutpoints = "fixed"} is nested in the same model with
+#' \code{cutpoints = "boundary"} at an interior point of the cutpoint
+#' parameters (section 'Boundary cutpoints' of \code{\link{brs}}), so their
+#' comparison is a regular \eqn{\chi^2_2} test when both cutpoints are
+#' identified (\eqn{K \ge 4} in practice; with \eqn{K = 3} the fit warns that
+#' they are weakly identified); the heading names those rows.
 #'
 #' @param object A fitted \code{"brs"} model.
 #' @param ... Further fitted \code{"brs"} and/or \code{"brsmm"} models.

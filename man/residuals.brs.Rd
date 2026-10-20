@@ -31,10 +31,15 @@ recommended ones; the other types are evaluated at one point of the cell
 \details{
 Let \eqn{(a_i, b_i)} be the fitted shapes, \eqn{\hat\mu_i = a_i/(a_i + b_i)}
 the fitted mean and \eqn{V_i} the fitted variance (\code{\link{brs_repar}}).
-All types except \code{"rqr"} use \eqn{y_i =} \code{yt}, the centre of the
+All types except \code{"rqr"} use \eqn{y_i =} \code{yt}, the center of the
 cell: \eqn{s/K} under \code{interval = "mid"}, so that the border scores
 sit at \eqn{10^{-5}} and \eqn{1 - 10^{-5}}, and \eqn{(s + 0.5)/(K + 1)}
-under \code{"right"}/\code{"left"}; exact values are used as they are. This
+under \code{"right"}/\code{"left"}; exact values are used as they are.
+With \code{cutpoints = "boundary"} scores 0, 1, \eqn{K - 1} and \eqn{K}
+use the centers of their estimated cells (see \code{\link{brs}}); since
+the centers of scores 0 and \eqn{K} differ by construction, these residuals
+and the pseudo \eqn{R^2} are not directly comparable between fixed-map and
+boundary fits. This
 is the midpoint convention of Lopes (2023, "Analise de residuos"); it makes
 these residuals unreliable at the borders of the scale.
 \describe{

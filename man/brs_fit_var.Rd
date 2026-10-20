@@ -16,7 +16,8 @@ brs_fit_var(
   method = c("BFGS", "L-BFGS-B"),
   interval = NULL,
   start = NULL,
-  control = list()
+  control = list(),
+  cutpoints = c("fixed", "boundary")
 )
 }
 \arguments{
@@ -69,6 +70,10 @@ estimate here.}
 
 \item{control}{Control list for \code{\link[stats]{optim}}; its entries
 are merged into the default \code{list(maxit = 5000L)}.}
+
+\item{cutpoints}{\code{"fixed"} (default) keeps the cutpoints of the
+interval map; \code{"boundary"} also estimates the two boundary
+cutpoints (see the section 'Boundary cutpoints' of \code{\link{brs}}).}
 }
 \value{
 An object of class \code{"brs"}.

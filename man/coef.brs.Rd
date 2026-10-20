@@ -4,7 +4,7 @@
 \alias{coef.brs}
 \title{Extract model coefficients}
 \usage{
-\method{coef}{brs}(object, model = c("full", "mean", "precision"), ...)
+\method{coef}{brs}(object, model = c("full", "mean", "precision", "cutpoints"), ...)
 }
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
@@ -12,7 +12,9 @@
 \item{model}{Character: which component to return.
 \code{"full"} (default) returns all parameters,
 \code{"mean"} returns only the mean-model coefficients,
-\code{"precision"} returns only the precision coefficients.}
+\code{"precision"} returns only the precision coefficients,
+\code{"cutpoints"} the logit-scale boundary cutpoint parameters of a
+fit with \code{cutpoints = "boundary"} (see \code{\link{brs}}).}
 
 \item{...}{Ignored.}
 }

@@ -24,6 +24,11 @@
 #' complete likelihood contribution implied by each observation's
 #' censoring type (\code{delta}).
 #'
+#' With \code{cutpoints = "boundary"} in \code{...}, held-out rows use the
+#' cells of the training fit's cutpoints. A training fold without one of the
+#' scores 0, 1, \eqn{K - 1} or \eqn{K} cannot be fitted: its row has
+#' \code{converged = FALSE} and the message in \code{error}.
+#'
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
@@ -186,6 +191,8 @@ brs_cv <- function(formula,
     lim = fit$lim,
     interval = .brs_interval_of(fit)
   )
+  # Cells of the estimated boundary cutpoints (unchanged under the fixed map)
+  Y <- .brs_apply_fit_cuts(Y, fit)
 
   # First parameter and phi for the shapes; E[Y] for the point metrics.
   pp <- .brs_predict_params(fit, newdata = newdata)

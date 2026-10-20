@@ -18,7 +18,9 @@
 #' otherwise; under \code{"right"}/\code{"left"} the cells are
 #' \eqn{[s, s + 1]/(K + 1)}. The rows sum to 1 whenever the cells partition
 #' \eqn{[0, 1]} (always for \code{"right"}/\code{"left"}; \code{lim = 0.5}
-#' for \code{"mid"}).
+#' for \code{"mid"}). A fit with \code{cutpoints = "boundary"} uses its
+#' estimated cutpoints: \eqn{u_0 = l_1 = \hat c_{lo}} and
+#' \eqn{u_{K-1} = l_K = \hat c_{hi}}.
 #'
 #' @param object A fitted \code{"brs"} object.
 #' @param newdata Optional data frame for prediction.
@@ -105,7 +107,8 @@ brs_predict_scoreprob <- function(object,
     ncuts = K,
     lim = object$lim,
     scores = scores,
-    interval = .brs_interval_of(object)
+    interval = .brs_interval_of(object),
+    cuts = .brs_cuts_of(object)
   )
 
   if (identical(format, "matrix")) {

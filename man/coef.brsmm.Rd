@@ -4,13 +4,18 @@
 \alias{coef.brsmm}
 \title{Extract coefficients from a brsmm fit}
 \usage{
-\method{coef}{brsmm}(object, model = c("full", "mean", "precision", "random"), ...)
+\method{coef}{brsmm}(
+  object,
+  model = c("full", "mean", "precision", "random", "cutpoints"),
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
 \item{model}{Character: \code{"full"} (default), \code{"mean"},
-\code{"precision"}, or \code{"random"}.}
+\code{"precision"}, \code{"random"} or \code{"cutpoints"} (fits with
+\code{cutpoints = "boundary"}).}
 
 \item{...}{Currently ignored.}
 }

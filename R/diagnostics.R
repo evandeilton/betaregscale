@@ -200,6 +200,14 @@
         if (badly_scaled) "rescale the covariates (their scales differ widely) and refit"
         else "refit with the other method or rescaled covariates"))
     }
+    # Without a usable Hessian the Newton gain is unknown: judge the gradient itself
+    if (identical(as.integer(convergence), 0L) && !is.finite(gain) && !re_bnd &&
+        is.finite(out$grad_norm) && out$grad_norm > 0.1) {
+      .brs_advisory(sprintf(paste0(
+        "Gradient not ~0 at the estimate (largest |gradient| = %.3g) and the ",
+        "Hessian cannot measure the remaining gain: the optimizer stopped at a ",
+        "flat or non-identified point; the estimates are not reliable."), out$grad_norm))
+    }
     if (!nd_ok) {
       .brs_advisory(sprintf(paste0(
         "Hessian near-singular or not negative definite (SEs unreliable): ",

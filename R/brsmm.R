@@ -111,13 +111,24 @@
 #'   the compiled gradient), \code{"numDeriv"} or \code{"optim"}.
 #' @param control Control list for \code{\link[stats]{optim}}, merged into
 #'   the default \code{list(maxit = 2000L)}.
+#' @param cutpoints \code{"fixed"} (default) or \code{"boundary"}: also
+#'   estimate the cutpoints between scores 0 and 1 and between \eqn{K - 1} and
+#'   \eqn{K} (section 'Boundary cutpoints' of \code{\link{brs}}; same
+#'   requirements). Their two parameters come last in \code{coef()}. The
+#'   gradient in them is a Richardson central difference of the marginal
+#'   log-likelihood (steps \eqn{10^{-3}\max(1, |g|)} and half); the
+#'   Hessian (\code{"cpp"}) adds to the compiled block the
+#'   \code{numDeriv::jacobian()} of the compiled gradient in the cutpoint
+#'   parameters and the \code{numDeriv::hessian()} of the marginal
+#'   log-likelihood in them.
 #'
 #' @return An object of class \code{"brsmm"} with the components of a
 #'   \code{"brs"} fit (\code{par}, \code{coefficients} with a \code{random}
 #'   part, \code{value}, \code{hessian}, \code{diagnostics}, ...) and
 #'   \code{random} (group variable, levels, conditional modes \code{mode_b},
 #'   \code{D}, \code{L} and the SDs \code{sd_b}), \code{ngroups},
-#'   \code{int_method}.
+#'   \code{int_method}, \code{cutpoints} and \code{cut} (as in
+#'   \code{\link{brs}}).
 #'
 #' @seealso \code{\link{brs}}, \code{\link{summary.brsmm}},
 #'   \code{\link{anova.brsmm}}, \code{\link{brsmm_re_study}},
@@ -187,10 +198,13 @@ brsmm <- function(formula,
                   method = c("BFGS", "L-BFGS-B"),
                   hessian_method = c("cpp", "numDeriv", "optim"),
                   control = list(maxit = 2000L),
-                  interval = NULL) {
+                  interval = NULL,
+                  cutpoints = c("fixed", "boundary")) {
   cl <- match.call()
   .brsmm_reset_cache()   # warm starts never carry over from earlier fits
   method <- match.arg(method)
+  cutpoints <- .brs_match_cutpoints(cutpoints)
+  boundary <- identical(cutpoints, "boundary")
   hessian_method <- match.arg(hessian_method)
   int_method <- match.arg(int_method)
   n_points <- as.integer(n_points)
@@ -231,6 +245,8 @@ brsmm <- function(formula,
   Z <- stats::model.matrix(mtZ, mf)
   Y <- .extract_response(mf, data, ncuts = ncuts, lim = lim, interval = interval)
   delta <- as.integer(Y[, "delta"])
+  # Boundary cutpoints: score rows only, both border categories observed
+  cs <- if (boundary) .brs_cut_setup(Y, ncuts, lim, interval) else NULL
 
   rows_idx <- .brsmm_row_index(mf = mf, data = data)
   data_sub <- data[rows_idx, , drop = FALSE]
@@ -294,12 +310,14 @@ brsmm <- function(formula,
         k <- k + 1L
       }
     }
-    start <- c(start_fix, theta_re_start)
+    # Cutpoint parameters start at the fixed map
+    start <- c(start_fix, theta_re_start, cs$start)
   } else {
     start <- as.numeric(start)
-    if (length(start) != (p + q + k_re)) {
+    if (length(start) != (p + q + k_re + 2L * boundary)) {
       stop(
-        "'start' must have length p + q + q_re * (q_re + 1) / 2.",
+        "'start' must have length p + q + q_re * (q_re + 1) / 2",
+        if (boundary) " + 2 (cutpoints)" else "", ".",
         call. = FALSE
       )
     }
@@ -346,6 +364,39 @@ brsmm <- function(formula,
       method = method_code, n_points = n_pts
     )
   }
+
+  if (boundary) {
+    # Same compiled marginal likelihood with the cell ends moved to the
+    # cutpoints; Richardson differences in the cutpoint parameters
+    yt_vec <- as.numeric(Y[, "yt"])
+    prob <- .brs_cut_problem(
+      cs, k0 = p + q + k_re,
+      ll0 = function(par0, l, r) {
+        .brsmm_loglik_eigen(
+          param = as.numeric(par0), X = X, Z = Z, Xr = Xr, y_left = l, y_right = r,
+          yt = yt_vec, delta = delta, group = group_index, link_mu = lc_mu,
+          link_phi = lc_phi, repar = repar, method = method_code, n_points = n_pts
+        )
+      },
+      gr0 = function(par0, l, r) {
+        .brsmm_grad_cpp(
+          param = as.numeric(par0), X = X, Z = Z, Xr = Xr, y_left = l, y_right = r,
+          yt = yt_vec, delta = delta, group = group_index, link_mu = lc_mu,
+          link_phi = lc_phi, repar = repar, method = method_code, n_points = n_pts
+        )
+      },
+      hess0 = function(par0, l, r) {
+        .brsmm_hessian_cpp(
+          param = as.numeric(par0), X = X, Z = Z, Xr = Xr, y_left = l, y_right = r,
+          yt = yt_vec, delta = delta, group = group_index, link_mu = lc_mu,
+          link_phi = lc_phi, repar = repar, method = method_code, n_points = n_pts
+        )
+      },
+      shapes = NULL
+    )
+    fn_ll <- function(par) prob$fn(as.numeric(par))
+    gr_ll <- function(par) prob$gr(as.numeric(par))
+  }
   gr_obj <- function(par) -gr_ll(par)
 
   opt <- stats::optim(
@@ -368,7 +419,10 @@ brsmm <- function(formula,
     )
   }
 
-  if (hessian_method == "cpp") {
+  if (boundary && hessian_method == "cpp") {
+    # Compiled block, numDeriv for the cutpoint rows and columns
+    hess <- prob$hess(as.numeric(opt$par))
+  } else if (hessian_method == "cpp") {
     hess <- .brsmm_hessian_cpp(
       param = opt$par, X = X, Z = Z, Xr = Xr,
       y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),
@@ -383,6 +437,13 @@ brsmm <- function(formula,
   }
 
   est <- as.numeric(opt$par)
+  if (boundary) {
+    # Stored cells and centers: those of the estimated cutpoints (modes, residuals)
+    ends <- prob$ends(est)
+    Y[, "left"] <- ends$left
+    Y[, "right"] <- ends$right
+    Y[, "yt"] <- ends$yt
+  }
   idx_beta <- seq_len(p)
   idx_gamma <- p + seq_len(q)
   idx_re <- p + q + seq_len(k_re)
@@ -403,7 +464,7 @@ brsmm <- function(formula,
   sd_b_terms <- sqrt(diag(D))
 
   gm <- .brsmm_group_modes_eigen(
-    param = est,
+    param = est[seq_len(p + q + k_re)],
     X = X,
     Z = Z,
     Xr = Xr,
@@ -423,7 +484,7 @@ brsmm <- function(formula,
   # Inner-mode diagnostics (reported by .brs_fit_diagnostics): a group without a
   # positive-definite mode is penalised in the likelihood.
   diag_re <- .brsmm_mode_diag_cpp(
-    param = est, X = X, Z = Z, Xr = Xr,
+    param = est[seq_len(p + q + k_re)], X = X, Z = Z, Xr = Xr,
     y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),
     yt = as.numeric(Y[, "yt"]), delta = delta, group = group_index,
     link_mu = lc_mu, link_phi = lc_phi, repar = repar, warm = TRUE
@@ -447,7 +508,8 @@ brsmm <- function(formula,
       k <- k + 1L
     }
   }
-  par_names <- c(mean_names, phi_names, re_param_names)
+  cut_names <- if (boundary) c("(cut_lo)", "(cut_hi)") else character(0)
+  par_names <- c(mean_names, phi_names, re_param_names, cut_names)
   names(est) <- par_names
   rownames(hess) <- colnames(hess) <- par_names
 
@@ -456,6 +518,7 @@ brsmm <- function(formula,
     precision = est[idx_gamma],
     random = stats::setNames(est[idx_re], re_param_names)
   )
+  if (boundary) coefficients$cutpoints <- est[cut_names]
   levels_group <- levels(group)
   rownames(mode_b) <- levels_group
   colnames(mode_b) <- re_colnames
@@ -553,6 +616,8 @@ brsmm <- function(formula,
     ncuts = ncuts,
     lim = lim,
     interval = interval,
+    cutpoints = cutpoints,
+    cut = if (boundary) .brs_cut_component(cs, est[cut_names]) else NULL,
     method = method,
     hessian_method = hessian_method,
     int_method = int_method,

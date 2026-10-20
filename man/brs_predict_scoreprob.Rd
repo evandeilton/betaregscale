@@ -45,7 +45,9 @@ for \eqn{s = K} and \eqn{F((s + \mathrm{lim})/K) - F((s - \mathrm{lim})/K)}
 otherwise; under \code{"right"}/\code{"left"} the cells are
 \eqn{[s, s + 1]/(K + 1)}. The rows sum to 1 whenever the cells partition
 \eqn{[0, 1]} (always for \code{"right"}/\code{"left"}; \code{lim = 0.5}
-for \code{"mid"}).
+for \code{"mid"}). A fit with \code{cutpoints = "boundary"} uses its
+estimated cutpoints: \eqn{u_0 = l_1 = \hat c_{lo}} and
+\eqn{u_{K-1} = l_K = \hat c_{hi}}.
 }
 \examples{
 \donttest{

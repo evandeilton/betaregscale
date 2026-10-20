@@ -45,7 +45,8 @@ A data frame with columns \code{parameter}, \code{estimate}
   \code{"n_success"} gives the number of replicates that converged.
   Additional attributes include \code{"R"}, \code{"n_attempted"},
   \code{"n_failed"}, \code{"fail_rate"}, \code{"n_jack_failed"} (BCa
-  only), \code{"ci_type"}, and optionally \code{"boot_draws"}.
+  only), \code{"fail_reasons"} (counts of the failure messages, or
+  \code{NULL}), \code{"ci_type"}, and optionally \code{"boot_draws"}.
 }
 \description{
 Computes bootstrap-based confidence intervals for the parameters of a
@@ -73,7 +74,12 @@ more thresholds than a row records (e.g. Mode 4 intervals cut from a finer
 instrument) the bootstrap is conservative, and for Mode 2 rows with a
 forced \eqn{\delta} (a threshold built from the score itself, which is
 informative) it is only an approximation. The response must be a variable
-(not an expression such as \code{I(y / 10)}).
+(not an expression such as \code{I(y / 10)}). A fit with
+\code{cutpoints = "boundary"} re-coarsens with its estimated boundary
+cutpoints and re-estimates them in every replicate; a replicate without
+one of the scores 0, 1, \eqn{K - 1} or \eqn{K} cannot be refitted and
+counts as failed. The reasons of failed replicates are kept in
+\code{attr(, "fail_reasons")} and printed.
 
 Each refit starts from the estimate of \code{object} and uses the compiled
 Hessian (\code{hessian_method = "cpp"}), so replicates are cheap.

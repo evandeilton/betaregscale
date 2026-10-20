@@ -167,6 +167,9 @@
 #'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
 #'   \code{NULL} (default) uses \code{attr(data, "interval")} from
 #'   \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.
+#' @param cutpoints \code{"fixed"} (default) keeps the cutpoints of the
+#'   interval map; \code{"boundary"} also estimates the two boundary
+#'   cutpoints (see the section 'Boundary cutpoints' of \code{\link{brs}}).
 #'
 #' @return An object of class \code{"brs"}.
 #'
@@ -220,10 +223,13 @@ brs_fit_fixed <- function(formula, data,
                           method = c("BFGS", "L-BFGS-B"),
                           interval = NULL,
                           start = NULL,
-                          control = list()) {
+                          control = list(),
+                          cutpoints = c("fixed", "boundary")) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
+  cutpoints <- .brs_match_cutpoints(cutpoints)
+  boundary <- identical(cutpoints, "boundary")
   validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi,
                                         interval)
   ncuts <- validated$ncuts
@@ -246,15 +252,19 @@ brs_fit_fixed <- function(formula, data,
   # Extract delta from brs_check output
   delta <- as.integer(Y[, "delta"])
 
-  # Starting values: user / parent estimate, else compute_start()
+  # Boundary cutpoints: score rows only, both border categories observed
+  cs <- if (boundary) .brs_cut_setup(Y, ncuts, lim, interval) else NULL
+
+  # Starting values: user / parent estimate, else compute_start() (and the
+  # fixed-map cutpoints)
   ini <- if (is.null(start)) {
-    compute_start(
+    c(compute_start(
       formula = formula, data = data, link = link,
       link_phi = link_phi, ncuts = ncuts,
       lim = lim, repar = repar, interval = interval
-    )
+    ), cs$start)
   } else {
-    .brs_check_start(start, p + 1L)
+    .brs_check_start(start, p + 1L + 2L * boundary)
   }
 
   # Pre-compute link codes for C++
@@ -277,6 +287,13 @@ brs_fit_fixed <- function(formula, data,
     )
   }
 
+  if (boundary) {
+    # Same compiled likelihood with the cell ends moved to the cutpoints
+    prob <- .brs_cut_problem_brs(cs, X, NULL, Y, delta, link, link_phi, repar)
+    fn_obj <- function(par) -prob$fn(par)
+    gr_obj <- function(par) -prob$gr(par)
+  }
+
   # Optimize
   opt <- stats::optim(
     par     = ini,
@@ -297,8 +314,13 @@ brs_fit_fixed <- function(formula, data,
     )
   }
 
-  # Hessian (on the log-likelihood scale)
-  if (hessian_method == "cpp") {
+  # Hessian (on the log-likelihood scale); with boundary cutpoints the compiled
+  # block plus numDeriv on the gradient for the cutpoint rows and columns
+  if (boundary && hessian_method == "cpp") {
+    opt$hessian <- prob$hess(opt$par)
+  } else if (boundary && hessian_method == "numDeriv") {
+    opt$hessian <- numDeriv::hessian(prob$fn, opt$par)
+  } else if (hessian_method == "cpp") {
     opt$hessian <- .brs_hessian_fixed_cpp(
       opt$par, X, Y[, "left"], Y[, "right"], Y[, "yt"],
       delta, lc_mu, lc_phi, repar
@@ -327,6 +349,13 @@ brs_fit_fixed <- function(formula, data,
   diagnostics <- .brs_fit_diagnostics(-gr_obj(est), opt$hessian, mu_raw, phi_raw,
                                       repar, opt$convergence,
                                       badly_scaled = .brs_badly_scaled(X))
+  if (boundary) {
+    # Stored cells and centers: those of the estimated cutpoints (residuals, refits)
+    ends <- prob$ends(est)
+    Y[, "left"] <- ends$left
+    Y[, "right"] <- ends$right
+    Y[, "yt"] <- ends$yt
+  }
   y_mid <- Y[, "yt"]
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
   resid <- as.numeric(y_mid - ey)
@@ -340,8 +369,9 @@ brs_fit_fixed <- function(formula, data,
   mean_names <- colnames(X)
   # Precision coefficient: single scalar for fixed model
   phi_names <- "(phi)"
+  cut_names <- if (boundary) c("(cut_lo)", "(cut_hi)") else character(0)
 
-  par_names <- c(mean_names, phi_names)
+  par_names <- c(mean_names, phi_names, cut_names)
   names(est) <- par_names
 
   # Named coefficient lists (betareg style)
@@ -350,6 +380,9 @@ brs_fit_fixed <- function(formula, data,
     precision = est[p + 1L]
   )
   names(coefficients$precision) <- phi_names
+  if (boundary) {
+    coefficients$cutpoints <- est[p + 1L + 1:2]
+  }
 
   # Name the hessian
   rownames(opt$hessian) <- colnames(opt$hessian) <- par_names
@@ -388,6 +421,8 @@ brs_fit_fixed <- function(formula, data,
     ncuts            = ncuts,
     lim              = lim,
     interval         = interval,
+    cutpoints        = cutpoints,
+    cut              = if (boundary) .brs_cut_component(cs, est[cut_names]) else NULL,
     method           = method,
     optim_method     = method,
     diagnostics      = diagnostics
@@ -444,6 +479,9 @@ brs_fit_fixed <- function(formula, data,
 #'   \code{"right"} or \code{"left"} (see \code{\link{brs_check}}).
 #'   \code{NULL} (default) uses \code{attr(data, "interval")} from
 #'   \code{\link{brs_prep}}, or \code{"mid"}; same rule as \code{ncuts}.
+#' @param cutpoints \code{"fixed"} (default) keeps the cutpoints of the
+#'   interval map; \code{"boundary"} also estimates the two boundary
+#'   cutpoints (see the section 'Boundary cutpoints' of \code{\link{brs}}).
 #'
 #' @return An object of class \code{"brs"}.
 #'
@@ -498,10 +536,13 @@ brs_fit_var <- function(formula, data,
                         method = c("BFGS", "L-BFGS-B"),
                         interval = NULL,
                         start = NULL,
-                        control = list()) {
+                        control = list(),
+                        cutpoints = c("fixed", "boundary")) {
   cl <- match.call()
   method <- match.arg(method)
   hessian_method <- match.arg(hessian_method)
+  cutpoints <- .brs_match_cutpoints(cutpoints)
+  boundary <- identical(cutpoints, "boundary")
   validated <- .validate_brs_common_args(data, ncuts, lim, repar, link, link_phi,
                                         interval)
   ncuts <- validated$ncuts
@@ -538,15 +579,19 @@ brs_fit_var <- function(formula, data,
   # Extract delta from brs_check output
   delta <- as.integer(Y[, "delta"])
 
-  # Starting values: user / parent estimate, else compute_start()
+  # Boundary cutpoints: score rows only, both border categories observed
+  cs <- if (boundary) .brs_cut_setup(Y, ncuts, lim, interval) else NULL
+
+  # Starting values: user / parent estimate, else compute_start() (and the
+  # fixed-map cutpoints)
   ini <- if (is.null(start)) {
-    compute_start(
+    c(compute_start(
       formula = formula, data = data, link = link,
       link_phi = link_phi, ncuts = ncuts,
       lim = lim, repar = repar, interval = interval
-    )
+    ), cs$start)
   } else {
-    .brs_check_start(start, p + q)
+    .brs_check_start(start, p + q + 2L * boundary)
   }
 
   # Link codes
@@ -568,6 +613,13 @@ brs_fit_var <- function(formula, data,
     )
   }
 
+  if (boundary) {
+    # Same compiled likelihood with the cell ends moved to the cutpoints
+    prob <- .brs_cut_problem_brs(cs, X, Z, Y, delta, link, link_phi, repar)
+    fn_obj <- function(par) -prob$fn(par)
+    gr_obj <- function(par) -prob$gr(par)
+  }
+
   opt <- stats::optim(
     par     = ini,
     fn      = fn_obj,
@@ -587,8 +639,13 @@ brs_fit_var <- function(formula, data,
     )
   }
 
-  # Hessian
-  if (hessian_method == "cpp") {
+  # Hessian; with boundary cutpoints the compiled block plus numDeriv on the
+  # gradient for the cutpoint rows and columns
+  if (boundary && hessian_method == "cpp") {
+    opt$hessian <- prob$hess(opt$par)
+  } else if (boundary && hessian_method == "numDeriv") {
+    opt$hessian <- numDeriv::hessian(prob$fn, opt$par)
+  } else if (hessian_method == "cpp") {
     opt$hessian <- .brs_hessian_variable_cpp(
       opt$par, X, Z, Y[, "left"], Y[, "right"], Y[, "yt"],
       delta, lc_mu, lc_phi, repar
@@ -622,6 +679,13 @@ brs_fit_var <- function(formula, data,
   diagnostics <- .brs_fit_diagnostics(-gr_obj(est), opt$hessian, mu_raw, phi_raw,
                                       repar, opt$convergence,
                                       badly_scaled = .brs_badly_scaled(X, Z))
+  if (boundary) {
+    # Stored cells and centers: those of the estimated cutpoints (residuals, refits)
+    ends <- prob$ends(est)
+    Y[, "left"] <- ends$left
+    Y[, "right"] <- ends$right
+    Y[, "yt"] <- ends$yt
+  }
   y_mid <- Y[, "yt"]
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
   resid <- as.numeric(y_mid - ey)
@@ -635,8 +699,9 @@ brs_fit_var <- function(formula, data,
   mean_names <- colnames(X)
   # Precision coefficients: prefix with "(phi)_"
   phi_names <- paste0("(phi)_", colnames(Z))
+  cut_names <- if (boundary) c("(cut_lo)", "(cut_hi)") else character(0)
 
-  par_names <- c(mean_names, phi_names)
+  par_names <- c(mean_names, phi_names, cut_names)
   names(est) <- par_names
 
   # Named coefficient lists (betareg style)
@@ -646,6 +711,9 @@ brs_fit_var <- function(formula, data,
   )
   names(coefficients$mean) <- mean_names
   names(coefficients$precision) <- phi_names
+  if (boundary) {
+    coefficients$cutpoints <- est[p + q + 1:2]
+  }
 
   # Name the hessian
   rownames(opt$hessian) <- colnames(opt$hessian) <- par_names
@@ -692,6 +760,8 @@ brs_fit_var <- function(formula, data,
     ncuts            = ncuts,
     lim              = lim,
     interval         = interval,
+    cutpoints        = cutpoints,
+    cut              = if (boundary) .brs_cut_component(cs, est[cut_names]) else NULL,
     method           = method,
     optim_method     = method,
     diagnostics      = diagnostics
@@ -806,7 +876,8 @@ brs_fit_var <- function(formula, data,
 #'     covariates or simplify the model.}
 #'   \item{\dQuote{Gradient not ~0 at the estimate}}{A Newton step would
 #'     still gain more than 0.01 in log-likelihood although \code{optim}
-#'     reported convergence. Refit with the other \code{method}; the message
+#'     reported convergence (or, when the Hessian is not negative definite,
+#'     the largest absolute gradient exceeds 0.1). Refit with the other \code{method}; the message
 #'     asks to rescale the covariates when their scales differ by more than
 #'     \eqn{10^3} (e.g. a raw income next to a dummy).}
 #'   \item{\dQuote{Hessian near-singular or not negative definite (SEs
@@ -863,6 +934,67 @@ brs_fit_var <- function(formula, data,
 #' are different coarsening models, whose log-likelihoods and AIC are not
 #' comparable. Details: \code{\link{brs_check}}.
 #'
+#' @section Boundary cutpoints:
+#' Under the fixed map score \eqn{s} has the cell \eqn{(c_{s-1}, c_s)} with
+#' cutpoints fixed by \code{interval}, so the model is an ordinal threshold
+#' model whose thresholds are the scale labels. \code{cutpoints = "boundary"}
+#' estimates the two border cutpoints: \eqn{c_{lo}} between scores 0 and 1 and
+#' \eqn{c_{hi}} between \eqn{K - 1} and \eqn{K}; all other cutpoints keep the
+#' values of the map. Score 0 then has the cell \eqn{(0, c_{lo})}, score 1
+#' \eqn{(c_{lo}, u_1)}, score \eqn{K - 1} \eqn{(l_{K-1}, c_{hi})} and score
+#' \eqn{K} \eqn{(c_{hi}, 1)}, where \eqn{u_1} and \eqn{l_{K-1}} are the ends
+#' given by the map. With \eqn{\epsilon = 10^{-5}}, the border clamp of the
+#' likelihood, the parameters are unconstrained and keep the order:
+#' \deqn{c_{lo} = \epsilon + (u_1 - \epsilon)\, \mathrm{logit}^{-1}(g_{lo}),
+#'   \qquad c_{hi} = l_{K-1} + (1 - \epsilon - l_{K-1})\,
+#'   \mathrm{logit}^{-1}(g_{hi}),}{c_lo = eps + (u_1 - eps) plogis(g_lo),
+#'   c_hi = l_(K-1) + (1 - eps - l_(K-1)) plogis(g_hi),}
+#' so the free cutpoints never enter the clamp and the likelihood is smooth in
+#' \eqn{(g_{lo}, g_{hi})}. The map is the interior point
+#' \eqn{g_{lo} = \mathrm{logit}\{(u_0 - \epsilon)/(u_1 - \epsilon)\}},
+#' \eqn{g_{hi} = \mathrm{logit}\{(l_K - l_{K-1})/(1 - \epsilon - l_{K-1})\}}
+#' (about \eqn{\mathrm{logit}(1/3)} and \eqn{\mathrm{logit}(2/3)} under
+#' \code{"mid"}, about 0 under \code{"right"}/\code{"left"}), so the fixed
+#' model is nested in the boundary model. When both cutpoints are identified
+#' (\eqn{K \ge 4} in practice, see below) \code{\link{anova.brs}} gives a
+#' regular likelihood-ratio test on 2 degrees of freedom. The fit starts at the
+#' map.
+#'
+#' \code{g_lo} and \code{g_hi} are the last two coefficients,
+#' \code{"(cut_lo)"} and \code{"(cut_hi)"} (\code{coef(fit, model =
+#' "cutpoints")}); \code{summary()} reports \eqn{c_{lo}} and \eqn{c_{hi}} on
+#' \eqn{(0, 1)} and on the latent score scale of \code{interval} (the scale of
+#' \code{predict(type = "score")}), with delta-method standard errors. Their
+#' gradient is analytic: \eqn{\pm f(c)/\{F(u_i) - F(l_i)\}} for each row whose
+#' cell ends at \eqn{c} (plus when \eqn{c} is the upper end), times the
+#' Jacobian of the map above. The compiled Hessian covers the regression
+#' coefficients; the rows and columns of the cutpoint parameters come from
+#' \code{numDeriv::jacobian()} of the gradient (\code{hessian_method =
+#' "cpp"}). The fitted cells (\code{fit$Y}), score probabilities, expected
+#' scores, randomized quantile residuals, \code{\link{brs_bootstrap}} and
+#' \code{\link{brs_cv}} use the estimated cutpoints; \code{\link{brs_sim}}
+#' simulates from given ones.
+#'
+#' The extension needs score data: every row the cell of a score
+#' \eqn{0, \ldots, K} (no exact values, no analyst-supplied censoring or
+#' bounds from \code{\link{brs_prep}}), \code{lim = 0.5}, \eqn{K \ge 3},
+#' and the scores next to each free cutpoint observed (0, 1, \eqn{K - 1},
+#' \eqn{K}); otherwise \code{brs()} stops, since a cutpoint with an
+#' unobserved neighbor is not identified. With \eqn{K = 2} the two cutpoints
+#' are not identified and \code{brs()} stops; with \eqn{K = 3} they rest
+#' mainly on the shape of the beta distribution and a warning says they are
+#' weakly identified, so the \eqn{\chi^2_2} reference is not trustworthy there.
+#' A border cell holding less than \eqn{10^{-4}} of the range its cutpoint
+#' can take (\eqn{c_{lo} - \epsilon} or \eqn{u_1 - c_{lo}} relative to
+#' \eqn{u_1 - \epsilon}, and the same for \eqn{c_{hi}}) warns: that cell is
+#' collapsing and its cutpoint is not identified. The cell centers in
+#' \code{fit$Y[, "yt"]} (midpoint residuals, pseudo \eqn{R^2}) are those of the
+#' estimated cells: \eqn{c_{lo}/2}, \eqn{(c_{lo} + u_1)/2},
+#' \eqn{(l_{K-1} + c_{hi})/2} and \eqn{(c_{hi} + 1)/2}. The border centers
+#' differ by construction from those of the fixed map (\eqn{10^{-5}} and
+#' \eqn{1 - 10^{-5}} under \code{"mid"}), so pseudo \eqn{R^2} and midpoint
+#' residuals are not directly comparable between fixed-map and boundary fits.
+#'
 #' @inheritParams brs_fit_var
 #' @param ncuts Integer \eqn{K}: the maximum score, so that the scale is
 #'   \eqn{0, 1, \ldots, K} (\eqn{K + 1} categories). \code{NULL} (default)
@@ -880,8 +1012,13 @@ brs_fit_var <- function(formula, data,
 #'   (see 'Fit diagnostics'), \code{hatmu} (first parameter per observation:
 #'   the mean, or the shape \eqn{p} under \code{repar = 0}), \code{hatphi},
 #'   \code{Y} (columns \code{left}, \code{right}, \code{yt}, \code{y},
-#'   \code{delta}), \code{ncuts}, \code{lim}, \code{interval}, \code{repar},
-#'   \code{link} and \code{link_phi}.
+#'   \code{delta}; with \code{cutpoints = "boundary"} the cells and cell
+#'   centers of the estimated cutpoints), \code{ncuts}, \code{lim}, \code{interval},
+#'   \code{repar}, \code{link}, \code{link_phi}, \code{cutpoints} (the type)
+#'   and \code{cut} (\code{NULL} under the fixed map; otherwise a list with
+#'   \code{par}, the logit-scale estimates, \code{value}, the cutpoints on
+#'   \eqn{(0, 1)}, \code{jacobian}, \code{fixed}, the map's cutpoints, and
+#'   \code{start}, their logit-scale values).
 #'
 #' @seealso \code{\link{brs_check}}, \code{\link{brs_prep}},
 #'   \code{\link{brs_repar}}, \code{\link{summary.brs}},
@@ -941,6 +1078,11 @@ brs_fit_var <- function(formula, data,
 #' predict(fit, newdata = nd, type = "expected_score")
 #' round(brs_predict_scoreprob(fit, newdata = nd), 3)
 #'
+#' # Estimated boundary cutpoints: a 2-df likelihood-ratio test against the map
+#' fit_b <- brs(y ~ time + group, data = nrs, ncuts = 10, cutpoints = "boundary")
+#' summary(fit_b)$cutpoints
+#' anova(fit, fit_b)
+#'
 #' # Randomized quantile residuals respect the censoring (N(0, 1) under the model)
 #' set.seed(1)
 #' summary(residuals(fit, type = "rqr"))
@@ -958,8 +1100,10 @@ brs <- function(formula, data,
                 hessian_method = c("cpp", "numDeriv", "optim"),
                 interval = NULL,
                 start = NULL,
-                control = list()) {
+                control = list(),
+                cutpoints = c("fixed", "boundary")) {
   cl <- match.call()
+  cutpoints <- .brs_match_cutpoints(cutpoints)
   formula_parsed <- Formula::as.Formula(formula)
 
   if (length(formula_parsed)[2L] < 2L) {
@@ -969,7 +1113,8 @@ brs <- function(formula, data,
       ncuts = ncuts, lim = lim,
       hessian_method = hessian_method,
       repar = repar, method = method,
-      interval = interval, start = start, control = control
+      interval = interval, start = start, control = control,
+      cutpoints = cutpoints
     )
   } else {
     fit <- brs_fit_var(
@@ -978,7 +1123,8 @@ brs <- function(formula, data,
       hessian_method = hessian_method,
       ncuts = ncuts, lim = lim,
       repar = repar, method = method,
-      interval = interval, start = start, control = control
+      interval = interval, start = start, control = control,
+      cutpoints = cutpoints
     )
   }
 

@@ -8,7 +8,7 @@
   object,
   parm,
   level = 0.95,
-  model = c("full", "mean", "precision"),
+  model = c("full", "mean", "precision", "cutpoints"),
   ...
 )
 }
@@ -20,8 +20,9 @@ parameters of \code{model} are returned.}
 
 \item{level}{Confidence level (default 0.95).}
 
-\item{model}{Character: \code{"full"}, \code{"mean"} or
-\code{"precision"}.}
+\item{model}{Character: \code{"full"}, \code{"mean"},
+\code{"precision"} or \code{"cutpoints"} (logit scale; see
+\code{summary()} for the cutpoints on (0, 1)).}
 
 \item{...}{Currently ignored.}
 }
