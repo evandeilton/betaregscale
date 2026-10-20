@@ -188,7 +188,7 @@ brs_loglik_var <- function(param,
 #' Per-observation log-likelihood contributions (R mirror of the C++ backend)
 #'
 #' @description
-#' Vectorised R implementation of the censored beta contributions used by
+#' Vectorized R implementation of the censored beta contributions used by
 #' the compiled likelihood (\code{src/brs_common.h}, keep both in sync):
 #' exact (\code{delta = 0}), left-censored (1), right-censored (2) and
 #' interval-censored (3). Same rules as the C++ code: endpoints clamped to
@@ -217,7 +217,7 @@ brs_loglik_var <- function(param,
   log1mexp <- function(z) {
     ifelse(z > log(2), log1p(-exp(-z)), log(-expm1(-z)))
   }
-  # Endpoint Laplace approximation of the tail mass beyond x (vectorised):
+  # Endpoint Laplace approximation of the tail mass beyond x (vectorized):
   # log f(x) - log|g'| + log(1 + g''/g'^2) + log(1 - exp(-|g'| width)),
   # g = log f; -Inf when x is on the wrong side of the mode.
   laplace <- function(x, a, b, width, lower) {

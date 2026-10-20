@@ -7,7 +7,7 @@
 .brs_link_table
 }
 \description{
-Each parameter of the beta distribution is modelled through a link whose
+Each parameter of the beta distribution is modeled through a link whose
 inverse maps the real line onto the parameter's domain. Parameters on
 \eqn{(0, 1)} (the mean under \code{repar = 1, 2}; the dispersion under
 \code{repar = 2}) use \code{"logit"}, \code{"probit"}, \code{"cauchit"}

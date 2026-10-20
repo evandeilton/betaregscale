@@ -37,7 +37,7 @@ direction'.}
 \value{
 A numeric matrix with one row per observation and columns
   \code{left} (\eqn{l_i}), \code{right} (\eqn{u_i}), \code{yt} (cell
-  centre), \code{y} (the input) and \code{delta}.
+  center), \code{y} (the input) and \code{delta}.
 }
 \description{
 Maps a score on \eqn{\{0, 1, \ldots, K\}} (\eqn{K =} \code{ncuts}, the
@@ -63,7 +63,7 @@ mechanism \code{\link{brs_sim}} uses in Monte Carlo studies) forces the
 type per observation and keeps the cell endpoints of the score:
 \tabular{lll}{
   \eqn{\delta} \tab \eqn{l_i} \tab \eqn{u_i} \cr
-  0 \tab cell centre (or \eqn{y} when in \eqn{(0, 1)}) \tab same \cr
+  0 \tab cell center (or \eqn{y} when in \eqn{(0, 1)}) \tab same \cr
   1 \tab \eqn{\epsilon} \tab \eqn{u_s} \cr
   2 \tab \eqn{l_s} \tab \eqn{1 - \epsilon} \cr
   3 \tab \eqn{l_s} \tab \eqn{u_s}
@@ -80,7 +80,7 @@ and so is a \eqn{\delta = 3} observation with \eqn{l_i \ge u_i}
 (a cell narrower than \eqn{10^{-5}} at a border, i.e. \code{ncuts} too
 large or \code{lim} too small), the error says so.
 
-\code{yt} is the cell centre: \eqn{s/K} under \code{"mid"} (so the border
+\code{yt} is the cell center: \eqn{s/K} under \code{"mid"} (so the border
 scores sit at \eqn{\epsilon} and \eqn{1 - \epsilon}) and
 \eqn{(s + 0.5)/(K + 1)} otherwise; exact values are kept. It is the
 density argument for \eqn{\delta = 0} and the point used by the midpoint

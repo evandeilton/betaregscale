@@ -58,6 +58,8 @@ reference:
     desc: "Data simulation for Monte Carlo studies."
     contents:
       - brs_sim
+      - brsmm_sim
+      - simulate.brs
   - title: "S3 Methods - Fixed Effects Models"
     desc: "Standard methods for fitted model objects of class brs."
     contents:

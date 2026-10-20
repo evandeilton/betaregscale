@@ -39,9 +39,9 @@
 #' warm-started from the modes of the previous evaluation (the cache is
 #' cleared at the start of each fit). A group whose curvature is not positive
 #' definite at its mode adds the penalty value \eqn{-10^6} instead of a
-#' silently regularised term, and \code{brsmm()} warns.
+#' silently regularized term, and \code{brsmm()} warns.
 #'
-#' \eqn{D = LL^\top} is parameterised by its lower Cholesky factor: the
+#' \eqn{D = LL^\top} is parameterized by its lower Cholesky factor: the
 #' log of each diagonal entry and the off-diagonal entries as they are
 #' (\code{(re_chol_logsd)_} and \code{(re_chol)_} in \code{coef()}).
 #' \code{\link{summary.brsmm}} reports the standard deviations and
@@ -49,7 +49,7 @@
 #' correlation.
 #'
 #' @section Estimation:
-#' \code{\link[stats]{optim}} maximises the marginal log-likelihood with its
+#' \code{\link[stats]{optim}} maximizes the marginal log-likelihood with its
 #' compiled gradient: the derivative of the chosen approximation by the chain
 #' rule on the linear predictor and the implicit-function theorem at the group
 #' modes (including the movement of the quadrature nodes), with
@@ -57,7 +57,7 @@
 #' \code{vcov()} (\code{hessian_method = "cpp"}, the default) is a Richardson
 #' central difference of that gradient. Starting values: \code{start} when
 #' given; otherwise those of \code{\link{brs}} for the fixed effects and
-#' \eqn{\log} of the between-group SD of the cell centres (at least 0.1) for
+#' \eqn{\log} of the between-group SD of the cell centers (at least 0.1) for
 #' the random effects.
 #'
 #' @section Diagnostics:
@@ -90,7 +90,7 @@
 #' @param link,link_phi Links for the first and second parameter;
 #'   \code{NULL} (default) selects those implied by \code{repar} (see
 #'   \code{\link{brs}}).
-#' @param repar Parameterisation (0, 1 or 2); see \code{\link{brs_repar}}.
+#' @param repar Parameterization (0, 1 or 2); see \code{\link{brs_repar}}.
 #' @param ncuts Integer \eqn{K}: the maximum score (scale
 #'   \eqn{0, \ldots, K}). \code{NULL} (default) uses the value stored by
 #'   \code{\link{brs_prep}}, or 100; an explicit different value is ignored
@@ -154,7 +154,7 @@
 #' # intercepts and time slopes vary by patient. Simulated, not real data.
 #' set.seed(21)
 #' nrs <- expand.grid(id = 1:40, time = c("6h", "12h", "24h"))
-#' nrs$tc <- c(-1, 0, 1)[nrs$time]                 # centred time for the slope
+#' nrs$tc <- c(-1, 0, 1)[nrs$time]                 # centered time for the slope
 #' b0 <- rnorm(40, sd = 0.8)
 #' b1 <- rnorm(40, sd = 0.5)
 #' eta <- -1.3 + c(0, 0.75, 0.3)[nrs$time] + b0[nrs$id] + b1[nrs$id] * nrs$tc
@@ -482,7 +482,7 @@ brsmm <- function(formula,
     stop("Internal error while computing group modes.", call. = FALSE)
   }
   # Inner-mode diagnostics (reported by .brs_fit_diagnostics): a group without a
-  # positive-definite mode is penalised in the likelihood.
+  # positive-definite mode is penalized in the likelihood.
   diag_re <- .brsmm_mode_diag_cpp(
     param = est[seq_len(p + q + k_re)], X = X, Z = Z, Xr = Xr,
     y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),

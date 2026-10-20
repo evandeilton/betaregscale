@@ -53,7 +53,7 @@ test_that("L7-A3b: a response also present in the global environment is still re
   on.exit(rm("pain", envir = globalenv()), add = TRUE)
   r <- .l7_ratio(fit, R = 20L)
   expect_true(all(r$boot$se_boot > 0))
-  # Response living only in the formula environment: materialised as a column
+  # Response living only in the formula environment: materialized as a column
   d2 <- d[, c("x", "g", "z")]
   fit2 <- brs(pain ~ x, data = d2, ncuts = 20)
   set.seed(9)
@@ -254,7 +254,7 @@ test_that("L7-B3: a regular fit is silent and its diagnostics are clean", {
                numDeriv::grad(ll, unname(fit$par) + 0.1), tolerance = 1e-5)
 })
 
-test_that("L7-B4: vcov never uses a generalised inverse", {
+test_that("L7-B4: vcov never uses a generalized inverse", {
   set.seed(12)
   d <- data.frame(x = rnorm(60))
   s <- brs_sim(~ x, data = d, beta = c(0.2, 0.5), phi = -1.5, ncuts = 10)
@@ -538,7 +538,7 @@ test_that("L7-V3: the gradient check is the log-likelihood gain of a Newton step
     w <<- c(w, conditionMessage(w_))
     invokeRestart("muffleWarning")
   })
-  # Direct check: the same model on a standardised covariate reaches the optimum
+  # Direct check: the same model on a standardized covariate reaches the optimum
   # (-435.216), 0.446 above the I(x^3) fit (Lote 5: the former grad_gain check here
   # passed only through a wrong numDeriv Hessian at this scale, gain 3.2e17)
   fs <- suppressWarnings(brs(y ~ scale(x^3), data = s2))

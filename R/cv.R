@@ -279,7 +279,9 @@ brs_cv <- function(formula,
 #'   the fold fit). Attributes: \code{log_score} (total per repeat; \code{NA}
 #'   if a fold failed), \code{group_scores} (held-out contribution of each
 #'   group, one vector per repeat), \code{folds} (fold of each group, one
-#'   vector per repeat) and \code{score_points}.
+#'   vector per repeat, named by group level: integer for drawn folds, the
+#'   type of the supplied \code{folds} otherwise, character for a factor)
+#'   and \code{score_points}.
 #'
 #' @seealso \code{\link{brs_cv}}, \code{\link{brs_loglik_contrib}},
 #'   \code{\link{brsmm}}
@@ -447,9 +449,11 @@ brsmm_cv <- function(formula,
 }
 
 # Fold of each group from a user assignment: named by group level
-# (`by_name`), or one value per row, constant within each group.
+# (`by_name`), or one value per row, constant within each group. Labels keep
+# the type of `folds` in both forms (factors become character).
 .brsmm_cv_user_folds <- function(folds, grp, by_name) {
   lev <- levels(grp)
+  if (is.factor(folds)) folds <- stats::setNames(as.character(folds), names(folds))
   if (by_name) {
     fg <- folds[lev]
   } else {
@@ -457,7 +461,8 @@ brsmm_cv <- function(formula,
     if (any(lengths(per) != 1L)) {
       stop("'folds' must be constant within each group.", call. = FALSE)
     }
-    fg <- unlist(per)[lev]
+    # Label of the first row of each group, in the original type
+    fg <- folds[match(lev, as.character(grp))]
   }
   if (anyNA(fg)) stop("'folds' contains missing values.", call. = FALSE)
   if (length(unique(fg)) < 2L) stop("'folds' must define at least 2 folds.", call. = FALSE)

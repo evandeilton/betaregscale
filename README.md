@@ -9,7 +9,7 @@
 ## The Methodological Gap
 
 Patient-reported outcome measures (PROMs) on bounded rating scales, such as the
-**Numerical Rating Scale (NRS-11, NRS-21, NRS-101)**, Visual Analogue Scale (VAS),
+**Numerical Rating Scale (NRS-11, NRS-21, NRS-101)**, Visual Analog Scale (VAS),
 or Likert-type instruments, are ubiquitous in clinical research. Standard analyses
 treat these bounded, discrete scores as exact continuous values via ordinary least
 squares (OLS), silently violating two core assumptions: natural scale boundaries
@@ -46,7 +46,7 @@ specifically for bounded scale data (Lopes, 2023). It combines two ideas:
 The package features a compiled **C++ backend** (log-likelihood, and gradient and
 Hessian by the chain rule on the linear predictors, with per-observation numerical
 derivatives), and provides a mixed-effects extension (`brsmm()`) for repeated measures and
-multi-centre data, with three integration methods for the random-effects
+multi-center data, with three integration methods for the random-effects
 likelihood — multivariate **Laplace approximation** (default), **adaptive
 Gauss-Hermite quadrature** and **quasi-Monte Carlo** — all available for
 arbitrary random-effects structures.
@@ -74,12 +74,12 @@ remotes::install_github("evandeilton/betaregscale")
 
 ```r
 # =============================================================================
-# betaregscale — Clinical Workflow: NRS-101 Pain Score Modelling
+# betaregscale — Clinical Workflow: NRS-101 Pain Score Modeling
 # =============================================================================
-# Scenario: multi-centre analgesic RCT (1000 patients, 20 clinics).
+# Scenario: multi-center analgesic RCT (1000 patients, 20 clinics).
 # Outcome:  post-treatment pain rated on NRS-101 (0 = no pain, 100 = worst).
 # Goal:     illustrate the full betaregscale pipeline — simulation, fixed-
-#           effects modelling, mixed-effects modelling, and post-estimation
+#           effects modeling, mixed-effects modeling, and post-estimation
 #           diagnostics.
 # =============================================================================
 
@@ -91,10 +91,10 @@ library(ggplot2)
 # -----------------------------------------------------------------------------
 # Simulate a realistic patient-level covariate matrix:
 #   trt       — treatment arm (0 = placebo, 1 = active compound; 50/50)
-#   age_std   — age in years (25–75), standardised (mean 0, sd 1)
+#   age_std   — age in years (25–75), standardized (mean 0, sd 1)
 #   sex_f     — sex (1 = female, 0 = male; ~55 % female)
-#   bpain_std — baseline NRS-101 pain (30–90), standardised
-#   clinic    — clinic ID (20 centres, 25 patients each)
+#   bpain_std — baseline NRS-101 pain (30–90), standardized
+#   clinic    — clinic ID (20 centers, 25 patients each)
 
 set.seed(2026)
 n_patients <- 1000
@@ -132,7 +132,7 @@ sim_nrs101 <- brs_sim(
   beta    = c(0.20, -0.55, 0.15, 0.10, 0.60),
   zeta    = c(-1.60, -0.40, 0.20),
   ncuts   = 100,   # NRS-101: integer scores 0–100 → ncuts = 100
-  repar   = 2      # Mean-Dispersion (MD) parameterisation
+  repar   = 2      # Mean-Dispersion (MD) parameterization
 )
 
 # Attach clinic for the mixed-effects section
@@ -174,7 +174,7 @@ brs_table(
 # -----------------------------------------------------------------------------
 # 4. MIXED-EFFECTS MODELS WITH brsmm()
 # -----------------------------------------------------------------------------
-# Clinics introduce between-centre heterogeneity; ignoring this structure
+# Clinics introduce between-center heterogeneity; ignoring this structure
 # inflates Type I error. brsmm() adds Gaussian random effects via Laplace
 # approximation.
 
@@ -344,7 +344,7 @@ where $q_b$ is the random-effects dimension, $\hat{\mathbf{b}}_j$ is the
 posterior mode, and $H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j)$.
 
 For higher accuracy, `int_method = "aghq"` replaces the Laplace step with adaptive
-Gauss-Hermite quadrature on a Cartesian grid centred at $\hat{\mathbf{b}}_j$ and
+Gauss-Hermite quadrature on a Cartesian grid centered at $\hat{\mathbf{b}}_j$ and
 scaled by the symmetric root $H_j^{-1/2}$, and `int_method = "qmc"` uses importance
 sampling from a Gaussian proposal along a Halton low-discrepancy sequence. Both work
 for any $q_b$; Laplace remains the default. With two or more random effects QMC

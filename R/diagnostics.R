@@ -117,7 +117,7 @@
 #' @param grad Gradient of the log-likelihood at the estimate.
 #' @param hessian Hessian of the log-likelihood at the estimate.
 #' @param mu_raw,phi_raw Inverse-linked first/second parameter, unclamped.
-#' @param repar Parameterisation.
+#' @param repar Parameterization.
 #' @param convergence optim convergence code.
 #' @param re_logsd Optional log SDs of the random effects (brsmm).
 #' @param re_gain Optional log-likelihood gains of each random-effect term
@@ -125,7 +125,7 @@
 #' @param badly_scaled Logical: the design has columns of very different
 #'   scales (the gradient warning then suggests rescaling).
 #' @param inner Optional brsmm inner-mode summary: \code{bad_groups} (groups
-#'   without a positive-definite mode, penalised in the likelihood) and
+#'   without a positive-definite mode, penalized in the likelihood) and
 #'   \code{max_grad} (largest |grad h| at the modes).
 #' @param warn Emit the warnings.
 #' @return A list stored as \code{fit$diagnostics}.
@@ -222,7 +222,7 @@
     if (!is.null(inner) && inner$bad_groups > 0L) {
       .brs_advisory(sprintf(paste0(
         "%d group(s) have no positive-definite random-effect mode at the ",
-        "estimate (penalised in the likelihood)."), inner$bad_groups))
+        "estimate (penalized in the likelihood)."), inner$bad_groups))
     }
     if (re_bnd) {
       # A negative gain: sd ~ 0 beats the estimate, so optim stopped short of the MLE
@@ -269,7 +269,7 @@
 #' Variance matrix from the Hessian (vcov.brs and vcov.brsmm)
 #'
 #' @description
-#' \code{solve(-H)}; no generalised inverse. A singular Hessian gives an
+#' \code{solve(-H)}; no generalized inverse. A singular Hessian gives an
 #' \code{NA} matrix; negative or non-finite variances become \code{NA}
 #' (row and column). Both cases warn.
 #'

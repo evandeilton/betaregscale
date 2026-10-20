@@ -28,7 +28,7 @@
 #' @keywords internal
 #' @noRd
 .brs_score_from_unit <- function(y, K, interval = "mid") {
-  # mid: nearest score (cells centred on s); right/left: floor over K + 1 cells
+  # mid: nearest score (cells centered on s); right/left: floor over K + 1 cells
   s <- if (identical(interval, "mid")) round(y * K) else floor(y * (K + 1))
   pmin(pmax(s, 0), K)
 }
@@ -250,7 +250,7 @@
 #' type per observation and keeps the cell endpoints of the score:
 #' \tabular{lll}{
 #'   \eqn{\delta} \tab \eqn{l_i} \tab \eqn{u_i} \cr
-#'   0 \tab cell centre (or \eqn{y} when in \eqn{(0, 1)}) \tab same \cr
+#'   0 \tab cell center (or \eqn{y} when in \eqn{(0, 1)}) \tab same \cr
 #'   1 \tab \eqn{\epsilon} \tab \eqn{u_s} \cr
 #'   2 \tab \eqn{l_s} \tab \eqn{1 - \epsilon} \cr
 #'   3 \tab \eqn{l_s} \tab \eqn{u_s}
@@ -267,7 +267,7 @@
 #' (a cell narrower than \eqn{10^{-5}} at a border, i.e. \code{ncuts} too
 #' large or \code{lim} too small), the error says so.
 #'
-#' \code{yt} is the cell centre: \eqn{s/K} under \code{"mid"} (so the border
+#' \code{yt} is the cell center: \eqn{s/K} under \code{"mid"} (so the border
 #' scores sit at \eqn{\epsilon} and \eqn{1 - \epsilon}) and
 #' \eqn{(s + 0.5)/(K + 1)} otherwise; exact values are kept. It is the
 #' density argument for \eqn{\delta = 0} and the point used by the midpoint
@@ -296,7 +296,7 @@
 #'
 #' @return A numeric matrix with one row per observation and columns
 #'   \code{left} (\eqn{l_i}), \code{right} (\eqn{u_i}), \code{yt} (cell
-#'   centre), \code{y} (the input) and \code{delta}.
+#'   center), \code{y} (the input) and \code{delta}.
 #'
 #' @seealso \code{\link{brs_prep}} for analyst-supplied censoring and
 #'   intervals; \code{\link{brs}}; \code{\link{brs_sim}}.
@@ -437,7 +437,7 @@ brs_check <- function(y, ncuts = 100L, lim = 0.5, delta = NULL,
   # Zero-width delta = 3 cells: squeezed by the clamp, or empty (D2)
   .brs_stop_zero_width(d == 3L & y_left >= y_right, raw_width, rep(TRUE, n))
 
-  # Cell centre (y itself for exact values), clamped like the endpoints
+  # Cell center (y itself for exact values), clamped like the endpoints
   yt <- pmin(pmax(pts_exact, eps), 1 - eps)
 
   cbind(left = y_left, right = y_right, yt = yt, y = y, delta = out_delta)

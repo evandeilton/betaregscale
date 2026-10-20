@@ -13,7 +13,7 @@
 #' \eqn{\delta_i} used by \code{\link{brs}} and \code{\link{brsmm}}. Scores
 #' run over \eqn{0, 1, \ldots, K} with \eqn{K =} \code{ncuts} the maximum;
 #' shift a scale that starts at 1 (a Likert item 1--5 becomes 0--4,
-#' \code{ncuts = 4}). Four input modes are recognised per row:
+#' \code{ncuts = 4}). Four input modes are recognized per row:
 #' \enumerate{
 #'   \item \strong{Score only} (\code{y}): the cell of the score and
 #'     \eqn{\delta} from the score, exactly as \code{\link{brs_check}}
@@ -50,7 +50,7 @@
 #' }
 #' When the data have \code{left}/\code{right} columns, a row that gives
 #' only an interior score (both bounds \code{NA}) is an exact value at the
-#' cell centre, with a density contribution; without those columns the same
+#' cell center, with a density contribution; without those columns the same
 #' score is interval-censored (Mode 1). An analyst interval that reaches 0
 #' (or 1) on the unit scale is left- (or right-) censored; one that reaches
 #' both borders covers the whole scale, stays \eqn{\delta = 3} and gives a
@@ -71,7 +71,7 @@
 #' They must lie in the latent range of the direction:
 #' \eqn{[-0.5, K + 0.5]} (\code{"mid"}), \eqn{[0, K + 1]} (\code{"right"})
 #' or \eqn{[-1, K]} (\code{"left"}); a bound outside it is an error. Rows
-#' with no score get \code{y} = the latent score of their cell centre, so
+#' with no score get \code{y} = the latent score of their cell center, so
 #' that \code{model.frame()} keeps them.
 #'
 #' Endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]},
@@ -100,7 +100,7 @@
 #'   (default), \code{"right"} or \code{"left"}; see \code{\link{brs_check}}.
 #'
 #' @return A data frame with columns \code{left}, \code{right} (cell on
-#'   \eqn{(0, 1)}), \code{yt} (cell centre), \code{y} (score, or the filled
+#'   \eqn{(0, 1)}), \code{yt} (cell center), \code{y} (score, or the filled
 #'   latent score for rows without one) and \code{delta}, followed by the
 #'   covariates. Attributes \code{"is_prepared"} (\code{TRUE}),
 #'   \code{"ncuts"}, \code{"lim"} and \code{"interval"} are reused by
@@ -248,7 +248,7 @@ brs_prep <- function(data, y = "y", delta = "delta",
     }
   }
 
-  # -- Per-observation processing (vectorised) ---------------------------------
+  # -- Per-observation processing (vectorized) ---------------------------------
   # A row needs a score or a bound; a delta alone defines no interval
   all_na_rows <- is.na(v_y) & is.na(v_left) & is.na(v_right)
   if (any(all_na_rows)) {
@@ -345,7 +345,7 @@ brs_prep <- function(data, y = "y", delta = "delta",
 
 # -- Internal helpers -------------------------------------------------------- #
 
-#' Infer censoring types from the NA pattern (vectorised)
+#' Infer censoring types from the NA pattern (vectorized)
 #'
 #' Used by \code{brs_prep()} for rows without an analyst \code{delta}:
 #' both bounds \eqn{\to 3}; only \code{right} (no \code{y}) \eqn{\to 1};
@@ -376,7 +376,7 @@ brs_prep <- function(data, y = "y", delta = "delta",
 }
 
 
-#' Endpoints of every row (vectorised)
+#' Endpoints of every row (vectorized)
 #'
 #' Analyst bounds (Modes 3/4) are latent scores of \code{interval} and go
 #' through \code{.brs_unit_from_latent()}; score rows (Modes 1/2, including
@@ -401,11 +401,11 @@ brs_prep <- function(data, y = "y", delta = "delta",
   l_u <- .brs_unit_from_latent(v_left, K, interval)
   u_u <- .brs_unit_from_latent(v_right, K, interval)
   cell <- .brs_cell(v_y, K, lim, interval)
-  # delta = 0 point: a proportion stays, a score uses its cell centre
+  # delta = 0 point: a proportion stays, a score uses its cell center
   point <- ifelse(v_y > 0 & v_y < 1, v_y, cell$mid)
 
   # Score rows: [eps, u_s], [l_s, 1 - eps] or [l_s, u_s]; censored rows keep
-  # the cell centre of the score as yt (consistent with their endpoints)
+  # the cell center of the score as yt (consistent with their endpoints)
   left <- ifelse(d == 0L, point, ifelse(d == 1L, eps, cell$left))
   right <- ifelse(d == 0L, point, ifelse(d == 2L, 1 - eps, cell$right))
   yt <- ifelse(d == 0L, point, cell$mid)

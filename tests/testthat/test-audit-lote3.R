@@ -284,7 +284,7 @@ test_that("L3-4d: repar 0 also works in brsmm (fitted mean, residuals, predict)"
 
 # L3-5: ncuts/lim attributes from brs_prep() and brs_sim() --------------------
 
-test_that("L3-5a: brs() honours attr(data, 'ncuts'/'lim') from brs_prep()", {
+test_that("L3-5a: brs() honors attr(data, 'ncuts'/'lim') from brs_prep()", {
   set.seed(5L)
   n <- 150L
   x <- rnorm(n)

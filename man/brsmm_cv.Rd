@@ -47,7 +47,9 @@ A data frame of class \code{"brsmm_cv"} with one row per fold:
   the fold fit). Attributes: \code{log_score} (total per repeat; \code{NA}
   if a fold failed), \code{group_scores} (held-out contribution of each
   group, one vector per repeat), \code{folds} (fold of each group, one
-  vector per repeat) and \code{score_points}.
+  vector per repeat, named by group level: integer for drawn folds, the
+  type of the supplied \code{folds} otherwise, character for a factor)
+  and \code{score_points}.
 }
 \description{
 K-fold cross-validation of a \code{\link{brsmm}} model with folds formed by

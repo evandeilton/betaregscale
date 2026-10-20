@@ -59,7 +59,7 @@ inline double inv_link(double eta, int code) {
   }
 }
 
-// Clamp phi (dispersion/precision) to valid range for the chosen reparameterisation.
+// Clamp phi (dispersion/precision) to valid range for the chosen reparameterization.
 // repar = 1: precision phi > 0
 // repar = 2: mean-variance phi in (0, 1)
 // repar = 0: direct shape parameter, enforce positivity
@@ -77,7 +77,7 @@ inline double clamp_mu_by_repar(double mu, int repar) {
   return clamp(mu, EPS_UNIT, 1.0 - EPS_UNIT);
 }
 
-// Convert (mu, phi) to beta shape parameters (a, b) under the chosen reparameterisation.
+// Convert (mu, phi) to beta shape parameters (a, b) under the chosen reparameterization.
 // repar = 0: a = mu,            b = phi
 // repar = 1: a = mu*phi,        b = (1-mu)*phi  [Ferrari & Cribari-Neto 2004]
 // repar = 2: a = mu*(1-phi)/phi, b = (1-mu)*(1-phi)/phi  [mean-variance form]
@@ -105,7 +105,7 @@ inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) 
 //  * Endpoints are clamped to [EPS_UNIT, 1 - EPS_UNIT]: that is the only
 //    protection of the borders of the support. There is NO probability
 //    floor. The former floor (1e-15) turned every far-tail observation into
-//    a constant with zero gradient, so the optimiser maximised a trimmed
+//    a constant with zero gradient, so the optimizer maximized a trimmed
 //    likelihood that ignored outliers (audit 2026-09, finding C2).
 //
 //  * The tail is chosen by the distribution, not by the position of the
@@ -131,7 +131,7 @@ inline void beta_shapes(double mu, double phi, int repar, double &a, double &b) 
 //    and for x above the mode the same with |g'|. Its error there is
 //    <= 4e-4 log-lik units (checked against log-scale pbeta where the
 //    latter is reliable), it is smooth in (a, b), and it keeps a usable
-//    gradient while the optimiser is still far from the optimum. It only
+//    gradient while the optimizer is still far from the optimum. It only
 //    applies on the correct side of the mode (g' > 0 for a lower tail,
 //    g' < 0 for an upper tail); otherwise the contribution is -Inf, which
 //    obs_loglik() maps to LOG_PENALTY, as it does for any non-finite value.

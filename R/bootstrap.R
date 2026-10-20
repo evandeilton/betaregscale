@@ -440,7 +440,7 @@ print.brs_bootstrap <- function(x, ...) {
          call. = FALSE)
   }
   resp <- as.character(lhs)
-  # Materialise a response kept outside `data` (formula environment)
+  # Materialize a response kept outside `data` (formula environment)
   if (!resp %in% names(data)) {
     v <- eval(lhs, data, environment(f))
     if (length(v) != nrow(data)) {

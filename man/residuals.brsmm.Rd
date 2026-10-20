@@ -6,7 +6,10 @@
 \usage{
 \method{residuals}{brsmm}(
   object,
-  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted"),
+  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted",
+    "cell_deviance"),
+  re = c("conditional", "marginal", "posterior"),
+  n_draws = 200L,
   ...
 )
 }
@@ -14,15 +17,66 @@
 \item{object}{A fitted \code{"brsmm"} object.}
 
 \item{type}{Character: \code{"response"} (default), \code{"pearson"},
-\code{"deviance"}, \code{"rqr"}, \code{"weighted"}, or \code{"sweighted"}.}
+\code{"deviance"}, \code{"rqr"}, \code{"weighted"}, \code{"sweighted"}
+or \code{"cell_deviance"} (see \code{\link{residuals.brs}}).}
+
+\item{re}{\code{"conditional"} (default), \code{"marginal"} or
+\code{"posterior"}; for \code{type = "rqr"} and \code{"cell_deviance"}
+only (see Details).}
+
+\item{n_draws}{Number of importance-sampling proposals per group for
+\code{re = "posterior"} (default 200; 1 keeps the Gaussian draw).}
 
 \item{...}{Currently ignored.}
 }
 \value{
-Numeric vector.
+Numeric vector, one value per observation.
 }
 \description{
-Residuals from a brsmm model
+Residuals of a \code{"brsmm"} fit. The types of \code{\link{residuals.brs}}
+are evaluated at the conditional modes of the random effects
+(\code{\link{ranef.brsmm}}); for \code{"rqr"} and \code{"cell_deviance"},
+\code{re} selects how the random effects enter.
+}
+\details{
+\code{re} applies to \code{type = "rqr"} and \code{"cell_deviance"}:
+\describe{
+  \item{\code{"conditional"}}{(default) at the conditional modes
+    \eqn{\hat b_g}. The modes are shrunk toward zero, so these residuals
+    are not exactly \eqn{N(0, 1)} under the model; the shrinkage is
+    strongest for small groups.}
+  \item{\code{"marginal"}}{from the marginal (population-averaged)
+    distribution of each observation, with the random effects integrated
+    out: \eqn{v_i \sim U(F_m(l_i), F_m(u_i))}, \eqn{F_m(y) = \int F(y \mid
+    b)\, \varphi(b; 0, \hat D)\, db}, computed on the quadrature rule of
+    \code{\link{brs_marginal}} (for score data \eqn{F_m(l_i)} and
+    \eqn{F_m(u_i)} are the marginal cdf of the score at \eqn{s_i - 1} and
+    \eqn{s_i}). The rule integrates \eqn{z = u/\mathrm{SD}(u)} over
+    \eqn{[-8.5, 8.5]}, so marginal probabilities below about
+    \eqn{10^{-15}} are approximate (this matters for
+    \code{"cell_deviance"} in extreme tails only). Each residual is
+    \eqn{N(0, 1)} under the model; residuals of the same group are
+    correlated, since they share the group's random effects.}
+  \item{\code{"posterior"}}{at one draw of each \eqn{b_g} from its
+    posterior given the group's data, by sampling-importance-resampling:
+    \code{n_draws} proposals from \eqn{N(\hat b_g, H_g^{-1})}
+    (\eqn{H_g}, the curvature of the log posterior at the mode, by central
+    differences; the prior \eqn{N(0, \hat D)} shape when it is not positive
+    definite) weighted by posterior over proposal density, and one of them
+    kept. At the true parameters, \eqn{(b_g, y_g)} with \eqn{b_g} drawn
+    from its posterior has the joint law of the model, so these residuals
+    are independent \eqn{N(0, 1)} (up to the resampling approximation, of
+    order \code{1/n_draws}) without the shrinkage of the modes; at the
+    estimates this holds approximately. Unlike the marginal residuals, the
+    residuals of a group are then nearly independent.}
+}
+\code{"rqr"} residuals use \eqn{v_i} uniform on \eqn{(F(l_i), F(u_i))}
+(survival scale above the median, to keep the precision of upper-tail
+cells), kept in \eqn{[10^{-10}, 1 - 10^{-10}]}. \code{"cell_deviance"}
+residuals are \eqn{\mathrm{sign}_i \sqrt{-2 \log P_i}} with the conditional,
+marginal or posterior-draw cell probability \eqn{P_i} and expected score
+\eqn{\sum_s s P(S = s) / \sum_s P(S = s)}, as in \code{\link{residuals.brs}}. The \code{"rqr"} residuals and the
+\code{"posterior"} draws are random: set a seed to reproduce them.
 }
 \examples{
 \donttest{
@@ -39,9 +93,19 @@ fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 head(residuals(fit))
 head(residuals(fit, type = "pearson"))
 }
+# Quantile residuals without the shrinkage of the conditional modes
+d <- expand.grid(visit = 1:5, id = 1:60)
+set.seed(3)
+s <- brsmm_sim(~ visit, random = ~ 1 | id, data = d, beta = c(-0.6, 0.1),
+               phi = qlogis(0.2), re_sd = 0.7, ncuts = 10)
+m <- brsmm(y ~ visit, random = ~ 1 | id, data = s)
+set.seed(1)
+r_m <- residuals(m, type = "rqr", re = "marginal")
+r_p <- residuals(m, type = "rqr", re = "posterior")
+round(c(mean_m = mean(r_m), sd_m = sd(r_m), mean_p = mean(r_p), sd_p = sd(r_p)), 2)
 
 }
 \seealso{
 \code{\link{brsmm}}, \code{\link{fitted.brsmm}},
-  \code{\link{plot.brsmm}}
+  \code{\link{plot.brsmm}}, \code{\link{residuals.brs}}
 }

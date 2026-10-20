@@ -174,7 +174,7 @@ compute_start <- function(formula, data, link = NULL,
 #' (\code{~ x1 + x2 | z1}) the coefficients \code{zeta}. A left-hand side is
 #' ignored. For each row, \eqn{Y \sim \mathrm{Beta}(a, b)} with the shapes of
 #' \code{\link{brs_repar}}, and the score is \eqn{s = \mathrm{round}(K Y)}
-#' under \code{"mid"} (cells centred on the score; exact only for
+#' under \code{"mid"} (cells centered on the score; exact only for
 #' \code{lim = 0.5}) or \eqn{s = \lfloor (K + 1) Y \rfloor} under
 #' \code{"right"}/\code{"left"} (\eqn{K + 1} equal cells). The cells and
 #' censoring types then come from \code{\link{brs_check}} with the same
@@ -214,7 +214,7 @@ compute_start <- function(formula, data, link = NULL,
 #' @param ncuts Integer \eqn{K}: the maximum score (default 100); scores run
 #'   over \eqn{0, \ldots, K}.
 #' @param lim Half-width of the cell under \code{"mid"} (default 0.5).
-#' @param repar Parameterisation (0, 1 or 2); see \code{\link{brs_repar}}.
+#' @param repar Parameterization (0, 1 or 2); see \code{\link{brs_repar}}.
 #' @param delta \code{NULL} (default) or one censoring type (0, 1, 2 or 3)
 #'   forced on every row; see Details.
 #' @param interval \code{"mid"} (default), \code{"right"} or \code{"left"}.
@@ -253,7 +253,7 @@ compute_start <- function(formula, data, link = NULL,
 #' \doi{10.1016/j.jpainsymman.2010.08.016}
 #'
 #' @examples
-#' # One design, three parameterisations with their default links
+#' # One design, three parameterizations with their default links
 #' set.seed(42)
 #' d <- data.frame(x = rnorm(300))
 #'
