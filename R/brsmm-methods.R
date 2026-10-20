@@ -657,25 +657,31 @@ predict.brsmm <- function(object,
 #'     b)\, \varphi(b; 0, \hat D)\, db}, computed on the quadrature rule of
 #'     \code{\link{brs_marginal}} (for score data \eqn{F_m(l_i)} and
 #'     \eqn{F_m(u_i)} are the marginal cdf of the score at \eqn{s_i - 1} and
-#'     \eqn{s_i}). Each residual is \eqn{N(0, 1)} under the model;
-#'     residuals of the same group are correlated.}
+#'     \eqn{s_i}). The rule integrates \eqn{z = u/\mathrm{SD}(u)} over
+#'     \eqn{[-8.5, 8.5]}, so marginal probabilities below about
+#'     \eqn{10^{-15}} are approximate (this matters for
+#'     \code{"cell_deviance"} in extreme tails only). Each residual is
+#'     \eqn{N(0, 1)} under the model; residuals of the same group are
+#'     correlated, since they share the group's random effects.}
 #'   \item{\code{"posterior"}}{at one draw of each \eqn{b_g} from its
 #'     posterior given the group's data, by sampling-importance-resampling:
 #'     \code{n_draws} proposals from \eqn{N(\hat b_g, H_g^{-1})}
 #'     (\eqn{H_g}, the curvature of the log posterior at the mode, by central
 #'     differences; the prior \eqn{N(0, \hat D)} shape when it is not positive
 #'     definite) weighted by posterior over proposal density, and one of them
-#'     kept. Since \eqn{(b_g, y_g)} with \eqn{b_g} drawn from its posterior
-#'     has the joint law of the model, these residuals are \eqn{N(0, 1)}
-#'     under the model (up to the resampling approximation, of order
-#'     \code{1/n_draws}) without the shrinkage of the modes.}
+#'     kept. At the true parameters, \eqn{(b_g, y_g)} with \eqn{b_g} drawn
+#'     from its posterior has the joint law of the model, so these residuals
+#'     are independent \eqn{N(0, 1)} (up to the resampling approximation, of
+#'     order \code{1/n_draws}) without the shrinkage of the modes; at the
+#'     estimates this holds approximately. Unlike the marginal residuals, the
+#'     residuals of a group are then nearly independent.}
 #' }
 #' \code{"rqr"} residuals use \eqn{v_i} uniform on \eqn{(F(l_i), F(u_i))}
 #' (survival scale above the median, to keep the precision of upper-tail
 #' cells), kept in \eqn{[10^{-10}, 1 - 10^{-10}]}. \code{"cell_deviance"}
 #' residuals are \eqn{\mathrm{sign}_i \sqrt{-2 \log P_i}} with the conditional,
-#' marginal or posterior-draw cell probability \eqn{P_i} and expected score,
-#' as in \code{\link{residuals.brs}}. The \code{"rqr"} residuals and the
+#' marginal or posterior-draw cell probability \eqn{P_i} and expected score
+#' \eqn{\sum_s s P(S = s) / \sum_s P(S = s)}, as in \code{\link{residuals.brs}}. The \code{"rqr"} residuals and the
 #' \code{"posterior"} draws are random: set a seed to reproduce them.
 #'
 #' @param object A fitted \code{"brsmm"} object.
@@ -686,7 +692,7 @@ predict.brsmm <- function(object,
 #'   \code{"posterior"}; for \code{type = "rqr"} and \code{"cell_deviance"}
 #'   only (see Details).
 #' @param n_draws Number of importance-sampling proposals per group for
-#'   \code{re = "posterior"} (default 200).
+#'   \code{re = "posterior"} (default 200; 1 keeps the Gaussian draw).
 #' @param ... Currently ignored.
 #'
 #' @return Numeric vector, one value per observation.
@@ -740,7 +746,7 @@ residuals.brsmm <- function(object, type = c(
   if (length(n_draws) != 1L || is.na(n_draws) || n_draws < 1L) {
     stop("'n_draws' must be a positive integer.", call. = FALSE)
   }
-  # New paths; the conditional "rqr" below is unchanged
+  # Cell deviance and marginal/posterior rqr; the other types follow below
   if (type == "cell_deviance" || (type == "rqr" && re != "conditional")) {
     return(.brsmm_res_cell(object, type, re, n_draws))
   }

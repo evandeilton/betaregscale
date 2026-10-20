@@ -32,13 +32,17 @@
   ifelse(ok, s, NA_real_)
 }
 
-# Distribution pieces of each row averaged over nodes: `eta` is n x m (one
-# column per node of the random-effect integral), `w` the m weights. Returns
+# Distribution pieces of the rows `rows` (NULL: all) averaged over nodes: `eta`
+# has one row per selected row and one column per node of the random-effect
+# integral, `w` the node weights. Returns
 # the cdf F and survival S at the cell ends (exact rows: at the value), the
 # log probability of the cell (log density for exact rows), E[Y] and, for
 # score rows, the expected score.
-.brs_res_parts <- function(object, eta, eta_phi, w = 1, need_es = TRUE) {
+.brs_res_parts <- function(object, eta, eta_phi, w = 1, need_es = TRUE,
+                           rows = NULL) {
   Y <- object$Y
+  if (is.null(rows)) rows <- seq_len(nrow(Y))
+  Y <- Y[rows, , drop = FALSE]
   left <- as.numeric(Y[, "left"])
   right <- as.numeric(Y[, "right"])
   yt <- as.numeric(Y[, "yt"])
@@ -47,7 +51,7 @@
   K <- as.integer(object$ncuts)
   eta <- matrix(eta, nrow = n)
   ends <- .brs_marg_ends(object, object$par)
-  score <- .brs_res_scores(object, ends)
+  score <- .brs_res_scores(object, ends)[rows]
   # Expected scores only where needed (cell deviance signs)
   sr <- !is.na(score) & need_es
   acc <- list(Fl = 0, Fu = 0, Sl = 0, Su = 0, ey = 0, es_num = 0, es_den = 0)
@@ -114,14 +118,24 @@
   d
 }
 
-# Nodes of the marginal (population-averaged) distribution of each row of a
-# brsmm fit: eta + sd_u z on the rule of brs_marginal(), u = x_r' b.
-.brsmm_res_marginal_nodes <- function(object, eta_mu, n_points = 8L) {
-  theta <- object$par
+# Marginal (population-averaged) pieces of each row of a brsmm fit: nodes
+# eta + sd_u z on the rule of brs_marginal(), u = x_r' b, z on [-8.5, 8.5];
+# rows in chunks of at most `max_cells` row-node pairs to bound memory.
+.brsmm_res_marginal_parts <- function(object, eta_mu, eta_phi, need_es,
+                                      n_points = 8L, max_cells = 2e6) {
   Xr <- object$model_matrices$Xr
   sd_u <- sqrt(rowSums((Xr %*% object$random$L)^2))
   gh <- .brs_marg_rule(max(sd_u), n_points)
-  list(eta = eta_mu + outer(sd_u, gh$x), w = gh$w)
+  n <- length(eta_mu)
+  size <- max(1L, floor(max_cells / length(gh$x)))
+  chunks <- split(seq_len(n), ceiling(seq_len(n) / size))
+  parts <- lapply(chunks, function(i) {
+    .brs_res_parts(object, eta_mu[i] + outer(sd_u[i], gh$x), eta_phi[i], gh$w,
+                   need_es = need_es, rows = i)
+  })
+  lapply(stats::setNames(nm = names(parts[[1L]])), function(k) {
+    unlist(lapply(parts, `[[`, k), use.names = FALSE)
+  })
 }
 
 # Log posterior (up to a constant) of the random effects of every group, as a
@@ -202,7 +216,9 @@
   wt <- exp(logw - apply(logw, 1L, max))
   wt <- wt / rowSums(wt)
   u <- stats::runif(G)
-  pick <- pmin(rowSums(u > t(apply(wt, 1L, cumsum))) + 1L, n_draws)
+  # Row-wise cumulative weights (G x n_draws, also for one proposal)
+  cw <- t(matrix(apply(wt, 1L, cumsum), nrow = n_draws))
+  pick <- pmin(rowSums(u > cw) + 1L, n_draws)
   matrix(vapply(seq_len(G), function(g) props[[pick[g]]][g, ], numeric(q)),
          nrow = G, ncol = q, byrow = TRUE)
 }
@@ -215,8 +231,7 @@
   Xr <- object$model_matrices$Xr
   G <- length(object$random$levels)
   if (re == "marginal") {
-    nd <- .brsmm_res_marginal_nodes(object, et$mu)
-    parts <- .brs_res_parts(object, nd$eta, et$phi, nd$w, need_es = need_es)
+    parts <- .brsmm_res_marginal_parts(object, et$mu, et$phi, need_es)
   } else {
     B <- if (re == "posterior") {
       .brsmm_posterior_b(object, et$mu, et$phi, n_draws)

@@ -341,3 +341,28 @@ test_that("posterior curvature at the modes matches numDeriv", {
     expect_lt(max(abs(numDeriv::grad(f, B0[g, ]))), 1e-4)
   }
 })
+
+test_that("folds given as a factor named by group level are read by name", {
+  set.seed(62)
+  s <- brsmm_sim(~ 1, random = ~ 1 | id, data = sim_design(12, 2), beta = -0.3,
+                 phi = qlogis(0.3), re_sd = 0.5, ncuts = 6)
+  grp <- factor(s$id)
+  lab <- c("a", "b", "c")[rep(1:3, length.out = 12)]
+  ff <- stats::setNames(factor(lab), rev(levels(grp)))
+  got <- .brsmm_cv_user_folds(ff, grp, by_name = TRUE)
+  expect_identical(got, stats::setNames(lab, rev(levels(grp)))[levels(grp)])
+})
+
+test_that("posterior residuals work with one proposal; marginal pieces by chunks", {
+  fx <- sim_fit_ri()
+  m <- fx$m
+  set.seed(24)
+  r1 <- residuals(m, type = "rqr", re = "posterior", n_draws = 1)
+  expect_length(r1, nrow(fx$s))
+  expect_true(all(is.finite(r1)))
+  et <- .brs_res_eta(m)
+  one <- .brsmm_res_marginal_parts(m, et$mu, et$phi, need_es = TRUE)
+  many <- .brsmm_res_marginal_parts(m, et$mu, et$phi, need_es = TRUE,
+                                    max_cells = 5000)
+  expect_equal(one, many, tolerance = 1e-12)
+})

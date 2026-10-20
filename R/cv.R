@@ -453,7 +453,7 @@ brsmm_cv <- function(formula,
 # the type of `folds` in both forms (factors become character).
 .brsmm_cv_user_folds <- function(folds, grp, by_name) {
   lev <- levels(grp)
-  if (is.factor(folds)) folds <- as.character(folds)
+  if (is.factor(folds)) folds <- stats::setNames(as.character(folds), names(folds))
   if (by_name) {
     fg <- folds[lev]
   } else {

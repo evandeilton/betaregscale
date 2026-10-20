@@ -828,8 +828,9 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #'     gives each cell probability 1, so \eqn{-2 \log P_i} is the deviance
 #'     contribution and, for score data, \eqn{\sum_i d_i^2 = -2\,
 #'     \mathrm{logLik}}. \eqn{\mathrm{sign}_i = +1} when the observed score is at
-#'     least the expected score \eqn{\sum_s s\, P(S = s)} and \eqn{-1}
-#'     otherwise; censored rows that are not score cells (analyst intervals)
+#'     least the expected score \eqn{\sum_s s\, P(S = s) / \sum_s P(S = s)}
+#'     (the denominator is 1 unless the cells leave gaps, \code{interval =
+#'     "mid"} with \code{lim < 0.5}) and \eqn{-1} otherwise; censored rows that are not score cells (analyst intervals)
 #'     compare the cell center with the fitted mean \eqn{E[Y_i]}. Exact rows
 #'     (\eqn{\delta_i = 0}) give \code{NA} (use \code{"deviance"}).}
 #' }
