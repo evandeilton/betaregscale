@@ -208,7 +208,7 @@ test_that("C2: R mirror .brs_obs_loglik equals the compiled likelihood", {
   d <- .audit_ll_data(21L, 120L, function(x1, x2) plogis(0.3 + 0.6 * x1 - 0.4 * x2), 25)
   expect_setequal(unique(d$delta), 0:3)
   beta <- c(0.1, 0.4, -0.3)
-  # (link_mu, link_phi, repar, gamma): both link families, all reparameterisations
+  # (link_mu, link_phi, repar, gamma): both link families, all reparameterizations
   combos <- list(
     list("logit",   "log",      1L, c(log(20), 0.2)),
     list("probit",  "sqrt",     1L, c(4.0, 0.3)),
@@ -285,7 +285,7 @@ test_that("C2: compiled gradients match numDeriv at random and tail points", {
   expect_true(tails[1] < -300 && tails[1] > -350)
   expect_true(tails[2] < -700 && tails[2] > -800)
   chk(d3, p2f, p2v)
-  # other link families / reparameterisations
+  # other link families / reparameterizations
   chk(d1, c(0.2, 0.5, -0.3, 0.5), c(0.2, 0.5, -0.3, 0.5, 0.1), lm = 1L, lp = 5L, rp = 1L)
   chk(d1, c(0.2, 0.5, -0.3, -1.2), c(0.2, 0.5, -0.3, -1.2, 0.2), lm = 3L, lp = 0L, rp = 2L)
 })

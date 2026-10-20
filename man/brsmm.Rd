@@ -125,7 +125,7 @@ The inner mode is found by a Levenberg--Marquardt Newton method,
 warm-started from the modes of the previous evaluation (the cache is
 cleared at the start of each fit). A group whose curvature is not positive
 definite at its mode adds the penalty value \eqn{-10^6} instead of a
-silently regularised term, and \code{brsmm()} warns.
+silently regularized term, and \code{brsmm()} warns.
 
 \eqn{D = LL^\top} is parameterized by its lower Cholesky factor: the
 log of each diagonal entry and the off-diagonal entries as they are
@@ -136,7 +136,7 @@ correlation.
 }
 \section{Estimation}{
 
-\code{\link[stats]{optim}} maximises the marginal log-likelihood with its
+\code{\link[stats]{optim}} maximizes the marginal log-likelihood with its
 compiled gradient: the derivative of the chosen approximation by the chain
 rule on the linear predictor and the implicit-function theorem at the group
 modes (including the movement of the quadrature nodes), with

@@ -27,7 +27,7 @@ test_that("L4-1a: brs_check(0:10, ncuts = 10) cells per interval (snapshot for m
   expect_identical(unname(r[, "delta"]), c(1, rep(3, 9), 2))
   l <- brs_check(s, ncuts = 10, interval = "left")
   expect_identical(l, r)
-  # "mid" is today's behaviour, unchanged
+  # "mid" is today's behavior, unchanged
   m <- brs_check(s, ncuts = 10)
   expect_identical(m, brs_check(s, ncuts = 10, interval = "mid"))
   expect_equal(unname(m[, "left"]), pmax((s - 0.5) / 10, .l4_eps), tolerance = 1e-10)
@@ -155,7 +155,7 @@ test_that("L4-1e: brs_prep() Modes 1-4 under right/left and the interval attribu
     expect_equal(c(pa$left, pa$right), c(ps$left, ps$right), tolerance = 1e-12,
                  label = iv)
   }
-  # Mode 3 fill of `y`: latent score of the cell centre (read back as score 50)
+  # Mode 3 fill of `y`: latent score of the cell center (read back as score 50)
   p3 <- suppressMessages(brs_prep(data.frame(left = c(NA, 49), right = c(5, 50)),
                                   ncuts = 100, interval = "left"))
   expect_equal(p3$y[2], 49.5, tolerance = 1e-10)
@@ -524,7 +524,7 @@ test_that("L4-17: a proportion with a forced delta keeps the score-based yt of b
   expect_equal(p$right[c(2, 4)], c(0.008, 0.008), tolerance = 1e-12)
 })
 
-test_that("L4-18: vectorised brs_prep agrees with brs_check for every direction and delta", {
+test_that("L4-18: vectorized brs_prep agrees with brs_check for every direction and delta", {
   set.seed(18L)
   y <- sample(0:10, 200, TRUE)
   dl <- sample(0:3, 200, TRUE)

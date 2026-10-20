@@ -831,7 +831,7 @@ arma::vec brsmm_grad_cpp(const arma::vec &param, const arma::mat &X,
 }
 
 // Hessian of the marginal log-likelihood: Richardson central differences of
-// the gradient (steps 1e-3 max(1,|theta_j|) and half), symmetrised. Every
+// the gradient (steps 1e-3 max(1,|theta_j|) and half), symmetrized. Every
 // perturbed gradient starts from the modes at param, so the result does not
 // depend on evaluation order.
 // [[Rcpp::export(name = ".brsmm_hessian_cpp", rng = false)]]

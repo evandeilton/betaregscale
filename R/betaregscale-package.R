@@ -19,7 +19,7 @@
 #' \deqn{Y_i \sim \mathrm{Beta}(a_i, b_i), \qquad
 #'   g_1(\mu_i) = x_i^\top \beta, \qquad g_2(\phi_i) = z_i^\top \gamma,}
 #' where \eqn{(a_i, b_i)} follow from \eqn{(\mu_i, \phi_i)} under one of three
-#' parameterisations (\code{\link{brs_repar}}). The default,
+#' parameterizations (\code{\link{brs_repar}}). The default,
 #' \code{repar = 2}, uses the mean \eqn{\mu} and the dispersion
 #' \eqn{\phi = 1/(1 + a + b)}, written \eqn{\sigma} in Lopes (2023). The
 #' score \eqn{s_i} gives the cell \eqn{[l_i, u_i]} and the censoring type

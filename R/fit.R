@@ -826,7 +826,7 @@ brs_fit_var <- function(formula, data,
 #' @section Estimation:
 #' \code{\link[stats]{optim}} (\code{method = "BFGS"}, the default, or
 #' \code{"L-BFGS-B"}; \code{maxit = 5000} unless \code{control} says
-#' otherwise) maximises the log-likelihood, which is evaluated in C++. The
+#' otherwise) maximizes the log-likelihood, which is evaluated in C++. The
 #' gradient uses the chain rule on the two linear predictors: the derivatives
 #' of each contribution with respect to \eqn{\eta_{1i}} and \eqn{\eta_{2i}}
 #' are Richardson central differences with step
@@ -849,7 +849,7 @@ brs_fit_var <- function(formula, data,
 #' midpoints for the mean, and for the second parameter the moment estimate on
 #' the midpoints as the intercept with zero slopes; under \code{repar = 0}
 #' both shapes by the method of moments. The covariance matrix is
-#' \eqn{(-H)^{-1}} at the estimate (\code{\link{vcov.brs}}); no generalised
+#' \eqn{(-H)^{-1}} at the estimate (\code{\link{vcov.brs}}); no generalized
 #' inverse is used.
 #'
 #' @section Fit diagnostics:
@@ -870,7 +870,7 @@ brs_fit_var <- function(formula, data,
 #'     recode them.}
 #'   \item{\dQuote{model matrix is nearly collinear}}{Condition number above
 #'     \eqn{10^4}: estimates and standard errors are unstable. Drop or combine
-#'     the named columns, or centre them.}
+#'     the named columns, or center them.}
 #'   \item{\dQuote{Optimizer did not converge}}{\code{optim} stopped at its
 #'     iteration limit or failed. Try \code{method = "L-BFGS-B"}, rescale the
 #'     covariates or simplify the model.}
@@ -928,7 +928,7 @@ brs_fit_var <- function(formula, data,
 #' \code{interval = "mid"} (default) uses the cells
 #' \eqn{[s - \mathrm{lim}, s + \mathrm{lim}]/K}; \code{"right"} and
 #' \code{"left"} use \eqn{K + 1} equal cells \eqn{[s, s + 1]/(K + 1)} (the
-#' dissertation's \eqn{r} and \eqn{l}, with a package normalisation).
+#' dissertation's \eqn{r} and \eqn{l}, with a package normalization).
 #' \code{"right"} and \code{"left"} give the same fit and differ only in
 #' \code{predict(type = "score")}; \code{"mid"} and \code{"right"}/\code{"left"}
 #' are different coarsening models, whose log-likelihoods and AIC are not
@@ -1007,7 +1007,7 @@ brs_fit_var <- function(formula, data,
 #'
 #' @return An object of class \code{"brs"}: a list with, among others,
 #'   \code{par} (estimates on the link scales), \code{coefficients}
-#'   (\code{mean} and \code{precision} parts), \code{value} (maximised
+#'   (\code{mean} and \code{precision} parts), \code{value} (maximized
 #'   log-likelihood), \code{hessian}, \code{convergence}, \code{diagnostics}
 #'   (see 'Fit diagnostics'), \code{hatmu} (first parameter per observation:
 #'   the mean, or the shape \eqn{p} under \code{repar = 0}), \code{hatphi},

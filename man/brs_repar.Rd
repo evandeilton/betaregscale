@@ -22,7 +22,7 @@ A \code{data.frame} with columns \code{shape1} (\eqn{a}) and
   \code{shape2} (\eqn{b}), one row per element of the recycled inputs.
 }
 \description{
-Converts the pair \code{(mu, phi)} of one of three parameterisations into
+Converts the pair \code{(mu, phi)} of one of three parameterizations into
 the shapes \eqn{(a, b)} of the beta density
 \eqn{f(y) = y^{a - 1}(1 - y)^{b - 1}/B(a, b)}, \eqn{0 < y < 1}.
 }
@@ -54,7 +54,7 @@ on the shapes (\code{repar = 0}) is a package extension. Admissible links
 per scheme: section 'Reparameterizations and links' of \code{\link{brs}}.
 }
 \examples{
-# One beta distribution in the three parameterisations: shapes (6, 14)
+# One beta distribution in the three parameterizations: shapes (6, 14)
 brs_repar(mu = 0.3, phi = 20, repar = 1)      # mean 0.3, precision 20
 brs_repar(mu = 0.3, phi = 1 / 21, repar = 2)  # mean 0.3, dispersion 1/(1 + 20)
 brs_repar(mu = 6, phi = 14, repar = 0)        # shapes p = 6, q = 14
@@ -65,13 +65,13 @@ c(mean = sh$shape1 / (sh$shape1 + sh$shape2),
   precision = sh$shape1 + sh$shape2,
   dispersion = 1 / (1 + sh$shape1 + sh$shape2))
 
-# E[Y] and Var[Y] agree across parameterisations: 0.3 and 0.21 / 21 = 0.01
+# E[Y] and Var[Y] agree across parameterizations: 0.3 and 0.21 / 21 = 0.01
 mu <- 0.3
 c(var_repar1 = mu * (1 - mu) / (1 + 20),
   var_repar2 = mu * (1 - mu) * (1 / 21),
   var_shapes = 6 * 14 / ((6 + 14)^2 * (6 + 14 + 1)))
 
-# Vectorised: one row per observation
+# Vectorized: one row per observation
 brs_repar(mu = c(0.2, 0.5, 0.8), phi = 0.1, repar = 2)
 
 }

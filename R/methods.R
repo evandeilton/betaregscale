@@ -112,7 +112,7 @@ coef.brs <- function(object,
 #'
 #' @details
 #' \eqn{(-H)^{-1}} with \eqn{H} the Hessian of the log-likelihood at the
-#' estimate. No generalised inverse is used: a singular Hessian gives an
+#' estimate. No generalized inverse is used: a singular Hessian gives an
 #' \code{NA} matrix, and negative or non-finite variances become \code{NA}
 #' (row and column); both cases warn (see \code{fit$diagnostics}).
 #'
@@ -144,7 +144,7 @@ vcov.brs <- function(object,
   .check_class(object)
   model <- match.arg(model)
 
-  # No generalised inverse: singular or indefinite Hessians give NA, with a warning
+  # No generalized inverse: singular or indefinite Hessians give NA, with a warning
   V <- .brs_vcov(object$hessian, names(object$par))
 
   switch(model,
@@ -439,12 +439,12 @@ model.matrix.brs <- function(object,
 #' p-values are \code{NA} (see 'Fit diagnostics' in \code{\link{brs}}).
 #'
 #' \eqn{\mathrm{AIC} = -2\ell + 2k} and \eqn{\mathrm{BIC} = -2\ell + k\log n},
-#' with \eqn{\ell} the maximised log-likelihood, \eqn{k} the number of
+#' with \eqn{\ell} the maximized log-likelihood, \eqn{k} the number of
 #' coefficients and \eqn{n} the number of observations. The pseudo
 #' \eqn{R^2} is the squared correlation between the fitted linear predictor
-#' of the mean and \eqn{g_1(y_i)} at the cell centres \code{yt} (Ferrari and
+#' of the mean and \eqn{g_1(y_i)} at the cell centers \code{yt} (Ferrari and
 #' Cribari-Neto, 2004); under \code{repar = 0} both sides are on the logit
-#' scale. It uses the cell centres, so it is rough when most observations are
+#' scale. It uses the cell centers, so it is rough when most observations are
 #' censored (the print says so).
 #'
 #' The randomized quantile residuals (\code{\link{residuals.brs}},
@@ -798,7 +798,7 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #'   \item{\code{"response"}}{\eqn{y_i - \hat\mu_i}.}
 #'   \item{\code{"pearson"}}{\eqn{(y_i - \hat\mu_i)/\sqrt{V_i}}. Lopes (2023)
 #'     writes \eqn{V_i} as \eqn{\mu(1 - \mu)/(1 + \phi)}
-#'     (parameterisation 1); it is the same variance under every
+#'     (parameterization 1); it is the same variance under every
 #'     \code{repar}.}
 #'   \item{\code{"deviance"}}{\eqn{\mathrm{sign}(y_i - \hat\mu_i)
 #'     \sqrt{|2\{\ell_i(y_i) - \ell_i(\hat\mu_i)\}|}}, where \eqn{\ell_i(m)} is

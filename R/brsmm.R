@@ -39,7 +39,7 @@
 #' warm-started from the modes of the previous evaluation (the cache is
 #' cleared at the start of each fit). A group whose curvature is not positive
 #' definite at its mode adds the penalty value \eqn{-10^6} instead of a
-#' silently regularised term, and \code{brsmm()} warns.
+#' silently regularized term, and \code{brsmm()} warns.
 #'
 #' \eqn{D = LL^\top} is parameterized by its lower Cholesky factor: the
 #' log of each diagonal entry and the off-diagonal entries as they are
@@ -49,7 +49,7 @@
 #' correlation.
 #'
 #' @section Estimation:
-#' \code{\link[stats]{optim}} maximises the marginal log-likelihood with its
+#' \code{\link[stats]{optim}} maximizes the marginal log-likelihood with its
 #' compiled gradient: the derivative of the chosen approximation by the chain
 #' rule on the linear predictor and the implicit-function theorem at the group
 #' modes (including the movement of the quadrature nodes), with
@@ -482,7 +482,7 @@ brsmm <- function(formula,
     stop("Internal error while computing group modes.", call. = FALSE)
   }
   # Inner-mode diagnostics (reported by .brs_fit_diagnostics): a group without a
-  # positive-definite mode is penalised in the likelihood.
+  # positive-definite mode is penalized in the likelihood.
   diag_re <- .brsmm_mode_diag_cpp(
     param = est[seq_len(p + q + k_re)], X = X, Z = Z, Xr = Xr,
     y_left = as.numeric(Y[, "left"]), y_right = as.numeric(Y[, "right"]),

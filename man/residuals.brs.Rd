@@ -47,7 +47,7 @@ these residuals unreliable at the borders of the scale.
   \item{\code{"response"}}{\eqn{y_i - \hat\mu_i}.}
   \item{\code{"pearson"}}{\eqn{(y_i - \hat\mu_i)/\sqrt{V_i}}. Lopes (2023)
     writes \eqn{V_i} as \eqn{\mu(1 - \mu)/(1 + \phi)}
-    (parameterisation 1); it is the same variance under every
+    (parameterization 1); it is the same variance under every
     \code{repar}.}
   \item{\code{"deviance"}}{\eqn{\mathrm{sign}(y_i - \hat\mu_i)
     \sqrt{|2\{\ell_i(y_i) - \ell_i(\hat\mu_i)\}|}}, where \eqn{\ell_i(m)} is

@@ -38,7 +38,7 @@ largest \code{y}; bounds may reach the latent range given in Details.}
 }
 \value{
 A data frame with columns \code{left}, \code{right} (cell on
-  \eqn{(0, 1)}), \code{yt} (cell centre), \code{y} (score, or the filled
+  \eqn{(0, 1)}), \code{yt} (cell center), \code{y} (score, or the filled
   latent score for rows without one) and \code{delta}, followed by the
   covariates. Attributes \code{"is_prepared"} (\code{TRUE}),
   \code{"ncuts"}, \code{"lim"} and \code{"interval"} are reused by
@@ -50,7 +50,7 @@ Turns analyst data into the cells \eqn{[l_i, u_i]} and censoring types
 \eqn{\delta_i} used by \code{\link{brs}} and \code{\link{brsmm}}. Scores
 run over \eqn{0, 1, \ldots, K} with \eqn{K =} \code{ncuts} the maximum;
 shift a scale that starts at 1 (a Likert item 1--5 becomes 0--4,
-\code{ncuts = 4}). Four input modes are recognised per row:
+\code{ncuts = 4}). Four input modes are recognized per row:
 \enumerate{
   \item \strong{Score only} (\code{y}): the cell of the score and
     \eqn{\delta} from the score, exactly as \code{\link{brs_check}}
@@ -87,7 +87,7 @@ the pattern of \code{left}, \code{right} and \code{y} (here
 }
 When the data have \code{left}/\code{right} columns, a row that gives
 only an interior score (both bounds \code{NA}) is an exact value at the
-cell centre, with a density contribution; without those columns the same
+cell center, with a density contribution; without those columns the same
 score is interval-censored (Mode 1). An analyst interval that reaches 0
 (or 1) on the unit scale is left- (or right-) censored; one that reaches
 both borders covers the whole scale, stays \eqn{\delta = 3} and gives a
@@ -108,7 +108,7 @@ so that the dissertation's intervals \eqn{[s - 0.5, s + 0.5]},
 They must lie in the latent range of the direction:
 \eqn{[-0.5, K + 0.5]} (\code{"mid"}), \eqn{[0, K + 1]} (\code{"right"})
 or \eqn{[-1, K]} (\code{"left"}); a bound outside it is an error. Rows
-with no score get \code{y} = the latent score of their cell centre, so
+with no score get \code{y} = the latent score of their cell center, so
 that \code{model.frame()} keeps them.
 
 Endpoints are clamped to \eqn{[\epsilon, 1 - \epsilon]},

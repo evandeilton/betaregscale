@@ -34,12 +34,12 @@ has negative variances, the affected standard errors, statistics and
 p-values are \code{NA} (see 'Fit diagnostics' in \code{\link{brs}}).
 
 \eqn{\mathrm{AIC} = -2\ell + 2k} and \eqn{\mathrm{BIC} = -2\ell + k\log n},
-with \eqn{\ell} the maximised log-likelihood, \eqn{k} the number of
+with \eqn{\ell} the maximized log-likelihood, \eqn{k} the number of
 coefficients and \eqn{n} the number of observations. The pseudo
 \eqn{R^2} is the squared correlation between the fitted linear predictor
-of the mean and \eqn{g_1(y_i)} at the cell centres \code{yt} (Ferrari and
+of the mean and \eqn{g_1(y_i)} at the cell centers \code{yt} (Ferrari and
 Cribari-Neto, 2004); under \code{repar = 0} both sides are on the logit
-scale. It uses the cell centres, so it is rough when most observations are
+scale. It uses the cell centers, so it is rough when most observations are
 censored (the print says so).
 
 The randomized quantile residuals (\code{\link{residuals.brs}},

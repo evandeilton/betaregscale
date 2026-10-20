@@ -21,7 +21,7 @@
 #' Link functions allowed under each reparameterization
 #'
 #' @description
-#' Each parameter of the beta distribution is modelled through a link whose
+#' Each parameter of the beta distribution is modeled through a link whose
 #' inverse maps the real line onto the parameter's domain. Parameters on
 #' \eqn{(0, 1)} (the mean under \code{repar = 1, 2}; the dispersion under
 #' \code{repar = 2}) use \code{"logit"}, \code{"probit"}, \code{"cauchit"}
@@ -161,7 +161,7 @@
 #' \code{[1e-5, 1 - 1e-5]}. Under \code{repar = 0} it is the shape
 #' \eqn{p > 0}: \code{[1e-5, 1e8]}, the same range
 #' \code{clamp_phi_by_repar} gives the other shape. \code{+-Inf} become the
-#' bounds; \code{NaN}/\code{NA} propagate (the likelihood then penalises them).
+#' bounds; \code{NaN}/\code{NA} propagate (the likelihood then penalizes them).
 #'
 #' @param mu Numeric vector.
 #' @param repar Integer (0, 1, or 2).
@@ -318,7 +318,7 @@ link_to_code <- function(link) {
 #' Beta shape parameters from the parameters of each scheme
 #'
 #' @description
-#' Converts the pair \code{(mu, phi)} of one of three parameterisations into
+#' Converts the pair \code{(mu, phi)} of one of three parameterizations into
 #' the shapes \eqn{(a, b)} of the beta density
 #' \eqn{f(y) = y^{a - 1}(1 - y)^{b - 1}/B(a, b)}, \eqn{0 < y < 1}.
 #'
@@ -374,7 +374,7 @@ link_to_code <- function(link) {
 #' PhD thesis, Universidade Federal de Pernambuco.
 #'
 #' @examples
-#' # One beta distribution in the three parameterisations: shapes (6, 14)
+#' # One beta distribution in the three parameterizations: shapes (6, 14)
 #' brs_repar(mu = 0.3, phi = 20, repar = 1)      # mean 0.3, precision 20
 #' brs_repar(mu = 0.3, phi = 1 / 21, repar = 2)  # mean 0.3, dispersion 1/(1 + 20)
 #' brs_repar(mu = 6, phi = 14, repar = 0)        # shapes p = 6, q = 14
@@ -385,13 +385,13 @@ link_to_code <- function(link) {
 #'   precision = sh$shape1 + sh$shape2,
 #'   dispersion = 1 / (1 + sh$shape1 + sh$shape2))
 #'
-#' # E[Y] and Var[Y] agree across parameterisations: 0.3 and 0.21 / 21 = 0.01
+#' # E[Y] and Var[Y] agree across parameterizations: 0.3 and 0.21 / 21 = 0.01
 #' mu <- 0.3
 #' c(var_repar1 = mu * (1 - mu) / (1 + 20),
 #'   var_repar2 = mu * (1 - mu) * (1 / 21),
 #'   var_shapes = 6 * 14 / ((6 + 14)^2 * (6 + 14 + 1)))
 #'
-#' # Vectorised: one row per observation
+#' # Vectorized: one row per observation
 #' brs_repar(mu = c(0.2, 0.5, 0.8), phi = 0.1, repar = 2)
 #'
 #' @export

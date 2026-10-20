@@ -70,7 +70,7 @@
 Major release: some calls accepted by 2.7.4 now stop and some results
 change. With the defaults
 (`repar = 2`, `interval = "mid"`, `lim = 0.5`) and well-behaved data,
-estimates agree with 2.7.4 to optimiser tolerance; the sections below give
+estimates agree with 2.7.4 to optimizer tolerance; the sections below give
 every change and its reason.
 
 ## Breaking changes
@@ -116,7 +116,7 @@ every change and its reason.
   collinearity, and check the gradient, the Hessian and the likelihood
   clamps after `optim()` (`fit$diagnostics`, one-line warnings; the gradient
   check is the log-likelihood gain of the remaining Newton step, above 0.01).
-  `vcov()` no longer uses a generalised inverse: variances it cannot estimate
+  `vcov()` no longer uses a generalized inverse: variances it cannot estimate
   are `NA` (they were 0). `brsmm()` flags a variance component on the
   boundary. `logLik()` of a `brs()` fit is evaluated exactly at the returned
   estimate.
@@ -134,7 +134,7 @@ every change and its reason.
   `ncuts * 2`). `brs_sim(delta = 1 or 2)` warns
   (informative censoring, no finite MLE) and keeps covariates of `0 + x`
   formulas; `brs_prep()` warns on rows covering the whole scale. Marginal
-  effects honour `| 0 + z`; repar 2 variable-dispersion starts use the
+  effects honor `| 0 + z`; repar 2 variable-dispersion starts use the
   moment intercept with zero slopes. This changes some fits, to an equal or
   higher log-likelihood with fewer iterations, and a `brsmm` variable-dispersion fit (200 groups x 25)
   that had "converged" to a wrong point (intercept 0.94, true 0.2) now gains
@@ -246,7 +246,7 @@ every change and its reason.
   above a small fitted mean (or below a large one) was computed as
   `F(right) - F(left)` with both terms equal to 1 to machine precision, so it
   hit the floor: the observation contributed the constant `log(1e-15)` with
-  zero gradient, and the optimiser maximised a trimmed likelihood that ignored
+  zero gradient, and the optimizer maximized a trimmed likelihood that ignored
   outliers. Now the tail is chosen by the mean `a / (a + b)`, `pbeta()` is
   evaluated in plain scale on the small side, there is no floor, and below
   `1e-240` (where R's `bratio` loses accuracy) an endpoint Laplace
@@ -257,7 +257,7 @@ every change and its reason.
   User-visible consequences: `logLik()`, `AIC()` and `brs_cv()` change on data
   with observations far in a tail, and the precision estimate can drop a lot.
   In an example with 200 observations and 4 outliers the estimated precision
-  went from 328 to 32; the old value was an artefact of the trimmed
+  went from 328 to 32; the old value was an artifact of the trimmed
   likelihood. An interval-censored observation with `left == right`
   (probability zero) now contributes `-1e6` instead of `log(1e-15)`.
 
@@ -287,7 +287,7 @@ every change and its reason.
   Newton method with warm starts. It no longer returns `b = 0` when the
   curvature there is indefinite, and the silent eigenvalue floor of 1e-8
   (which added up to `+9.2` per direction to the Laplace value) is gone; a
-  group without a positive-definite mode is penalised and reported in
+  group without a positive-definite mode is penalized and reported in
   `fit$diagnostics$inner`.
 * AGHQ and QMC scale the nodes by the symmetric root `C^(-1/2)` of the
   curvature, so their values no longer depend on the eigenvector sign and order
@@ -303,7 +303,7 @@ every change and its reason.
   message; a `NaN` parameter gives the likelihood penalty, `+-Inf` the bounds.
   An `NA` in a prepared `delta` column now stops in R and in C++; before, it
   reached the compiled code as `NaN` and was cast to an integer (undefined
-  behaviour: rejected with a misleading message on x86-64, silently read as an
+  behavior: rejected with a misleading message on x86-64, silently read as an
   exact observation on arm64).
 
 ## Documentation
@@ -311,7 +311,7 @@ every change and its reason.
 * Help pages aligned with Lopes (2023) and with the code: the
   complete likelihood with the four censoring types (the dissertation's
   table swaps `delta = 1` and `2`; the package follows its equation), the
-  three parameterisations with their links, mean and variance (`repar = 2`
+  three parameterizations with their links, mean and variance (`repar = 2`
   dispersion is `1 / (1 + a + b)`, not a coefficient of variation), the
   interval directions, the border handling that replaces the dissertation's
   edge transformation, the residual types, estimation (chain-rule gradient
@@ -323,16 +323,16 @@ every change and its reason.
   the gradient and the boundary diagnostics.
 * New examples, runnable without `\donttest`: a synthetic NRS-11 study
   (times x groups), the four `brs_prep()` modes and a Likert item, one
-  simulation per parameterisation, random intercept and slope with
+  simulation per parameterization, random intercept and slope with
   `anova()`, bootstrap with a factor, cross-validation, marginal effects.
 * Vignettes rewritten where they disagreed with the code: likelihood,
-  directions, parameterisations, diagnostics, residuals (brs-intro); a Monte
+  directions, parameterizations, diagnostics, residuals (brs-intro); a Monte
   Carlo study in the dissertation's design (brs-advanced-workflows); ICC,
   SD/Corr intervals and the chi-bar-square test (brs-mm); marginal effects
   and score probabilities (brs-analyst-tools). The intro vignette uses a
   percentile bootstrap instead of BCa, which lowers the build time.
 * README: removed the claims of an analytical gradient, of new
-  methodology (the parameterisation is Bayer, 2011) and of exactly normal
+  methodology (the parameterization is Bayer, 2011) and of exactly normal
   quantile residuals; `ncuts` wording fixed; references added. The package
   page attributes the M1/M2/M3 comparison to the dissertation's study.
 * `brs_prep()` accepts a bound or score column that is entirely `NA`
