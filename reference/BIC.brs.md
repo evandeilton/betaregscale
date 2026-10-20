@@ -17,11 +17,14 @@ BIC(object, ...)
 
 - ...:
 
-  Ignored.
+  Further fitted models (`brs`, `brsmm` or others with a
+  [`BIC()`](https://rdrr.io/r/stats/AIC.html) method).
 
 ## Value
 
-Scalar BIC value.
+Scalar BIC value; with several models, a data frame with columns `df`
+and `BIC`, one row per model, as
+[`stats::BIC()`](https://rdrr.io/r/stats/AIC.html).
 
 ## See also
 

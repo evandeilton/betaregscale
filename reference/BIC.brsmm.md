@@ -1,18 +1,18 @@
 # BIC for brsmm models
 
-\\-2\ell + \log(n)\\k\\ with \\n\\ = the number of observations
-(`nobs(object)`), as `lme4` does, and \\k\\ the number of parameters
-(fixed effects, precision and packed random-effect parameters). There is
-no single sample size for a mixed model: counting groups instead (\\n =
-\\ `object$ngroups`) penalises more and is a common alternative,
-`-2 * logLik(object) + log(object$ngroups) * k`. Compare BIC values only
-between fits with the same convention.
+\\-2\ell + \log(n)\\k\\, with \\k\\ the number of parameters (fixed
+effects, precision, packed random-effect and cutpoint parameters) and
+\\n\\ the number of observations (`n = "obs"`, the default, as `lme4`
+does) or of groups (`n = "groups"`). There is no single sample size for
+a mixed model; counting groups penalizes less when groups have several
+observations each. Compare BIC values only between fits with the same
+convention.
 
 ## Usage
 
 ``` r
 # S3 method for class 'brsmm'
-BIC(object, ...)
+BIC(object, ..., n = c("obs", "groups"))
 ```
 
 ## Arguments
@@ -23,11 +23,19 @@ BIC(object, ...)
 
 - ...:
 
-  Currently ignored.
+  Further fitted models; with `n = "groups"` they must be `"brsmm"`
+  fits, otherwise their own [`BIC()`](https://rdrr.io/r/stats/AIC.html)
+  is used.
+
+- n:
+
+  `"obs"` (default; `nobs(object)`) or `"groups"` (`object$ngroups`).
 
 ## Value
 
-Numeric scalar.
+Numeric scalar; with several models, a data frame with columns `df` and
+`BIC`, one row per model, as
+[`stats::BIC()`](https://rdrr.io/r/stats/AIC.html).
 
 ## See also
 
@@ -53,5 +61,7 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 BIC(fit)
 #> [1] 196.3492
+BIC(fit, n = "groups")
+#> [1] 189.9115
 # }
 ```

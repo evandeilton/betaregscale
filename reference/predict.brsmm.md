@@ -57,7 +57,9 @@ observation.
 
 [`brsmm`](https://evandeilton.github.io/betaregscale/reference/brsmm.md),
 [`fitted.brsmm`](https://evandeilton.github.io/betaregscale/reference/fitted.brsmm.md),
-[`brs_predict_scoreprob`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
+[`brs_predict_scoreprob`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md);
+[`brs_marginal`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md)
+for population-averaged (marginal) quantities with standard errors
 
 ## Examples
 

@@ -35,6 +35,32 @@
   `model = "cutpoints"`;
   [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
   gives no z-test for the cutpoint parameters.
+- New
+  [`brs_marginal()`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md):
+  score probabilities, expected scores and exceedance probabilities
+  `P(S >= k)` with standard errors and intervals, and differences
+  between rows (e.g. time contrasts). For
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
+  fits the random effects are integrated out (population-averaged
+  values), or set to zero with `conditional = TRUE`; under a nonlinear
+  link these differ. Standard errors use the delta method over all
+  parameters (including the random-effect and cutpoint parameters) or
+  parameter draws.
+- New
+  [`brs_loglik_contrib()`](https://evandeilton.github.io/betaregscale/reference/brs_loglik_contrib.md):
+  log-likelihood contributions per observation (`brs`) or per group
+  (`brsmm`, marginal over the random effects), also for new data at the
+  fitted parameters; they add up to
+  [`logLik()`](https://rdrr.io/r/stats/logLik.html).
+- New
+  [`brsmm_cv()`](https://evandeilton.github.io/betaregscale/reference/brsmm_cv.md):
+  cross-validation with folds formed by group, scoring held-out groups
+  by their marginal log-likelihood (log probability of the observed
+  scores), with reusable folds and a `seed` argument.
+- [`BIC()`](https://rdrr.io/r/stats/AIC.html) for `brsmm` fits gains
+  `n = c("obs", "groups")`. [`BIC()`](https://rdrr.io/r/stats/AIC.html)
+  of `brs` and `brsmm` fits returns a `df`/`BIC` table for several
+  models, whatever the order; the single-model value is unchanged.
 
 ### Other changes
 

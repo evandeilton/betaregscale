@@ -59,12 +59,14 @@
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Ignored.</p></dd>
+<dd><p>Further fitted models (<code>brs</code>, <code>brsmm</code> or others with a
+<code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> method).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Scalar BIC value.</p>
+    <p>Scalar BIC value; with several models, a data frame with columns
+  <code>df</code> and <code>BIC</code>, one row per model, as <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">stats::BIC()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

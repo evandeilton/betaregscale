@@ -36,6 +36,8 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_fit_var.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_gof.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_hessian.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/brs_loglik_contrib.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/brs_marginal.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_prep.html</loc></url>
@@ -43,6 +45,7 @@
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_sim.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brs_table.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm.html</loc></url>
+<url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_cv.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/brsmm_re_study.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brs.html</loc></url>
 <url><loc>https://evandeilton.github.io/betaregscale/reference/coef.brsmm.html</loc></url>

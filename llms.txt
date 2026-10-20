@@ -577,8 +577,15 @@ Post-estimation tables, effects, score probabilities, and validation.
   : ggplot2 autoplot for marginal effects
 - [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
   : Predict score probabilities from a fitted brs model
+- [`brs_marginal()`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md)
+  : Population-averaged score probabilities, expected scores and
+  exceedance
+- [`brs_loglik_contrib()`](https://evandeilton.github.io/betaregscale/reference/brs_loglik_contrib.md)
+  : Log-likelihood contributions per observation or per group
 - [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
   : K-fold cross-validation for brs models
+- [`brsmm_cv()`](https://evandeilton.github.io/betaregscale/reference/brsmm_cv.md)
+  : Group-level cross-validation for brsmm models
 
 ## Data Preparation
 

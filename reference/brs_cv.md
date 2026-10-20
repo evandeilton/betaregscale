@@ -74,6 +74,11 @@ literature review. Journal of Pain and Symptom Management, 41(6),
 1073-1093.
 [doi:10.1016/j.jpainsymman.2010.08.016](https://doi.org/10.1016/j.jpainsymman.2010.08.016)
 
+## See also
+
+[`brsmm_cv`](https://evandeilton.github.io/betaregscale/reference/brsmm_cv.md)
+for mixed models (folds by group).
+
 ## Examples
 
 ``` r
