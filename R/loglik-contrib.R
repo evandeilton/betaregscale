@@ -21,7 +21,10 @@
 #' computed by the fit's \code{int_method} and \code{n_points} (or
 #' \code{qmc_points}) unless \code{int_method} / \code{n_points} are given.
 #' With the defaults and \code{newdata = NULL}, the contributions add up to
-#' \code{logLik(object)}.
+#' \code{logLik(object)} (under \code{"laplace"}, up to the tolerance of the
+#' inner mode search, about \eqn{10^{-8}}). A group without a
+#' positive-definite random-effect mode, which adds a penalty value to the
+#' fitted log-likelihood, gets \code{NA} with a warning.
 #'
 #' With \code{newdata}, rows need the response, the covariates and (for
 #' \code{brsmm}) the grouping variable; rows with missing values in them are
@@ -117,6 +120,14 @@ brs_loglik_contrib <- function(object, newdata = NULL, int_method = NULL,
     n_points = n_points
   )
   out <- as.numeric(out)
+  # Groups without a positive-definite mode get the likelihood's penalty value
+  # (-1e6, LOG_PENALTY in src/brs_common.h): not a log-likelihood, so NA
+  bad <- out == -1e6
+  if (any(bad)) {
+    warning(sum(bad), " group(s) have no positive-definite random-effect mode; ",
+            "their contributions are NA.", call. = FALSE)
+    out[bad] <- NA_real_
+  }
   names(out) <- levels(dd$group)
   attr(out, "n") <- as.vector(table(dd$group))
   out

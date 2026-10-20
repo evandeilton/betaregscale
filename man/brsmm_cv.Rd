@@ -63,11 +63,17 @@ of held-out groups are integrated out, so no random-effect estimates are
 needed. The integral is computed by adaptive Gauss-Hermite quadrature with
 \code{score_points} nodes per random-effect dimension, whatever
 \code{int_method} the fits use; the default is 31 for one or two random
-effects, 27 for three and 11 for four. For score data the log score is
+effects and otherwise the largest number whose product grid has at most
+20000 nodes (27 for three, 11 for four, 7 for five; at least 2). The grid
+may not exceed 500000 nodes. For score data the log score is
 the log probability of the observed scores (no Jacobian term), so it is on
 the same scale as the held-out log-likelihood of any model that gives a
 probability mass function on \eqn{0, \ldots, K}, evaluated on the same
 folds (attribute \code{"folds"}).
+
+Rows with missing values in the model variables (response, covariates,
+random-effect terms or group) are dropped first; a group without complete
+rows is not used, and \code{n_train} / \code{n_test} count complete rows.
 
 Folds: \code{k} folds of nearly equal numbers of groups, drawn at random
 for each repeat. With \code{seed}, the folds are drawn after

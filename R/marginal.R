@@ -37,7 +37,10 @@
 #' partition (0, 1) (\code{lim = 0.5}, or \code{interval = "right"} or
 #' \code{"left"}). \code{"expected_score"} is \eqn{\sum_s s\, P(S = s)} on the
 #' \eqn{0, \ldots, K} scale and \code{"exceed"} is
-#' \eqn{P(S \ge k) = \sum_{s \ge k} P(S = s)}.
+#' \eqn{P(S \ge k) = \sum_{s \ge k} P(S = s)}. When the cells do not
+#' partition (0, 1) (\code{interval = "mid"} with \code{lim < 0.5}), the
+#' probabilities sum to less than 1 and these two types are not moments or
+#' tail probabilities of a distribution; they are computed with a warning.
 #'
 #' Under a nonlinear link the marginal quantities differ from the
 #' conditional ones at \eqn{b = 0}: the latter describe a subject whose
@@ -151,6 +154,16 @@ brs_marginal <- function(object,
       stop("'k' must be integers in [0, ", K, "].", call. = FALSE)
     }
     k <- as.integer(k)
+  }
+
+  # With lim < 0.5 under "mid" the cells leave gaps: the pmf sums to less than 1
+  partition <- !identical(.brs_interval_of(object), "mid") ||
+    abs(object$lim - 0.5) < sqrt(.Machine$double.eps)
+  if (!partition && type != "prob") {
+    warning("The cells of the fit (interval = \"mid\", lim = ", format(object$lim),
+            ") do not partition (0, 1): the score probabilities sum to less ",
+            "than 1, so '", type, "' is not an expectation or a probability ",
+            "of the score distribution.", call. = FALSE)
   }
 
   des <- .brs_marg_design(object, newdata)

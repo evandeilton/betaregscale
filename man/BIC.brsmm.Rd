@@ -9,13 +9,15 @@
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
-\item{...}{Currently ignored.}
+\item{...}{Further fitted models; with \code{n = "groups"} they must be
+\code{"brsmm"} fits, otherwise their own \code{BIC()} is used.}
 
 \item{n}{\code{"obs"} (default; \code{nobs(object)}) or \code{"groups"}
 (\code{object$ngroups}).}
 }
 \value{
-Numeric scalar.
+Numeric scalar; with several models, a data frame with columns
+  \code{df} and \code{BIC}, one row per model, as \code{stats::BIC()}.
 }
 \description{
 \eqn{-2\ell + \log(n)\,k}, with \eqn{k} the number of parameters (fixed

@@ -235,11 +235,17 @@ brs_cv <- function(formula,
 #' needed. The integral is computed by adaptive Gauss-Hermite quadrature with
 #' \code{score_points} nodes per random-effect dimension, whatever
 #' \code{int_method} the fits use; the default is 31 for one or two random
-#' effects, 27 for three and 11 for four. For score data the log score is
+#' effects and otherwise the largest number whose product grid has at most
+#' 20000 nodes (27 for three, 11 for four, 7 for five; at least 2). The grid
+#' may not exceed 500000 nodes. For score data the log score is
 #' the log probability of the observed scores (no Jacobian term), so it is on
 #' the same scale as the held-out log-likelihood of any model that gives a
 #' probability mass function on \eqn{0, \ldots, K}, evaluated on the same
 #' folds (attribute \code{"folds"}).
+#'
+#' Rows with missing values in the model variables (response, covariates,
+#' random-effect terms or group) are dropped first; a group without complete
+#' rows is not used, and \code{n_train} / \code{n_test} count complete rows.
 #'
 #' Folds: \code{k} folds of nearly equal numbers of groups, drawn at random
 #' for each repeat. With \code{seed}, the folds are drawn after
@@ -313,16 +319,28 @@ brsmm_cv <- function(formula,
   if (anyNA(data[[gv]])) {
     stop("Grouping variable '", gv, "' contains missing values.", call. = FALSE)
   }
+  # Rows with missing model variables are dropped before the folds are formed
+  vars <- intersect(unique(c(all.vars(formula), all.vars(spec$re_terms), gv)),
+                    names(data))
+  cc <- stats::complete.cases(data[, vars, drop = FALSE])
+  if (!is.null(folds) && length(folds) == nrow(data)) folds <- folds[cc]
+  data <- .brs_keep_prep_attr(data[cc, , drop = FALSE], data)
+  if (nrow(data) < 2L) stop("'data' has fewer than 2 complete rows.", call. = FALSE)
   grp <- factor(data[[gv]])
   lev <- levels(grp)
   G <- length(lev)
-  q_re <- ncol(stats::model.matrix(spec$re_terms, data[1L, , drop = FALSE]))
-  if (is.null(score_points)) {
-    score_points <- c(31L, 31L, 27L, 11L)[min(q_re, 4L)]
-  }
+  # Columns of the random-effects design, from the full data (character
+  # covariates need all their values to get contrasts)
+  mf_re <- stats::model.frame(spec$re_terms, data, na.action = stats::na.pass)
+  q_re <- ncol(stats::model.matrix(spec$re_terms, mf_re))
+  if (is.null(score_points)) score_points <- .brsmm_cv_score_points(q_re)
   score_points <- as.integer(score_points)
   if (length(score_points) != 1L || is.na(score_points) || score_points < 1L) {
     stop("'score_points' must be a positive integer.", call. = FALSE)
+  }
+  if (score_points^q_re > 5e5) {
+    stop("'score_points'^", q_re, " exceeds the 500000-node limit of the ",
+         "quadrature grid; use fewer points.", call. = FALSE)
   }
 
   # Fold of each group, one vector per repeat
@@ -380,11 +398,7 @@ brsmm_cv <- function(formula,
       warn <- unique(warn)
       all_warn <- c(all_warn, warn)
       failed <- inherits(res, "error")
-      if (!failed) {
-        # A held-out group without complete rows contributes 0
-        scores_r[as.character(unique(grp[test_idx]))] <- 0
-        scores_r[names(res$ll)] <- as.numeric(res$ll)
-      }
+      if (!failed) scores_r[names(res$ll)] <- as.numeric(res$ll)
       rows[[length(rows) + 1L]] <- data.frame(
         `repeat` = r,
         fold = f,
@@ -414,6 +428,15 @@ brsmm_cv <- function(formula,
   attr(out, "score_points") <- score_points
   class(out) <- c("brsmm_cv", "data.frame")
   out
+}
+
+# Default AGHQ nodes per dimension for held-out scoring: 31 up to two random
+# effects, then the largest number with at most 2e4 grid nodes (at least 2).
+.brsmm_cv_score_points <- function(q_re) {
+  if (q_re <= 2L) {
+    return(31L)
+  }
+  max(2L, as.integer(floor(2e4^(1 / q_re) + 1e-9)))
 }
 
 # Fold of each group from a user assignment (per row, or named by group level).

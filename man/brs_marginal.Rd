@@ -90,7 +90,10 @@ but without a probability floor), so each row sums to 1 whenever the cells
 partition (0, 1) (\code{lim = 0.5}, or \code{interval = "right"} or
 \code{"left"}). \code{"expected_score"} is \eqn{\sum_s s\, P(S = s)} on the
 \eqn{0, \ldots, K} scale and \code{"exceed"} is
-\eqn{P(S \ge k) = \sum_{s \ge k} P(S = s)}.
+\eqn{P(S \ge k) = \sum_{s \ge k} P(S = s)}. When the cells do not
+partition (0, 1) (\code{interval = "mid"} with \code{lim < 0.5}), the
+probabilities sum to less than 1 and these two types are not moments or
+tail probabilities of a distribution; they are computed with a warning.
 
 Under a nonlinear link the marginal quantities differ from the
 conditional ones at \eqn{b = 0}: the latter describe a subject whose

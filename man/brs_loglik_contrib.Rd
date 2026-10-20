@@ -38,7 +38,10 @@ likelihood. For a \code{brsmm} fit the contribution of group \eqn{g} is
 computed by the fit's \code{int_method} and \code{n_points} (or
 \code{qmc_points}) unless \code{int_method} / \code{n_points} are given.
 With the defaults and \code{newdata = NULL}, the contributions add up to
-\code{logLik(object)}.
+\code{logLik(object)} (under \code{"laplace"}, up to the tolerance of the
+inner mode search, about \eqn{10^{-8}}). A group without a
+positive-definite random-effect mode, which adds a penalty value to the
+fitted log-likelihood, gets \code{NA} with a warning.
 
 With \code{newdata}, rows need the response, the covariates and (for
 \code{brsmm}) the grouping variable; rows with missing values in them are

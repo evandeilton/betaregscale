@@ -359,3 +359,66 @@ test_that("small K and the left map", {
   expect_equal(sum(P), 1, tolerance = 1e-12)
   expect_lt(abs(sum(brs_loglik_contrib(m)) - as.numeric(logLik(m))), 1e-8)
 })
+
+test_that("brsmm_cv accepts character covariates in the random-effects terms", {
+  d <- mm_test_data(G = 24, sd1 = 0.4, seed = 6)
+  # read.csv-style data: character columns
+  d$tm <- as.character(d$time)
+  d$tm2 <- ifelse(d$tm == "6h", "early", "late")
+  d$time <- NULL
+  cv <- suppressWarnings(brsmm_cv(y ~ tm, random = ~ 1 + tm2 | id, data = d, k = 3,
+                                  seed = 2, ncuts = 10))
+  expect_equal(nrow(cv), 3L)
+  expect_true(all(is.na(cv$error)))
+  expect_equal(attr(cv, "score_points"), 31L)
+})
+
+test_that("brsmm_cv drops incomplete rows and counts complete rows", {
+  d <- mm_test_data(G = 24)
+  d$y[d$id == 3] <- NA          # a group without complete rows
+  d$y[d$id == 5][1] <- NA
+  cv <- brsmm_cv(y ~ time, random = ~ 1 | id, data = d, k = 3, seed = 4,
+                 ncuts = 10, int_method = "aghq")
+  expect_equal(sum(cv$n_test), sum(!is.na(d$y)))
+  expect_false("3" %in% names(attr(cv, "folds")[[1]]))
+  expect_length(attr(cv, "group_scores")[[1]], 23L)
+  expect_true(is.finite(attr(cv, "log_score")))
+})
+
+test_that("default held-out scoring grid stays within the node limit", {
+  sp <- vapply(1:12, .brsmm_cv_score_points, integer(1))
+  expect_equal(sp[1:5], c(31L, 31L, 27L, 11L, 7L))
+  expect_true(all(sp >= 2L))
+  expect_true(all(sp^(1:12) <= 5e5))
+  d <- mm_test_data(G = 12)
+  expect_error(brsmm_cv(y ~ time, random = ~ 1 + tc | id, data = d, k = 2,
+                        score_points = 800, ncuts = 10), "500000-node")
+})
+
+test_that("brs_marginal warns when the cells do not partition (0, 1)", {
+  d <- mm_test_data()
+  m <- suppressWarnings(brsmm(y ~ time, random = ~ 1 | id, data = d, ncuts = 10,
+                              lim = 0.4))
+  P <- matrix(brs_marginal(m, nd3)$estimate, nrow = 3, byrow = TRUE)
+  expect_true(all(rowSums(P) < 1 - 1e-3))
+  expect_warning(brs_marginal(m, nd3, type = "expected_score"), "do not partition")
+  expect_warning(brs_marginal(m, nd3, type = "exceed", k = 4), "do not partition")
+  expect_silent(brs_marginal(brsmm(y ~ time, random = ~ 1 | id, data = d, ncuts = 10),
+                             nd3, type = "expected_score"))
+})
+
+test_that("BIC with several brsmm fits returns a table with the same n rule", {
+  d <- mm_test_data()
+  m1 <- brsmm(y ~ time, random = ~ 1 | id, data = d, ncuts = 10)
+  m2 <- brsmm(y ~ 1, random = ~ 1 | id, data = d, ncuts = 10)
+  tb <- BIC(m1, m2)
+  expect_s3_class(tb, "data.frame")
+  expect_identical(rownames(tb), c("m1", "m2"))
+  expect_equal(tb$df, c(m1$npar, m2$npar))
+  expect_equal(tb$BIC, c(BIC(m1), BIC(m2)))
+  tg <- BIC(m1, m2, n = "groups")
+  expect_equal(tg$BIC, c(BIC(m1, n = "groups"), BIC(m2, n = "groups")))
+  f <- brs(y ~ time, data = d, ncuts = 10)
+  expect_equal(BIC(m1, f)$BIC, c(BIC(m1), BIC(f)))
+  expect_error(BIC(m1, f, n = "groups"), "brsmm")
+})

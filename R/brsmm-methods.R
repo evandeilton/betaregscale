@@ -339,11 +339,13 @@ AIC.brsmm <- function(object, ..., k = 2) {
 #' the same convention.
 #'
 #' @param object A fitted \code{"brsmm"} object.
-#' @param ... Currently ignored.
+#' @param ... Further fitted models; with \code{n = "groups"} they must be
+#'   \code{"brsmm"} fits, otherwise their own \code{BIC()} is used.
 #' @param n \code{"obs"} (default; \code{nobs(object)}) or \code{"groups"}
 #'   (\code{object$ngroups}).
 #'
-#' @return Numeric scalar.
+#' @return Numeric scalar; with several models, a data frame with columns
+#'   \code{df} and \code{BIC}, one row per model, as \code{stats::BIC()}.
 #'
 #' @seealso \code{\link{brsmm}}, \code{\link{logLik.brsmm}},
 #'   \code{\link{AIC.brsmm}}, \code{\link{brs_gof}}
@@ -370,8 +372,32 @@ AIC.brsmm <- function(object, ..., k = 2) {
 BIC.brsmm <- function(object, ..., n = c("obs", "groups")) {
   .check_class_mm(object)
   n <- match.arg(n)
-  nn <- if (n == "obs") object$nobs else object$ngroups
-  -2 * object$value + log(nn) * object$npar
+  one <- function(m) {
+    if (inherits(m, "brsmm")) {
+      nn <- if (n == "obs") m$nobs else m$ngroups
+      return(-2 * m$value + log(nn) * m$npar)
+    }
+    if (n == "groups") {
+      stop("n = \"groups\" needs \"brsmm\" fits only.", call. = FALSE)
+    }
+    stats::BIC(m)
+  }
+  dots <- list(...)
+  if (!length(dots)) {
+    return(one(object))
+  }
+  # Several models: table as stats::BIC(), with the same n rule for each
+  mods <- c(list(object), dots)
+  nob <- vapply(mods, function(m) as.numeric(stats::nobs(m)), numeric(1))
+  if (length(unique(nob)) > 1L) {
+    warning("models are not all fitted to the same number of observations",
+            call. = FALSE)
+  }
+  df <- vapply(mods, function(m) as.numeric(attr(stats::logLik(m), "df")), numeric(1))
+  cl <- match.call()
+  cl$n <- NULL
+  data.frame(df = df, BIC = vapply(mods, one, numeric(1)),
+             row.names = as.character(cl[-1L]))
 }
 
 
