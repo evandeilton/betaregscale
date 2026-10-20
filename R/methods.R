@@ -946,7 +946,7 @@ residuals.brs <- function(object,
     },
     deviance = {
       sh <- get_shapes(mu, phi, repar)
-      # BUG-C02: deviance uses the SATURATED log-likelihood where mu_sat = y.
+      # Deviance against the saturated log-likelihood, where mu_sat = y.
       # The fitted contribution evaluates density at y with fitted shapes (a,b).
       # Saturated model: mean y, same precision a + b (= brs_repar(y, phi) under
       # repar 1/2; defined under repar 0 too).
@@ -1155,7 +1155,7 @@ predict.brs <- function(object, newdata = NULL,
     eta_mu <- as.numeric(X %*% object$coefficients$mean)
     mu <- .clamp_mu_by_repar(apply_inv_link(eta_mu, object$link), object$repar)
 
-    # BUG-H02: detect variable-dispersion by presence of Z matrix with
+    # Detect variable dispersion by the presence of a Z matrix with
     # non-intercept columns, not by q > 1 (which misclassifies y ~ x | 1).
     has_var_phi <- !is.null(object$model_matrices$Z) &&
                    !is.null(object$terms$precision) &&

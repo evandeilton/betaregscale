@@ -82,7 +82,7 @@ compute_start <- function(formula, data, link = NULL,
   )
 
   # Dispersion starting values
-  # PERF-M04: moment-based estimate avoids a second GLM call.
+  # Moment-based estimate (avoids a second GLM call).
   # repar=1 precision: Var(Y) = mu*(1-mu)/(phi+1) => phi = mu*(1-mu)/Var(Y) - 1
   # repar=2 mean-var:  Var(Y) = phi*mu*(1-mu)     => phi = Var(Y)/(mu*(1-mu))
   phi_start <- if (!is.na(vy) && vy > 0 && denom > 0) {

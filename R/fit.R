@@ -304,7 +304,7 @@ brs_fit_fixed <- function(formula, data,
     control = .brs_merge_control(list(maxit = 5000L), control)
   )
 
-  # BUG-H04: warn if optimizer did not converge
+  # Warn if the optimizer did not converge
   if (opt$convergence != 0L) {
     warning(
       "Optimizer did not converge (code ", opt$convergence, ")",
@@ -629,7 +629,7 @@ brs_fit_var <- function(formula, data,
     control = .brs_merge_control(list(maxit = 5000L), control)
   )
 
-  # BUG-H04: warn if optimizer did not converge
+  # Warn if the optimizer did not converge
   if (opt$convergence != 0L) {
     warning(
       "Optimizer did not converge (code ", opt$convergence, ")",
@@ -931,8 +931,12 @@ brs_fit_var <- function(formula, data,
 #' dissertation's \eqn{r} and \eqn{l}, with a package normalization).
 #' \code{"right"} and \code{"left"} give the same fit and differ only in
 #' \code{predict(type = "score")}; \code{"mid"} and \code{"right"}/\code{"left"}
-#' are different coarsening models, whose log-likelihoods and AIC are not
-#' comparable. Details: \code{\link{brs_check}}.
+#' are different coarsening models. For score data (with \code{lim = 0.5})
+#' each map gives a probability mass function over the same scores
+#' \eqn{0, \ldots, K}, so \code{logLik()}, AIC and BIC of fits under
+#' different maps are comparable; the maps are not nested, so there is no
+#' likelihood-ratio test between them (\code{\link{anova.brs}} stops).
+#' Details: \code{\link{brs_check}}.
 #'
 #' @section Boundary cutpoints:
 #' Under the fixed map score \eqn{s} has the cell \eqn{(c_{s-1}, c_s)} with

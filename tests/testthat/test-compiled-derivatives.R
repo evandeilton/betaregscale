@@ -1,10 +1,10 @@
 # ============================================================================ #
-# Lote 5 (2026-09 audit): Armadillo backend, chain-rule derivatives, brsmm
-# inner Newton (LM), symmetric-root quadrature, NaN semantics, structural stops
+# Armadillo backend: chain-rule derivatives, brsmm inner Newton (LM),
+# symmetric-root quadrature, NaN semantics, structural stops
 # ============================================================================ #
 
 # brs data for one repar/link combination: delta 0..3 and two far-tail outliers
-.l5_brs_data <- function(seed, repar, n = 60L) {
+.cd_brs_data <- function(seed, repar, n = 60L) {
   set.seed(seed)
   x1 <- rnorm(n); x2 <- rnorm(n); z1 <- rnorm(n)
   mu <- plogis(0.2 + 0.5 * x1 - 0.3 * x2)
@@ -17,8 +17,8 @@
        r = unname(Y[, "right"]), yt = unname(Y[, "yt"]), delta = delta)
 }
 
-# validator's random-slope data (q_re = 2 or 3) as brsmm() builds it
-.l5_slope <- function(G, m, seed, q = 2L) {
+# random-slope data (q_re = 2 or 3) as brsmm() builds it
+.cd_slope <- function(G, m, seed, q = 2L) {
   set.seed(seed); id <- rep(seq_len(G), each = m); x <- rnorm(G * m); w <- rnorm(G * m)
   b0 <- rnorm(G, 0, .5); b1 <- rnorm(G, 0, .3); b2 <- rnorm(G, 0, .2)
   mu <- plogis(0.2 + (0.5 + b1[id]) * x + (if (q == 3L) (0.3 + b2[id]) * w else 0) + b0[id])
@@ -28,21 +28,21 @@
   list(X = X, Z = matrix(1, nrow(p), 1), Xr = X, l = p$left, r = p$right, yt = p$yt,
        delta = as.integer(p$delta), group = as.integer(factor(p$id)))
 }
-.l5_ll <- function(P, par, me, np) betaregscale:::.brsmm_loglik_eigen(
+.cd_ll <- function(P, par, me, np) betaregscale:::.brsmm_loglik_eigen(
   par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta, P$group, 0L, 0L, 2L, me, np)
-.l5_gr <- function(P, par, me, np) betaregscale:::.brsmm_grad_cpp(
+.cd_gr <- function(P, par, me, np) betaregscale:::.brsmm_grad_cpp(
   par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta, P$group, 0L, 0L, 2L, me, np)
-.l5_he <- function(P, par, me, np) betaregscale:::.brsmm_hessian_cpp(
+.cd_he <- function(P, par, me, np) betaregscale:::.brsmm_hessian_cpp(
   par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta, P$group, 0L, 0L, 2L, me, np)
 # Richardson central differences (steps h max(1,|x|) and half)
-.l5_fd <- function(f, x, h0) vapply(seq_along(x), function(j) {
+.cd_fd <- function(f, x, h0) vapply(seq_along(x), function(j) {
   h <- h0 * max(1, abs(x[j])); e <- replace(numeric(length(x)), j, 1)
   a <- (f(x + h * e) - f(x - h * e)) / (2 * h)
   b <- (f(x + h / 2 * e) - f(x - h / 2 * e)) / h
   (4 * b - a) / 3
 }, 1)
 
-test_that("L5-1: brs chain-rule gradient and Hessian match numDeriv (28 repar/link combos)", {
+test_that("brs chain-rule gradient and Hessian match numDeriv (28 repar/link combos)", {
   tab <- list("0" = list(mu = c("log", "sqrt"), phi = c("log", "sqrt")),
               "1" = list(mu = c("logit", "probit", "cauchit", "cloglog"), phi = c("log", "sqrt")),
               "2" = list(mu = c("logit", "probit", "cauchit", "cloglog"),
@@ -50,7 +50,7 @@ test_that("L5-1: brs chain-rule gradient and Hessian match numDeriv (28 repar/li
   ma <- list(eps = 1e-3, d = 1e-3, zero.tol = Inf, r = 6)   # absolute steps
   k <- 0L
   for (rp in names(tab)) for (lmn in tab[[rp]]$mu) for (lpn in tab[[rp]]$phi) {
-    k <- k + 1L; repar <- as.integer(rp); d <- .l5_brs_data(100L + k, repar)
+    k <- k + 1L; repar <- as.integer(rp); d <- .cd_brs_data(100L + k, repar)
     lm <- betaregscale:::link_to_code(lmn); lp <- betaregscale:::link_to_code(lpn)
     ctr <- c(betaregscale:::apply_link(if (repar == 0L) 3 else 0.55, lmn), 0.3, -0.2,
              betaregscale:::apply_link(if (repar == 2L) 0.15 else if (repar == 1L) 25 else 5, lpn), 0.1)
@@ -71,7 +71,7 @@ test_that("L5-1: brs chain-rule gradient and Hessian match numDeriv (28 repar/li
   expect_equal(k, 28L)
 })
 
-test_that("L5-2: brsmm gradient and Hessian (q_re = 1 and 2) match finite differences", {
+test_that("brsmm gradient and Hessian (q_re = 1 and 2) match finite differences", {
   skip_on_cran()   # ~10 s of numerical differentiation
   set.seed(1); G <- 30; m <- 8; id <- rep(1:G, each = m); x <- rnorm(G * m)
   mu <- plogis(0.2 + 0.5 * x + rnorm(G, 0, 0.5)[id])
@@ -80,20 +80,20 @@ test_that("L5-2: brsmm gradient and Hessian (q_re = 1 and 2) match finite differ
   P1 <- list(X = cbind(1, p1$x), Z = matrix(1, nrow(p1), 1), Xr = matrix(1, nrow(p1), 1),
              l = p1$left, r = p1$right, yt = p1$yt, delta = as.integer(p1$delta),
              group = as.integer(factor(p1$id)))
-  P2 <- .l5_slope(30L, 10L, 5L)
+  P2 <- .cd_slope(30L, 10L, 5L)
   cases <- list(list(P1, c(0.25, 0.5, -3.2, -0.4)), list(P2, c(0.3, 0.52, -3.4, -0.6, 0.03, -1.1)))
   for (cs in cases) for (me in 0:2) {
     P <- cs[[1]]; par <- cs[[2]]; np <- c(11L, 11L, 256L)[me + 1]
-    f <- function(b) .l5_ll(P, b, me, np)
-    g <- .l5_gr(P, par, me, np)
+    f <- function(b) .cd_ll(P, b, me, np)
+    g <- .cd_gr(P, par, me, np)
     # Reference R(h): Richardson of central differences at h and h/2 (h = 1e-2);
     # its error is estimated by |R(h) - R(h/2)| and the tolerance is tied to it.
-    ref <- .l5_fd(f, par, 1e-2); ref2 <- .l5_fd(f, par, 5e-3)
+    ref <- .cd_fd(f, par, 1e-2); ref2 <- .cd_fd(f, par, 5e-3)
     sc <- max(abs(g)); ref_err <- max(abs(ref - ref2)) / sc
     expect_lt(ref_err, 1e-4)   # the reference is itself accurate (no vacuous pass)
     expect_lt(max(abs(g - ref)) / sc, max(1e-6, 10 * ref_err))
     if (me < 2L) {
-      H <- .l5_he(P, par, me, np)
+      H <- .cd_he(P, par, me, np)
       Hn <- numDeriv::hessian(f, par, method.args = list(eps = 1e-2, d = 1e-2, zero.tol = Inf, r = 3))
       expect_lt(max(abs(H - Hn)) / max(abs(H)), 1e-3)
       expect_true(all(eigen(-H, symmetric = TRUE, only.values = TRUE)$values > 0))
@@ -101,8 +101,8 @@ test_that("L5-2: brsmm gradient and Hessian (q_re = 1 and 2) match finite differ
   }
 })
 
-test_that("L5-3: structural errors stop in the compiled functions", {
-  d <- .l5_brs_data(1L, 2L)
+test_that("structural errors stop in the compiled functions", {
+  d <- .cd_brs_data(1L, 2L)
   fx <- function(p, ...) betaregscale:::.brs_loglik_fixed_cpp(p, d$X, d$l, d$r, d$yt, d$delta, 0L, 0L, 2L, ...)
   expect_true(is.finite(fx(c(0.1, 0.2, 0.1, -1))))
   expect_error(fx(c(0.1, 0.2, -1)), "param must have length 4")
@@ -111,43 +111,43 @@ test_that("L5-3: structural errors stop in the compiled functions", {
                d$r, d$yt, d$delta, 0L, 0L, 2L), "must not contain NA")
   expect_error(betaregscale:::.brs_hessian_fixed_cpp(c(0, 0, 0, 0), replace(d$X, 3, Inf), d$l, d$r,
                d$yt, d$delta, 0L, 0L, 2L), "must not contain NA")
-  P <- .l5_slope(10L, 6L, 3L); par <- c(0.2, 0.5, -3, log(0.5), 0, log(0.3))
-  expect_true(is.finite(.l5_ll(P, par, 0L, 11L)))
-  expect_error(.l5_ll(P, par[-1], 0L, 11L), "param must have length 6")
-  expect_error(.l5_gr(P, c(par, 1), 0L, 11L), "param must have length 6")
+  P <- .cd_slope(10L, 6L, 3L); par <- c(0.2, 0.5, -3, log(0.5), 0, log(0.3))
+  expect_true(is.finite(.cd_ll(P, par, 0L, 11L)))
+  expect_error(.cd_ll(P, par[-1], 0L, 11L), "param must have length 6")
+  expect_error(.cd_gr(P, c(par, 1), 0L, 11L), "param must have length 6")
   Pn <- P; Pn$Xr[1, 2] <- NA
-  expect_error(.l5_ll(Pn, par, 0L, 11L), "must not contain NA")
+  expect_error(.cd_ll(Pn, par, 0L, 11L), "must not contain NA")
   Pg <- P; Pg$group[1] <- 1e9L
-  expect_error(.l5_ll(Pg, par, 0L, 11L), "exceeds the number of rows")
+  expect_error(.cd_ll(Pg, par, 0L, 11L), "exceeds the number of rows")
 })
 
-test_that("L5-4: brsmm SEs are stable at two practically identical optima (validator parE/parA)", {
+test_that("brsmm SEs are stable at two practically identical optima", {
   skip_on_cran()   # ~10 s of numerical differentiation
-  P <- .l5_slope(30L, 10L, 5L)
+  P <- .cd_slope(30L, 10L, 5L)
   parE <- c(0.30975346835122353, 0.52528622453928187, -3.4418635664742023,
             -0.5917219100895259, 0.021629785845768721, -1.0961160956307257)
   parA <- c(0.3097055261782567, 0.52536935194325396, -3.441873721736203,
             -0.59173301576275028, 0.021651711300330344, -1.0960664302822358)
   for (me in 0:1) {
-    seE <- sqrt(diag(solve(-.l5_he(P, parE, me, 11L))))
-    seA <- sqrt(diag(solve(-.l5_he(P, parA, me, 11L))))
+    seE <- sqrt(diag(solve(-.cd_he(P, parE, me, 11L))))
+    seA <- sqrt(diag(solve(-.cd_he(P, parA, me, 11L))))
     expect_true(all(is.finite(seE)) && all(is.finite(seA)))
     expect_lt(max(abs(seE - seA) / seE), 1e-3)
   }
 })
 
-test_that("L5-5: QMC (q_re = 3) is smooth: analytic gradient matches small-step differences", {
-  P <- .l5_slope(25L, 12L, 6L, q = 3L)
+test_that("QMC (q_re = 3) is smooth: analytic gradient matches small-step differences", {
+  P <- .cd_slope(25L, 12L, 6L, q = 3L)
   par <- c(0.2, 0.5, 0.3, -3.4, log(0.5), 0.2, -0.1, log(0.3), 0.1, log(0.2)) + 0.1
-  f <- function(b) .l5_ll(P, b, 2L, 256L); g <- .l5_gr(P, par, 2L, 256L)
+  f <- function(b) .cd_ll(P, b, 2L, 256L); g <- .cd_gr(P, par, 2L, 256L)
   for (h in c(1e-3, 1e-4)) {
     fd <- vapply(seq_along(par), function(j) { e <- replace(numeric(10), j, h); (f(par + e) - f(par - e)) / (2 * h) }, 1)
     expect_lt(max(abs(fd - g)) / max(abs(g)), 1e-4)
   }
 })
 
-test_that("L5-6: LM inner modes are stationary with positive-definite curvature (q_re = 3)", {
-  P <- .l5_slope(25L, 12L, 6L, q = 3L)
+test_that("LM inner modes are stationary with positive-definite curvature (q_re = 3)", {
+  P <- .cd_slope(25L, 12L, 6L, q = 3L)
   base <- c(0.2, 0.5, 0.3, -3.4, log(0.5), 0.2, -0.1, log(0.3), 0.1, log(0.2))
   set.seed(99); pts <- c(list(base), lapply(1:3, function(k) base + rnorm(10, 0, 0.3)))
   for (par in pts) for (warm in c(FALSE, TRUE)) {
@@ -159,7 +159,7 @@ test_that("L5-6: LM inner modes are stationary with positive-definite curvature 
   }
 })
 
-test_that("L5-7: NaN parameters give the penalty; +-Inf map to the bounds (C++ = R mirror)", {
+test_that("NaN parameters give the penalty; +-Inf map to the bounds (C++ = R mirror)", {
   set.seed(1); n <- 20L; l <- runif(n, 0.1, 0.8); r <- l + 0.01; yt <- l + 0.005; d <- rep(3L, n)
   X <- matrix(1, n, 1); code <- betaregscale:::link_to_code
   f <- function(p, lm, lp, rp) betaregscale:::.brs_loglik_fixed_cpp(p, X, l, r, yt, d, lm, lp, rp)
@@ -180,8 +180,8 @@ test_that("L5-7: NaN parameters give the penalty; +-Inf map to the bounds (C++ =
   expect_equal(betaregscale:::.clamp_mu_by_repar(-Inf, 0L), 1e-5)
 })
 
-test_that("L5-8: AGHQ converges to brute-force integration as n_points grows (q_re = 2)", {
-  P <- .l5_slope(4L, 10L, 5L); par <- c(0.2, 0.5, -3.4, log(0.5), 0.2, log(0.3))
+test_that("AGHQ converges to brute-force integration as n_points grows (q_re = 2)", {
+  P <- .cd_slope(4L, 10L, 5L); par <- c(0.2, 0.5, -3.4, log(0.5), 0.2, log(0.3))
   modes <- betaregscale:::.brsmm_group_modes_eigen(par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta,
                                                    P$group, 0L, 0L, 2L)
   L <- matrix(c(exp(par[4]), par[5], 0, exp(par[6])), 2); D <- L %*% t(L); Pm <- solve(D)
@@ -195,12 +195,12 @@ test_that("L5-8: AGHQ converges to brute-force integration as n_points grows (q_
     h <- rowSums(matrix(lv, K)) - 0.5 * (2 * log(2 * pi) + log(det(D)) + rowSums((B %*% Pm) * B))
     bf <- bf + max(h) + log(sum(exp(h - max(h)))) + 2 * log(0.15 * 0.5)
   }
-  e <- vapply(c(3L, 7L, 15L), function(np) abs(.l5_ll(P, par, 1L, np) - bf), 1)
+  e <- vapply(c(3L, 7L, 15L), function(np) abs(.cd_ll(P, par, 1L, np) - bf), 1)
   expect_true(e[2] < e[1] && e[3] < e[2])
   expect_lt(e[3], 1e-6)
 })
 
-test_that("L5-9: a brsmm fit does not depend on earlier fits in the session (warm-start reset)", {
+test_that("a brsmm fit does not depend on earlier fits in the session (warm-start reset)", {
   mk <- function(seed) {
     set.seed(seed); G <- 12; m <- 8; id <- rep(seq_len(G), each = m); x <- rnorm(G * m)
     mu <- plogis(0.2 + 0.5 * x + rnorm(G, 0, 0.5)[id])
@@ -215,7 +215,7 @@ test_that("L5-9: a brsmm fit does not depend on earlier fits in the session (war
   expect_identical(vcov(a1), vcov(a2))
 })
 
-test_that("L5-10: NA in delta stops in R and in the compiled code (no NaN -> integer UB)", {
+test_that("NA in delta stops in R and in the compiled code (no NaN -> integer UB)", {
   set.seed(2); d <- data.frame(y = round(100 * rbeta(40, 2, 3)), x = rnorm(40))
   p <- suppressMessages(brs_prep(d, ncuts = 100L))
   p$delta[3] <- NA
@@ -241,7 +241,7 @@ test_that("L5-10: NA in delta stops in R and in the compiled code (no NaN -> int
                dl, g, 0L, 0L, 2L, 0L, 11L), "delta.*found NA at row 3")
 })
 
-test_that("L5-11: marginal-effect SEs are stable under a tiny change of vcov (Cholesky draws)", {
+test_that("marginal-effect SEs are stable under a tiny change of vcov (Cholesky draws)", {
   set.seed(4)
   d <- data.frame(x1 = rnorm(150), x2 = rnorm(150))
   s <- brs_sim(~ x1 + x2, data = d, beta = c(0.2, 0.5, -0.3), phi = -1.5, ncuts = 10)

@@ -775,7 +775,7 @@ residuals.brsmm <- function(object, type = c(
     },
     deviance = {
       # Ferrari & Cribari-Neto, identical to residuals.brs: saturated model with
-      # mean y and precision a + b (the old form evaluated the density at E[Y]).
+      # mean y and precision a + b.
       sh <- get_shapes(mu, phi, repar)
       y_safe <- pmin(pmax(y, 1e-7), 1 - 1e-7)
       prec <- sh$a + sh$b

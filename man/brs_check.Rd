@@ -112,9 +112,11 @@ from the dissertation, which divides \eqn{r} and \eqn{l} by \eqn{K}; there
 the two directions differ by \eqn{1/K} and chapter 4 reports opposite
 intercept biases for them, while here they give the same likelihood and
 the same coefficients. The three directions are different coarsening
-models of the same scores: their log-likelihoods are not comparable, and
-\code{\link{anova.brs}} refuses such comparisons. \code{lim} applies to
-\code{"mid"} only.
+models of the same scores. With \code{lim = 0.5} each one gives a
+probability mass function over \eqn{0, \ldots, K}, so their
+log-likelihoods, AIC and BIC are comparable; the models are not nested, so
+\code{\link{anova.brs}} refuses a likelihood-ratio test between them.
+\code{lim} applies to \code{"mid"} only.
 }
 
 \section{Scale change and borders}{

@@ -216,7 +216,7 @@ test_that("the likelihood stays smooth as a border cell collapses", {
   s <- cut_sim(800, cuts = NULL, K = 20L, seed = 21)
   fb <- suppressWarnings(brs(y ~ x, data = s, cutpoints = "boundary"))
   ob <- .brs_cut_objective(fb)
-  # Far below the old clamp region of g_lo the likelihood still moves with g_lo
+  # At very negative g_lo (-12 to -16) the likelihood still moves with g_lo
   par <- fb$par
   vals <- vapply(c(-12, -14, -16), function(gl) ob$fn(replace(par, length(par) - 1L, gl)),
                  numeric(1))

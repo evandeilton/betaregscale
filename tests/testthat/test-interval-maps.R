@@ -1,12 +1,12 @@
 # ============================================================================ #
-# Lote 4 (2026-09 audit): interval = c("mid", "right", "left")
-# Named cases L4-*. Identities use 1e-10 (or 1e-8 across fits), recovery 3 SE.
+# Interval maps: interval = c("mid", "right", "left")
+# Identities use 1e-10 (or 1e-8 across fits), recovery 3 SE.
 # ============================================================================ #
 
-.l4_eps <- 1e-5
+.im_eps <- 1e-5
 
 # Simulated scores (repar 2, K = 10 by default) with the given direction.
-.l4_sim <- function(interval, n = 300L, seed = 41L, K = 10L, beta = c(0.3, 0.8),
+.im_sim <- function(interval, n = 300L, seed = 41L, K = 10L, beta = c(0.3, 0.8),
                     phi = -1.5) {
   set.seed(seed)
   d <- data.frame(x = runif(n, -1, 1))
@@ -14,31 +14,31 @@
 }
 
 # Raw (non-prepared) scores of a simulated data set.
-.l4_raw <- function(s) data.frame(y = s$y, x = s$x)
+.im_raw <- function(s) data.frame(y = s$y, x = s$x)
 
-# L4-1: cell mapping ----------------------------------------------------------
+# Cell mapping ----------------------------------------------------------
 
-test_that("L4-1a: brs_check(0:10, ncuts = 10) cells per interval (snapshot for mid)", {
+test_that("brs_check(0:10, ncuts = 10) cells per interval (snapshot for mid)", {
   s <- 0:10
   r <- brs_check(s, ncuts = 10, interval = "right")
-  expect_equal(unname(r[, "left"]), pmax(s / 11, .l4_eps), tolerance = 1e-10)
-  expect_equal(unname(r[, "right"]), pmin((s + 1) / 11, 1 - .l4_eps), tolerance = 1e-10)
+  expect_equal(unname(r[, "left"]), pmax(s / 11, .im_eps), tolerance = 1e-10)
+  expect_equal(unname(r[, "right"]), pmin((s + 1) / 11, 1 - .im_eps), tolerance = 1e-10)
   expect_equal(unname(r[, "yt"]), (s + 0.5) / 11, tolerance = 1e-10)
   expect_identical(unname(r[, "delta"]), c(1, rep(3, 9), 2))
   l <- brs_check(s, ncuts = 10, interval = "left")
   expect_identical(l, r)
-  # "mid" is today's behavior, unchanged
+  # "mid" (default): cells [s - 0.5, s + 0.5]/K
   m <- brs_check(s, ncuts = 10)
   expect_identical(m, brs_check(s, ncuts = 10, interval = "mid"))
-  expect_equal(unname(m[, "left"]), pmax((s - 0.5) / 10, .l4_eps), tolerance = 1e-10)
-  expect_equal(unname(m[, "right"]), pmin((s + 0.5) / 10, 1 - .l4_eps), tolerance = 1e-10)
-  expect_equal(unname(m[, "yt"]), pmin(pmax(s / 10, .l4_eps), 1 - .l4_eps), tolerance = 1e-10)
+  expect_equal(unname(m[, "left"]), pmax((s - 0.5) / 10, .im_eps), tolerance = 1e-10)
+  expect_equal(unname(m[, "right"]), pmin((s + 0.5) / 10, 1 - .im_eps), tolerance = 1e-10)
+  expect_equal(unname(m[, "yt"]), pmin(pmax(s / 10, .im_eps), 1 - .im_eps), tolerance = 1e-10)
   expect_identical(unname(m[, "delta"]), c(1, rep(3, 9), 2))
   # snapshot of a mid row: score 3 of 10 -> [0.25, 0.35], yt 0.3
   expect_equal(unname(m[4, c("left", "right", "yt")]), c(0.25, 0.35, 0.3), tolerance = 1e-12)
 })
 
-test_that("L4-1b: edge grids: K = 1, K = 2, one score, one border, mixed proportions", {
+test_that("edge grids: K = 1, K = 2, one score, one border, mixed proportions", {
   # K = 1: two border cells [0, 1/2], [1/2, 1] in every mode
   for (iv in c("mid", "right", "left")) {
     r <- brs_check(c(0, 1), ncuts = 1, interval = iv)
@@ -48,11 +48,11 @@ test_that("L4-1b: edge grids: K = 1, K = 2, one score, one border, mixed proport
   }
   # K = 2
   r2 <- brs_check(0:2, ncuts = 2, interval = "right")
-  expect_equal(unname(r2[, "left"]), c(.l4_eps, 1 / 3, 2 / 3), tolerance = 1e-10)
-  expect_equal(unname(r2[, "right"]), c(1 / 3, 2 / 3, 1 - .l4_eps), tolerance = 1e-10)
+  expect_equal(unname(r2[, "left"]), c(.im_eps, 1 / 3, 2 / 3), tolerance = 1e-10)
+  expect_equal(unname(r2[, "right"]), c(1 / 3, 2 / 3, 1 - .im_eps), tolerance = 1e-10)
   m2 <- brs_check(0:2, ncuts = 2)
-  expect_equal(unname(m2[, "left"]), c(.l4_eps, 0.25, 0.75), tolerance = 1e-10)
-  expect_equal(unname(m2[, "right"]), c(0.25, 0.75, 1 - .l4_eps), tolerance = 1e-10)
+  expect_equal(unname(m2[, "left"]), c(.im_eps, 0.25, 0.75), tolerance = 1e-10)
+  expect_equal(unname(m2[, "right"]), c(0.25, 0.75, 1 - .im_eps), tolerance = 1e-10)
   # single score value and all scores at one border
   one <- brs_check(rep(5, 4), ncuts = 10, interval = "right")
   expect_true(all(one[, "delta"] == 3) && all(one[, "left"] == 5 / 11))
@@ -65,7 +65,7 @@ test_that("L4-1b: edge grids: K = 1, K = 2, one score, one border, mixed proport
     u <- suppressMessages(brs_check(c(0.2, 0.7), ncuts = 10, interval = iv))
     expect_true(all(u[, "delta"] == 0) && all(u[, "left"] == c(0.2, 0.7)))
   }
-  # proportions mixed with scores: Lote 7 (M3) per-observation rule, as brs_prep()
+  # proportions mixed with scores: per-observation rule, as brs_prep()
   expect_warning(mx <- brs_check(c(0.3, 5), ncuts = 10), "mixes values in \\(0, 1\\)")
   expect_identical(unname(mx[, "delta"]), c(0, 3))
   expect_equal(unname(mx[1, "right"]), 0.3, tolerance = 1e-10)
@@ -77,21 +77,21 @@ test_that("L4-1b: edge grids: K = 1, K = 2, one score, one border, mixed proport
   expect_equal(unname(mx0[1, c("left", "right", "yt")]), rep(0.3, 3), tolerance = 1e-10)
 })
 
-test_that("L4-1c: forced delta under right/left keeps the cell of the score", {
+test_that("forced delta under right/left keeps the cell of the score", {
   r <- brs_check(rep(3, 4), ncuts = 10, delta = c(0L, 1L, 2L, 3L), interval = "right")
   expect_equal(unname(r[1, c("left", "right", "yt")]), rep(3.5 / 11, 3), tolerance = 1e-10)
-  expect_equal(unname(r[2, c("left", "right")]), c(.l4_eps, 4 / 11), tolerance = 1e-10)
-  expect_equal(unname(r[3, c("left", "right")]), c(3 / 11, 1 - .l4_eps), tolerance = 1e-10)
+  expect_equal(unname(r[2, c("left", "right")]), c(.im_eps, 4 / 11), tolerance = 1e-10)
+  expect_equal(unname(r[3, c("left", "right")]), c(3 / 11, 1 - .im_eps), tolerance = 1e-10)
   expect_equal(unname(r[4, c("left", "right")]), c(3 / 11, 4 / 11), tolerance = 1e-10)
   expect_identical(unname(r[, "delta"]), c(0, 1, 2, 3))
-  # mid, forced delta: unchanged formulas u = (y + 0.5)/K, l = (y - 0.5)/K
+  # mid, forced delta: u = (y + 0.5)/K, l = (y - 0.5)/K
   m <- brs_check(c(30, 60), ncuts = 100, delta = c(1L, 2L))
-  expect_equal(unname(m[1, c("left", "right")]), c(.l4_eps, 0.305), tolerance = 1e-10)
-  expect_equal(unname(m[2, c("left", "right")]), c(0.595, 1 - .l4_eps), tolerance = 1e-10)
+  expect_equal(unname(m[1, c("left", "right")]), c(.im_eps, 0.305), tolerance = 1e-10)
+  expect_equal(unname(m[2, c("left", "right")]), c(0.595, 1 - .im_eps), tolerance = 1e-10)
 })
 
-test_that("L4-1d: D2 - delta = 3 with left == right is rejected", {
-  # a border cell squeezed to [eps, eps] by the clamp is reported as such (item 10)
+test_that("delta = 3 with left == right is rejected", {
+  # a border cell squeezed to [eps, eps] by the clamp is reported as such
   expect_error(
     suppressWarnings(brs_check(c(0, 5), ncuts = 10, lim = 1e-9, delta = c(3L, 3L))),
     "narrower than the 1e-5 border clamp"
@@ -107,7 +107,7 @@ test_that("L4-1d: D2 - delta = 3 with left == right is rejected", {
   expect_equal(ok$yt, 0.5, tolerance = 1e-10)
 })
 
-test_that("L4-1f: scores outside 0..K stop in brs_check() and in the fit (not via D2)", {
+test_that("scores outside 0..K stop in brs_check() and in the fit (range error)", {
   for (iv in c("mid", "right", "left")) {
     expect_error(brs_check(c(5, 11), ncuts = 10, interval = iv),
                  "Maximum response \\(11\\) exceeds ncuts \\(10\\)")
@@ -122,12 +122,12 @@ test_that("L4-1f: scores outside 0..K stop in brs_check() and in the fit (not vi
   expect_error(brs_prep(d, ncuts = 10), "must be >= the maximum observed value")
 })
 
-test_that("L4-1e: brs_prep() Modes 1-4 under right/left and the interval attribute", {
+test_that("brs_prep() Modes 1-4 under right/left and the interval attribute", {
   p <- suppressMessages(brs_prep(data.frame(y = c(0, 3, 10), x = 1:3), ncuts = 10,
                                  interval = "right"))
   expect_identical(attr(p, "interval"), "right")
-  expect_equal(p$left, pmax(c(0, 3, 10) / 11, .l4_eps), tolerance = 1e-10)
-  expect_equal(p$right, pmin(c(1, 4, 11) / 11, 1 - .l4_eps), tolerance = 1e-10)
+  expect_equal(p$left, pmax(c(0, 3, 10) / 11, .im_eps), tolerance = 1e-10)
+  expect_equal(p$right, pmin(c(1, 4, 11) / 11, 1 - .im_eps), tolerance = 1e-10)
   expect_identical(p$delta, c(1L, 3L, 2L))
   # Mode 2 (explicit delta) matches brs_check with forced delta
   p2 <- suppressMessages(suppressWarnings(brs_prep(
@@ -162,12 +162,12 @@ test_that("L4-1e: brs_prep() Modes 1-4 under right/left and the interval attribu
   expect_equal(betaregscale:::.brs_observed_scores(p3$y, 100L, "left")[2], 50)
 })
 
-# L4-2: score probabilities sum to 1 ------------------------------------------
+# Score probabilities sum to 1 ------------------------------------------
 
-test_that("L4-2: rowSums(brs_predict_scoreprob()) == 1 in the three modes (lim = 0.5)", {
+test_that("rowSums(brs_predict_scoreprob()) == 1 in the three modes (lim = 0.5)", {
   for (K in c(10L, 2L)) {
     for (iv in c("mid", "right", "left")) {
-      s <- .l4_sim(iv, n = 120L, K = K)
+      s <- .im_sim(iv, n = 120L, K = K)
       f <- brs(y ~ x, data = s)
       expect_identical(f$interval, iv)
       P <- brs_predict_scoreprob(f)
@@ -180,12 +180,12 @@ test_that("L4-2: rowSums(brs_predict_scoreprob()) == 1 in the three modes (lim =
   }
 })
 
-# L4-3: parameter recovery per mode -------------------------------------------
+# Parameter recovery per mode -------------------------------------------
 
-test_that("L4-3: brs_sim + brs recover beta and phi within 3 SE in each mode (n = 2000)", {
+test_that("brs_sim + brs recover beta and phi within 3 SE in each mode (n = 2000)", {
   truth <- c(0.3, 0.8, -1.5)
   for (iv in c("mid", "right", "left")) {
-    s <- .l4_sim(iv, n = 2000L, seed = 2026L)
+    s <- .im_sim(iv, n = 2000L, seed = 2026L)
     f <- brs(y ~ x, data = s)
     se <- sqrt(diag(vcov(f)))
     z <- (coef(f) - truth) / se
@@ -194,11 +194,11 @@ test_that("L4-3: brs_sim + brs recover beta and phi within 3 SE in each mode (n 
   }
 })
 
-# L4-4: right and left are the same likelihood -------------------------------
+# Right and left are the same likelihood -------------------------------
 
-test_that("L4-4: right and left give identical fits; latent scores differ by one", {
-  s <- .l4_sim("right", n = 300L)
-  raw <- .l4_raw(s)
+test_that("right and left give identical fits; latent scores differ by one", {
+  s <- .im_sim("right", n = 300L)
+  raw <- .im_raw(s)
   fr <- brs(y ~ x, data = raw, ncuts = 10, interval = "right")
   fl <- brs(y ~ x, data = raw, ncuts = 10, interval = "left")
   expect_equal(as.numeric(logLik(fr)), as.numeric(logLik(fl)), tolerance = 1e-8)
@@ -221,11 +221,11 @@ test_that("L4-4: right and left give identical fits; latent scores differ by one
                tolerance = 1e-12)
 })
 
-# L4-5: lim validation ---------------------------------------------------------
+# Lim validation ---------------------------------------------------------
 
-test_that("L4-5: lim > 0.5 errors, lim < 0.5 warns, non-default lim is ignored under right/left", {
-  s <- .l4_sim("mid", n = 60L)
-  raw <- .l4_raw(s)
+test_that("lim > 0.5 errors, lim < 0.5 warns, non-default lim is ignored under right/left", {
+  s <- .im_sim("mid", n = 60L)
+  raw <- .im_raw(s)
   expect_error(brs(y ~ x, data = raw, ncuts = 10, lim = 1), "\\(0, 0.5\\]")
   expect_error(brs(y ~ x, data = raw, ncuts = 10, lim = 0), "\\(0, 0.5\\]")
   expect_error(brs_check(0:10, ncuts = 10, lim = 0.6), "\\(0, 0.5\\]")
@@ -249,11 +249,11 @@ test_that("L4-5: lim > 0.5 errors, lim < 0.5 warns, non-default lim is ignored u
   expect_silent(brs(y ~ x, data = p25))
 })
 
-# L4-6: anova refuses different coarsenings -----------------------------------
+# Anova refuses different coarsenings -----------------------------------
 
-test_that("L4-6: anova() refuses fits with different interval, ncuts or lim", {
-  s <- .l4_sim("mid", n = 150L)
-  raw <- .l4_raw(s)
+test_that("anova() refuses fits with different interval, ncuts or lim", {
+  s <- .im_sim("mid", n = 150L)
+  raw <- .im_raw(s)
   f_mid <- brs(y ~ x, data = raw, ncuts = 10)
   f_right <- brs(y ~ x, data = raw, ncuts = 10, interval = "right")
   expect_error(anova(f_mid, f_right), "same `interval`")
@@ -273,17 +273,17 @@ test_that("L4-6: anova() refuses fits with different interval, ncuts or lim", {
   expect_s3_class(anova(f0_l3, f_right), "anova")
 })
 
-# L4-7: attributes from brs_prep()/brs_sim() ----------------------------------
+# Attributes from brs_prep()/brs_sim() ----------------------------------
 
-test_that("L4-7: prepared interval wins over an explicit different value, with a warning", {
-  s <- .l4_sim("mid", n = 100L)
-  p <- suppressMessages(brs_prep(.l4_raw(s), ncuts = 10, interval = "right"))
+test_that("prepared interval wins over an explicit different value, with a warning", {
+  s <- .im_sim("mid", n = 100L)
+  p <- suppressMessages(brs_prep(.im_raw(s), ncuts = 10, interval = "right"))
   expect_warning(f <- brs(y ~ x, data = p, interval = "mid"), "`interval = mid` differs")
   expect_identical(f$interval, "right")
   expect_identical(brs(y ~ x, data = p)$interval, "right")
   expect_silent(brs(y ~ x, data = p, interval = "right"))
   # brs_sim() attaches interval; brs()/brsmm()/brs_cv()/bootstrap reuse it
-  sl <- .l4_sim("left", n = 120L)
+  sl <- .im_sim("left", n = 120L)
   expect_identical(attr(sl, "interval"), "left")
   fl <- brs(y ~ x, data = sl)
   expect_identical(fl$interval, "left")
@@ -295,16 +295,16 @@ test_that("L4-7: prepared interval wins over an explicit different value, with a
   expect_equal(unname(rowSums(betaregscale:::.brs_score_prob_matrix(
     fm$fitted_mu, fm$fitted_phi, 2L, 10L, 0.5, 0:10, "left"))), rep(1, nrow(sl)),
     tolerance = 1e-8)
-  expect_error(brs(y ~ x, data = .l4_raw(s), interval = "middle"), "must be one of")
+  expect_error(brs(y ~ x, data = .im_raw(s), interval = "middle"), "must be one of")
   # partial matching, as match.arg() in brs_check()/brs_prep()
-  expect_identical(brs(y ~ x, data = .l4_raw(s), ncuts = 10, interval = "r")$interval,
+  expect_identical(brs(y ~ x, data = .im_raw(s), ncuts = 10, interval = "r")$interval,
                    "right")
 })
 
-# L4-8: bootstrap and cross-validation under "right" --------------------------
+# Bootstrap and cross-validation under "right" --------------------------
 
-test_that("L4-8: brs_bootstrap and brs_cv work under interval = 'right'", {
-  s <- .l4_sim("right", n = 150L, seed = 7L)
+test_that("brs_bootstrap and brs_cv work under interval = 'right'", {
+  s <- .im_sim("right", n = 150L, seed = 7L)
   f <- brs(y ~ x, data = s)
   set.seed(1L)
   bt <- brs_bootstrap(f, R = 20L, keep_draws = TRUE)
@@ -319,13 +319,13 @@ test_that("L4-8: brs_bootstrap and brs_cv work under interval = 'right'", {
   cv <- brs_cv(y ~ x, data = s, k = 3L)
   expect_true(all(cv$converged) && all(is.finite(cv$log_score)))
   # raw scores with interval forwarded through ...
-  cv2 <- brs_cv(y ~ x, data = .l4_raw(s), k = 3L, ncuts = 10, interval = "right")
+  cv2 <- brs_cv(y ~ x, data = .im_raw(s), k = 3L, ncuts = 10, interval = "right")
   expect_true(all(is.finite(cv2$log_score)))
 })
 
-# L4-9: DGP of brs_sim matches the score probabilities -----------------------
+# DGP of brs_sim matches the score probabilities -----------------------
 
-test_that("L4-9: empirical score frequencies of brs_sim match mean_i P_i(s) (chi-square)", {
+test_that("empirical score frequencies of brs_sim match mean_i P_i(s) (chi-square)", {
   for (iv in c("mid", "right")) {
     set.seed(99L)
     n <- 2000L
@@ -345,9 +345,9 @@ test_that("L4-9: empirical score frequencies of brs_sim match mean_i P_i(s) (chi
   }
 })
 
-# L4-10: brsmm under "right": AGHQ vs brute-force integration -----------------
+# Brsmm under "right": AGHQ vs brute-force integration -----------------
 
-.l4_marginal_ll <- function(fit) {
+.im_marginal_ll <- function(fit) {
   X <- fit$model_matrices$X
   Z <- fit$model_matrices$Z
   Xr <- fit$model_matrices$Xr
@@ -380,7 +380,7 @@ test_that("L4-9: empirical score frequencies of brs_sim match mean_i P_i(s) (chi
   total
 }
 
-test_that("L4-10: brsmm AGHQ log-likelihood under 'right' equals brute-force integration", {
+test_that("brsmm AGHQ log-likelihood under 'right' equals brute-force integration", {
   skip_on_cran()
   set.seed(5L)
   g <- 12L
@@ -396,14 +396,14 @@ test_that("L4-10: brsmm AGHQ log-likelihood under 'right' equals brute-force int
   f <- brsmm(y ~ x, random = ~ 1 | id, data = d, ncuts = 10, interval = "right",
              int_method = "aghq", n_points = 25L, control = list(maxit = 300L))
   expect_identical(f$interval, "right")
-  ll_bf <- .l4_marginal_ll(f)
+  ll_bf <- .im_marginal_ll(f)
   expect_lt(abs(f$value - ll_bf), 1e-6)
   expect_true(all(f$Y[, "delta"] %in% 1:3))
 })
 
-# L4-11: observed scores and helpers ------------------------------------------
+# Observed scores and helpers ------------------------------------------
 
-test_that("L4-11: .brs_observed_scores and .brs_score_from_unit follow the interval", {
+test_that(".brs_observed_scores and .brs_score_from_unit follow the interval", {
   y <- c(0.3, 0.36, 0.04, 0.96)
   expect_equal(betaregscale:::.brs_observed_scores(y, 10L, "mid"), c(3, 4, 0, 10))
   expect_equal(betaregscale:::.brs_observed_scores(y, 10L, "right"), c(3, 3, 0, 10))
@@ -427,9 +427,9 @@ test_that("L4-11: .brs_observed_scores and .brs_score_from_unit follow the inter
   }
 })
 
-# L4-12: brs_sim with forced delta under right/left --------------------------
+# Brs_sim with forced delta under right/left --------------------------
 
-test_that("L4-12: brs_sim forced delta under 'right' keeps the score cells", {
+test_that("brs_sim forced delta under 'right' keeps the score cells", {
   set.seed(3L)
   d <- data.frame(x = runif(50, -1, 1))
   s3 <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = -1.5, ncuts = 10,
@@ -440,8 +440,8 @@ test_that("L4-12: brs_sim forced delta under 'right' keeps the score cells", {
   expect_warning(s1 <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = -1.5,
                                ncuts = 10, interval = "left", delta = 1),
                  "informative censoring")
-  expect_true(all(s1$delta == 1L) && all(s1$left == .l4_eps))
-  expect_equal(s1$right, pmin((s1$y + 1) / 11, 1 - .l4_eps), tolerance = 1e-10)
+  expect_true(all(s1$delta == 1L) && all(s1$left == .im_eps))
+  expect_equal(s1$right, pmin((s1$y + 1) / 11, 1 - .im_eps), tolerance = 1e-10)
   s0 <- brs_sim(y ~ x, data = d, beta = c(0.3, 0.8), phi = -1.5, ncuts = 10,
                 interval = "right", delta = 0)
   expect_true(all(s0$delta == 0L) && all(s0$left == s0$right))
@@ -450,10 +450,10 @@ test_that("L4-12: brs_sim forced delta under 'right' keeps the score cells", {
   expect_s3_class(brs(y ~ x, data = s3), "brs")
 })
 
-# L4-13: gradient on right/left data ------------------------------------------
+# Gradient on right/left data ------------------------------------------
 
-test_that("L4-13: C++ gradient matches numDeriv on right-direction data", {
-  s <- .l4_sim("right", n = 150L, seed = 8L)
+test_that("C++ gradient matches numDeriv on right-direction data", {
+  s <- .im_sim("right", n = 150L, seed = 8L)
   X <- cbind(1, s$x)
   par <- c(0.3, 0.8, -1.5) + c(0.05, -0.05, 0.1)
   fn <- function(p) betaregscale:::.brs_loglik_fixed_cpp(
@@ -464,30 +464,30 @@ test_that("L4-13: C++ gradient matches numDeriv on right-direction data", {
 })
 
 # ============================================================================ #
-# Validation round (L4-14 .. L4-23): consolidated validator fixes
+# Analyst bounds, attributes, lim tolerance and zero-width cells
 # ============================================================================ #
 
-test_that("L4-14: brs_prep checks analyst bounds on the latent range of the direction", {
+test_that("brs_prep checks analyst bounds on the latent range of the direction", {
   pm <- function(d, iv) suppressMessages(brs_prep(d, ncuts = 10, interval = iv))
   # the top cell of score 10 under right ([10, 11]) is accepted
   p <- pm(data.frame(left = 10, right = 11), "right")
   expect_identical(p$delta, 2L)
-  # [-1, 0] under right: range error first, not the D2 "Use delta = 0" message
+  # [-1, 0] under right: range error first, not the left == right "Use delta = 0" message
   expect_error(pm(data.frame(left = -1, right = 0), "right"),
                "outside the latent scale \\[0, 11\\] for interval = 'right'")
   expect_error(pm(data.frame(left = 11, right = NA_real_), "mid"),
                "outside the latent scale \\[-0.5, 10.5\\] for interval = 'mid'")
   expect_error(pm(data.frame(left = NA_real_, right = 11), "left"),
                "Column 'right'.*\\[-1, 10\\] for interval = 'left'")
-  # bounds at the ends of each range are accepted (Lote 7: whole-scale rows warn)
+  # bounds at the ends of each range are accepted (whole-scale rows warn)
   expect_warning(pm(data.frame(left = -0.5, right = 10.5), "mid"), "covers the whole scale")
   expect_warning(pm(data.frame(left = -1, right = 10), "left"), "covers the whole scale")
   # scores keep the 0..K rule
   expect_error(pm(data.frame(y = 11), "right"), "must be >= the maximum observed value")
 })
 
-test_that("L4-15: prepared data without an interval attribute count as mid cells", {
-  p <- suppressMessages(brs_prep(.l4_raw(.l4_sim("mid", n = 60L)), ncuts = 10))
+test_that("prepared data without an interval attribute count as mid cells", {
+  p <- suppressMessages(brs_prep(.im_raw(.im_sim("mid", n = 60L)), ncuts = 10))
   attr(p, "interval") <- NULL
   expect_warning(f <- brs(y ~ x, data = p, interval = "right"), "`interval = right` differs")
   expect_identical(f$interval, "mid")
@@ -497,7 +497,7 @@ test_that("L4-15: prepared data without an interval attribute count as mid cells
                tolerance = 1e-12)
 })
 
-test_that("L4-16: analyst intervals reaching 0 or 1 become one-sided censoring", {
+test_that("analyst intervals reaching 0 or 1 become one-sided censoring", {
   bounds <- list(mid = c(-0.5, 0.5, 9.5, 10.5), right = c(0, 1, 10, 11),
                  left = c(-1, 0, 9, 10))
   for (iv in names(bounds)) {
@@ -517,18 +517,18 @@ test_that("L4-16: analyst intervals reaching 0 or 1 become one-sided censoring",
   expect_identical(whole$delta, 3L)
 })
 
-test_that("L4-17: a proportion with a forced delta keeps the score-based yt of ba5abf3", {
+test_that("a proportion with a forced censoring delta is read as a score", {
   p <- suppressWarnings(suppressMessages(brs_prep(
     data.frame(y = rep(0.3, 4), delta = 0:3), ncuts = 100)))
   expect_equal(p$yt, c(0.3, 0.003, 0.003, 0.003), tolerance = 1e-12)
   expect_equal(p$right[c(2, 4)], c(0.008, 0.008), tolerance = 1e-12)
 })
 
-test_that("L4-18: vectorized brs_prep agrees with brs_check for every direction and delta", {
+test_that("vectorized brs_prep agrees with brs_check for every direction and delta", {
   set.seed(18L)
   y <- sample(0:10, 200, TRUE)
   dl <- sample(0:3, 200, TRUE)
-  dl[dl == 3L & y %in% c(0, 10)] <- 0L          # keep the D2 rule out of the way
+  dl[dl == 3L & y %in% c(0, 10)] <- 0L          # keep the left == right rule out of the way
   for (iv in c("mid", "right", "left")) {
     p <- suppressWarnings(suppressMessages(brs_prep(data.frame(y = y, delta = dl),
                                                     ncuts = 10, interval = iv)))
@@ -539,16 +539,16 @@ test_that("L4-18: vectorized brs_prep agrees with brs_check for every direction 
   }
 })
 
-test_that("L4-19: lim within rounding of 0.5 counts as 0.5; messages print full digits", {
+test_that("lim within rounding of 0.5 counts as 0.5; messages print full digits", {
   expect_silent(brs_check(0:10, ncuts = 10, lim = 0.7 - 0.2))
   expect_silent(brs_check(0:10, ncuts = 10, lim = 0.5 + 1e-12, interval = "right"))
   expect_error(brs_check(0:10, ncuts = 10, lim = 0.5 + 1e-6), "\\(0, 0.5\\]")
   expect_warning(brs_check(0:10, ncuts = 10, lim = 0.123456789), "lim = 0.123456789")
 })
 
-test_that("L4-20: internal entry points match interval by name", {
-  s <- .l4_sim("mid", n = 60L)
-  raw <- .l4_raw(s)
+test_that("internal entry points match interval by name", {
+  s <- .im_sim("mid", n = 60L)
+  raw <- .im_raw(s)
   par <- c(0.3, 0.8, -1.5)
   ll_mid <- betaregscale:::brs_loglik(par, y ~ x, raw, ncuts = 10, interval = "mid")
   expect_equal(betaregscale:::brs_loglik(par, y ~ x, raw, ncuts = 10, interval = "m"),
@@ -563,7 +563,7 @@ test_that("L4-20: internal entry points match interval by name", {
                betaregscale:::compute_start(y ~ x, raw, ncuts = 10), tolerance = 1e-12)
 })
 
-test_that("L4-21: advisory lim warnings come once from the parent call, not per refit", {
+test_that("advisory lim warnings come once from the parent call, not per refit", {
   n_adv <- function(expr) {
     k <- 0L
     withCallingHandlers(expr, warning = function(w) {
@@ -572,7 +572,7 @@ test_that("L4-21: advisory lim warnings come once from the parent call, not per 
     })
     k
   }
-  raw <- .l4_raw(.l4_sim("mid", n = 60L))
+  raw <- .im_raw(.im_sim("mid", n = 60L))
   expect_identical(n_adv(fit <- brs(y ~ x, data = raw, ncuts = 10, lim = 0.3)), 1L)
   set.seed(9L)
   expect_identical(n_adv(brs_bootstrap(fit, R = 10L)), 0L)
@@ -582,7 +582,7 @@ test_that("L4-21: advisory lim warnings come once from the parent call, not per 
   expect_identical(n_adv(brs_cv(y ~ x, data = raw, k = 3L, ncuts = 10, lim = 0.3)), 1L)
 })
 
-test_that("L4-22: cells squeezed by the 1e-5 clamp are reported, not taken for D2", {
+test_that("cells squeezed by the 1e-5 clamp are reported, not taken for left == right", {
   expect_error(brs_check(c(1, 5), ncuts = 2e5), "`ncuts` too large")
   expect_error(suppressMessages(brs_prep(data.frame(y = c(1, 5)), ncuts = 2e5)),
                "`ncuts` too large")
@@ -594,9 +594,9 @@ test_that("L4-22: cells squeezed by the 1e-5 clamp are reported, not taken for D
                "delta = 3 with left >= right")
 })
 
-test_that("L4-23: predict(type = 'score') support and its offset from the expected score", {
-  s <- .l4_sim("right", n = 400L, seed = 23L)
-  raw <- .l4_raw(s)
+test_that("predict(type = 'score') support and its offset from the expected score", {
+  s <- .im_sim("right", n = 400L, seed = 23L)
+  raw <- .im_raw(s)
   fr <- brs(y ~ x, data = raw, ncuts = 10, interval = "right")
   fl <- brs(y ~ x, data = raw, ncuts = 10, interval = "left")
   sr <- predict(fr, type = "score")
@@ -607,7 +607,7 @@ test_that("L4-23: predict(type = 'score') support and its offset from the expect
   expect_lt(abs(mean(sl - es) + 0.5), 0.05)
 })
 
-test_that("L4-24: a row with only delta (no score, no bounds) is rejected for every delta", {
+test_that("a row with only delta (no score, no bounds) is rejected for every delta", {
   for (dl in 0:3) {
     d <- data.frame(y = c(3, NA), left = NA_real_, right = NA_real_, delta = c(NA, dl),
                     x = 1:2)

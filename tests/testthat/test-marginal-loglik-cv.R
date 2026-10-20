@@ -340,7 +340,7 @@ test_that("brsmm_cv works with boundary cutpoints and records failed folds", {
   expect_true(all(is.finite(cvf$log_score[!bad])))
 })
 
-test_that("BIC(n = 'groups') counts groups; the default is unchanged", {
+test_that("BIC(n = 'groups') counts groups; the default counts observations", {
   d <- mm_test_data()
   m <- brsmm(y ~ time, random = ~ 1 | id, data = d, ncuts = 10)
   ll <- as.numeric(logLik(m))

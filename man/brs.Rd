@@ -257,8 +257,12 @@ shape \eqn{p} in \code{hatmu}, while \code{fitted()},
 dissertation's \eqn{r} and \eqn{l}, with a package normalization).
 \code{"right"} and \code{"left"} give the same fit and differ only in
 \code{predict(type = "score")}; \code{"mid"} and \code{"right"}/\code{"left"}
-are different coarsening models, whose log-likelihoods and AIC are not
-comparable. Details: \code{\link{brs_check}}.
+are different coarsening models. For score data (with \code{lim = 0.5})
+each map gives a probability mass function over the same scores
+\eqn{0, \ldots, K}, so \code{logLik()}, AIC and BIC of fits under
+different maps are comparable; the maps are not nested, so there is no
+likelihood-ratio test between them (\code{\link{anova.brs}} stops).
+Details: \code{\link{brs_check}}.
 }
 
 \section{Boundary cutpoints}{

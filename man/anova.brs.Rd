@@ -30,7 +30,12 @@ the difference in the number of parameters, and
 \eqn{p = P(\chi^2_{df} > LR)}. The models must be nested; this is not
 checked. They must also describe the same response: the same observations,
 \code{interval}, \code{ncuts} and (under \code{"mid"}) \code{lim}, or the
-call stops, since different coarsenings are different likelihoods.
+call stops: fits under different \code{interval} maps or \code{lim} are
+not nested, and different \code{ncuts} describe different responses. Fits
+of the same scores under different maps (with \code{lim = 0.5}) can still
+be compared by \code{AIC()} and \code{BIC()}, since each map gives a
+probability mass function over the same scores (section 'Interval
+direction' of \code{\link{brs}}).
 
 When the larger model adds one random-effect term (a \code{"brs"} model
 against a random-intercept \code{"brsmm"}, or one more correlated random
@@ -64,9 +69,10 @@ m1 <- brs(y ~ time, data = nrs, ncuts = 10)
 m2 <- brs(y ~ time + group, data = nrs, ncuts = 10)
 anova(m1, m2)
 
-# Fits under different interval directions are different response models
+# Interval maps are not nested: no LR test, but AIC is comparable
 m2_right <- brs(y ~ time + group, data = nrs, ncuts = 10, interval = "right")
 try(anova(m2, m2_right))
+c(mid = AIC(m2), right = AIC(m2_right))
 
 }
 \references{

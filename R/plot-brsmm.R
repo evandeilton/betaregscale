@@ -197,7 +197,7 @@ plot.brsmm <- function(x,
     abline(0, 1, lty = 2, col = "red")
   }
 
-  # B1: Q-Q plot of random-effect modes
+  # Panel 7: Q-Q plot of random-effect modes
   if (7L %in% show) {
     re <- x$random$mode_b
     if (!is.matrix(re)) {
@@ -216,7 +216,7 @@ plot.brsmm <- function(x,
     }
   }
 
-  # B2: Caterpillar dotchart of random-effect modes
+  # Panel 8: Caterpillar dotchart of random-effect modes
   if (8L %in% show) {
     re <- x$random$mode_b
     if (!is.matrix(re)) {
@@ -338,7 +338,7 @@ plot.brsmm <- function(x,
       theme_obj
   }
 
-  # B1: Q-Q plot of random-effect modes
+  # Panel 7: Q-Q plot of random-effect modes
   if (7L %in% which) {
     re <- x$random$mode_b
     if (!is.matrix(re)) {
@@ -362,7 +362,7 @@ plot.brsmm <- function(x,
     }
   }
 
-  # B2: Caterpillar dotchart of random-effect modes
+  # Panel 8: Caterpillar dotchart of random-effect modes
   if (8L %in% which) {
     re <- x$random$mode_b
     if (!is.matrix(re)) {

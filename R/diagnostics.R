@@ -74,7 +74,7 @@
          " are linear combinations of the others; remove them.", call. = FALSE)
   }
   if (k >= 2L) {
-    # Unit-length columns: the condition number no longer depends on covariate units
+    # Unit-length columns: the condition number does not depend on covariate units
     Ms <- sweep(M, 2L, sqrt(colSums(M^2)), "/")
     sv <- svd(Ms, nu = 0L)
     kappa <- sv$d[1L] / sv$d[k]

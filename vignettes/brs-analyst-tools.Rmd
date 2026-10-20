@@ -26,7 +26,7 @@ kbl10 <- function(x, digits = 4, ...) {
 
 ## Overview
 
-This vignette presents analyst-oriented tools added to **betaregscale**
+This vignette presents the analyst-oriented tools of **betaregscale**
 for post-estimation workflows:
 
 * `brs_table()`: model comparison tables.

@@ -1,5 +1,5 @@
 # ============================================================================ #
-# Tests for new analyst-oriented utilities
+# Tests for the analyst-oriented utilities
 # ============================================================================ #
 
 .sim_for_tools <- function(n = 120L, seed = 42L) {

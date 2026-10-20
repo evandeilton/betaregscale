@@ -247,7 +247,7 @@ kbl10(head(ranef(fit_mm_rs), 10))
 
 ## Additional studies of random effects (numerical and visual)
 
-Following practices from established mixed-models packages, the package now allows for a dedicated study of the random effects focusing on:
+Following practices from established mixed-models packages, the package allows for a dedicated study of the random effects focusing on:
 
 * $D$ structure and correlation;
 * empirical distribution of modes by group;
