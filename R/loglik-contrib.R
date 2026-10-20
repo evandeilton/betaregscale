@@ -121,10 +121,10 @@ brs_loglik_contrib <- function(object, newdata = NULL, int_method = NULL,
   )
   out <- as.numeric(out)
   # Groups without a positive-definite mode get the likelihood's penalty value
-  # (-1e6, LOG_PENALTY in src/brs_common.h): not a log-likelihood, so NA
-  bad <- out == -1e6
-  if (any(bad)) {
-    warning(sum(bad), " group(s) have no positive-definite random-effect mode; ",
+  # (LOG_PENALTY in src/brs_common.h): not a log-likelihood, so NA
+  bad <- which(out == .brs_log_penalty_cpp())
+  if (length(bad)) {
+    warning(length(bad), " group(s) have no positive-definite random-effect mode; ",
             "their contributions are NA.", call. = FALSE)
     out[bad] <- NA_real_
   }

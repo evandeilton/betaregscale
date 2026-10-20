@@ -422,3 +422,58 @@ test_that("BIC with several brsmm fits returns a table with the same n rule", {
   expect_equal(BIC(m1, f)$BIC, c(BIC(m1), BIC(f)))
   expect_error(BIC(m1, f, n = "groups"), "brsmm")
 })
+
+test_that("folds named by group are read by name, whatever the row order", {
+  set.seed(12)
+  # One row per group, rows not in level order
+  d <- data.frame(id = sample(1:30), x = rnorm(30))
+  d$y <- round(10 * rbeta(30, 2, 5))
+  fg <- stats::setNames(rep(1:3, length.out = 30), as.character(1:30))
+  ff <- .brsmm_cv_user_folds(fg, factor(d$id), by_name = TRUE)
+  expect_identical(ff, fg[levels(factor(d$id))])
+  # Through brsmm_cv(): the stored assignment is the named one
+  d2 <- mm_test_data(G = 24)
+  d2 <- d2[sample(nrow(d2)), ]
+  fg2 <- stats::setNames(rep(1:3, length.out = 24), as.character(sample(1:24)))
+  cv <- brsmm_cv(y ~ time, random = ~ 1 | id, data = d2, folds = fg2, ncuts = 10,
+                 int_method = "aghq")
+  got <- attr(cv, "folds")[[1]]
+  expect_identical(got, fg2[names(got)])
+  expect_equal(cv$n_test, as.vector(table(fg2[as.character(d2$id)])))
+  # Neither named by the levels nor one per row
+  expect_error(brsmm_cv(y ~ time, random = ~ 1 | id, data = d2, folds = 1:5,
+                        ncuts = 10), "one value per row")
+})
+
+test_that("rows with a missing group are dropped as other incomplete rows", {
+  d <- mm_test_data(G = 24)
+  d$id[c(1, 30)] <- NA
+  cv <- brsmm_cv(y ~ time, random = ~ 1 | id, data = d, k = 3, seed = 4,
+                 ncuts = 10, int_method = "aghq")
+  expect_equal(sum(cv$n_test), nrow(d) - 2L)
+  expect_true(all(is.na(cv$error)))
+})
+
+test_that("groups without a valid random-effect mode give NA contributions", {
+  d <- mm_test_data()
+  m <- brsmm(y ~ time, random = ~ 1 | id, data = d, ncuts = 10)
+  m$par[grep("re_chol", names(m$par))] <- -800
+  expect_warning(cc <- brs_loglik_contrib(m), "no positive-definite")
+  expect_true(all(is.na(cc)))
+  expect_length(cc, 40L)
+  expect_equal(.brs_log_penalty_cpp(), -1e6)
+})
+
+test_that("BIC tables agree whichever class comes first", {
+  d <- mm_test_data()
+  m <- brsmm(y ~ time, random = ~ 1 | id, data = d, ncuts = 10)
+  f <- brs(y ~ time, data = d, ncuts = 10)
+  a <- BIC(f, m)
+  b <- BIC(m, f)
+  expect_s3_class(a, "data.frame")
+  expect_identical(rownames(a), c("f", "m"))
+  expect_equal(a$BIC, c(BIC(f), BIC(m)))
+  expect_equal(a$df, c(f$npar, m$npar))
+  expect_equal(a[c("m", "f"), ], b, ignore_attr = TRUE)
+  expect_equal(BIC(f), log(nrow(d)) * f$npar - 2 * f$value)
+})

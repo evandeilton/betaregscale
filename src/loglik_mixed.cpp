@@ -638,6 +638,11 @@ double brsmm_loglik_eigen(const arma::vec &param, const arma::mat &X,
   return total;
 }
 
+// Penalty value of a non-finite contribution or a group without a valid mode,
+// for R code that must recognize it.
+// [[Rcpp::export(name = ".brs_log_penalty_cpp", rng = false)]]
+double brs_log_penalty_cpp() { return LOG_PENALTY; }
+
 // Marginal log-likelihood contribution of each group (length G, group order);
 // the terms that brsmm_loglik_eigen() adds up.
 // [[Rcpp::export(name = ".brsmm_loglik_groups_cpp", rng = false)]]

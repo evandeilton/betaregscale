@@ -262,9 +262,10 @@ brs_cv <- function(formula,
 #' @param data Data frame.
 #' @param k Number of folds (default 10).
 #' @param repeats Number of repeated k-fold runs.
-#' @param folds Optional fold assignment: a vector with one fold label per
-#'   row of \code{data} (constant within each group) or a vector named by the
-#'   group levels. Overrides \code{k}, \code{repeats} and \code{seed}.
+#' @param folds Optional fold assignment: a vector named by the group levels
+#'   (read by name when its unique names are exactly the levels), or else a
+#'   vector with one fold label per row of \code{data}, constant within each
+#'   group. Overrides \code{k}, \code{repeats} and \code{seed}.
 #' @param seed Optional integer seed for the fold assignment.
 #' @param score_points Nodes per dimension of the adaptive Gauss-Hermite rule
 #'   that scores held-out groups; \code{NULL} for the default (see Details).
@@ -316,14 +317,20 @@ brsmm_cv <- function(formula,
   if (!(gv %in% names(data))) {
     stop("Grouping variable '", gv, "' not found in data.", call. = FALSE)
   }
-  if (anyNA(data[[gv]])) {
-    stop("Grouping variable '", gv, "' contains missing values.", call. = FALSE)
+  # User folds: named by the group levels, else one value per row
+  fold_by_name <- !is.null(folds) && !is.null(names(folds)) &&
+    !anyDuplicated(names(folds)) &&
+    setequal(names(folds), levels(factor(data[[gv]])))
+  if (!is.null(folds) && !fold_by_name && length(folds) != nrow(data)) {
+    stop("'folds' must have one value per row of 'data' or be named by the ",
+         "group levels.", call. = FALSE)
   }
-  # Rows with missing model variables are dropped before the folds are formed
+  # Rows with missing model variables (group included) are dropped before the
+  # folds are formed
   vars <- intersect(unique(c(all.vars(formula), all.vars(spec$re_terms), gv)),
                     names(data))
   cc <- stats::complete.cases(data[, vars, drop = FALSE])
-  if (!is.null(folds) && length(folds) == nrow(data)) folds <- folds[cc]
+  if (!is.null(folds) && !fold_by_name) folds <- folds[cc]
   data <- .brs_keep_prep_attr(data[cc, , drop = FALSE], data)
   if (nrow(data) < 2L) stop("'data' has fewer than 2 complete rows.", call. = FALSE)
   grp <- factor(data[[gv]])
@@ -345,7 +352,7 @@ brsmm_cv <- function(formula,
 
   # Fold of each group, one vector per repeat
   fold_list <- if (!is.null(folds)) {
-    list(.brsmm_cv_user_folds(folds, grp, data))
+    list(.brsmm_cv_user_folds(folds, grp, fold_by_name))
   } else {
     k <- as.integer(k)
     repeats <- as.integer(repeats)
@@ -439,20 +446,18 @@ brsmm_cv <- function(formula,
   max(2L, as.integer(floor(2e4^(1 / q_re) + 1e-9)))
 }
 
-# Fold of each group from a user assignment (per row, or named by group level).
-.brsmm_cv_user_folds <- function(folds, grp, data) {
+# Fold of each group from a user assignment: named by group level
+# (`by_name`), or one value per row, constant within each group.
+.brsmm_cv_user_folds <- function(folds, grp, by_name) {
   lev <- levels(grp)
-  if (!is.null(names(folds)) && all(lev %in% names(folds)) && length(folds) != nrow(data)) {
+  if (by_name) {
     fg <- folds[lev]
-  } else if (length(folds) == nrow(data)) {
+  } else {
     per <- tapply(as.character(folds), grp, function(v) unique(v))
     if (any(lengths(per) != 1L)) {
       stop("'folds' must be constant within each group.", call. = FALSE)
     }
     fg <- unlist(per)[lev]
-  } else {
-    stop("'folds' must have one value per row of 'data' or be named by the ",
-         "group levels.", call. = FALSE)
   }
   if (anyNA(fg)) stop("'folds' contains missing values.", call. = FALSE)
   if (length(unique(fg)) < 2L) stop("'folds' must define at least 2 folds.", call. = FALSE)

@@ -387,17 +387,20 @@ BIC.brsmm <- function(object, ..., n = c("obs", "groups")) {
     return(one(object))
   }
   # Several models: table as stats::BIC(), with the same n rule for each
-  mods <- c(list(object), dots)
+  cl <- match.call()
+  cl$n <- NULL
+  .brs_bic_table(c(list(object), dots), as.character(cl[-1L]), one)
+}
+
+# BIC table of several models (as stats::BIC()): df and BIC by `one()`.
+.brs_bic_table <- function(mods, labels, one) {
   nob <- vapply(mods, function(m) as.numeric(stats::nobs(m)), numeric(1))
   if (length(unique(nob)) > 1L) {
     warning("models are not all fitted to the same number of observations",
             call. = FALSE)
   }
   df <- vapply(mods, function(m) as.numeric(attr(stats::logLik(m), "df")), numeric(1))
-  cl <- match.call()
-  cl$n <- NULL
-  data.frame(df = df, BIC = vapply(mods, one, numeric(1)),
-             row.names = as.character(cl[-1L]))
+  data.frame(df = df, BIC = vapply(mods, one, numeric(1)), row.names = labels)
 }
 
 

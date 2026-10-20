@@ -26,9 +26,10 @@ brsmm_cv(
 
 \item{repeats}{Number of repeated k-fold runs.}
 
-\item{folds}{Optional fold assignment: a vector with one fold label per
-row of \code{data} (constant within each group) or a vector named by the
-group levels. Overrides \code{k}, \code{repeats} and \code{seed}.}
+\item{folds}{Optional fold assignment: a vector named by the group levels
+(read by name when its unique names are exactly the levels), or else a
+vector with one fold label per row of \code{data}, constant within each
+group. Overrides \code{k}, \code{repeats} and \code{seed}.}
 
 \item{seed}{Optional integer seed for the fold assignment.}
 

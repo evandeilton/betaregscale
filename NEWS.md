@@ -34,8 +34,9 @@
 * New `brsmm_cv()`: cross-validation with folds formed by group, scoring
   held-out groups by their marginal log-likelihood (log probability of the
   observed scores), with reusable folds and a `seed` argument.
-* `BIC()` for `brsmm` fits gains `n = c("obs", "groups")` and returns a
-  `df`/`BIC` table for several models; the single-model default is unchanged.
+* `BIC()` for `brsmm` fits gains `n = c("obs", "groups")`. `BIC()` of `brs`
+  and `brsmm` fits returns a `df`/`BIC` table for several models, whatever
+  the order; the single-model value is unchanged.
 
 ## Other changes
 
