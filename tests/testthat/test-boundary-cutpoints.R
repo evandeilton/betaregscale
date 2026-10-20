@@ -168,6 +168,13 @@ test_that("boundary cutpoints are recovered from simulated data", {
   expect_equal(attr(logLik(fb), "df"), 5)
   expect_equal(AIC(fb), -2 * fb$value + 10)
   expect_equal(nobs(fb), 2000)
+  # brs_est(): Wald intervals but no z-test for the cutpoint parameters
+  est <- brs_est(fb)
+  cut_rows <- est$variable %in% c("(cut_lo)", "(cut_hi)")
+  expect_true(all(is.na(est$z_value[cut_rows]) & is.na(est$p_value[cut_rows])))
+  expect_true(all(is.finite(est$z_value[!cut_rows])))
+  expect_equal(est$ci_lower[cut_rows],
+               unname(fb$cut$par - qnorm(0.975) * sqrt(diag(vcov(fb, model = "cutpoints")))))
   out <- capture.output(print(fb), summary(fb))
   expect_true(any(grepl("Boundary cutpoints", out)))
 })

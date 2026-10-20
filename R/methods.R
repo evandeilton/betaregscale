@@ -770,7 +770,10 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #' sit at \eqn{10^{-5}} and \eqn{1 - 10^{-5}}, and \eqn{(s + 0.5)/(K + 1)}
 #' under \code{"right"}/\code{"left"}; exact values are used as they are.
 #' With \code{cutpoints = "boundary"} scores 0, 1, \eqn{K - 1} and \eqn{K}
-#' use the centers of their estimated cells (see \code{\link{brs}}). This
+#' use the centers of their estimated cells (see \code{\link{brs}}); since
+#' the centers of scores 0 and \eqn{K} differ by construction, these residuals
+#' and the pseudo \eqn{R^2} are not directly comparable between fixed-map and
+#' boundary fits. This
 #' is the midpoint convention of Lopes (2023, "Analise de residuos"); it makes
 #' these residuals unreliable at the borders of the scale.
 #' \describe{
@@ -1243,8 +1246,10 @@ brs_gof <- function(object) {
 #' @param object A fitted \code{"brs"} object.
 #' @param alpha  Significance level (default 0.05).
 #'
-#' @return Data frame of estimates, standard errors, z-values, and
-#'   p-values.
+#' @return Data frame of estimates, standard errors, z-values, p-values and
+#'   Wald intervals. The cutpoint parameters of a \code{cutpoints =
+#'   "boundary"} fit get \code{NA} z- and p-values (their zero is not a
+#'   hypothesis of interest; see \code{summary()} and \code{\link{anova.brs}}).
 #'
 #' @seealso \code{\link{brs}}, \code{\link{brs_gof}}, \code{\link{brs_hessian}},
 #'   \code{\link{summary.brs}}
@@ -1299,6 +1304,8 @@ brs_est <- function(object, alpha = 0.05) {
   V <- vcov(object)
   se <- sqrt(diag(V))
   z <- object$par / se
+  # Cutpoint parameters: g = 0 is no null hypothesis of interest (no test)
+  z[names(object$par) %in% c("(cut_lo)", "(cut_hi)")] <- NA_real_
   p <- 2 * stats::pnorm(-abs(z))
   z_alpha <- stats::qnorm(1 - alpha / 2)
 

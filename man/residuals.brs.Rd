@@ -36,7 +36,10 @@ cell: \eqn{s/K} under \code{interval = "mid"}, so that the border scores
 sit at \eqn{10^{-5}} and \eqn{1 - 10^{-5}}, and \eqn{(s + 0.5)/(K + 1)}
 under \code{"right"}/\code{"left"}; exact values are used as they are.
 With \code{cutpoints = "boundary"} scores 0, 1, \eqn{K - 1} and \eqn{K}
-use the centers of their estimated cells (see \code{\link{brs}}). This
+use the centers of their estimated cells (see \code{\link{brs}}); since
+the centers of scores 0 and \eqn{K} differ by construction, these residuals
+and the pseudo \eqn{R^2} are not directly comparable between fixed-map and
+boundary fits. This
 is the midpoint convention of Lopes (2023, "Analise de residuos"); it makes
 these residuals unreliable at the borders of the scale.
 \describe{

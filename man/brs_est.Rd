@@ -12,8 +12,10 @@ brs_est(object, alpha = 0.05)
 \item{alpha}{Significance level (default 0.05).}
 }
 \value{
-Data frame of estimates, standard errors, z-values, and
-  p-values.
+Data frame of estimates, standard errors, z-values, p-values and
+  Wald intervals. The cutpoint parameters of a \code{cutpoints =
+  "boundary"} fit get \code{NA} z- and p-values (their zero is not a
+  hypothesis of interest; see \code{summary()} and \code{\link{anova.brs}}).
 }
 \description{
 Coefficient estimates with inference

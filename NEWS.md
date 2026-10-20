@@ -19,7 +19,14 @@
   collapsing border cell warns.
 * `brs_sim()` gains `cutpoints = c(c_lo, c_hi)` to simulate scores coarsened
   with given boundary cutpoints.
-* `coef()`, `vcov()` and `confint()` accept `model = "cutpoints"`.
+* `coef()`, `vcov()` and `confint()` accept `model = "cutpoints"`;
+  `brs_est()` gives no z-test for the cutpoint parameters.
+
+## Other changes
+
+* Fits whose Hessian is not negative definite now also warn when the largest
+  absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot
+  be measured there; this can add a warning to fixed-map fits.
 
 # betaregscale 3.0.0
 

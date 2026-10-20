@@ -318,7 +318,10 @@ can take (\eqn{c_{lo} - \epsilon} or \eqn{u_1 - c_{lo}} relative to
 collapsing and its cutpoint is not identified. The cell centers in
 \code{fit$Y[, "yt"]} (midpoint residuals, pseudo \eqn{R^2}) are those of the
 estimated cells: \eqn{c_{lo}/2}, \eqn{(c_{lo} + u_1)/2},
-\eqn{(l_{K-1} + c_{hi})/2} and \eqn{(c_{hi} + 1)/2}.
+\eqn{(l_{K-1} + c_{hi})/2} and \eqn{(c_{hi} + 1)/2}. The border centers
+differ by construction from those of the fixed map (\eqn{10^{-5}} and
+\eqn{1 - 10^{-5}} under \code{"mid"}), so pseudo \eqn{R^2} and midpoint
+residuals are not directly comparable between fixed-map and boundary fits.
 }
 
 \examples{

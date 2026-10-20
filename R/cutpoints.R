@@ -166,7 +166,7 @@
   if (require_all && length(miss)) {
     stop("cutpoints = \"boundary\": score(s) ", paste(miss, collapse = ", "),
          " not observed, so the boundary cutpoint next to them is not identified ",
-         "(the likelihood keeps increasing towards a bound). Use cutpoints = \"fixed\".",
+         "(the likelihood keeps increasing toward a bound). Use cutpoints = \"fixed\".",
          call. = FALSE)
   }
   if (require_all && K == 3L) {
