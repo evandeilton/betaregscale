@@ -32,10 +32,15 @@
       format(v)
     }, character(1))
     if (length(unique(vals)) != 1L) {
+      # Interval maps are valid pmfs of the same scores: only the LR test fails
+      reason <- if (what == "interval") {
+        "fits with different interval maps are not nested; compare them with AIC() or BIC()."
+      } else {
+        "fits with different coarsenings of the response are not comparable."
+      }
       stop(
         "All models must use the same `", what, "` (found: ",
-        paste(unique(vals), collapse = ", "), "); fits with different ",
-        "coarsenings of the response are not comparable.",
+        paste(unique(vals), collapse = ", "), "); ", reason,
         call. = FALSE
       )
     }

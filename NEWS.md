@@ -65,6 +65,7 @@
   `AIC()` and `BIC()` are comparable across `interval` maps for score data
   (each map gives a probability mass function over the same scores); only the
   likelihood-ratio test is unavailable, since the maps are not nested.
+  `anova()` gives this reason when it refuses fits with different maps.
 * Fits whose Hessian is not negative definite now also warn when the largest
   absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot
   be measured there; this can add a warning to fixed-map fits.

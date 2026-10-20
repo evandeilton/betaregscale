@@ -257,6 +257,8 @@ test_that("anova() refuses fits with different interval, ncuts or lim", {
   f_mid <- brs(y ~ x, data = raw, ncuts = 10)
   f_right <- brs(y ~ x, data = raw, ncuts = 10, interval = "right")
   expect_error(anova(f_mid, f_right), "same `interval`")
+  expect_error(anova(f_mid, f_right),
+               "not nested; compare them with AIC() or BIC()", fixed = TRUE)
   f_k20 <- suppressWarnings(brs(y ~ x, data = raw, ncuts = 20))
   expect_error(anova(f_mid, f_k20), "same `ncuts`")
   f_l25 <- suppressWarnings(brs(y ~ x, data = raw, ncuts = 10, lim = 0.25))
