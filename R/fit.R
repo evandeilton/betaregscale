@@ -349,6 +349,13 @@ brs_fit_fixed <- function(formula, data,
   diagnostics <- .brs_fit_diagnostics(-gr_obj(est), opt$hessian, mu_raw, phi_raw,
                                       repar, opt$convergence,
                                       badly_scaled = .brs_badly_scaled(X))
+  if (boundary) {
+    # Stored cells and centers: those of the estimated cutpoints (residuals, refits)
+    ends <- prob$ends(est)
+    Y[, "left"] <- ends$left
+    Y[, "right"] <- ends$right
+    Y[, "yt"] <- ends$yt
+  }
   y_mid <- Y[, "yt"]
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
   resid <- as.numeric(y_mid - ey)
@@ -375,10 +382,6 @@ brs_fit_fixed <- function(formula, data,
   names(coefficients$precision) <- phi_names
   if (boundary) {
     coefficients$cutpoints <- est[p + 1L + 1:2]
-    # Stored cells: those of the estimated cutpoints (residuals, refits)
-    ends <- prob$ends(est)
-    Y[, "left"] <- ends$left
-    Y[, "right"] <- ends$right
   }
 
   # Name the hessian
@@ -676,6 +679,13 @@ brs_fit_var <- function(formula, data,
   diagnostics <- .brs_fit_diagnostics(-gr_obj(est), opt$hessian, mu_raw, phi_raw,
                                       repar, opt$convergence,
                                       badly_scaled = .brs_badly_scaled(X, Z))
+  if (boundary) {
+    # Stored cells and centers: those of the estimated cutpoints (residuals, refits)
+    ends <- prob$ends(est)
+    Y[, "left"] <- ends$left
+    Y[, "right"] <- ends$right
+    Y[, "yt"] <- ends$yt
+  }
   y_mid <- Y[, "yt"]
   ey <- .brs_mean(as.numeric(hatmu), hatphi, repar)
   resid <- as.numeric(y_mid - ey)
@@ -703,10 +713,6 @@ brs_fit_var <- function(formula, data,
   names(coefficients$precision) <- phi_names
   if (boundary) {
     coefficients$cutpoints <- est[p + q + 1:2]
-    # Stored cells: those of the estimated cutpoints (residuals, refits)
-    ends <- prob$ends(est)
-    Y[, "left"] <- ends$left
-    Y[, "right"] <- ends$right
   }
 
   # Name the hessian
@@ -870,7 +876,8 @@ brs_fit_var <- function(formula, data,
 #'     covariates or simplify the model.}
 #'   \item{\dQuote{Gradient not ~0 at the estimate}}{A Newton step would
 #'     still gain more than 0.01 in log-likelihood although \code{optim}
-#'     reported convergence. Refit with the other \code{method}; the message
+#'     reported convergence (or, when the Hessian is not negative definite,
+#'     the largest absolute gradient exceeds 0.1). Refit with the other \code{method}; the message
 #'     asks to rescale the covariates when their scales differ by more than
 #'     \eqn{10^3} (e.g. a raw income next to a dummy).}
 #'   \item{\dQuote{Hessian near-singular or not negative definite (SEs
@@ -936,17 +943,20 @@ brs_fit_var <- function(formula, data,
 #' values of the map. Score 0 then has the cell \eqn{(0, c_{lo})}, score 1
 #' \eqn{(c_{lo}, u_1)}, score \eqn{K - 1} \eqn{(l_{K-1}, c_{hi})} and score
 #' \eqn{K} \eqn{(c_{hi}, 1)}, where \eqn{u_1} and \eqn{l_{K-1}} are the ends
-#' given by the map. The parameters are unconstrained and keep the order:
-#' \deqn{c_{lo} = u_1\, \mathrm{logit}^{-1}(g_{lo}), \qquad
-#'   c_{hi} = l_{K-1} + (1 - l_{K-1})\, \mathrm{logit}^{-1}(g_{hi}).}{c_lo =
-#'   u_1 plogis(g_lo), c_hi = l_(K-1) + (1 - l_(K-1)) plogis(g_hi).}
-#' For \eqn{K = 2} score 1 lies between the two free cutpoints and the order
-#' is kept by \eqn{c_{lo} = \mathrm{logit}^{-1}(g_{lo})},
-#' \eqn{c_{hi} = c_{lo} + (1 - c_{lo})\, \mathrm{logit}^{-1}(g_{hi})}.
-#' The map is the interior point \eqn{g_{lo} = \mathrm{logit}(1/3)},
-#' \eqn{g_{hi} = \mathrm{logit}(2/3)} under \code{"mid"} (\eqn{K \ge 3}) and
-#' \eqn{g_{lo} = g_{hi} = 0} under \code{"right"}/\code{"left"}, so the fixed
-#' model is nested in the boundary model and \code{\link{anova.brs}} gives a
+#' given by the map. With \eqn{\epsilon = 10^{-5}}, the border clamp of the
+#' likelihood, the parameters are unconstrained and keep the order:
+#' \deqn{c_{lo} = \epsilon + (u_1 - \epsilon)\, \mathrm{logit}^{-1}(g_{lo}),
+#'   \qquad c_{hi} = l_{K-1} + (1 - \epsilon - l_{K-1})\,
+#'   \mathrm{logit}^{-1}(g_{hi}),}{c_lo = eps + (u_1 - eps) plogis(g_lo),
+#'   c_hi = l_(K-1) + (1 - eps - l_(K-1)) plogis(g_hi),}
+#' so the free cutpoints never enter the clamp and the likelihood is smooth in
+#' \eqn{(g_{lo}, g_{hi})}. The map is the interior point
+#' \eqn{g_{lo} = \mathrm{logit}\{(u_0 - \epsilon)/(u_1 - \epsilon)\}},
+#' \eqn{g_{hi} = \mathrm{logit}\{(l_K - l_{K-1})/(1 - \epsilon - l_{K-1})\}}
+#' (about \eqn{\mathrm{logit}(1/3)} and \eqn{\mathrm{logit}(2/3)} under
+#' \code{"mid"}, about 0 under \code{"right"}/\code{"left"}), so the fixed
+#' model is nested in the boundary model. When both cutpoints are identified
+#' (\eqn{K \ge 4} in practice, see below) \code{\link{anova.brs}} gives a
 #' regular likelihood-ratio test on 2 degrees of freedom. The fit starts at the
 #' map.
 #'
@@ -967,14 +977,20 @@ brs_fit_var <- function(formula, data,
 #'
 #' The extension needs score data: every row the cell of a score
 #' \eqn{0, \ldots, K} (no exact values, no analyst-supplied censoring or
-#' bounds from \code{\link{brs_prep}}), \code{lim = 0.5}, \eqn{K \ge 2},
+#' bounds from \code{\link{brs_prep}}), \code{lim = 0.5}, \eqn{K \ge 3},
 #' and the scores next to each free cutpoint observed (0, 1, \eqn{K - 1},
 #' \eqn{K}); otherwise \code{brs()} stops, since a cutpoint with an
-#' unobserved neighbour is not identified. With few categories
-#' (\eqn{K \le 3}) the cutpoints are identified mainly by the shape of the
-#' beta distribution and can be weakly determined (see \code{fit$diagnostics}).
-#' A logit-scale estimate beyond \eqn{\pm 10} warns: the cell next to that
-#' cutpoint is collapsing and the cutpoint is not identified.
+#' unobserved neighbor is not identified. With \eqn{K = 2} the two cutpoints
+#' are not identified and \code{brs()} stops; with \eqn{K = 3} they rest
+#' mainly on the shape of the beta distribution and a warning says they are
+#' weakly identified, so the \eqn{\chi^2_2} reference is not trustworthy there.
+#' A border cell holding less than \eqn{10^{-4}} of the range its cutpoint
+#' can take (\eqn{c_{lo} - \epsilon} or \eqn{u_1 - c_{lo}} relative to
+#' \eqn{u_1 - \epsilon}, and the same for \eqn{c_{hi}}) warns: that cell is
+#' collapsing and its cutpoint is not identified. The cell centers in
+#' \code{fit$Y[, "yt"]} (midpoint residuals, pseudo \eqn{R^2}) are those of the
+#' estimated cells: \eqn{c_{lo}/2}, \eqn{(c_{lo} + u_1)/2},
+#' \eqn{(l_{K-1} + c_{hi})/2} and \eqn{(c_{hi} + 1)/2}.
 #'
 #' @inheritParams brs_fit_var
 #' @param ncuts Integer \eqn{K}: the maximum score, so that the scale is
@@ -993,8 +1009,8 @@ brs_fit_var <- function(formula, data,
 #'   (see 'Fit diagnostics'), \code{hatmu} (first parameter per observation:
 #'   the mean, or the shape \eqn{p} under \code{repar = 0}), \code{hatphi},
 #'   \code{Y} (columns \code{left}, \code{right}, \code{yt}, \code{y},
-#'   \code{delta}; with \code{cutpoints = "boundary"} the cells of the
-#'   estimated cutpoints), \code{ncuts}, \code{lim}, \code{interval},
+#'   \code{delta}; with \code{cutpoints = "boundary"} the cells and cell
+#'   centers of the estimated cutpoints), \code{ncuts}, \code{lim}, \code{interval},
 #'   \code{repar}, \code{link}, \code{link_phi}, \code{cutpoints} (the type)
 #'   and \code{cut} (\code{NULL} under the fixed map; otherwise a list with
 #'   \code{par}, the logit-scale estimates, \code{value}, the cutpoints on

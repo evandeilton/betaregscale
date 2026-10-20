@@ -46,7 +46,9 @@ as conservative.
 A fit with \code{cutpoints = "fixed"} is nested in the same model with
 \code{cutpoints = "boundary"} at an interior point of the cutpoint
 parameters (section 'Boundary cutpoints' of \code{\link{brs}}), so their
-comparison is a regular \eqn{\chi^2_2} test; the heading names those rows.
+comparison is a regular \eqn{\chi^2_2} test when both cutpoints are
+identified (\eqn{K \ge 4} in practice; with \eqn{K = 3} the fit warns that
+they are weakly identified); the heading names those rows.
 }
 \examples{
 # Synthetic NRS-11 scores: 4 groups x 3 times. Simulated, not real data.

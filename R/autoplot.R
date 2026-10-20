@@ -289,12 +289,11 @@ autoplot.brs <- function(object,
   # P(S = s) = F(u_s) - F(l_s) with the cells of `interval`; the border
   # cells extend to 0 and 1. `cuts` = estimated (c_lo, c_hi) of a boundary fit.
   P <- sapply(scores, function(s) {
-    cell <- .brs_cell(s, ncuts, lim, interval)
-    if (!is.null(cuts)) {
-      if (s == 0L) cell$right <- cuts[1L]
-      if (s == 1L) cell$left <- cuts[1L]
-      if (s == ncuts - 1L) cell$right <- cuts[2L]
-      if (s == ncuts) cell$left <- cuts[2L]
+    # Boundary fits: the cells (and border clamp) of the likelihood
+    cell <- if (is.null(cuts)) {
+      .brs_cell(s, ncuts, lim, interval)
+    } else {
+      .brs_cell_cut(s, ncuts, interval, cuts)
     }
     if (s == 0L) {
       return(stats::pbeta(cell$right, shp$shape1, shp$shape2))

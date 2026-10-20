@@ -3,14 +3,18 @@
 #
 # Score s has the cell (l_s, u_s) of the interval map. The boundary model frees
 # the cutpoint c_lo between scores 0 and 1 and the cutpoint c_hi between
-# scores K - 1 and K; every other cutpoint keeps the value of the map.
-#   K >= 3: c_lo = u_1 plogis(g_lo),  c_hi = l_{K-1} + (1 - l_{K-1}) plogis(g_hi)
-#   K  = 2: c_lo = plogis(g_lo),      c_hi = c_lo + (1 - c_lo) plogis(g_hi)
-# Both keep the cutpoints ordered for any real (g_lo, g_hi).
+# scores K - 1 and K (K >= 3); every other cutpoint keeps the value of the map.
+#   c_lo = eps + (u_1 - eps) plogis(g_lo)
+#   c_hi = l_{K-1} + (1 - eps - l_{K-1}) plogis(g_hi)
+# eps = 1e-5 is the border clamp of the likelihood: the free cutpoints never
+# enter it, so the likelihood stays smooth in (g_lo, g_hi) and ordered.
 # ============================================================================ #
 
 # Admissible values of `cutpoints` (first = default).
 .brs_cutpoint_types <- c("fixed", "boundary")
+
+# Border clamp of the compiled likelihood (EPS_UNIT in src/brs_common.h).
+.brs_cut_eps <- 1e-5
 
 # Partial matching as match.arg(), with a clear message.
 .brs_match_cutpoints <- function(cutpoints) {
@@ -43,50 +47,56 @@
 
 # (c_lo, c_hi) and the Jacobian J[k, j] = d c_k / d g_j from the logit-scale g.
 .brs_cut_values <- function(g, K, anchors) {
+  eps <- .brs_cut_eps
   g <- unname(g)
   p <- stats::plogis(g)
   # plogis'(g) = plogis(g) plogis(-g): no cancellation in 1 - p
   dp <- p * stats::plogis(-g)
-  if (K >= 3L) {
-    lo <- anchors$u1 * p[1L]
-    hi <- anchors$l_km1 + (1 - anchors$l_km1) * p[2L]
-    J <- diag(c(anchors$u1 * dp[1L], (1 - anchors$l_km1) * dp[2L]), 2L)
-  } else {
-    # K = 2: score 1 lies between the two free cutpoints (stick-breaking order)
-    lo <- p[1L]
-    hi <- lo + (1 - lo) * p[2L]
-    J <- matrix(c(dp[1L], stats::plogis(-g[2L]) * dp[1L], 0, (1 - lo) * dp[2L]), 2L, 2L)
-  }
-  list(value = c(c_lo = lo, c_hi = hi), jacobian = J)
+  r_lo <- anchors$u1 - eps
+  r_hi <- 1 - eps - anchors$l_km1
+  lo <- eps + r_lo * p[1L]
+  hi <- anchors$l_km1 + r_hi * p[2L]
+  list(value = c(c_lo = lo, c_hi = hi), jacobian = diag(c(r_lo * dp[1L], r_hi * dp[2L]), 2L))
 }
 
 # Logit-scale g of given cutpoints (inverse of .brs_cut_values()).
 .brs_cut_par <- function(cuts, K, anchors) {
-  if (K >= 3L) {
-    c(stats::qlogis(cuts[1L] / anchors$u1),
-      stats::qlogis((cuts[2L] - anchors$l_km1) / (1 - anchors$l_km1)))
-  } else {
-    c(stats::qlogis(cuts[1L]), stats::qlogis((cuts[2L] - cuts[1L]) / (1 - cuts[1L])))
-  }
+  eps <- .brs_cut_eps
+  unname(c(stats::qlogis((cuts[1L] - eps) / (anchors$u1 - eps)),
+           stats::qlogis((cuts[2L] - anchors$l_km1) / (1 - eps - anchors$l_km1))))
 }
 
-# Check user cutpoints (c_lo, c_hi) on (0, 1) against the order of the map.
+# Check user cutpoints (c_lo, c_hi) against the order of the map.
 .brs_cut_check_values <- function(cuts, K, interval) {
   if (!is.numeric(cuts) || length(cuts) != 2L || any(!is.finite(cuts))) {
     stop("`cutpoints` must be NULL or two finite numbers c(c_lo, c_hi) on (0, 1).",
          call. = FALSE)
   }
   K <- as.integer(K)
-  if (K < 2L) stop("Boundary cutpoints need ncuts >= 2.", call. = FALSE)
+  if (K < 3L) stop("Boundary cutpoints need ncuts >= 3.", call. = FALSE)
   a <- .brs_cut_anchors(K, interval)
-  lo_max <- if (K >= 3L) a$u1 else 1
-  hi_min <- if (K >= 3L) a$l_km1 else cuts[1L]
-  if (!(cuts[1L] > 0 && cuts[1L] < lo_max && cuts[2L] > hi_min && cuts[2L] < 1)) {
-    stop("`cutpoints` must satisfy 0 < c_lo < ", if (K >= 3L) format(lo_max) else "c_hi",
-         " and ", if (K >= 3L) format(hi_min) else "c_lo", " < c_hi < 1 ",
-         "(the cell of each score keeps a positive width).", call. = FALSE)
+  eps <- .brs_cut_eps
+  if (!(cuts[1L] > eps && cuts[1L] < a$u1 && cuts[2L] > a$l_km1 && cuts[2L] < 1 - eps)) {
+    stop("`cutpoints` must satisfy ", format(eps), " < c_lo < ", format(a$u1),
+         " and ", format(a$l_km1), " < c_hi < ", format(1 - eps),
+         " (the cell of each score keeps a positive width).", call. = FALSE)
   }
   as.numeric(cuts)
+}
+
+# Cells of scores `s` with the boundary cutpoints `cuts` (the map elsewhere),
+# with the border clamp of the likelihood; shared by the likelihood and the
+# score probabilities.
+.brs_cell_cut <- function(s, K, interval, cuts) {
+  eps <- .brs_cut_eps
+  cell <- .brs_cell(s, K, 0.5, interval)
+  l <- cell$left
+  u <- cell$right
+  u[s == 0] <- cuts[1L]
+  l[s == 1] <- cuts[1L]
+  u[s == K - 1] <- cuts[2L]
+  l[s == K] <- cuts[2L]
+  list(left = pmin(pmax(l, eps), 1 - eps), right = pmin(pmax(u, eps), 1 - eps))
 }
 
 # Scores from values on (0, 1) with the boundary cutpoints `cuts` (the map for
@@ -97,7 +107,7 @@
     return(s)
   }
   # Score 0 below c_lo, score K at or above c_hi; between them, the map's
-  # border scores move to their neighbours
+  # border scores move to their neighbors
   s[s == 0 & y >= cuts[1L]] <- 1
   s[s == K & y < cuts[2L]] <- K - 1
   s[y < cuts[1L]] <- 0
@@ -110,15 +120,17 @@
 #' @param Y Response matrix from \code{.extract_response()}.
 #' @param K,lim,interval Grid of the fit.
 #' @param require_all Stop when a score next to a free cutpoint is never
-#'   observed (the cutpoint is then not identified).
+#'   observed (the cutpoint is then not identified), and warn for K = 3.
 #' @return A list with the scores, row indices of the four border roles,
 #'   the fixed-map anchors and starting values \code{start} (the map's g).
 #' @keywords internal
 #' @noRd
 .brs_cut_setup <- function(Y, K, lim, interval, require_all = TRUE) {
   K <- as.integer(K)
-  if (K < 2L) {
-    stop("cutpoints = \"boundary\" needs ncuts >= 2.", call. = FALSE)
+  if (K < 3L) {
+    stop("cutpoints = \"boundary\" needs ncuts >= 3: with three categories the ",
+         "two boundary cutpoints are not identified. Use cutpoints = \"fixed\".",
+         call. = FALSE)
   }
   if (abs(lim - 0.5) > sqrt(.Machine$double.eps)) {
     stop("cutpoints = \"boundary\" needs lim = 0.5 (cells that partition (0, 1)); ",
@@ -149,7 +161,7 @@
          "thresholds (first: row ", bad[1L], "). Use cutpoints = \"fixed\".",
          call. = FALSE)
   }
-  need <- if (K == 2L) 0:2 else c(0L, 1L, K - 1L, K)
+  need <- c(0L, 1L, K - 1L, K)
   miss <- setdiff(need, s)
   if (require_all && length(miss)) {
     stop("cutpoints = \"boundary\": score(s) ", paste(miss, collapse = ", "),
@@ -157,32 +169,74 @@
          "(the likelihood keeps increasing towards a bound). Use cutpoints = \"fixed\".",
          call. = FALSE)
   }
+  if (require_all && K == 3L) {
+    .brs_advisory(paste0(
+      "With ncuts = 3 the boundary cutpoints are weakly identified (four ",
+      "categories, two cutpoints free): estimates and the chi2(2) test against ",
+      "the fixed map are unreliable."
+    ))
+  }
   anchors <- .brs_cut_anchors(K, interval)
+  rows <- which(s %in% need)
   list(
     K = K, interval = interval, s = s, delta = delta,
     left = as.numeric(Y[, "left"]), right = as.numeric(Y[, "right"]),
     yt = as.numeric(Y[, "yt"]),
     i0 = which(s == 0), i1 = which(s == 1), ikm1 = which(s == K - 1), ik = which(s == K),
-    rows = which(s %in% need),
+    rows = rows,
     anchors = anchors,
     fixed = c(c_lo = anchors$c_lo, c_hi = anchors$c_hi),
     start = .brs_cut_par(c(anchors$c_lo, anchors$c_hi), K, anchors)
   )
 }
 
-# Cell endpoints of all rows at cutpoints `cv` (from .brs_cut_values()).
+# Cell endpoints (and cell centers) of all rows at cutpoints `cv`.
 .brs_cut_endpoints <- function(cv, cs) {
-  eps <- 1e-5
-  # Same border clamp as .brs_check_core()
-  cl <- min(max(cv$value[1L], eps), 1 - eps)
-  ch <- min(max(cv$value[2L], eps), 1 - eps)
+  eps <- .brs_cut_eps
+  r <- cs$rows
+  cell <- .brs_cell_cut(cs$s[r], cs$K, cs$interval, cv$value)
   left <- cs$left
   right <- cs$right
-  right[cs$i0] <- cl
-  left[cs$i1] <- cl
-  right[cs$ikm1] <- ch
-  left[cs$ik] <- ch
-  list(left = left, right = right)
+  yt <- cs$yt
+  # Score 0 / K keep the one-sided ends of the map (eps, 1 - eps)
+  lo_side <- cs$s[r] == 0
+  hi_side <- cs$s[r] == cs$K
+  left[r] <- ifelse(lo_side, cs$left[r], cell$left)
+  right[r] <- ifelse(hi_side, cs$right[r], cell$right)
+  # Centers of the estimated cells: (0, c_lo), (c_lo, u_1), (l_{K-1}, c_hi), (c_hi, 1)
+  ctr <- ifelse(lo_side, cell$right / 2, ifelse(hi_side, (cell$left + 1) / 2,
+                                               (cell$left + cell$right) / 2))
+  yt[r] <- pmin(pmax(ctr, eps), 1 - eps)
+  list(left = left, right = right, yt = yt)
+}
+
+# Cutpoint derivative of the contributions of rows `j` (local indices in
+# cs$rows) whose cell has the end `end` at `cval`: +-f(c) / P, or a central
+# difference of the contribution where it is the far-tail approximation.
+.brs_cut_dterm <- function(j, end, cval, cs, ends, sh, ll) {
+  if (!length(j)) {
+    return(0)
+  }
+  r <- cs$rows[j]
+  li <- ll[j]
+  keep <- li > -1e6  # penalized rows are constant in c
+  sgn <- if (end == "right") 1 else -1
+  v <- sgn * exp(stats::dbeta(cval, sh$a[j], sh$b[j], log = TRUE) - li)
+  # Below 1e-240 the likelihood uses the endpoint Laplace approximation:
+  # differentiate that approximation itself
+  tail <- keep & li < log(1e-240) + 1
+  if (any(tail)) {
+    rt <- r[tail]
+    h <- 1e-7 * cval
+    at <- function(cc) {
+      lft <- ends$left[rt]
+      rgt <- ends$right[rt]
+      if (end == "right") rgt[] <- cc else lft[] <- cc
+      .brs_obs_loglik(cs$delta[rt], lft, rgt, cs$yt[rt], sh$a[j][tail], sh$b[j][tail])
+    }
+    v[tail] <- (at(cval + h) - at(cval - h)) / (2 * h)
+  }
+  sum(v[keep & is.finite(v)])
 }
 
 # Beta shapes as the compiled likelihood builds them (src/brs_common.h).
@@ -203,27 +257,18 @@
   list(a = pmin(pmax(a, 1e-12), 1e8), b = pmin(pmax(b, 1e-12), 1e8))
 }
 
-# Analytic d loglik / d (c_lo, c_hi): +-f(c) / P_i for the rows whose cell
-# ends (upper: +, lower: -) at c. `sh` holds the shapes of rows cs$rows.
+# Analytic d loglik / d (c_lo, c_hi). `sh` holds the shapes of rows cs$rows.
 .brs_cut_grad_c <- function(cv, ends, cs, sh) {
-  eps <- 1e-5
   r <- cs$rows
   ll <- .brs_obs_loglik(cs$delta[r], ends$left[r], ends$right[r], cs$yt[r],
                         sh$a, sh$b)
-  term <- function(idx, cval) {
-    if (!length(idx) || cval <= eps || cval >= 1 - eps) {
-      return(0)  # clamped cutpoint: the likelihood is flat in it
-    }
-    j <- match(idx, r)
-    li <- ll[j]
-    keep <- li > -1e6  # penalised rows are constant in c
-    v <- exp(stats::dbeta(cval, sh$a[j], sh$b[j], log = TRUE) - li)
-    sum(v[keep & is.finite(v)])
-  }
+  loc <- function(idx) match(idx, r)
   c_lo <- cv$value[1L]
   c_hi <- cv$value[2L]
-  c(term(cs$i0, c_lo) - term(cs$i1, c_lo),
-    term(cs$ikm1, c_hi) - term(cs$ik, c_hi))
+  c(.brs_cut_dterm(loc(cs$i0), "right", c_lo, cs, ends, sh, ll) +
+      .brs_cut_dterm(loc(cs$i1), "left", c_lo, cs, ends, sh, ll),
+    .brs_cut_dterm(loc(cs$ikm1), "right", c_hi, cs, ends, sh, ll) +
+      .brs_cut_dterm(loc(cs$ik), "left", c_hi, cs, ends, sh, ll))
 }
 
 # Richardson central difference of f at x along coordinate j (steps h, h/2).
@@ -369,15 +414,20 @@
 }
 
 # The `cut` component of a boundary fit: estimates on the logit and unit scales.
-# A logit-scale estimate beyond +-10 means a border cell is collapsing (advisory).
+# A border cell (score 0, 1, K - 1 or K) holding less than 1e-4 of the range
+# its cutpoint can take is collapsing: the cutpoint is not identified (advisory).
 .brs_cut_component <- function(cs, g_hat) {
-  far <- abs(g_hat) > 10 | !is.finite(g_hat)
-  if (any(far)) {
+  g_hat <- unname(g_hat)
+  # Width fractions: (c_lo - eps, u_1 - c_lo) / (u_1 - eps) and the same for c_hi
+  frac <- c(stats::plogis(g_hat[1L]), stats::plogis(-g_hat[1L]),
+            stats::plogis(g_hat[2L]), stats::plogis(-g_hat[2L]))
+  names(frac) <- paste0("score ", c(0L, 1L, cs$K - 1L, cs$K))
+  thin <- !is.finite(frac) | frac < 1e-4
+  if (any(thin)) {
     .brs_advisory(paste0(
-      "Boundary cutpoint(s) ", paste(c("c_lo", "c_hi")[far], collapse = ", "),
-      " at the edge of their range (logit-scale estimate ",
-      paste(format(g_hat[far], digits = 3), collapse = ", "), "): a cell next to ",
-      "it is nearly empty and the cutpoint is not identified; use ",
+      "Boundary cell(s) of ", paste(names(frac)[thin], collapse = ", "),
+      " collapsing (width fraction ", paste(format(frac[thin], digits = 3), collapse = ", "),
+      " of the range of the cutpoint): that cutpoint is not identified; use ",
       "cutpoints = \"fixed\" or merge sparse categories."
     ))
   }
@@ -445,6 +495,7 @@
   e <- .brs_cut_endpoints(list(value = cuts), cs)
   Y[, "left"] <- e$left
   Y[, "right"] <- e$right
+  Y[, "yt"] <- e$yt
   Y
 }
 

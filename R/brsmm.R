@@ -438,10 +438,11 @@ brsmm <- function(formula,
 
   est <- as.numeric(opt$par)
   if (boundary) {
-    # Stored cells: those of the estimated cutpoints (modes, residuals)
+    # Stored cells and centers: those of the estimated cutpoints (modes, residuals)
     ends <- prob$ends(est)
     Y[, "left"] <- ends$left
     Y[, "right"] <- ends$right
+    Y[, "yt"] <- ends$yt
   }
   idx_beta <- seq_len(p)
   idx_gamma <- p + seq_len(q)

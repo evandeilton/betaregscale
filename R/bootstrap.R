@@ -35,7 +35,10 @@
 #' informative) it is only an approximation. The response must be a variable
 #' (not an expression such as \code{I(y / 10)}). A fit with
 #' \code{cutpoints = "boundary"} re-coarsens with its estimated boundary
-#' cutpoints and re-estimates them in every replicate.
+#' cutpoints and re-estimates them in every replicate; a replicate without
+#' one of the scores 0, 1, \eqn{K - 1} or \eqn{K} cannot be refitted and
+#' counts as failed. The reasons of failed replicates are kept in
+#' \code{attr(, "fail_reasons")} and printed.
 #'
 #' Each refit starts from the estimate of \code{object} and uses the compiled
 #' Hessian (\code{hessian_method = "cpp"}), so replicates are cheap.
@@ -82,7 +85,8 @@
 #'   \code{"n_success"} gives the number of replicates that converged.
 #'   Additional attributes include \code{"R"}, \code{"n_attempted"},
 #'   \code{"n_failed"}, \code{"fail_rate"}, \code{"n_jack_failed"} (BCa
-#'   only), \code{"ci_type"}, and optionally \code{"boot_draws"}.
+#'   only), \code{"fail_reasons"} (counts of the failure messages, or
+#'   \code{NULL}), \code{"ci_type"}, and optionally \code{"boot_draws"}.
 #'
 #' @examples
 #' # Synthetic NRS-11 scores at 6h, 12h, 24h (time is a factor)
@@ -147,15 +151,28 @@ brs_bootstrap <- function(object,
   boot_par <- matrix(NA_real_, nrow = R, ncol = length(par_orig))
   n_ok <- 0L
   n_attempted <- 0L
+  # Reasons of failed replicates (refit errors, non-convergence)
+  fail_msgs <- character(0)
 
   while (n_ok < R && n_attempted < max_tries) {
     n_attempted <- n_attempted + 1L
     # Only the response changes; covariates, factors and formula stay the fit's own
     data_r <- .brs_boot_data(setup, object)
-    fit_r <- .brs_refit(object, data_r)
-    if (is.null(fit_r) || fit_r$convergence != 0L) next
-    if (length(fit_r$par) != length(par_orig)) next
-    if (any(!is.finite(fit_r$par))) next
+    fit_r <- .brs_refit(object, data_r, on_error = function(msg) {
+      fail_msgs <<- c(fail_msgs, msg)
+    })
+    if (is.null(fit_r)) next
+    bad <- if (fit_r$convergence != 0L) {
+      "optimizer did not converge"
+    } else if (length(fit_r$par) != length(par_orig) || any(!is.finite(fit_r$par))) {
+      "non-finite or misshaped estimates"
+    } else {
+      NULL
+    }
+    if (!is.null(bad)) {
+      fail_msgs <- c(fail_msgs, bad)
+      next
+    }
 
     boot_par[n_ok + 1L, ] <- fit_r$par
     n_ok <- n_ok + 1L
@@ -246,6 +263,7 @@ brs_bootstrap <- function(object,
   # Failed replicates: simulation, refit error, non-convergence or bad estimates
   attr(out, "n_failed") <- n_attempted - n_ok
   attr(out, "fail_rate") <- (n_attempted - n_ok) / n_attempted
+  attr(out, "fail_reasons") <- if (length(fail_msgs)) table(fail_msgs, dnn = NULL) else NULL
   if (identical(ci_type, "bca")) attr(out, "n_jack_failed") <- n_jack_failed
   attr(out, "ci_type") <- ci_type
   if (keep_draws) {
@@ -277,6 +295,11 @@ print.brs_bootstrap <- function(x, ...) {
     nj <- attr(x, "n_jack_failed")
     if (!is.null(nj)) cat(" | Failed jackknife refits:", nj)
     cat("\n")
+  }
+  fr <- attr(x, "fail_reasons")
+  if (length(fr)) {
+    cat("  Failure reasons:\n")
+    for (k in seq_along(fr)) cat("    ", fr[[k]], " x ", names(fr)[k], "\n", sep = "")
   }
   cat("\n")
   print(as.data.frame(x))
@@ -365,8 +388,9 @@ print.brs_bootstrap <- function(x, ...) {
 # -- Refit and response simulation ---------------------------------------- #
 
 # THE refit of a brs model on new data (bootstrap replicates and jackknife):
-# the fit's own settings; advisory warnings muffled; NULL on error.
-.brs_refit <- function(object, data) {
+# the fit's own settings; advisory warnings muffled; NULL on error (its message
+# goes to `on_error`).
+.brs_refit <- function(object, data, on_error = NULL) {
   meth <- if (is.null(object$method)) "BFGS" else object$method
   # Warm start from the parent estimate; compiled (cpp) Hessian, the brs() default
   tryCatch(
@@ -384,7 +408,10 @@ print.brs_bootstrap <- function(x, ...) {
       start = unname(object$par),
       cutpoints = .brs_cut_type_of(object)
     ))),
-    error = function(e) NULL
+    error = function(e) {
+      if (!is.null(on_error)) on_error(conditionMessage(e))
+      NULL
+    }
   )
 }
 

@@ -31,6 +31,11 @@ Performs repeated k-fold cross-validation for \code{\link{brs}} models.
 The \code{log_score} is the mean log predictive contribution under the
 complete likelihood contribution implied by each observation's
 censoring type (\code{delta}).
+
+With \code{cutpoints = "boundary"} in \code{...}, held-out rows use the
+cells of the training fit's cutpoints. A training fold without one of the
+scores 0, 1, \eqn{K - 1} or \eqn{K} cannot be fitted: its row has
+\code{converged = FALSE} and the message in \code{error}.
 }
 \examples{
 # Synthetic NRS-11 scores: 4 groups x 3 times. Simulated, not real data.

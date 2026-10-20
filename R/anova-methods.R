@@ -101,7 +101,7 @@
       heading <- c(heading, paste0(
         "Rows ", paste0("M", which(valid & dcut != 0), collapse = ", "), ": ",
         "cutpoints \"fixed\" vs \"boundary\" (2 cutpoint parameters; the fixed map ",
-        "is an interior point, chi2 reference)."))
+        "is an interior point; chi2 reference when both cutpoints are identified)."))
     }
     other <- valid & !is.na(dre) & dre != 0 & !mix
     if (any(other)) {
@@ -153,7 +153,9 @@
 #' A fit with \code{cutpoints = "fixed"} is nested in the same model with
 #' \code{cutpoints = "boundary"} at an interior point of the cutpoint
 #' parameters (section 'Boundary cutpoints' of \code{\link{brs}}), so their
-#' comparison is a regular \eqn{\chi^2_2} test; the heading names those rows.
+#' comparison is a regular \eqn{\chi^2_2} test when both cutpoints are
+#' identified (\eqn{K \ge 4} in practice; with \eqn{K = 3} the fit warns that
+#' they are weakly identified); the heading names those rows.
 #'
 #' @param object A fitted \code{"brs"} model.
 #' @param ... Further fitted \code{"brs"} and/or \code{"brsmm"} models.

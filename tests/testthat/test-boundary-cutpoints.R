@@ -99,7 +99,7 @@ test_that("boundary Hessian and standard errors match numDeriv", {
 
 test_that("score probabilities sum to one under boundary cutpoints", {
   for (iv in c("mid", "right", "left")) {
-    for (K in c(2L, 3L, 4L, 10L)) {
+    for (K in c(3L, 4L, 10L)) {
       s <- cut_sim(600, cuts = NULL, K = K, interval = iv, seed = K)
       fb <- suppressWarnings(brs(y ~ x, data = s, cutpoints = "boundary"))
       P <- brs_predict_scoreprob(fb)
@@ -110,6 +110,12 @@ test_that("score probabilities sum to one under boundary cutpoints", {
                    as.numeric(P %*% (0:K)), tolerance = 1e-12)
       cv <- fb$cut$value
       expect_true(cv[1] > 0 && cv[1] < cv[2] && cv[2] < 1)
+      # Each row's probability of its own score is its likelihood contribution
+      own <- P[cbind(seq_len(nrow(P)), fb$Y[, "y"] + 1)]
+      sh <- brs_repar(fb$hatmu, fb$hatphi, 2L)
+      ll <- .brs_obs_loglik(fb$delta, fb$Y[, "left"], fb$Y[, "right"], fb$Y[, "yt"],
+                            sh$shape1, sh$shape2)
+      expect_equal(log(own), ll, tolerance = 1e-8)
     }
   }
 })
@@ -132,11 +138,18 @@ test_that("the fixed map is nested in the boundary model", {
       expect_true(any(grepl("boundary", attr(a, "heading"))))
     }
   }
-  # Map values of g: logit(1/3), logit(2/3) under mid; 0, 0 under right/left
+  # Map values of g: logit((u_0 - eps) / (u_1 - eps)) and its mirror
+  eps <- 1e-5
   expect_equal(.brs_cut_par(c(0.05, 0.95), 10L, .brs_cut_anchors(10L, "mid")),
-               qlogis(c(1 / 3, 2 / 3)))
+               qlogis(c((0.05 - eps) / (0.15 - eps), 0.1 / (0.15 - eps))))
   expect_equal(.brs_cut_par(c(1, 10) / 11, 10L, .brs_cut_anchors(10L, "right")),
-               c(0, 0))
+               qlogis(c((1 / 11 - eps) / (2 / 11 - eps), (1 / 11) / (2 / 11 - eps))))
+  # Jacobian of the cutpoint map
+  g <- c(0.3, -0.4)
+  a <- .brs_cut_anchors(10L, "mid")
+  num <- numDeriv::jacobian(function(gg) .brs_cut_values(gg, 10L, a)$value, g)
+  expect_equal(.brs_cut_values(g, 10L, a)$jacobian, num, tolerance = 1e-8)
+  expect_equal(.brs_cut_par(.brs_cut_values(g, 10L, a)$value, 10L, a), g)
 })
 
 test_that("boundary cutpoints are recovered from simulated data", {
@@ -159,19 +172,21 @@ test_that("boundary cutpoints are recovered from simulated data", {
   expect_true(any(grepl("Boundary cutpoints", out)))
 })
 
-test_that("small scales K = 2, 3, 4 fit with ordered cutpoints", {
-  for (K in 2:4) {
+test_that("small scales: K = 2 stops, K = 3 warns, K = 4 fits", {
+  s2 <- cut_sim(500, cuts = NULL, K = 2L, seed = 12)
+  expect_error(brs(y ~ x, data = s2, cutpoints = "boundary"), "ncuts >= 3")
+  expect_error(brs_sim(~ x, data = data.frame(x = 1:5), beta = c(0, 0.1), ncuts = 2,
+                       cutpoints = c(0.2, 0.7)), "ncuts >= 3")
+  s3 <- cut_sim(1500, cuts = NULL, K = 3L, seed = 13)
+  expect_warning(brs(y ~ x, data = s3, cutpoints = "boundary"), "weakly identified")
+  for (K in 3:4) {
     s <- cut_sim(1500, cuts = NULL, K = K, seed = 10 + K)
     fb <- suppressWarnings(brs(y ~ x, data = s, cutpoints = "boundary"))
     cv <- fb$cut$value
-    expect_true(cv[1] > 0 && cv[1] < cv[2] && cv[2] < 1)
-    if (K >= 3L) {
-      a <- .brs_cut_anchors(K, "mid")
-      expect_lt(cv[1], a$u1)
-      expect_gt(cv[2], a$l_km1)
-    }
+    a <- .brs_cut_anchors(K, "mid")
+    expect_true(cv[1] > 1e-5 && cv[1] < a$u1 && cv[2] > a$l_km1 && cv[2] < 1 - 1e-5)
     ob <- .brs_cut_objective(fb)
-    gn <- numDeriv::grad(ob$fn, fb$par + 0.05)
+    gn <- numDeriv::grad(ob$fn, fb$par + 0.05, method.args = list(r = 6, d = 0.01))
     ga <- ob$gr(fb$par + 0.05)
     k <- length(gn) - 1:0
     expect_lt(max(abs(ga[k] - gn[k]) / pmax(abs(gn[k]), 1)), 1e-6)
@@ -181,13 +196,40 @@ test_that("small scales K = 2, 3, 4 fit with ordered cutpoints", {
     expect_equal(unique(Y[Y[, "y"] == K - 1, "right"]), cv[[2]])
     expect_equal(unique(Y[Y[, "y"] == 0, "right"]), cv[[1]])
     expect_equal(unique(Y[Y[, "y"] == K, "left"]), cv[[2]])
+    # Cell centers of the estimated cells
+    expect_equal(unique(Y[Y[, "y"] == 0, "yt"]), cv[[1]] / 2)
+    expect_equal(unique(Y[Y[, "y"] == 1, "yt"]), (cv[[1]] + a$u1) / 2)
+    expect_equal(unique(Y[Y[, "y"] == K - 1, "yt"]), (a$l_km1 + cv[[2]]) / 2)
+    expect_equal(unique(Y[Y[, "y"] == K, "yt"]), (cv[[2]] + 1) / 2)
+    expect_equal(fb$residuals, as.numeric(Y[, "yt"] - fb$hatmu))
   }
-  # K = 2: the stick-breaking order and its Jacobian
-  g <- c(0.3, -0.4)
-  v <- .brs_cut_values(g, 2L, .brs_cut_anchors(2L, "mid"))
-  num <- numDeriv::jacobian(function(gg) .brs_cut_values(gg, 2L, NULL)$value, g)
-  expect_equal(v$jacobian, num, tolerance = 1e-8)
-  expect_equal(unname(.brs_cut_par(v$value, 2L, NULL)), g)
+})
+
+test_that("the likelihood stays smooth as a border cell collapses", {
+  s <- cut_sim(800, cuts = NULL, K = 20L, seed = 21)
+  fb <- suppressWarnings(brs(y ~ x, data = s, cutpoints = "boundary"))
+  ob <- .brs_cut_objective(fb)
+  # Far below the old clamp region of g_lo the likelihood still moves with g_lo
+  par <- fb$par
+  vals <- vapply(c(-12, -14, -16), function(gl) ob$fn(replace(par, length(par) - 1L, gl)),
+                 numeric(1))
+  expect_true(all(diff(vals) < 0))
+  pp <- replace(par, length(par) - 1L, -12)
+  expect_equal(ob$gr(pp), numDeriv::grad(ob$fn, pp), tolerance = 1e-6)
+  # Score 0 far below the 1e-5 clamp: the collapse is reported
+  set.seed(22)
+  d <- data.frame(x = rnorm(3000))
+  ys <- rbeta(3000, 0.4, 2)
+  d$y <- .brs_score_from_unit_cut(ys, 20L, "mid", c(2e-6, 0.95))
+  w <- character(0)
+  fc <- withCallingHandlers(brs(y ~ x, data = d, ncuts = 20, cutpoints = "boundary"),
+                            warning = function(cnd) {
+                              w <<- c(w, conditionMessage(cnd))
+                              invokeRestart("muffleWarning")
+                            })
+  expect_true(any(grepl("score 0 collapsing", w)))
+  expect_false(any(grepl("Gradient not", w)))
+  expect_true(is.finite(fc$value))
 })
 
 test_that("boundary cutpoints stop on data they cannot use", {
@@ -216,8 +258,17 @@ test_that("boundary cutpoints stop on data they cannot use", {
   expect_error(coef(f0, model = "cutpoints"), "no estimated cutpoints")
   # A collapsing border cell is reported
   cs <- .brs_cut_setup(brs_check(base$y, ncuts = 10), 10L, 0.5, "mid")
-  expect_warning(.brs_cut_component(cs, c(12, 0)), "edge of their range")
+  expect_warning(.brs_cut_component(cs, c(12, 0)), "score 1 collapsing")
+  expect_warning(.brs_cut_component(cs, c(0, 12)), "score 10 collapsing")
   expect_silent(.brs_cut_component(cs, cs$start))
+  # A large gradient is reported even when the Hessian is singular
+  w <- character(0)
+  withCallingHandlers(.brs_fit_diagnostics(c(4, 0), matrix(0, 2, 2), 0.5, 0.3, 2L),
+                      warning = function(cnd) {
+                        w <<- c(w, conditionMessage(cnd))
+                        invokeRestart("muffleWarning")
+                      })
+  expect_true(any(grepl("largest |gradient|", w, fixed = TRUE)))
   # brs_sim() checks the cutpoints against the map
   d <- data.frame(x = 1:10)
   expect_error(brs_sim(~ x, data = d, beta = c(0, 0.1), ncuts = 10,
@@ -248,6 +299,17 @@ test_that("bootstrap and cross-validation use the estimated cutpoints", {
   set.seed(1)
   bt <- suppressWarnings(brs_bootstrap(fb, R = 10L))
   expect_equal(bt$parameter, names(fb$par))
+  expect_null(attr(bt, "fail_reasons"))
+  # A replicate without score K cannot be refitted; the reason is passed on
+  msg <- NULL
+  s_no_k <- s
+  s_no_k$y[s_no_k$y == 10] <- 9
+  s_no_k <- suppressMessages(brs_prep(s_no_k[, c("y", "x")], ncuts = 10))
+  expect_null(.brs_refit(fb, s_no_k, on_error = function(m) msg <<- m))
+  expect_match(msg, "not observed")
+  bt2 <- bt
+  attr(bt2, "fail_reasons") <- table(c(msg, msg), dnn = NULL)
+  expect_true(any(grepl("Failure reasons", capture.output(print(bt2)))))
   expect_true(all(is.finite(bt$se_boot)))
   setup <- .brs_boot_setup(fb)
   expect_equal(setup$cuts, fb$cut$value)
