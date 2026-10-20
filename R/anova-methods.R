@@ -32,8 +32,14 @@
       format(v)
     }, character(1))
     if (length(unique(vals)) != 1L) {
-      # Interval maps are valid pmfs of the same scores: only the LR test fails
-      reason <- if (what == "interval") {
+      # Each map is a pmf of the same scores (mid needs lim = 0.5, the other
+      # maps ignore lim): then only the LR test fails and AIC/BIC still apply
+      full_cells <- vapply(models, function(m) {
+        lim_m <- if (is.null(m$lim)) 0.5 else m$lim
+        !identical(.brs_interval_of(m), "mid") ||
+          lim_m >= 0.5 - sqrt(.Machine$double.eps)
+      }, logical(1))
+      reason <- if (what == "interval" && all(full_cells)) {
         "fits with different interval maps are not nested; compare them with AIC() or BIC()."
       } else {
         "fits with different coarsenings of the response are not comparable."

@@ -263,6 +263,9 @@ test_that("anova() refuses fits with different interval, ncuts or lim", {
   expect_error(anova(f_mid, f_k20), "same `ncuts`")
   f_l25 <- suppressWarnings(brs(y ~ x, data = raw, ncuts = 10, lim = 0.25))
   expect_error(anova(f_mid, f_l25), "same `lim`")
+  # a mid fit with lim < 0.5 is not a pmf of the scores: no AIC advice
+  expect_error(anova(f_l25, f_right),
+               "same `interval`.*coarsenings of the response are not comparable")
   # nested fits with the same coarsening still compare
   f0 <- brs(y ~ 1, data = raw, ncuts = 10, interval = "right")
   a <- anova(f0, f_right)

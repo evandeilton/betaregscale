@@ -580,7 +580,7 @@ changes.
 
 ## Testing
 
-* Added `tests/testthat/test-re-and-autoplot-improvements.R` with 15 new tests covering:
+* Added a new test file with 15 tests covering:
   `.pretty_phi_names()`, `.pretty_re_names()`, `brsmm_re_study()` ICC and VarCorr output,
   `plot.brsmm()` panels 7 and 8, `autoplot.brsmm()` and `autoplot.brs()` title/xlab/ylab,
   theme arg (object and function), `type = "all"`, `...` forwarding.
