@@ -37,6 +37,8 @@ S3method(print,summary.brsmm)
 S3method(ranef,brsmm)
 S3method(residuals,brs)
 S3method(residuals,brsmm)
+S3method(simulate,brs)
+S3method(simulate,brsmm)
 S3method(summary,brs)
 S3method(summary,brsmm)
 S3method(vcov,brs)
@@ -67,6 +69,7 @@ export(brs_table)
 export(brsmm)
 export(brsmm_cv)
 export(brsmm_re_study)
+export(brsmm_sim)
 export(ranef)
 importFrom(Formula,
   Formula,
@@ -135,6 +138,7 @@ importFrom(stats,
   runif,
   sd,
   shapiro.test,
+  simulate,
   terms,
   vcov
 )

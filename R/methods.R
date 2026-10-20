@@ -249,6 +249,9 @@ AIC.brs <- function(object, ..., k = 2) {
 #' @param object A fitted \code{"brs"} object.
 #' @param ... Further fitted models (\code{brs}, \code{brsmm} or others with a
 #'   \code{BIC()} method).
+#' @param n \code{"obs"} (default): the number of observations. \code{"groups"}
+#'   applies to \code{brsmm} fits only (see \code{\link{BIC.brsmm}}) and is an
+#'   error here.
 #'
 #' @return Scalar BIC value; with several models, a data frame with columns
 #'   \code{df} and \code{BIC}, one row per model, as \code{stats::BIC()}.
@@ -273,14 +276,20 @@ AIC.brs <- function(object, ..., k = 2) {
 #' @method BIC brs
 #' @importFrom stats BIC
 #' @export
-BIC.brs <- function(object, ...) {
+BIC.brs <- function(object, ..., n = c("obs", "groups")) {
   .check_class(object)
+  n <- match.arg(n)
+  # A brs fit has no groups: same rule and message as BIC.brsmm()
+  if (n == "groups") {
+    stop("n = \"groups\" needs \"brsmm\" fits only.", call. = FALSE)
+  }
   dots <- list(...)
   if (!length(dots)) {
     return(log(object$nobs) * object$npar - 2 * object$value)
   }
   # Several models: each by its own BIC() (n = observations for brsmm)
   cl <- match.call()
+  cl$n <- NULL
   .brs_bic_table(c(list(object), dots), as.character(cl[-1L]),
                  function(m) stats::BIC(m))
 }
@@ -812,19 +821,31 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #'     \eqn{y_i^* = \mathrm{logit}(y_i)}, \eqn{\mu_i^* = \psi(a_i) - \psi(b_i)}
 #'     and \eqn{v_i = \psi'(a_i) + \psi'(b_i)} (Espinheira, Ferrari and
 #'     Cribari-Neto, 2008).}
+#'   \item{\code{"cell_deviance"}}{Deviance residuals of the censored
+#'     likelihood: \eqn{d_i = \mathrm{sign}_i \sqrt{-2 \log P_i}}, with
+#'     \eqn{P_i} the fitted probability of the observed cell (the
+#'     contribution of row \eqn{i} to \code{logLik()}). The saturated model
+#'     gives each cell probability 1, so \eqn{-2 \log P_i} is the deviance
+#'     contribution and, for score data, \eqn{\sum_i d_i^2 = -2\,
+#'     \mathrm{logLik}}. \eqn{\mathrm{sign}_i = +1} when the observed score is at
+#'     least the expected score \eqn{\sum_s s\, P(S = s)} and \eqn{-1}
+#'     otherwise; censored rows that are not score cells (analyst intervals)
+#'     compare the cell center with the fitted mean \eqn{E[Y_i]}. Exact rows
+#'     (\eqn{\delta_i = 0}) give \code{NA} (use \code{"deviance"}).}
 #' }
 #' Lopes (2023) also recommends the adjusted quantile residuals of Pereira
 #' (2019), which are not implemented.
 #'
 #' @param object A fitted \code{"brs"} object.
 #' @param type Residual type: \code{"response"} (default), \code{"pearson"},
-#'   \code{"deviance"}, \code{"rqr"}, \code{"weighted"} or
-#'   \code{"sweighted"}.
+#'   \code{"deviance"}, \code{"rqr"}, \code{"weighted"}, \code{"sweighted"}
+#'   or \code{"cell_deviance"}.
 #' @param ... Currently ignored.
 #'
 #' @return Numeric vector of residuals, one per observation.
 #'
-#' @seealso \code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}}
+#' @seealso \code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}},
+#'   \code{\link{residuals.brsmm}}
 #'
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
@@ -867,6 +888,10 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #' r_p <- residuals(fit, type = "pearson")
 #' tapply(r_p, cut(nrs$y, c(-1, 0, 9, 10), labels = c("0", "1-9", "10")), mean)
 #'
+#' # Deviance residuals from the cell probabilities add up to -2 logLik
+#' r_d <- residuals(fit, type = "cell_deviance")
+#' c(sum(r_d^2), -2 * as.numeric(logLik(fit)))
+#'
 #' @method residuals brs
 #' @importFrom stats residuals qnorm pbeta dbeta qlogis
 #' @export
@@ -874,11 +899,15 @@ residuals.brs <- function(object,
                           type = c(
                             "response", "pearson",
                             "deviance", "rqr",
-                            "weighted", "sweighted"
+                            "weighted", "sweighted", "cell_deviance"
                           ),
                           ...) {
   .check_class(object)
   type <- match.arg(type)
+  if (type == "cell_deviance") {
+    et <- .brs_res_eta(object)
+    return(.brs_cell_dev_parts(.brs_res_parts(object, et$mu, et$phi)))
+  }
 
   y <- object$Y[, "yt"]
   # `mu` is the FIRST parameter (shape p under repar 0); `ey` is E[Y].

@@ -638,15 +638,61 @@ predict.brsmm <- function(object,
 
 #' Residuals from a brsmm model
 #'
+#' @description
+#' Residuals of a \code{"brsmm"} fit. The types of \code{\link{residuals.brs}}
+#' are evaluated at the conditional modes of the random effects
+#' (\code{\link{ranef.brsmm}}); for \code{"rqr"} and \code{"cell_deviance"},
+#' \code{re} selects how the random effects enter.
+#'
+#' @details
+#' \code{re} applies to \code{type = "rqr"} and \code{"cell_deviance"}:
+#' \describe{
+#'   \item{\code{"conditional"}}{(default) at the conditional modes
+#'     \eqn{\hat b_g}. The modes are shrunk toward zero, so these residuals
+#'     are not exactly \eqn{N(0, 1)} under the model; the shrinkage is
+#'     strongest for small groups.}
+#'   \item{\code{"marginal"}}{from the marginal (population-averaged)
+#'     distribution of each observation, with the random effects integrated
+#'     out: \eqn{v_i \sim U(F_m(l_i), F_m(u_i))}, \eqn{F_m(y) = \int F(y \mid
+#'     b)\, \varphi(b; 0, \hat D)\, db}, computed on the quadrature rule of
+#'     \code{\link{brs_marginal}} (for score data \eqn{F_m(l_i)} and
+#'     \eqn{F_m(u_i)} are the marginal cdf of the score at \eqn{s_i - 1} and
+#'     \eqn{s_i}). Each residual is \eqn{N(0, 1)} under the model;
+#'     residuals of the same group are correlated.}
+#'   \item{\code{"posterior"}}{at one draw of each \eqn{b_g} from its
+#'     posterior given the group's data, by sampling-importance-resampling:
+#'     \code{n_draws} proposals from \eqn{N(\hat b_g, H_g^{-1})}
+#'     (\eqn{H_g}, the curvature of the log posterior at the mode, by central
+#'     differences; the prior \eqn{N(0, \hat D)} shape when it is not positive
+#'     definite) weighted by posterior over proposal density, and one of them
+#'     kept. Since \eqn{(b_g, y_g)} with \eqn{b_g} drawn from its posterior
+#'     has the joint law of the model, these residuals are \eqn{N(0, 1)}
+#'     under the model (up to the resampling approximation, of order
+#'     \code{1/n_draws}) without the shrinkage of the modes.}
+#' }
+#' \code{"rqr"} residuals use \eqn{v_i} uniform on \eqn{(F(l_i), F(u_i))}
+#' (survival scale above the median, to keep the precision of upper-tail
+#' cells), kept in \eqn{[10^{-10}, 1 - 10^{-10}]}. \code{"cell_deviance"}
+#' residuals are \eqn{\mathrm{sign}_i \sqrt{-2 \log P_i}} with the conditional,
+#' marginal or posterior-draw cell probability \eqn{P_i} and expected score,
+#' as in \code{\link{residuals.brs}}. The \code{"rqr"} residuals and the
+#' \code{"posterior"} draws are random: set a seed to reproduce them.
+#'
 #' @param object A fitted \code{"brsmm"} object.
 #' @param type Character: \code{"response"} (default), \code{"pearson"},
-#'   \code{"deviance"}, \code{"rqr"}, \code{"weighted"}, or \code{"sweighted"}.
+#'   \code{"deviance"}, \code{"rqr"}, \code{"weighted"}, \code{"sweighted"}
+#'   or \code{"cell_deviance"} (see \code{\link{residuals.brs}}).
+#' @param re \code{"conditional"} (default), \code{"marginal"} or
+#'   \code{"posterior"}; for \code{type = "rqr"} and \code{"cell_deviance"}
+#'   only (see Details).
+#' @param n_draws Number of importance-sampling proposals per group for
+#'   \code{re = "posterior"} (default 200).
 #' @param ... Currently ignored.
 #'
-#' @return Numeric vector.
+#' @return Numeric vector, one value per observation.
 #'
 #' @seealso \code{\link{brsmm}}, \code{\link{fitted.brsmm}},
-#'   \code{\link{plot.brsmm}}
+#'   \code{\link{plot.brsmm}}, \code{\link{residuals.brs}}
 #'
 #' @examples
 #' \donttest{
@@ -663,6 +709,16 @@ predict.brsmm <- function(object,
 #' head(residuals(fit))
 #' head(residuals(fit, type = "pearson"))
 #' }
+#' # Quantile residuals without the shrinkage of the conditional modes
+#' d <- expand.grid(visit = 1:5, id = 1:60)
+#' set.seed(3)
+#' s <- brsmm_sim(~ visit, random = ~ 1 | id, data = d, beta = c(-0.6, 0.1),
+#'                phi = qlogis(0.2), re_sd = 0.7, ncuts = 10)
+#' m <- brsmm(y ~ visit, random = ~ 1 | id, data = s)
+#' set.seed(1)
+#' r_m <- residuals(m, type = "rqr", re = "marginal")
+#' r_p <- residuals(m, type = "rqr", re = "posterior")
+#' round(c(mean_m = mean(r_m), sd_m = sd(r_m), mean_p = mean(r_p), sd_p = sd(r_p)), 2)
 #'
 #' @method residuals brsmm
 #' @importFrom stats residuals qnorm pbeta dbeta qlogis runif
@@ -670,10 +726,24 @@ predict.brsmm <- function(object,
 residuals.brsmm <- function(object, type = c(
                               "response", "pearson",
                               "deviance", "rqr",
-                              "weighted", "sweighted"
-                            ), ...) {
+                              "weighted", "sweighted", "cell_deviance"
+                            ),
+                            re = c("conditional", "marginal", "posterior"),
+                            n_draws = 200L, ...) {
   .check_class_mm(object)
   type <- match.arg(type)
+  re <- match.arg(re)
+  if (re != "conditional" && !(type %in% c("rqr", "cell_deviance"))) {
+    stop("`re` applies to type = \"rqr\" and \"cell_deviance\" only.", call. = FALSE)
+  }
+  n_draws <- as.integer(n_draws)
+  if (length(n_draws) != 1L || is.na(n_draws) || n_draws < 1L) {
+    stop("'n_draws' must be a positive integer.", call. = FALSE)
+  }
+  # New paths; the conditional "rqr" below is unchanged
+  if (type == "cell_deviance" || (type == "rqr" && re != "conditional")) {
+    return(.brsmm_res_cell(object, type, re, n_draws))
+  }
 
   y <- as.numeric(object$Y[, "yt"])
   # `mu` is the FIRST parameter (shape p under repar 0); `ey` is E[Y].

@@ -6,7 +6,8 @@
 \usage{
 \method{residuals}{brs}(
   object,
-  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted"),
+  type = c("response", "pearson", "deviance", "rqr", "weighted", "sweighted",
+    "cell_deviance"),
   ...
 )
 }
@@ -14,8 +15,8 @@
 \item{object}{A fitted \code{"brs"} object.}
 
 \item{type}{Residual type: \code{"response"} (default), \code{"pearson"},
-\code{"deviance"}, \code{"rqr"}, \code{"weighted"} or
-\code{"sweighted"}.}
+\code{"deviance"}, \code{"rqr"}, \code{"weighted"}, \code{"sweighted"}
+or \code{"cell_deviance"}.}
 
 \item{...}{Currently ignored.}
 }
@@ -69,6 +70,17 @@ these residuals unreliable at the borders of the scale.
     \eqn{y_i^* = \mathrm{logit}(y_i)}, \eqn{\mu_i^* = \psi(a_i) - \psi(b_i)}
     and \eqn{v_i = \psi'(a_i) + \psi'(b_i)} (Espinheira, Ferrari and
     Cribari-Neto, 2008).}
+  \item{\code{"cell_deviance"}}{Deviance residuals of the censored
+    likelihood: \eqn{d_i = \mathrm{sign}_i \sqrt{-2 \log P_i}}, with
+    \eqn{P_i} the fitted probability of the observed cell (the
+    contribution of row \eqn{i} to \code{logLik()}). The saturated model
+    gives each cell probability 1, so \eqn{-2 \log P_i} is the deviance
+    contribution and, for score data, \eqn{\sum_i d_i^2 = -2\,
+    \mathrm{logLik}}. \eqn{\mathrm{sign}_i = +1} when the observed score is at
+    least the expected score \eqn{\sum_s s\, P(S = s)} and \eqn{-1}
+    otherwise; censored rows that are not score cells (analyst intervals)
+    compare the cell center with the fitted mean \eqn{E[Y_i]}. Exact rows
+    (\eqn{\delta_i = 0}) give \code{NA} (use \code{"deviance"}).}
 }
 Lopes (2023) also recommends the adjusted quantile residuals of Pereira
 (2019), which are not implemented.
@@ -91,6 +103,10 @@ qqnorm(r_q); qqline(r_q)
 # Midpoint-based residuals are extreme at the border scores 0 and 10
 r_p <- residuals(fit, type = "pearson")
 tapply(r_p, cut(nrs$y, c(-1, 0, 9, 10), labels = c("0", "1-9", "10")), mean)
+
+# Deviance residuals from the cell probabilities add up to -2 logLik
+r_d <- residuals(fit, type = "cell_deviance")
+c(sum(r_d^2), -2 * as.numeric(logLik(fit)))
 
 }
 \references{
@@ -116,5 +132,6 @@ Pereira, G. H. A. (2019). On quantile residuals in beta regression.
 \bold{48}(1), 302--316.
 }
 \seealso{
-\code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}}
+\code{\link{brs}}, \code{\link{fitted.brs}}, \code{\link{plot.brs}},
+  \code{\link{residuals.brsmm}}
 }

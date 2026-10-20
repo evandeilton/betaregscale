@@ -4,13 +4,17 @@
 \alias{BIC.brs}
 \title{Bayesian information criterion}
 \usage{
-\method{BIC}{brs}(object, ...)
+\method{BIC}{brs}(object, ..., n = c("obs", "groups"))
 }
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
 
 \item{...}{Further fitted models (\code{brs}, \code{brsmm} or others with a
 \code{BIC()} method).}
+
+\item{n}{\code{"obs"} (default): the number of observations. \code{"groups"}
+applies to \code{brsmm} fits only (see \code{\link{BIC.brsmm}}) and is an
+error here.}
 }
 \value{
 Scalar BIC value; with several models, a data frame with columns

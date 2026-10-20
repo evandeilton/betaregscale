@@ -36,7 +36,28 @@
   observed scores), with reusable folds and a `seed` argument.
 * `BIC()` for `brsmm` fits gains `n = c("obs", "groups")`. `BIC()` of `brs`
   and `brsmm` fits returns a `df`/`BIC` table for several models, whatever
-  the order; the single-model value is unchanged.
+  the order; the single-model value is unchanged. `BIC()` of a `brs` fit
+  accepts `n` and stops for `n = "groups"` with the message of the `brsmm`
+  method (it failed with "no 'nobs' method").
+* New `brsmm_sim()`: clustered scores from the `brsmm()` model, with random
+  effects `b ~ N(0, D)` given by their SDs and correlations, the coarsening
+  of `brs_sim()` (interval maps, boundary cutpoints) and the true random
+  effects and parameters (in `coef()` order) as attributes.
+* New `simulate()` methods for `brs` and `brsmm` fits (`nsim`, `seed`). For
+  `brsmm`, `re = "marginal"` (default) draws new random effects and
+  `re = "conditional"` keeps the conditional modes.
+* `residuals()` of `brsmm` fits gains `re = c("conditional", "marginal",
+  "posterior")` for `type = "rqr"` and `"cell_deviance"`: marginal residuals
+  integrate the random effects out; posterior residuals use one draw of each
+  group's random effects from its posterior (importance resampling from the
+  Gaussian approximation at the mode). Both are N(0, 1) under the model,
+  without the shrinkage of the conditional modes. The default is unchanged.
+* New residual type `"cell_deviance"` for `brs` and `brsmm` fits:
+  `sign * sqrt(-2 log P)` from the probability of the observed cell, with the
+  sign of the observed minus the expected score; for score data their squares
+  add up to `-2 logLik`.
+* `attr(brsmm_cv(), "folds")` keeps the type of user folds whether they are
+  given per row or by group (it was character for per-row folds).
 
 ## Other changes
 
