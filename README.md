@@ -51,6 +51,19 @@ likelihood — multivariate **Laplace approximation** (default), **adaptive
 Gauss-Hermite quadrature** and **quasi-Monte Carlo** — all available for
 arbitrary random-effects structures.
 
+Further tools:
+
+- **Estimable boundary cutpoints** (`cutpoints = "boundary"` in `brs()` and
+  `brsmm()`) for scores that pile up at the ends of the scale.
+- **Marginal predictions on the score scale** (`brs_marginal()`): score
+  probabilities, expected scores and exceedance probabilities with standard
+  errors, population-averaged for mixed models.
+- **Group-level cross-validation** (`brsmm_cv()`), scoring held-out groups by
+  their marginal log-likelihood.
+- **Clustered simulator** (`brsmm_sim()`) and `simulate()` methods.
+- **Marginal and posterior residuals** for mixed models
+  (`residuals(fit, re = "marginal")` or `re = "posterior"`).
+
 ---
 
 ## Installation
@@ -362,14 +375,17 @@ underestimates the log-likelihood slightly; prefer AGHQ for up to three.
 | `vcov()` | ✓ | ✓ |
 | `confint()` | ✓ | ✓ |
 | `predict()` | ✓ | ✓ |
-| `residuals()` (RQR, response, pearson) | ✓ | ✓ |
+| `residuals()` (RQR, response, pearson, cell deviance) | ✓ | ✓ |
+| `simulate()` | ✓ | ✓ |
 | `plot()` | ✓ | ✓ |
 | `ranef()` | — | ✓ |
 | `anova()` | ✓ | ✓ |
 | `autoplot()` | ✓ | ✓ |
 | `brs_marginaleffects()` | ✓ | — |
 | `brs_predict_scoreprob()` | ✓ | — |
+| `brs_marginal()`, `brs_loglik_contrib()` | ✓ | ✓ |
 | `brs_cv()` | ✓ | — |
+| `brsmm_cv()` | — | ✓ |
 | `logLik()`, `AIC()`, `BIC()`, `nobs()`, `fitted()`, `formula()`, `model.matrix()` | ✓ | ✓ |
 | `brs_table()` | ✓ | ✓ |
 
