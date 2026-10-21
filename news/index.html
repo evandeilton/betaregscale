@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,32 +40,55 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="betaregscale-development-version">betaregscale (development version)<a class="anchor" aria-label="anchor" href="#betaregscale-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="3.1.0" id="betaregscale-310">betaregscale 3.1.0<a class="anchor" aria-label="anchor" href="#betaregscale-310"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-3-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-3-1-0"></a></h3>
+<div class="section level4">
+<h4 id="estimable-boundary-cutpoints-3-1-0">Estimable boundary cutpoints<a class="anchor" aria-label="anchor" href="#estimable-boundary-cutpoints-3-1-0"></a></h4>
 <ul><li>
-<code><a href="../reference/brs.html">brs()</a></code> and <code><a href="../reference/brsmm.html">brsmm()</a></code> gain <code>cutpoints = c("fixed", "boundary")</code>. <code>"boundary"</code> estimates the cutpoint between scores 0 and 1 and the one between <code>K - 1</code> and <code>K</code>, keeping all other cutpoints of the interval map. Rating data often pile up at the ends of the scale more than the half-width border cells allow; the fixed map is nested at an interior point, so <code>anova(fixed, boundary)</code> is a regular 2-df likelihood-ratio test when both cutpoints are identified (<code>ncuts &gt;= 4</code> in practice). Works with the three <code>interval</code> maps, fixed and variable dispersion, and Laplace, AGHQ and QMC integration. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the cutpoints on (0, 1) and on the score scale with delta-method standard errors; score probabilities, expected scores, quantile residuals, <code><a href="../reference/brs_bootstrap.html">brs_bootstrap()</a></code> and <code><a href="../reference/brs_cv.html">brs_cv()</a></code> use the estimated cutpoints. It requires score data (no exact values or analyst-supplied censoring), <code>lim = 0.5</code>, <code>ncuts &gt;= 3</code> (with a warning of weak identification for 3) and observed scores 0, 1, <code>K - 1</code> and <code>K</code>; a collapsing border cell warns.</li>
-<li>
-<code><a href="../reference/brs_sim.html">brs_sim()</a></code> gains <code>cutpoints = c(c_lo, c_hi)</code> to simulate scores coarsened with given boundary cutpoints.</li>
+<code><a href="../reference/brs.html">brs()</a></code> and <code><a href="../reference/brsmm.html">brsmm()</a></code> gain <code>cutpoints = c("fixed", "boundary")</code>. <code>"boundary"</code> estimates the cutpoint between scores 0 and 1 and the one between <code>K - 1</code> and <code>K</code>, keeping the other cutpoints of the interval map. This fits rating data that pile up at the ends of the scale more than the half-width border cells allow. The fixed map is nested at an interior point, so <code>anova(fixed, boundary)</code> is a 2-df likelihood-ratio test when both cutpoints are identified (<code>ncuts &gt;= 4</code> in practice).</li>
+<li>Works with the three <code>interval</code> maps, fixed and variable dispersion, and Laplace, AGHQ and QMC integration. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the cutpoints on (0, 1) and on the score scale with delta-method standard errors; score probabilities, expected scores, quantile residuals, <code><a href="../reference/brs_bootstrap.html">brs_bootstrap()</a></code> and <code><a href="../reference/brs_cv.html">brs_cv()</a></code> use the estimated cutpoints.</li>
+<li>Requirements: score data (no exact values or analyst-supplied censoring), <code>lim = 0.5</code>, <code>ncuts &gt;= 3</code> (weak identification warning for 3) and observed scores 0, 1, <code>K - 1</code> and <code>K</code>. A collapsing border cell warns.</li>
 <li>
 <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> and <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code> accept <code>model = "cutpoints"</code>; <code><a href="../reference/brs_est.html">brs_est()</a></code> gives no z-test for the cutpoint parameters.</li>
-<li>New <code><a href="../reference/brs_marginal.html">brs_marginal()</a></code>: score probabilities, expected scores and exceedance probabilities <code>P(S &gt;= k)</code> with standard errors and intervals, and differences between rows (e.g. time contrasts). For <code><a href="../reference/brsmm.html">brsmm()</a></code> fits the random effects are integrated out (population-averaged values), or set to zero with <code>conditional = TRUE</code>; under a nonlinear link these differ. Standard errors use the delta method over all parameters (including the random-effect and cutpoint parameters) or parameter draws.</li>
-<li>New <code><a href="../reference/brs_loglik_contrib.html">brs_loglik_contrib()</a></code>: log-likelihood contributions per observation (<code>brs</code>) or per group (<code>brsmm</code>, marginal over the random effects), also for new data at the fitted parameters; they add up to <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>.</li>
-<li>New <code><a href="../reference/brsmm_cv.html">brsmm_cv()</a></code>: cross-validation with folds formed by group, scoring held-out groups by their marginal log-likelihood (log probability of the observed scores), with reusable folds and a <code>seed</code> argument.</li>
 <li>
-<code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> for <code>brsmm</code> fits gains <code>n = c("obs", "groups")</code>. <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> of <code>brs</code> and <code>brsmm</code> fits returns a <code>df</code>/<code>BIC</code> table for several models, whatever the order; the single-model value is unchanged. <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> of a <code>brs</code> fit accepts <code>n</code> and stops for <code>n = "groups"</code> with the message of the <code>brsmm</code> method (it failed with “no ‘nobs’ method”).</li>
-<li>New <code><a href="../reference/brsmm_sim.html">brsmm_sim()</a></code>: clustered scores from the <code><a href="../reference/brsmm.html">brsmm()</a></code> model, with random effects <code>b ~ N(0, D)</code> given by their SDs and correlations, the coarsening of <code><a href="../reference/brs_sim.html">brs_sim()</a></code> (interval maps, boundary cutpoints) and the true random effects and parameters (in <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> order) as attributes.</li>
+<code><a href="../reference/brs_sim.html">brs_sim()</a></code> gains <code>cutpoints = c(c_lo, c_hi)</code> to simulate scores coarsened with given boundary cutpoints.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="marginal-predictions-on-the-score-scale-3-1-0">Marginal predictions on the score scale<a class="anchor" aria-label="anchor" href="#marginal-predictions-on-the-score-scale-3-1-0"></a></h4>
+<ul><li>New <code><a href="../reference/brs_marginal.html">brs_marginal()</a></code>: score probabilities, expected scores and exceedance probabilities <code>P(S &gt;= k)</code> with standard errors and intervals, plus differences between rows (e.g. time contrasts). For <code><a href="../reference/brsmm.html">brsmm()</a></code> fits the random effects are integrated out (population-averaged values), or set to zero with <code>conditional = TRUE</code>; under a nonlinear link these differ. Standard errors use the delta method over all parameters (including random-effect and cutpoint parameters) or parameter draws.</li>
+<li>New <code><a href="../reference/brs_loglik_contrib.html">brs_loglik_contrib()</a></code>: log-likelihood contributions per observation (<code>brs</code>) or per group (<code>brsmm</code>, marginal over the random effects), also for new data at the fitted parameters. They add up to <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="group-level-cross-validation-3-1-0">Group-level cross-validation<a class="anchor" aria-label="anchor" href="#group-level-cross-validation-3-1-0"></a></h4>
+<ul><li>New <code><a href="../reference/brsmm_cv.html">brsmm_cv()</a></code>: cross-validation with folds formed by group. Held-out groups are scored by their marginal log-likelihood (log probability of the observed scores). Folds can be given per row or by group, are returned in <code>attr(, "folds")</code> for reuse, and <code>seed</code> makes them reproducible.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="simulation-3-1-0">Simulation<a class="anchor" aria-label="anchor" href="#simulation-3-1-0"></a></h4>
+<ul><li>New <code><a href="../reference/brsmm_sim.html">brsmm_sim()</a></code>: clustered scores from the <code><a href="../reference/brsmm.html">brsmm()</a></code> model, with random effects <code>b ~ N(0, D)</code> given by their SDs and correlations, the coarsening of <code><a href="../reference/brs_sim.html">brs_sim()</a></code> (interval maps, boundary cutpoints), and the true random effects and parameters (in <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> order) as attributes.</li>
 <li>New <code><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate()</a></code> methods for <code>brs</code> and <code>brsmm</code> fits (<code>nsim</code>, <code>seed</code>). For <code>brsmm</code>, <code>re = "marginal"</code> (default) draws new random effects and <code>re = "conditional"</code> keeps the conditional modes.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="residuals-3-1-0">Residuals<a class="anchor" aria-label="anchor" href="#residuals-3-1-0"></a></h4>
+<ul><li>
+<code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> of <code>brsmm</code> fits gains <code>re = c("conditional", "marginal", "posterior")</code> for <code>type = "rqr"</code> and <code>"cell_deviance"</code>. Marginal residuals integrate the random effects out; posterior residuals use one draw of each group’s random effects from its posterior (importance resampling from the Gaussian approximation at the mode, with <code>n_draws</code> proposals per group, default 200). Both are N(0, 1) under the model, without the shrinkage of the conditional modes. The default is unchanged.</li>
+<li>New residual type <code>"cell_deviance"</code> for <code>brs</code> and <code>brsmm</code> fits: <code>sign * sqrt(-2 log P)</code> from the probability of the observed cell, signed by the observed minus the expected score. For score data their squares add up to <code>-2 logLik</code>.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="information-criteria-3-1-0">Information criteria<a class="anchor" aria-label="anchor" href="#information-criteria-3-1-0"></a></h4>
+<ul><li>
+<code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> for <code>brsmm</code> fits gains <code>n = c("obs", "groups")</code>. <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> of <code>brs</code> and <code>brsmm</code> fits returns a <code>df</code>/<code>BIC</code> table when given several models; the single-model value is unchanged. <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> of a <code>brs</code> fit accepts <code>n</code> and stops for <code>n = "groups"</code>.</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="other-changes-3-1-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-3-1-0"></a></h3>
+<ul><li>Fits whose Hessian is not negative definite now also warn when the largest absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot be measured there. This can add a warning to some fixed-map fits.</li>
 <li>
-<code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> of <code>brsmm</code> fits gains <code>re = c("conditional", "marginal", "posterior")</code> for <code>type = "rqr"</code> and <code>"cell_deviance"</code>: marginal residuals integrate the random effects out; posterior residuals use one draw of each group’s random effects from its posterior (importance resampling from the Gaussian approximation at the mode). Both are N(0, 1) under the model, without the shrinkage of the conditional modes. The default is unchanged.</li>
-<li>New residual type <code>"cell_deviance"</code> for <code>brs</code> and <code>brsmm</code> fits: <code>sign * sqrt(-2 log P)</code> from the probability of the observed cell, with the sign of the observed minus the expected score; for score data their squares add up to <code>-2 logLik</code>.</li>
-<li>
-<code>attr(brsmm_cv(), "folds")</code> keeps the type of user folds whether they are given per row or by group (it was character for per-row folds).</li>
+<code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> states why it refuses fits with different <code>interval</code> maps: the maps are not nested, so no likelihood-ratio test exists.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="other-changes-development-version">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-development-version"></a></h3>
-<ul><li>The help of <code><a href="../reference/brs.html">brs()</a></code>, <code><a href="../reference/brs_check.html">brs_check()</a></code> and <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> states that <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code> and <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> are comparable across <code>interval</code> maps for score data (each map gives a probability mass function over the same scores); only the likelihood-ratio test is unavailable, since the maps are not nested. <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> gives this reason when it refuses fits with different maps.</li>
-<li>Fits whose Hessian is not negative definite now also warn when the largest absolute gradient exceeds 0.1, since the remaining log-likelihood gain cannot be measured there; this can add a warning to fixed-map fits.</li>
+<h3 id="documentation-3-1-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-3-1-0"></a></h3>
+<ul><li>The help of <code><a href="../reference/brs.html">brs()</a></code>, <code><a href="../reference/brs_check.html">brs_check()</a></code> and <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code>, and the introduction vignette, state that <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code> and <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> are comparable across <code>interval</code> maps for score data, since each map gives a probability mass function over the same scores.</li>
 </ul></div>
 </div>
     <div class="section level2">

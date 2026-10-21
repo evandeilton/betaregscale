@@ -63,6 +63,26 @@ approximation** (default), **adaptive Gauss-Hermite quadrature** and
 **quasi-Monte Carlo** — all available for arbitrary random-effects
 structures.
 
+Further tools:
+
+- **Estimable boundary cutpoints** (`cutpoints = "boundary"` in
+  [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+  and
+  [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md))
+  for scores that pile up at the ends of the scale.
+- **Marginal predictions on the score scale**
+  ([`brs_marginal()`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md)):
+  score probabilities, expected scores and exceedance probabilities with
+  standard errors, population-averaged for mixed models.
+- **Group-level cross-validation**
+  ([`brsmm_cv()`](https://evandeilton.github.io/betaregscale/reference/brsmm_cv.md)),
+  scoring held-out groups by their marginal log-likelihood.
+- **Clustered simulator**
+  ([`brsmm_sim()`](https://evandeilton.github.io/betaregscale/reference/brsmm_sim.md))
+  and [`simulate()`](https://rdrr.io/r/stats/simulate.html) methods.
+- **Marginal and posterior residuals** for mixed models
+  (`residuals(fit, re = "marginal")` or `re = "posterior"`).
+
 ------------------------------------------------------------------------
 
 ## Installation
@@ -383,14 +403,17 @@ three.
 | [`vcov()`](https://rdrr.io/r/stats/vcov.html) | ✓ | ✓ |
 | [`confint()`](https://rdrr.io/r/stats/confint.html) | ✓ | ✓ |
 | [`predict()`](https://rdrr.io/r/stats/predict.html) | ✓ | ✓ |
-| [`residuals()`](https://rdrr.io/r/stats/residuals.html) (RQR, response, pearson) | ✓ | ✓ |
+| [`residuals()`](https://rdrr.io/r/stats/residuals.html) (RQR, response, pearson, cell deviance) | ✓ | ✓ |
+| [`simulate()`](https://rdrr.io/r/stats/simulate.html) | ✓ | ✓ |
 | [`plot()`](https://rdrr.io/r/graphics/plot.default.html) | ✓ | ✓ |
 | [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md) | — | ✓ |
 | [`anova()`](https://rdrr.io/r/stats/anova.html) | ✓ | ✓ |
 | [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html) | ✓ | ✓ |
 | [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md) | ✓ | — |
 | [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md) | ✓ | — |
+| [`brs_marginal()`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md), [`brs_loglik_contrib()`](https://evandeilton.github.io/betaregscale/reference/brs_loglik_contrib.md) | ✓ | ✓ |
 | [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md) | ✓ | — |
+| [`brsmm_cv()`](https://evandeilton.github.io/betaregscale/reference/brsmm_cv.md) | — | ✓ |
 | [`logLik()`](https://rdrr.io/r/stats/logLik.html), [`AIC()`](https://rdrr.io/r/stats/AIC.html), [`BIC()`](https://rdrr.io/r/stats/AIC.html), [`nobs()`](https://rdrr.io/r/stats/nobs.html), [`fitted()`](https://rdrr.io/r/stats/fitted.values.html), [`formula()`](https://rdrr.io/r/stats/formula.html), [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) | ✓ | ✓ |
 | [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md) | ✓ | ✓ |
 

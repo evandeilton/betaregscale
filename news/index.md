@@ -1,69 +1,75 @@
 # Changelog
 
-## betaregscale (development version)
+## betaregscale 3.1.0
 
 ### New features
+
+#### Estimable boundary cutpoints
 
 - [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
   and
   [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
   gain `cutpoints = c("fixed", "boundary")`. `"boundary"` estimates the
   cutpoint between scores 0 and 1 and the one between `K - 1` and `K`,
-  keeping all other cutpoints of the interval map. Rating data often
-  pile up at the ends of the scale more than the half-width border cells
-  allow; the fixed map is nested at an interior point, so
-  `anova(fixed, boundary)` is a regular 2-df likelihood-ratio test when
-  both cutpoints are identified (`ncuts >= 4` in practice). Works with
-  the three `interval` maps, fixed and variable dispersion, and Laplace,
-  AGHQ and QMC integration.
+  keeping the other cutpoints of the interval map. This fits rating data
+  that pile up at the ends of the scale more than the half-width border
+  cells allow. The fixed map is nested at an interior point, so
+  `anova(fixed, boundary)` is a 2-df likelihood-ratio test when both
+  cutpoints are identified (`ncuts >= 4` in practice).
+- Works with the three `interval` maps, fixed and variable dispersion,
+  and Laplace, AGHQ and QMC integration.
   [`summary()`](https://rdrr.io/r/base/summary.html) reports the
   cutpoints on (0, 1) and on the score scale with delta-method standard
   errors; score probabilities, expected scores, quantile residuals,
   [`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
   and
   [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
-  use the estimated cutpoints. It requires score data (no exact values
-  or analyst-supplied censoring), `lim = 0.5`, `ncuts >= 3` (with a
-  warning of weak identification for 3) and observed scores 0, 1,
-  `K - 1` and `K`; a collapsing border cell warns.
-- [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
-  gains `cutpoints = c(c_lo, c_hi)` to simulate scores coarsened with
-  given boundary cutpoints.
+  use the estimated cutpoints.
+- Requirements: score data (no exact values or analyst-supplied
+  censoring), `lim = 0.5`, `ncuts >= 3` (weak identification warning
+  for 3) and observed scores 0, 1, `K - 1` and `K`. A collapsing border
+  cell warns.
 - [`coef()`](https://rdrr.io/r/stats/coef.html),
   [`vcov()`](https://rdrr.io/r/stats/vcov.html) and
   [`confint()`](https://rdrr.io/r/stats/confint.html) accept
   `model = "cutpoints"`;
   [`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
   gives no z-test for the cutpoint parameters.
+- [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
+  gains `cutpoints = c(c_lo, c_hi)` to simulate scores coarsened with
+  given boundary cutpoints.
+
+#### Marginal predictions on the score scale
+
 - New
   [`brs_marginal()`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md):
   score probabilities, expected scores and exceedance probabilities
-  `P(S >= k)` with standard errors and intervals, and differences
+  `P(S >= k)` with standard errors and intervals, plus differences
   between rows (e.g. time contrasts). For
   [`brsmm()`](https://evandeilton.github.io/betaregscale/reference/brsmm.md)
   fits the random effects are integrated out (population-averaged
   values), or set to zero with `conditional = TRUE`; under a nonlinear
   link these differ. Standard errors use the delta method over all
-  parameters (including the random-effect and cutpoint parameters) or
+  parameters (including random-effect and cutpoint parameters) or
   parameter draws.
 - New
   [`brs_loglik_contrib()`](https://evandeilton.github.io/betaregscale/reference/brs_loglik_contrib.md):
   log-likelihood contributions per observation (`brs`) or per group
   (`brsmm`, marginal over the random effects), also for new data at the
-  fitted parameters; they add up to
+  fitted parameters. They add up to
   [`logLik()`](https://rdrr.io/r/stats/logLik.html).
+
+#### Group-level cross-validation
+
 - New
   [`brsmm_cv()`](https://evandeilton.github.io/betaregscale/reference/brsmm_cv.md):
-  cross-validation with folds formed by group, scoring held-out groups
-  by their marginal log-likelihood (log probability of the observed
-  scores), with reusable folds and a `seed` argument.
-- [`BIC()`](https://rdrr.io/r/stats/AIC.html) for `brsmm` fits gains
-  `n = c("obs", "groups")`. [`BIC()`](https://rdrr.io/r/stats/AIC.html)
-  of `brs` and `brsmm` fits returns a `df`/`BIC` table for several
-  models, whatever the order; the single-model value is unchanged.
-  [`BIC()`](https://rdrr.io/r/stats/AIC.html) of a `brs` fit accepts `n`
-  and stops for `n = "groups"` with the message of the `brsmm` method
-  (it failed with “no ‘nobs’ method”).
+  cross-validation with folds formed by group. Held-out groups are
+  scored by their marginal log-likelihood (log probability of the
+  observed scores). Folds can be given per row or by group, are returned
+  in `attr(, "folds")` for reuse, and `seed` makes them reproducible.
+
+#### Simulation
+
 - New
   [`brsmm_sim()`](https://evandeilton.github.io/betaregscale/reference/brsmm_sim.md):
   clustered scores from the
@@ -71,46 +77,60 @@
   model, with random effects `b ~ N(0, D)` given by their SDs and
   correlations, the coarsening of
   [`brs_sim()`](https://evandeilton.github.io/betaregscale/reference/brs_sim.md)
-  (interval maps, boundary cutpoints) and the true random effects and
+  (interval maps, boundary cutpoints), and the true random effects and
   parameters (in [`coef()`](https://rdrr.io/r/stats/coef.html) order) as
   attributes.
 - New [`simulate()`](https://rdrr.io/r/stats/simulate.html) methods for
   `brs` and `brsmm` fits (`nsim`, `seed`). For `brsmm`,
   `re = "marginal"` (default) draws new random effects and
   `re = "conditional"` keeps the conditional modes.
+
+#### Residuals
+
 - [`residuals()`](https://rdrr.io/r/stats/residuals.html) of `brsmm`
   fits gains `re = c("conditional", "marginal", "posterior")` for
-  `type = "rqr"` and `"cell_deviance"`: marginal residuals integrate the
+  `type = "rqr"` and `"cell_deviance"`. Marginal residuals integrate the
   random effects out; posterior residuals use one draw of each group’s
   random effects from its posterior (importance resampling from the
-  Gaussian approximation at the mode). Both are N(0, 1) under the model,
-  without the shrinkage of the conditional modes. The default is
-  unchanged.
+  Gaussian approximation at the mode, with `n_draws` proposals per
+  group, default 200). Both are N(0, 1) under the model, without the
+  shrinkage of the conditional modes. The default is unchanged.
 - New residual type `"cell_deviance"` for `brs` and `brsmm` fits:
   `sign * sqrt(-2 log P)` from the probability of the observed cell,
-  with the sign of the observed minus the expected score; for score data
-  their squares add up to `-2 logLik`.
-- `attr(brsmm_cv(), "folds")` keeps the type of user folds whether they
-  are given per row or by group (it was character for per-row folds).
+  signed by the observed minus the expected score. For score data their
+  squares add up to `-2 logLik`.
+
+#### Information criteria
+
+- [`BIC()`](https://rdrr.io/r/stats/AIC.html) for `brsmm` fits gains
+  `n = c("obs", "groups")`. [`BIC()`](https://rdrr.io/r/stats/AIC.html)
+  of `brs` and `brsmm` fits returns a `df`/`BIC` table when given
+  several models; the single-model value is unchanged.
+  [`BIC()`](https://rdrr.io/r/stats/AIC.html) of a `brs` fit accepts `n`
+  and stops for `n = "groups"`.
 
 ### Other changes
+
+- Fits whose Hessian is not negative definite now also warn when the
+  largest absolute gradient exceeds 0.1, since the remaining
+  log-likelihood gain cannot be measured there. This can add a warning
+  to some fixed-map fits.
+- [`anova()`](https://rdrr.io/r/stats/anova.html) states why it refuses
+  fits with different `interval` maps: the maps are not nested, so no
+  likelihood-ratio test exists.
+
+### Documentation
 
 - The help of
   [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md),
   [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
-  and [`anova()`](https://rdrr.io/r/stats/anova.html) states that
+  and [`anova()`](https://rdrr.io/r/stats/anova.html), and the
+  introduction vignette, state that
   [`logLik()`](https://rdrr.io/r/stats/logLik.html),
   [`AIC()`](https://rdrr.io/r/stats/AIC.html) and
   [`BIC()`](https://rdrr.io/r/stats/AIC.html) are comparable across
-  `interval` maps for score data (each map gives a probability mass
-  function over the same scores); only the likelihood-ratio test is
-  unavailable, since the maps are not nested.
-  [`anova()`](https://rdrr.io/r/stats/anova.html) gives this reason when
-  it refuses fits with different maps.
-- Fits whose Hessian is not negative definite now also warn when the
-  largest absolute gradient exceeds 0.1, since the remaining
-  log-likelihood gain cannot be measured there; this can add a warning
-  to fixed-map fits.
+  `interval` maps for score data, since each map gives a probability
+  mass function over the same scores.
 
 ## betaregscale 3.0.0
 
