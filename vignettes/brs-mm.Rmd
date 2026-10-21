@@ -165,13 +165,14 @@ anova(fit_0, fit_ri, fit_rs)
 When a variance is essentially zero, `brsmm()` warns "Variance component
 at the boundary"; rely on the likelihood-ratio test for that term.
 
-`BIC()` accepts several fits and returns a table, as `stats::BIC()`
-does (`AIC()` takes one fit; `brs_table()` compares several). There is no
-single sample size for a mixed model: `BIC()` counts observations by
-default and groups with `n = "groups"`. Compare BIC values only under the
-same convention.
+`AIC()` and `BIC()` accept several fits, `brs` and `brsmm` alike, and
+return a `df`/criterion table as `stats::AIC()` and `stats::BIC()` do.
+There is no single sample size for a mixed model: `BIC()` counts
+observations by default and groups with `n = "groups"`. Compare BIC values
+only under the same convention.
 
 ```{r ic}
+AIC(fit_0, fit_ri, fit_rs)
 BIC(fit_ri, fit_rs)
 BIC(fit_ri, fit_rs, n = "groups")
 ```

@@ -9,15 +9,18 @@
 \arguments{
 \item{object}{A fitted \code{"brsmm"} object.}
 
-\item{...}{Currently ignored.}
+\item{...}{Further fitted models (\code{brsmm}, \code{brs} or others with an
+\code{AIC()} method).}
 
-\item{k}{Numeric penalty per parameter.}
+\item{k}{Numeric penalty per parameter (default 2).}
 }
 \value{
-Numeric scalar.
+Numeric scalar; with several models, a data frame with columns
+  \code{df} and \code{AIC}, one row per model, as \code{stats::AIC()}.
 }
 \description{
-AIC for brsmm models
+\eqn{-2\ell + k\,p}, with \eqn{p} the number of parameters (fixed
+effects, precision, packed random-effect and cutpoint parameters).
 }
 \examples{
 \donttest{
@@ -32,6 +35,7 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 AIC(fit)
+AIC(brs(y ~ x1, data = prep), fit)
 }
 
 }

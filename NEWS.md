@@ -77,6 +77,13 @@
 
 ## Other changes
 
+* `AIC()` of `brs` and `brsmm` fits returns a `df`/`AIC` table when given
+  several models, as `BIC()` does; extra models were ignored before. The
+  single-model value is unchanged.
+* `print()` and `summary()` name the second coefficient block by `repar`:
+  dispersion model for sigma (`repar = 2`), precision model for phi
+  (`repar = 1`) or shape q model (`repar = 0`, where the first block is the
+  shape p model). It was labeled a precision model under every `repar`.
 * Fits whose Hessian is not negative definite now also warn when the largest
   absolute gradient exceeds 0.1, since the remaining log-likelihood gain
   cannot be measured there. This can add a warning to some fixed-map fits.

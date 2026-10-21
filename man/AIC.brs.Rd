@@ -9,15 +9,17 @@
 \arguments{
 \item{object}{A fitted \code{"brs"} object.}
 
-\item{...}{Ignored.}
+\item{...}{Further fitted models (\code{brs}, \code{brsmm} or others with an
+\code{AIC()} method).}
 
 \item{k}{Penalty per parameter (default 2).}
 }
 \value{
-Scalar AIC value.
+Scalar AIC value; with several models, a data frame with columns
+  \code{df} and \code{AIC}, one row per model, as \code{stats::AIC()}.
 }
 \description{
-Akaike information criterion
+\eqn{-2\ell + k\,p}, with \eqn{p} the number of estimated parameters.
 }
 \examples{
 \donttest{
@@ -31,6 +33,8 @@ dat <- data.frame(
 prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 AIC(fit)
+fit0 <- brs(y ~ 1, data = prep)
+AIC(fit0, fit)
 }
 
 }

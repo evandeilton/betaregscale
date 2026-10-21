@@ -477,3 +477,27 @@ test_that("BIC tables agree whichever class comes first", {
   expect_equal(a[c("m", "f"), ], b, ignore_attr = TRUE)
   expect_equal(BIC(f), log(nrow(d)) * f$npar - 2 * f$value)
 })
+
+test_that("AIC with several fits returns a df/AIC table in either order", {
+  d <- mm_test_data()
+  m <- brsmm(y ~ time, random = ~ 1 | id, data = d, ncuts = 10)
+  f <- brs(y ~ time, data = d, ncuts = 10)
+  f0 <- brs(y ~ 1, data = d, ncuts = 10)
+  # Single-fit values are unchanged
+  expect_equal(AIC(f), 2 * f$npar - 2 * f$value)
+  expect_equal(AIC(m), 2 * m$npar - 2 * m$value)
+  # brs first and brsmm first give the same rows
+  a <- AIC(f, m)
+  b <- AIC(m, f)
+  expect_s3_class(a, "data.frame")
+  expect_identical(names(a), c("df", "AIC"))
+  expect_identical(rownames(a), c("f", "m"))
+  expect_equal(a$AIC, c(AIC(f), AIC(m)))
+  expect_equal(a$df, c(f$npar, m$npar))
+  expect_equal(a[c("m", "f"), ], b, ignore_attr = TRUE)
+  # brs-only table, and the penalty k applied to every row
+  tb <- AIC(f0, f, k = log(nrow(d)))
+  expect_identical(rownames(tb), c("f0", "f"))
+  expect_equal(tb$AIC, c(BIC(f0), BIC(f)))
+  expect_equal(AIC(m, f, k = 3)$AIC, c(AIC(m, k = 3), AIC(f, k = 3)))
+})
