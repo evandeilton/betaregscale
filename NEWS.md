@@ -60,7 +60,8 @@
   "posterior")` for `type = "rqr"` and `"cell_deviance"`. Marginal residuals
   integrate the random effects out; posterior residuals use one draw of each
   group's random effects from its posterior (importance resampling from the
-  Gaussian approximation at the mode). Both are N(0, 1) under the model,
+  Gaussian approximation at the mode, with `n_draws` proposals per group,
+  default 200). Both are N(0, 1) under the model,
   without the shrinkage of the conditional modes. The default is unchanged.
 * New residual type `"cell_deviance"` for `brs` and `brsmm` fits:
   `sign * sqrt(-2 log P)` from the probability of the observed cell, signed

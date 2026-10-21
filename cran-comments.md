@@ -31,8 +31,11 @@ Update of `betaregscale` to version 3.1.0. The changes are listed in
 
   HTML Tidy is not installed on the local machine.
 
-* The installed size can be reported as large on Linux builds that add `-g`
-  to `CXXFLAGS`: the shared library then carries debug information.
+## Installed size
+
+Reported as INFO, not as a NOTE: 7.5 Mb, of which libs 5.0 Mb. It can be
+larger on Linux builds that add `-g` to `CXXFLAGS`, since the shared library
+then carries debug information.
 
 ## Reverse dependencies
 
