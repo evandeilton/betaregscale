@@ -1,8 +1,8 @@
 ---
-title: "Mixed-Effects Beta Interval Regression with brsmm"
+title: "Mixed models with brsmm"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Mixed-Effects Beta Interval Regression with brsmm}
+  %\VignetteIndexEntry{Mixed models with brsmm}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,607 +11,285 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 10,
+  fig.width = 7,
   fig.height = 5,
-  fig.align = "center",
-  warning = FALSE,
-  message = FALSE,
-  digits = 4
+  fig.align = "center"
 )
-
-kbl10 <- function(x, n = 10, digits = 4, ...) {
-  knitr::kable(utils::head(as.data.frame(x), n), digits = digits, align = "c", ...)
-}
 ```
 
-## Overview
-
-`brsmm()` extends `brs()` to clustered data by adding Gaussian random
-effects in the mean submodel while preserving the interval-censored
-beta likelihood for scale-derived outcomes.
-
-This vignette covers:
-
-1. full model mathematics;
-2. estimation by marginal maximum likelihood (Laplace, adaptive quadrature or quasi-Monte Carlo);
-3. practical use of all current `brsmm` methods;
-4. inferential and validation workflows, including parameter recovery.
+`brsmm()` adds Gaussian random effects to the mean submodel of `brs()`
+for clustered or longitudinal scores (patients with repeated visits,
+raters, centers). This vignette covers the model, the integration methods,
+random-effect summaries and tests, marginal and conditional predictions,
+residuals, group-level cross-validation and simulation. The
+interval-censored likelihood and the interval maps are those of
+`vignette("brs-intro")`. The data sets are small so that the vignette
+builds quickly; the results are illustrative.
 
 ```{r library}
 library(betaregscale)
 ```
 
-## Mathematical model
+## The model
 
-Assume observations $i = 1, \dots, n_j$ within groups
-$j = 1, \dots, G$, with group-specific random-effects vector
-$\mathbf{b}_j \in \mathbb{R}^{q_b}$.
-
-### Linear predictors
-
+For observation $i$ of group $g$,
 $$
-\eta_{\mu,ij} = x_{ij}^\top \beta + w_{ij}^\top \mathbf{b}_j,
-\qquad
-\eta_{\phi,ij} = z_{ij}^\top \gamma
+g_1(\mu_{gi}) = x_{gi}^\top \beta + w_{gi}^\top b_g, \qquad
+g_2(\sigma_{gi}) = z_{gi}^\top \gamma, \qquad b_g \sim N(0, D),
 $$
-
+where $w_{gi}$ is the row of the random-effects design given by
+`random = ~ terms | group` (`~ 1 | id` for a random intercept,
+`~ 1 + x | id` for an intercept and a slope with a free correlation). The
+dispersion submodel has no random effects. Given $b_g$, each score
+contributes the cell probability of `brs()`, and the marginal
+log-likelihood is
 $$
-\mu_{ij} = g^{-1}(\eta_{\mu,ij}),
-\qquad
-\phi_{ij} = h^{-1}(\eta_{\phi,ij})
+\ell(\theta) = \sum_g \log \int \prod_i P(S_{gi} = s_{gi} \mid b)\,
+\varphi(b; 0, D)\, db .
 $$
+$D = LL^\top$ is parameterized by its lower Cholesky factor: the log of
+each diagonal entry and the off-diagonal entries. These are the
+`(re_chol_logsd)_` and `(re_chol)_` entries of `coef()`; for a random
+intercept the single entry is $\log \mathrm{SD}(b)$.
 
-with $g(\cdot)$ and $h(\cdot)$ chosen by `link` and `link_phi`.
-The random-effects design row $w_{ij}$ is defined by `random = ~ terms | group`.
+## Integration methods
 
-### Beta parameterization
+The integral is computed around the mode $\hat b_g$ of the log integrand,
+with curvature $H_g$ there:
 
-For each $(\mu_{ij},\phi_{ij})$, `repar` maps to beta shape parameters
-$(a_{ij},b_{ij})$ via `brs_repar()`.
+- `int_method = "laplace"` (default): the Laplace approximation, fast and
+  accurate when groups are not tiny.
+- `int_method = "aghq"`: adaptive Gauss–Hermite quadrature with `n_points`
+  nodes per dimension (default 11) on a product grid centered at $\hat b_g$
+  and scaled by $H_g^{-1/2}$ (at most 500000 nodes).
+- `int_method = "qmc"`: importance sampling from $N(\hat b_g, H_g^{-1})$
+  on `qmc_points` Halton points (default 1024). It is deterministic and,
+  with two or more random effects, slightly underestimates the
+  log-likelihood; prefer `"aghq"` for up to three random effects.
 
-### Conditional contribution by censoring type
+`optim()` uses the compiled gradient of the chosen approximation; the
+Hessian for `vcov()` is a central difference of that gradient.
 
-Each observation contributes:
+## Simulated data
 
-$$
-L_{ij}(b_j;\theta)=
-\begin{cases}
-f(y_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=0\\
-F(u_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=1\\
-1 - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=2\\
-F(u_{ij}; a_{ij}, b_{ij}) - F(l_{ij}; a_{ij}, b_{ij}), & \delta_{ij}=3
-\end{cases}
-$$
+`brsmm_sim()` simulates scores from this model, given the random-effect
+standard deviations and correlation. Here: 30 patients with four visits on
+an NRS-11 scale, a centered time `tc`, a treatment arm `trt`, and a random
+intercept and time slope:
 
-where $l_{ij},u_{ij}$ are interval endpoints on $(0,1)$,
-$f(\cdot)$ is beta density, and $F(\cdot)$ is beta CDF.
-
-### Random-effects distribution
-
-$$
-\mathbf{b}_j \sim \mathcal{N}(\mathbf{0}, D),
-$$
-
-where $D$ is a symmetric positive-definite covariance matrix.
-Internally, `brsmm()` optimizes a packed lower-Cholesky parameterization
-$D = LL^\top$ (diagonal entries on log-scale for positivity).
-
-### Group marginal likelihood
-
-$$
-L_j(\theta)=\int_{\mathbb{R}^{q_b}}
-\prod_{i=1}^{n_j} L_{ij}(b_j;\theta)\,
-\varphi_{q_b}(\mathbf{b}_j;\mathbf{0},D)\,d\mathbf{b}_j
-$$
-
-$$
-\ell(\theta)=\sum_{j=1}^G \log L_j(\theta)
-$$
-
-### Laplace approximation used by `brsmm()`
-
-Define
-$$
-Q_j(\mathbf{b})=
-\sum_{i=1}^{n_j}\log L_{ij}(\mathbf{b};\theta)+
-\log\varphi_{q_b}(\mathbf{b};\mathbf{0},D)
-$$
-and $\hat{\mathbf{b}}_j=\arg\max_{\mathbf{b}} Q_j(\mathbf{b})$, with curvature
-$$
-H_j = -\nabla^2 Q_j(\hat{\mathbf{b}}_j).
-$$
-Then
-
-$$
-\log L_j(\theta) \approx
-Q_j(\hat{\mathbf{b}}_j) +
-\frac{q_b}{2}\log(2\pi) -
-\frac{1}{2}\log|H_j|.
-$$
-
-`brsmm()` maximizes the approximated $\ell(\theta)$ with
-`stats::optim()`, and computes group-level posterior modes
-$\hat{\mathbf{b}}_j$. For $q_b = 1$, this reduces to the scalar
-random-intercept formula.
-
-### Other integration methods and estimation details
-
-* `int_method = "aghq"`: adaptive Gauss-Hermite quadrature with
-  `n_points` nodes per dimension, placed at
-  $\hat{\mathbf{b}}_j+\sqrt{2}\,H_j^{-1/2}\mathbf{z}$ with the symmetric
-  square root $H_j^{-1/2}$ (`n_points`$^{q_b}$ nodes in total, at most 500000).
-* `int_method = "qmc"`: importance sampling from
-  $\mathcal{N}(\hat{\mathbf{b}}_j, H_j^{-1})$ with `qmc_points` Halton points.
-  It is deterministic and, with two or more random effects, underestimates
-  the log-likelihood (about $-0.05$ at 1024 points); prefer `"aghq"` for up
-  to three random effects.
-
-The inner mode is found by a Levenberg-Marquardt Newton method, warm-started
-from the previous evaluation (the cache is cleared at the start of each fit).
-A group whose curvature is not positive definite at its mode adds the
-penalty value, and `brsmm()` warns when that happens at the estimate.
-`optim()` receives the compiled gradient of the chosen approximation (chain
-rule on the linear predictor and implicit-function theorem at the modes),
-and the Hessian behind `vcov()` is a Richardson central difference of that
-gradient (`hessian_method = "cpp"`).
-
-## Simulating clustered scale data
-
-The next helper simulates data from a known mixed model to illustrate fitting,
-inference, and recovery checks.
-
-```{r simulate-data}
-sim_brsmm_data <- function(seed = 3501L, g = 24L, ni = 12L,
-                           beta = c(0.20, 0.65),
-                           gamma = c(-0.15),
-                           sigma_b = 0.55) {
-  set.seed(seed)
-  id <- factor(rep(seq_len(g), each = ni))
-  n <- length(id)
-  x1 <- rnorm(n)
-
-  b_true <- rnorm(g, mean = 0, sd = sigma_b)
-  eta_mu <- beta[1] + beta[2] * x1 + b_true[as.integer(id)]
-  eta_phi <- rep(gamma[1], n)
-
-  mu <- plogis(eta_mu)
-  phi <- plogis(eta_phi)
-  shp <- brs_repar(mu = mu, phi = phi, repar = 2)
-  y <- round(stats::rbeta(n, shp$shape1, shp$shape2) * 100)
-
-  list(
-    data = data.frame(y = y, x1 = x1, id = id),
-    truth = list(beta = beta, gamma = gamma, sigma_b = sigma_b, b = b_true)
-  )
-}
-
-sim <- sim_brsmm_data(
-  g = 12,
-  ni = 20,
-  beta = c(0.20, 0.65),
-  gamma = c(-0.15),
-  sigma_b = 0.55
-)
-str(sim$data)
+```{r sim}
+d <- expand.grid(visit = 1:4, id = 1:30)
+d$tc <- (d$visit - 2.5) / 1.5
+d$trt <- as.integer(d$id %% 2 == 0)
+set.seed(7)
+s <- brsmm_sim(~ tc + trt, random = ~ 1 + tc | id, data = d,
+               beta = c(-0.3, -0.4, -0.5), phi = qlogis(0.15),
+               re_sd = c(0.8, 0.3), re_cor = 0.3, ncuts = 10)
+head(s)
+attr(s, "truth")$par
 ```
 
-## Fitting `brsmm()`
+The attribute `"truth"` holds the true parameters in the order and on the
+scale of `coef()`, and `"ranef"` the simulated random effects.
 
-```{r fit-brsmm}
-fit_mm <- brsmm(
-  y ~ x1,
-  random = ~ 1 | id,
-  data = sim$data,
-  repar = 2,
-  int_method = "laplace",
-  method = "BFGS",
-  control = list(maxit = 1000)
-)
+## Fitting
 
-summary(fit_mm)
+```{r fit}
+fit_ri <- brsmm(y ~ tc + trt, random = ~ 1 | id, data = s)
+fit_rs <- brsmm(y ~ tc + trt, random = ~ 1 + tc | id, data = s)
+summary(fit_rs)
 ```
 
-## Random intercept + slope example
+The random-effects block reports the standard deviations and the
+correlation with intervals built on the log scale (SD) and the
+$\mathrm{atanh}$ scale (correlation) and mapped back. It gives no $z$-test:
+a variance of zero lies on the boundary of the parameter space, so test it
+with `anova()` (below). The same numbers are in `summary(fit)$varcorr`.
 
-The model below includes a random intercept and random slope for `x1`:
+The three integration methods give nearly the same estimates on this data:
 
-```{r fit-brsmm-random-slope}
-fit_mm_rs <- brsmm(
-  y ~ x1,
-  random = ~ 1 + x1 | id,
-  data = sim$data,
-  repar = 2,
-  int_method = "laplace",
-  method = "BFGS",
-  control = list(maxit = 1200)
-)
-
-summary(fit_mm_rs)
+```{r methods}
+fit_aghq <- brsmm(y ~ tc + trt, random = ~ 1 | id, data = s,
+                  int_method = "aghq", n_points = 7)
+fit_qmc <- brsmm(y ~ tc + trt, random = ~ 1 | id, data = s,
+                 int_method = "qmc", qmc_points = 256)
+round(cbind(laplace = c(coef(fit_ri), logLik = logLik(fit_ri)),
+            aghq = c(coef(fit_aghq), logLik = logLik(fit_aghq)),
+            qmc = c(coef(fit_qmc), logLik = logLik(fit_qmc))), 4)
 ```
 
-The random-effects block of `summary()` reports standard deviations and the
-correlation, with 95% intervals built on the log scale (SD) and the
-$\mathrm{atanh}$ scale (correlation) and mapped back; it gives no test. The
-same numbers are in `summary(fit_mm_rs)$varcorr`.
+## Random effects
 
-Covariance structure of random effects:
+`ranef()` returns the conditional modes $\hat b_g$, one row per group;
+`fit$random$D` and `fit$random$sd_b` hold the estimated covariance matrix
+and standard deviations:
 
-```{r random-covariance}
-kbl10(fit_mm_rs$random$D)
-kbl10(
-  data.frame(term = names(fit_mm_rs$random$sd_b), sd = as.numeric(fit_mm_rs$random$sd_b)),
-  digits = 4
-)
-kbl10(head(ranef(fit_mm_rs), 10))
+```{r ranef}
+head(ranef(fit_rs))
+fit_rs$random$D
 ```
 
-## Additional studies of random effects (numerical and visual)
+`brsmm_re_study()` summarizes the random effects: the covariance, the
+shrinkage of the modes and the intraclass correlation of
+$\mathrm{logit}(Y)$, computed with the beta level-1 variance:
 
-Following practices from established mixed-models packages, the package allows for a dedicated study of the random effects focusing on:
-
-* $D$ structure and correlation;
-* empirical distribution of modes by group;
-* empirical shrinkage intensity;
-* specific visual diagnostics for the random components.
-
-The intraclass correlation reported by `brsmm_re_study()` is the
-correlation of $\mathrm{logit}(Y)$ between two observations of the same
-group with the same covariates. With $m(b)=\psi(a)-\psi(b)$ and
-$v(b)=\psi_1(a)+\psi_1(b)$ (mean and variance of $\mathrm{logit}\,Y$ for
-$Y\sim\mathrm{Beta}(a,b)$, with the shapes at random effect $b$),
-$$
-\mathrm{ICC}=\frac{\mathrm{Var}_b[m(b)]}{\mathrm{Var}_b[m(b)]+E_b[v(b)]},
-$$
-computed by Gauss-Hermite quadrature over $b\sim N(0,\,w^\top D w)$ and
-averaged over the observations. It uses the beta level-1 variance: the
-logistic value $\pi^2/3$ of binary models does not describe a beta
-response. The moments of $\mathrm{logit}(Y)$ can be infinite (probit link
-with $\sigma_b^2\geq 1/2$, cloglog link, or a very large $\sigma_b$); the
-ICC is then `NA` with a warning, because its value would be set by the
-numerical clamp of the mean.
-
-```{r ranef-study}
-re_study <- brsmm_re_study(fit_mm_rs)
-print(re_study)
-kbl10(re_study$summary)
-kbl10(re_study$D)
-kbl10(re_study$Corr)
+```{r re-study}
+brsmm_re_study(fit_rs)
 ```
 
-Suggested visualizations for random effects:
-
-```{r ranef-visuals}
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  autoplot.brsmm(fit_mm_rs, type = "ranef_caterpillar")
-  autoplot.brsmm(fit_mm_rs, type = "ranef_density")
-  autoplot.brsmm(fit_mm_rs, type = "ranef_pairs")
-  autoplot.brsmm(fit_mm_rs, type = "ranef_qq")
-}
+```{r re-plot, fig.height = 4}
+autoplot.brsmm(fit_rs, type = "ranef_caterpillar")
 ```
 
-## Core methods
+`autoplot.brsmm()` also draws `"ranef_density"`, `"ranef_pairs"`,
+`"ranef_qq"`, `"shrinkage"`, `"calibration"`, `"score_dist"` and
+`"residuals_by_group"`; `plot.brsmm()` gives the panels of `plot.brs()`
+with response or Pearson residuals, plus random-effect panels.
 
-### Coefficients and random effects
+## Testing variance components
 
-`coef(fit_mm, model = "random")` returns packed random-effect covariance
-parameters on the optimizer scale (lower-Cholesky, with a log-diagonal).
-For random-intercept models, this simplifies to $\log \sigma_b$.
+Adding a random-effect term puts its variance on the boundary of the
+parameter space under the null hypothesis, so the likelihood ratio does
+not follow $\chi^2_d$. When a model adds one random-effect term,
+`anova()` uses the mixture $\frac12\chi^2_{d-1} + \frac12\chi^2_d$
+(Self and Liang, 1987; Stram and Lee, 1994): $\frac12\chi^2_0 +
+\frac12\chi^2_1$ from `brs()` to a random intercept, and
+$\frac12\chi^2_1 + \frac12\chi^2_2$ from a random intercept to an
+intercept and slope. The heading of the table says which rows use it.
 
-```{r methods-coef}
-kbl10(
-  data.frame(
-    parameter = names(coef(fit_mm, model = "full")),
-    estimate = as.numeric(coef(fit_mm, model = "full"))
-  ),
-  digits = 4
-)
-kbl10(
-  data.frame(
-    log_sigma_b = as.numeric(coef(fit_mm, model = "random")),
-    sigma_b = as.numeric(exp(coef(fit_mm, model = "random")))
-  ),
-  digits = 4
-)
-kbl10(head(ranef(fit_mm), 10))
+```{r anova}
+fit_0 <- brs(y ~ tc + trt, data = s)
+anova(fit_0, fit_ri, fit_rs)
 ```
 
-For random intercept + slope models:
+When a variance is essentially zero, `brsmm()` warns "Variance component
+at the boundary"; rely on the likelihood-ratio test for that term.
 
-```{r methods-coef-rs}
-kbl10(
-  data.frame(
-    parameter = names(coef(fit_mm_rs, model = "random")),
-    estimate = as.numeric(coef(fit_mm_rs, model = "random"))
-  ),
-  digits = 4
-)
-kbl10(fit_mm_rs$random$D)
+`BIC()` accepts several fits and returns a table, as `stats::BIC()`
+does (`AIC()` takes one fit; `brs_table()` compares several). There is no
+single sample size for a mixed model: `BIC()` counts observations by
+default and groups with `n = "groups"`. Compare BIC values only under the
+same convention.
+
+```{r ic}
+BIC(fit_ri, fit_rs)
+BIC(fit_ri, fit_rs, n = "groups")
 ```
 
-### Variance-covariance, summary and likelihood criteria
+## Conditional and marginal predictions
 
-```{r methods-summary}
-vc <- vcov(fit_mm)
-dim(vc)
+`predict()` gives conditional quantities: a group of the fit uses its mode
+$\hat b_g$, a new group gets $b = 0$:
 
-sm <- summary(fit_mm)
-kbl10(sm$coefficients$mean)
-kbl10(sm$varcorr)
-
-kbl10(
-  data.frame(
-    logLik = as.numeric(logLik(fit_mm)),
-    AIC = AIC(fit_mm),
-    BIC = BIC(fit_mm),
-    nobs = nobs(fit_mm)
-  ),
-  digits = 4
-)
+```{r predict}
+nd <- data.frame(tc = 0, trt = 1, id = c(1, 999))
+predict(fit_ri, newdata = nd, type = "expected_score")
 ```
 
-### Fitted values, prediction and residuals
+Under a nonlinear link, the prediction at $b = 0$ describes a subject whose
+random effects are zero, which is not the population average.
+`brs_marginal()` integrates the random effects out to give
+population-averaged score probabilities, expected scores and exceedance
+probabilities $P(S \ge k)$, with delta-method standard errors over all
+parameters; `conditional = TRUE` sets $b = 0$ instead. The grouping
+variable is not needed in `newdata`:
 
-```{r methods-predict}
-kbl10(
-  data.frame(
-    mu_hat = head(fitted(fit_mm, type = "mu")),
-    phi_hat = head(fitted(fit_mm, type = "phi")),
-    pred_mu = head(predict(fit_mm, type = "response")),
-    pred_eta = head(predict(fit_mm, type = "link")),
-    pred_phi = head(predict(fit_mm, type = "precision")),
-    pred_var = head(predict(fit_mm, type = "variance"))
-  ),
-  digits = 4
-)
-
-kbl10(
-  data.frame(
-    res_response = head(residuals(fit_mm, type = "response")),
-    res_pearson = head(residuals(fit_mm, type = "pearson"))
-  ),
-  digits = 4
-)
+```{r marginal}
+nd <- data.frame(tc = c(-1, 1), trt = 1)
+brs_marginal(fit_ri, nd, type = "expected_score")
+brs_marginal(fit_ri, nd, type = "expected_score", conditional = TRUE)
 ```
 
-### Diagnostic plotting methods
+Differences between rows, such as the change from the first to the last
+visit in $P(S \ge 5)$, are given by `contrast`:
 
-`plot.brsmm()` supports base and ggplot2 backends:
-
-```{r methods-plot}
-plot(fit_mm, which = 1:4, type = "pearson")
-
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  plot(fit_mm, which = 1:2, gg = TRUE)
-}
+```{r marginal-contrast}
+brs_marginal(fit_ri, nd, type = "exceed", k = 5, contrast = c(2, 1))
 ```
 
-`autoplot.brsmm()` provides focused ggplot diagnostics:
+## Residuals
 
-```{r methods-autoplot}
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  autoplot.brsmm(fit_mm, type = "calibration")
-  autoplot.brsmm(fit_mm, type = "score_dist")
-  autoplot.brsmm(fit_mm, type = "ranef_qq")
-  autoplot.brsmm(fit_mm, type = "residuals_by_group")
-}
+For `type = "rqr"` (randomized quantile residuals) and `"cell_deviance"`,
+`re` selects how the random effects enter:
+
+- `"conditional"` (default): at the modes $\hat b_g$. The modes are shrunk
+  toward zero, so these residuals are not exactly $N(0, 1)$ under the
+  model, especially for small groups.
+- `"marginal"`: from the marginal distribution of each observation, with
+  the random effects integrated out. Each residual is $N(0, 1)$ under the
+  model; residuals of the same group are correlated.
+- `"posterior"`: at one draw of each $b_g$ from its posterior (importance
+  resampling with `n_draws` proposals per group, default 200). These are
+  close to independent $N(0, 1)$ under the model, without the shrinkage of
+  the modes.
+
+```{r residuals}
+set.seed(1)
+res <- sapply(c("conditional", "marginal", "posterior"), function(r)
+  residuals(fit_ri, type = "rqr", re = r))
+round(rbind(mean = colMeans(res), sd = apply(res, 2, sd)), 3)
 ```
 
-### Prediction with `newdata`
+The other types of `residuals.brs()` (`"response"`, `"pearson"`, ...) are
+evaluated at the conditional modes.
 
-If `newdata` contains unseen groups, `predict.brsmm()` uses a random effect
-equal to zero for those levels.
+## Group-level cross-validation
 
-```{r methods-newdata}
-nd <- sim$data[1:8, c("x1", "id")]
-kbl10(
-  data.frame(pred_seen = as.numeric(predict(fit_mm, newdata = nd, type = "response"))),
-  digits = 4
-)
+`brsmm_cv()` forms folds by group, so all observations of a group are held
+out together. Each held-out group is scored by its marginal
+log-likelihood at the training estimates: its random effects are
+integrated out, so no estimate of them is needed. `seed` makes the folds
+reproducible, and `attr(, "folds")` returns them for reuse with another
+model:
 
-nd_unseen <- nd
-nd_unseen$id <- factor(rep("new_cluster", nrow(nd_unseen)))
-kbl10(
-  data.frame(pred_unseen = as.numeric(predict(fit_mm, newdata = nd_unseen, type = "response"))),
-  digits = 4
-)
+```{r cv}
+cv_ri <- brsmm_cv(y ~ tc + trt, random = ~ 1 | id, data = s, k = 3, seed = 1)
+cv_ri
+folds <- attr(cv_ri, "folds")[[1]]
+cv_rs <- brsmm_cv(y ~ tc + trt, random = ~ 1 + tc | id, data = s,
+                  folds = folds)
+c(ri = attr(cv_ri, "log_score"), rs = attr(cv_rs, "log_score"))
 ```
 
-The same logic applies to random intercept + slope models:
+The total held-out log score is the log probability of the held-out
+scores (higher is better). For score data it is on the same scale as the
+held-out log-likelihood of any other model that gives a pmf on
+$0, \ldots, K$, evaluated on the same folds. `brs_loglik_contrib()` returns
+the per-group contributions of a fit, also for new data.
 
-```{r methods-newdata-rs}
-kbl10(
-  data.frame(pred_rs_seen = as.numeric(predict(fit_mm_rs, newdata = nd, type = "response"))),
-  digits = 4
-)
-kbl10(
-  data.frame(pred_rs_unseen = as.numeric(predict(fit_mm_rs, newdata = nd_unseen, type = "response"))),
-  digits = 4
-)
+## Simulation from a fit
+
+`simulate()` draws new scores from a fitted model. For `brsmm` fits,
+`re = "marginal"` (default) draws new random effects and
+`re = "conditional"` keeps the conditional modes. A quick check compares
+the observed share of each border score with its simulated distribution:
+
+```{r simulate}
+sims <- simulate(fit_ri, nsim = 50, seed = 1)
+obs <- c(p0 = mean(s$y == 0), p10 = mean(s$y == 10))
+sim_p <- rbind(p0 = colMeans(sims == 0), p10 = colMeans(sims == 10))
+cbind(observed = obs, t(apply(sim_p, 1, quantile, c(0.05, 0.95))))
 ```
 
-## Statistical tests and validation workflow
+## Boundary cutpoints
 
-### Wald tests (from `summary`)
-
-`summary.brsmm()` reports Wald $z$-tests for the fixed effects:
-$$
-z_k = \hat\theta_k / \mathrm{SE}(\hat\theta_k).
-$$
-It gives no test for the random effects: a $z$-test of $\log\sigma_b$
-tests $\sigma_b=1$, and $\sigma_b=0$ lies on the boundary. Their SD and
-correlation come with intervals only; test a variance component with the
-likelihood-ratio test below.
-
-```{r wald-tests}
-sm <- summary(fit_mm)
-kbl10(sm$coefficients$mean)
-kbl10(sm$coefficients$precision)
-```
-
-### Evolutionary scheme and Likelihood Ratio (LR) test selection
-
-A practical workflow of increasing complexity:
-
-1.  `brs()`: no random effect (ignores clustering);
-2.  `brsmm(..., random = ~ 1 | id)`: random intercept;
-3.  `brsmm(..., random = ~ 1 + x1 | id)`: random intercept + slope.
-
-In both jumps the added variance lies on the boundary of the parameter
-space under $H_0$, so the likelihood ratio does not follow $\chi^2_d$. With
-one added random-effect term the reference is the mixture
-$\frac12\chi^2_{d-1}+\frac12\chi^2_d$: $\frac12\chi^2_0+\frac12\chi^2_1$
-from `brs` to the random intercept, $\frac12\chi^2_1+\frac12\chi^2_2$ from
-the intercept to intercept + slope (Self and Liang, 1987; Stram and Lee,
-1994). `anova()` uses it for these rows and explains it in its heading; the
-naive $\chi^2_d$ p-value is about twice as large.
-
-When a variance is essentially zero, `brsmm()` warns "Variance component at
-the boundary" (log SD below $-6$, or a log-likelihood gain below $10^{-3}$
-over the same fit without the term). If that gain is negative, the message
-adds that SD $\approx 0$ has a higher log-likelihood: the fit stopped short
-of the maximum. The Wald standard error of that log SD is meaningless; rely
-on the likelihood-ratio test.
-
-```{r lr-evolution}
-# Base model without a random effect
-fit_brs <- brs(
-  y ~ x1,
-  data = sim$data,
-  repar = 2
-)
-
-# Reuse the mixed models already fitted:
-# fit_mm    : random = ~ 1 | id
-# fit_mm_rs : random = ~ 1 + x1 | id
-
-tab_lr <- anova(fit_brs, fit_mm, fit_mm_rs, test = "Chisq")
-tab_lr
-```
-
-Operational decision rule (analytical):
-
-* If the second jump (RI to RI+RS) does not improve the fit (high p-value), prefer the random-intercept model for parsimony.
-* If there is a robust gain, adopt the RI+RS model and validate parameter stability (especially `sd_b` and the $D$ matrix) via sensitivity and residual diagnostics.
-
-### Residual diagnostics (quick checks)
-
-```{r quick-diagnostics}
-r <- residuals(fit_mm, type = "pearson")
-kbl10(
-  data.frame(
-    mean = mean(r),
-    sd = stats::sd(r),
-    q025 = as.numeric(stats::quantile(r, 0.025)),
-    q975 = as.numeric(stats::quantile(r, 0.975))
-  ),
-  digits = 4
-)
-```
-
-## Parameter recovery experiment
-
-A single-fit recovery table can be produced directly from the previous fit:
-
-```{r recovery-single}
-est <- c(
-  beta0 = unname(coef(fit_mm, model = "mean")[1]),
-  beta1 = unname(coef(fit_mm, model = "mean")[2]),
-  sigma_b = unname(exp(coef(fit_mm, model = "random")))
-)
-
-true <- c(
-  beta0 = sim$truth$beta[1],
-  beta1 = sim$truth$beta[2],
-  sigma_b = sim$truth$sigma_b
-)
-
-recovery_table <- data.frame(
-  parameter = names(true),
-  true = as.numeric(true),
-  estimate = as.numeric(est[names(true)]),
-  bias = as.numeric(est[names(true)] - true)
-)
-kbl10(recovery_table)
-```
-
-For a Monte Carlo recovery study, repeat simulation and fitting across
-replicates:
-
-```{r recovery-montecarlo, eval = FALSE}
-mc_recovery <- function(R = 50L, seed = 7001L) {
-  set.seed(seed)
-  out <- vector("list", R)
-
-  for (r in seq_len(R)) {
-    sim_r <- sim_brsmm_data(seed = seed + r)
-    fit_r <- brsmm(
-      y ~ x1,
-      random = ~ 1 | id,
-      data = sim_r$data,
-      repar = 2,
-      int_method = "laplace",
-      method = "BFGS",
-      control = list(maxit = 1000)
-    )
-
-    out[[r]] <- c(
-      beta0 = unname(coef(fit_r, model = "mean")[1]),
-      beta1 = unname(coef(fit_r, model = "mean")[2]),
-      sigma_b = unname(exp(coef(fit_r, model = "random")))
-    )
-  }
-
-  est <- do.call(rbind, out)
-  truth <- c(beta0 = 0.20, beta1 = 0.65, sigma_b = 0.55)
-
-  data.frame(
-    parameter = colnames(est),
-    truth = as.numeric(truth[colnames(est)]),
-    mean_est = colMeans(est),
-    bias = colMeans(est) - truth[colnames(est)],
-    rmse = sqrt(colMeans((sweep(est, 2, truth[colnames(est)], "-"))^2))
-  )
-}
-
-kbl10(mc_recovery(R = 50))
-```
-
-## How this maps to automated package tests
-
-The package test suite includes dedicated `brsmm` tests for:
-
-1. fitting with Laplace integration;
-2. one- and two-part formulas;
-3. S3 methods (`coef`, `vcov`, `summary`, `predict`, `residuals`, `ranef`);
-4. parameter recovery under known DGP settings.
-
-Run locally:
-
-```{r run-tests, eval = FALSE}
-devtools::test(filter = "brsmm")
-```
+`cutpoints = "boundary"` works in `brsmm()` as in `brs()` (see
+`vignette("brs-intro")`), with the same requirements and the same 2-df
+likelihood-ratio test against the fixed map; `brsmm_sim()` simulates from
+given boundary cutpoints.
 
 ## References
 
-Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
-likelihood estimators and likelihood ratio tests under nonstandard
-conditions. *Journal of the American Statistical Association*, 82(398),
-605-610.
-
-Stram, D. O., and Lee, J. W. (1994). Variance components testing in the
-longitudinal mixed effects model. *Biometrics*, 50(4), 1171-1177.
-
-Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for modelling
-rates and proportions. *Journal of Applied Statistics*, 31(7), 799-815.
-DOI: 10.1080/0266476042000214501. Validated online via:
-[https://doi.org/10.1080/0266476042000214501](https://doi.org/10.1080/0266476042000214501).
-
-Pinheiro, J. C. and Bates, D. M. (2000). *Mixed-Effects Models in S and S-PLUS*.
-Springer. DOI: 10.1007/b98882. Validated online via:
-[https://doi.org/10.1007/b98882](https://doi.org/10.1007/b98882).
-
-Rue, H., Martino, S., and Chopin, N. (2009). Approximate Bayesian inference
-for latent Gaussian models by using integrated nested Laplace approximations.
-*Journal of the Royal Statistical Society: Series B*, 71(2), 319-392.
-DOI: 10.1111/j.1467-9868.2008.00700.x. Validated online via:
-[https://doi.org/10.1111/j.1467-9868.2008.00700.x](https://doi.org/10.1111/j.1467-9868.2008.00700.x).
+- Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
+  Master's dissertation, Universidade Federal do Paraná, Curitiba.
+  <https://hdl.handle.net/1884/86624>
+- Pinheiro, J. C., and Bates, D. M. (1995). Approximations to the
+  log-likelihood function in the nonlinear mixed-effects model. *Journal
+  of Computational and Graphical Statistics*, 4(1), 12–35.
+  <https://doi.org/10.1080/10618600.1995.10474663>
+- Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of maximum
+  likelihood estimators and likelihood ratio tests under nonstandard
+  conditions. *Journal of the American Statistical Association*, 82(398),
+  605–610.
+- Stram, D. O., and Lee, J. W. (1994). Variance components testing in the
+  longitudinal mixed effects model. *Biometrics*, 50(4), 1171–1177.

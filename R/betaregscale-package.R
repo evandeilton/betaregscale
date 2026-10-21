@@ -71,9 +71,9 @@
 #' 0.2, and M3 tended to underestimate the covariate effects; on its
 #' knee-surgery data M1 and M2 gave similar time effects. These are results
 #' of that study and of the implementation used then, not properties
-#' guaranteed by the package (a Monte Carlo study of the current code is in
-#' \code{vignette("brs-advanced-workflows")}). The interval model is useful
-#' when the coarsening of the scale is part of the question: it gives score
+#' guaranteed by the package (a template for a Monte Carlo study of the
+#' estimator is in \code{vignette("brs-advanced-workflows")}). The interval
+#' model is useful when the coarsening of the scale is part of the question: it gives score
 #' probabilities, treats the borders of the scale as censoring and supports
 #' likelihood-ratio tests.
 #'

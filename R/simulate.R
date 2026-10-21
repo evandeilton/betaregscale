@@ -198,8 +198,8 @@ compute_start <- function(formula, data, link = NULL,
 #' 0.5}; the returned cells are those of the map, as \code{\link{brs}} expects
 #' for score data.
 #'
-#' A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
-#' \code{brs_sim()} and \code{brs()} over a fixed design; see the vignette
+#' A Monte Carlo study of the estimator is a loop of \code{brs_sim()} and
+#' \code{brs()} over a fixed design; a template is in
 #' \code{vignette("brs-advanced-workflows")}.
 #'
 #' @param formula Model formula with one (mean) or two parts

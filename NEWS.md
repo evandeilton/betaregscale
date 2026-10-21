@@ -85,6 +85,10 @@
 
 ## Documentation
 
+* The README is a short landing page. The vignettes are organized as:
+  model and theory (`brs-intro`), mixed models (`brs-mm`), post-estimation
+  tools (`brs-analyst-tools`) and variable dispersion, boundary cutpoints
+  and model comparison (`brs-advanced-workflows`).
 * The help of `brs()`, `brs_check()` and `anova()`, and the introduction
   vignette, state that `logLik()`, `AIC()` and `BIC()` are comparable across
   `interval` maps for score data, since each map gives a probability mass

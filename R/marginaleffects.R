@@ -34,10 +34,13 @@
 #'   \code{"response"} (default) or \code{"link"}.
 #' @param variables Optional character vector of covariate names.
 #'   Defaults to all numeric covariates in the selected submodel.
-#' @param h Finite-difference step for non-binary numeric covariates.
-#' @param interval Logical; compute interval estimates via simulation.
-#' @param level Confidence level for interval estimates.
-#' @param n_sim Number of parameter draws when \code{interval = TRUE}.
+#' @param h Base finite-difference step for non-binary numeric covariates
+#'   (default \code{1e-5}); the step used is \code{h * max(sd(x), 1)}.
+#' @param interval Logical; compute interval estimates via simulation
+#'   (default \code{TRUE}).
+#' @param level Confidence level for interval estimates (default 0.95).
+#' @param n_sim Number of parameter draws when \code{interval = TRUE}
+#'   (default 400; at least 50).
 #' @param keep_draws Logical; if \code{TRUE} and \code{interval = TRUE},
 #'   stores AME simulation draws in attribute \code{"ame_draws"}.
 #'
