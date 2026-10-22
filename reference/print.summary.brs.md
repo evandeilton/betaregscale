@@ -66,7 +66,7 @@ print(summary(fit))
 #> (Intercept)   0.2551     0.8644   0.295    0.768
 #> x1           -0.2202     0.5412  -0.407    0.684
 #> 
-#> Phi coefficients (precision model with logit link):
+#> Coefficients (dispersion model for sigma with logit link):
 #>       Estimate Std. Error z value Pr(>|z|)
 #> (phi)  -0.3929     0.2763  -1.422    0.155
 #> ---

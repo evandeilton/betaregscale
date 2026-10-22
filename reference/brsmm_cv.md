@@ -39,7 +39,7 @@ brsmm_cv(
 
 - repeats:
 
-  Number of repeated k-fold runs.
+  Number of repeated k-fold runs (default 1).
 
 - folds:
 

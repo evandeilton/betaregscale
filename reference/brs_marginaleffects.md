@@ -46,19 +46,21 @@ brs_marginaleffects(
 
 - h:
 
-  Finite-difference step for non-binary numeric covariates.
+  Base finite-difference step for non-binary numeric covariates (default
+  `1e-5`); the step used is `h * max(sd(x), 1)`.
 
 - interval:
 
-  Logical; compute interval estimates via simulation.
+  Logical; compute interval estimates via simulation (default `TRUE`).
 
 - level:
 
-  Confidence level for interval estimates.
+  Confidence level for interval estimates (default 0.95).
 
 - n_sim:
 
-  Number of parameter draws when `interval = TRUE`.
+  Number of parameter draws when `interval = TRUE` (default 400; at
+  least 50).
 
 - keep_draws:
 

@@ -24,9 +24,9 @@ summary of the randomized quantile residuals."><meta property="og:image" content
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -139,7 +139,7 @@ Beta regression for modelling rates and proportions.
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (dispersion model for sigma with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Estimate Std. Error z value Pr(&gt;|z|)    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (phi)  -0.8393     0.1103   -7.61 2.73e-14 ***</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
@@ -152,7 +152,7 @@ Beta regression for modelling rates and proportions.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">coefficients</span><span class="op">$</span><span class="va">mean</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               Estimate Std. Error   z value     Pr(&gt;|z|)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.3079316  0.1627663 -8.035643 9.308940e-16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.3079316  0.1627663 -8.035643 9.308939e-16</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> time12h      0.5245223  0.2155579  2.433324 1.496090e-02</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> time24h      0.4992069  0.2150869  2.320955 2.028928e-02</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>AIC <span class="op">=</span> <span class="va">s</span><span class="op">$</span><span class="va">AIC</span>, BIC <span class="op">=</span> <span class="va">s</span><span class="op">$</span><span class="va">BIC</span>, pseudo_R2 <span class="op">=</span> <span class="va">s</span><span class="op">$</span><span class="va">pseudo.r2</span><span class="op">)</span></span></span>

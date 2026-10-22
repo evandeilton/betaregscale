@@ -26,9 +26,9 @@ brs as it is."><meta property="og:image" content="https://evandeilton.github.io/
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -167,8 +167,8 @@ below \(c_{lo}\), score \(K\) at or above \(c_{hi}\), the cells of
 <code>interval</code> in between. It needs <code>delta = NULL</code> and <code>lim =
 0.5</code>; the returned cells are those of the map, as <code><a href="brs.html">brs</a></code> expects
 for score data.</p>
-<p>A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
-<code>brs_sim()</code> and <code><a href="brs.html">brs()</a></code> over a fixed design; see the vignette
+<p>A Monte Carlo study of the estimator is a loop of <code>brs_sim()</code> and
+<code><a href="brs.html">brs()</a></code> over a fixed design; a template is in
 <code><a href="../articles/brs-advanced-workflows.html">vignette("brs-advanced-workflows")</a></code>.</p>
     </div>
     <div class="section level2">

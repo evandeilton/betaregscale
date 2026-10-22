@@ -111,6 +111,16 @@
 
 ### Other changes
 
+- [`AIC()`](https://rdrr.io/r/stats/AIC.html) of `brs` and `brsmm` fits
+  returns a `df`/`AIC` table when given several models, as
+  [`BIC()`](https://rdrr.io/r/stats/AIC.html) does; extra models were
+  ignored before. The single-model value is unchanged.
+- [`print()`](https://rdrr.io/r/base/print.html) and
+  [`summary()`](https://rdrr.io/r/base/summary.html) name the second
+  coefficient block by `repar`: dispersion model for sigma
+  (`repar = 2`), precision model for phi (`repar = 1`) or shape q model
+  (`repar = 0`, where the first block is the shape p model). It was
+  labeled a precision model under every `repar`.
 - Fits whose Hessian is not negative definite now also warn when the
   largest absolute gradient exceeds 0.1, since the remaining
   log-likelihood gain cannot be measured there. This can add a warning
@@ -121,6 +131,10 @@
 
 ### Documentation
 
+- The README is a short landing page. The vignettes are organized as:
+  model and theory (`brs-intro`), mixed models (`brs-mm`),
+  post-estimation tools (`brs-analyst-tools`) and variable dispersion,
+  boundary cutpoints and model comparison (`brs-advanced-workflows`).
 - The help of
   [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md),
   [`brs_check()`](https://evandeilton.github.io/betaregscale/reference/brs_check.md)
@@ -617,9 +631,8 @@ for CRAN submission.
   been implemented but never announced. The 2.6.8 heading, which had
   been concatenated onto the end of the 2.6.9 entry, is now a separate
   section.
-- `README.md`: the S3 interface table marked
-  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
-  as unavailable for `brsmm` objects although
+- `README.md`: the S3 interface table marked `autoplot()` as unavailable
+  for `brsmm` objects although
   [`autoplot.brsmm()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brsmm.md)
   is registered, exported and documented; it is now marked as available,
   and the missing
@@ -831,10 +844,8 @@ user-facing API changes.
   internal names (e.g., `(re_chol_logsd)_X|g`) to readable `logSD.X|g` /
   `cov.X:Y|g` forms.
 - Calibration plots (`autoplot.brs` and `autoplot.brsmm`) now map
-  `linewidth = n` for
-  [`geom_line()`](https://ggplot2.tidyverse.org/reference/geom_path.html)
-  instead of the deprecated `size` aesthetic, eliminating the ggplot2 ≥
-  3.4.0 deprecation warning.
+  `linewidth = n` for `geom_line()` instead of the deprecated `size`
+  aesthetic, eliminating the ggplot2 ≥ 3.4.0 deprecation warning.
 
 ### Testing
 
@@ -935,7 +946,7 @@ CRAN release: 2026-02-25
   [`ranef()`](https://evandeilton.github.io/betaregscale/reference/ranef.md),
   [`anova()`](https://rdrr.io/r/stats/anova.html),
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html),
-  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)).
+  `autoplot()`).
 - **Removed all [`set.seed()`](https://rdrr.io/r/base/Random.html) calls
   from examples** across 15+ files (`fit.R`, `brsmm.R`, `bootstrap.R`,
   `cv.R`, `marginaleffects.R`, `scoreprob.R`, `table.R`, `simulate.R`,

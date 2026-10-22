@@ -20,9 +20,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -107,8 +107,8 @@
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 2.5 %    97.5 %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.304113 2.1467134</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -1.388287 0.7133904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -1.304068 2.1466686</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -1.388268 0.7133711</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

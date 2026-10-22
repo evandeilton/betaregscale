@@ -20,9 +20,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -98,13 +98,13 @@ estimate. No generalized inverse is used: a singular Hessian gives an
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             (Intercept)           x1        (phi)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  0.74717303 -0.444369047 -0.010878506</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -0.44436905  0.292891922  0.009448077</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (phi)       -0.01087851  0.009448077  0.076320568</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  0.74717306 -0.444369069 -0.010878515</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -0.44436907  0.292891939  0.009448083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (phi)       -0.01087852  0.009448083  0.076320573</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov</a></span><span class="op">(</span><span class="va">fit</span>, model <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             (Intercept)         x1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)    0.747173 -0.4443690</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x1            -0.444369  0.2928919</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)   0.7471731 -0.4443691</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1           -0.4443691  0.2928919</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

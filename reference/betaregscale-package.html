@@ -42,9 +42,9 @@ and marginal effects."><meta property="og:image" content="https://evandeilton.gi
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -155,11 +155,11 @@ several scenarios with more than 500 observations and dispersion above
 0.2, and M3 tended to underestimate the covariate effects; on its
 knee-surgery data M1 and M2 gave similar time effects. These are results
 of that study and of the implementation used then, not properties
-guaranteed by the package (a Monte Carlo study of the current code is in
-<code><a href="../articles/brs-advanced-workflows.html">vignette("brs-advanced-workflows")</a></code>). The interval model is useful
-when the coarsening of the scale is part of the question: it gives score
-probabilities, treats the borders of the scale as censoring and supports
-likelihood-ratio tests.</p>
+guaranteed by the package (a template for a Monte Carlo study of the
+estimator is in <code><a href="../articles/brs-advanced-workflows.html">vignette("brs-advanced-workflows")</a></code>). The interval
+model is useful when the coarsening of the scale is part of the question:
+it gives score probabilities, treats the borders of the scale as censoring
+and supports likelihood-ratio tests.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

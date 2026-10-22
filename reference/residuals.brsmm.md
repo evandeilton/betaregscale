@@ -58,8 +58,8 @@ Numeric vector, one value per observation.
 - `"conditional"`:
 
   (default) at the conditional modes \\\hat b_g\\. The modes are shrunk
-  toward zero, so these residuals are not exactly \\N(0, 1)\\ under the
-  model; the shrinkage is strongest for small groups.
+  toward zero, so the `"rqr"` residuals are not exactly \\N(0, 1)\\
+  under the model; the shrinkage is strongest for small groups.
 
 - `"marginal"`:
 
@@ -72,9 +72,9 @@ Numeric vector, one value per observation.
   the score at \\s_i - 1\\ and \\s_i\\). The rule integrates \\z =
   u/\mathrm{SD}(u)\\ over \\\[-8.5, 8.5\]\\, so marginal probabilities
   below about \\10^{-15}\\ are approximate (this matters for
-  `"cell_deviance"` in extreme tails only). Each residual is \\N(0, 1)\\
-  under the model; residuals of the same group are correlated, since
-  they share the group's random effects.
+  `"cell_deviance"` in extreme tails only). Each `"rqr"` residual is
+  \\N(0, 1)\\ under the model; residuals of the same group are
+  correlated, since they share the group's random effects.
 
 - `"posterior"`:
 
@@ -85,10 +85,11 @@ Numeric vector, one value per observation.
   is not positive definite) weighted by posterior over proposal density,
   and one of them kept. At the true parameters, \\(b_g, y_g)\\ with
   \\b_g\\ drawn from its posterior has the joint law of the model, so
-  these residuals are independent \\N(0, 1)\\ (up to the resampling
-  approximation, of order `1/n_draws`) without the shrinkage of the
-  modes; at the estimates this holds approximately. Unlike the marginal
-  residuals, the residuals of a group are then nearly independent.
+  the `"rqr"` residuals are independent \\N(0, 1)\\ (up to the
+  resampling approximation, of order `1/n_draws`) without the shrinkage
+  of the modes; at the estimates this holds approximately. Unlike the
+  marginal residuals, the residuals of a group are then nearly
+  independent.
 
 `"rqr"` residuals use \\v_i\\ uniform on \\(F(l_i), F(u_i))\\ (survival
 scale above the median, to keep the precision of upper-tail cells), kept
@@ -125,7 +126,7 @@ fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 head(residuals(fit))
 #> [1] -0.3855953 -0.2593261 -0.1856053  0.1906739  0.3643947  0.3286716
 head(residuals(fit, type = "pearson"))
-#> [1] -1.3225377 -0.9366407 -0.6366001  0.6886807  1.2498226  1.1087368
+#> [1] -1.3225376 -0.9366406 -0.6366000  0.6886809  1.2498228  1.1087368
 # }
 # Quantile residuals without the shrinkage of the conditional modes
 d <- expand.grid(visit = 1:5, id = 1:60)

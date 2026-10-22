@@ -20,9 +20,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -101,9 +101,9 @@ Journal of Pain and Symptom Management, 41(6), 1073-1093.
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span>, data <span class="op">=</span> <span class="va">prep</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">brs_hessian</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             (Intercept)         x1       (phi)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -13.7307616 -20.852140   0.6242412</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -20.8521399 -35.094897   1.3723580</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (phi)         0.6242412   1.372358 -13.1835410</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept) -13.7307609 -20.852139   0.6242413</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1          -20.8521387 -35.094894   1.3723584</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (phi)         0.6242413   1.372358 -13.1835402</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

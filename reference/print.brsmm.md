@@ -57,7 +57,7 @@ print(fit)
 #> (Intercept)          x1 
 #>      0.4213     -0.3374 
 #> 
-#> Phi coefficients (precision model with logit link):
+#> Coefficients (dispersion model for sigma with logit link):
 #> (Intercept) 
 #>     -0.5806 
 #> 

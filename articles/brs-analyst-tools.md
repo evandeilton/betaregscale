@@ -1,341 +1,369 @@
-# Analyst Tools for betaregscale
+# Analyst tools: predictions, residuals and validation
 
-## Overview
-
-This vignette presents the analyst-oriented tools of **betaregscale**
-for post-estimation workflows:
-
-- [`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md):
-  model comparison tables.
-- [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md):
-  average marginal effects (AME).
-- [`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md):
-  probabilities on the original score scale.
-- [`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md):
-  `ggplot2` diagnostics.
-- [`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md):
-  repeated k-fold cross-validation.
-
-The examples use bounded scale data under the interval-censored beta
-regression framework implemented in the package.
+This vignette shows the post-estimation tools for
+[`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
+fits: predictions on the mean and score scales, contrasts with standard
+errors, marginal effects, residuals, plots, the parametric bootstrap,
+cross-validation and summary tables. The model itself is described in
+[`vignette("brs-intro")`](https://evandeilton.github.io/betaregscale/articles/brs-intro.md);
+the mixed-model versions of these tools are in
+[`vignette("brs-mm")`](https://evandeilton.github.io/betaregscale/articles/brs-mm.md).
+Small numbers of replicates and folds keep the vignette fast, so the
+results are illustrative.
 
 ``` r
 
 library(betaregscale)
 ```
 
-## Mathematical foundations
+## Data and fit
 
-### Complete likelihood by censoring type
+Simulated NRS-11 scores of 240 patients at three post-operative times,
+with age and a treatment indicator:
 
-For each observation $`i`$, let $`\delta_i\in\{0,1,2,3\}`$ indicate
-exact, left-censored, right-censored, or interval-censored status. With
-beta CDF $`F(\cdot)`$, beta density $`f(\cdot)`$, and interval endpoints
-$`[l_i,u_i]`$, the contribution is:
+``` r
 
-``` math
-L_i(\theta)=
-\begin{cases}
-f(y_i; a_i, b_i), & \delta_i=0,\\
-F(u_i; a_i, b_i), & \delta_i=1,\\
-1 - F(l_i; a_i, b_i), & \delta_i=2,\\
-F(u_i; a_i, b_i)-F(l_i; a_i, b_i), & \delta_i=3.
-\end{cases}
+set.seed(2023)
+nrs <- data.frame(
+  time = factor(rep(c("6h", "12h", "24h"), each = 80),
+                levels = c("6h", "12h", "24h")),
+  age = round(rnorm(240, 50, 12)),
+  trt = rbinom(240, 1, 0.5)
+)
+nrs$age_c <- (nrs$age - 50) / 10
+eta <- -0.6 + c(0, 0.5, -0.3)[nrs$time] + 0.2 * nrs$age_c - 0.5 * nrs$trt
+shp <- brs_repar(mu = plogis(eta), phi = 0.2, repar = 2)
+nrs$y <- round(10 * rbeta(240, shp$shape1, shp$shape2))
+
+fit <- brs(y ~ time + age_c + trt, data = nrs, ncuts = 10)
+fit
+#> 
+#> Call:
+#> brs(formula = y ~ time + age_c + trt, data = nrs, ncuts = 10)
+#> 
+#> Coefficients (mean model with logit link):
+#> (Intercept)     time12h     time24h       age_c         trt 
+#>     -0.4574      0.2262     -0.6128      0.1310     -0.3633 
+#> 
+#> Coefficients (dispersion model for sigma with logit link):
+#>   (phi) 
+#> -1.2626
 ```
 
-This is the basis for fitting, prediction, and validation metrics.
+## Predictions
 
-### Model-comparison metrics
+[`predict()`](https://rdrr.io/r/stats/predict.html) returns, by `type`:
 
-[`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)
-reports:
+| `type` | value |
+|:---|:---|
+| `"response"` (default) | the mean $`E(Y) = \mu`$ on $`(0, 1)`$ |
+| `"link"` | the linear predictor of the mean |
+| `"precision"` | the second parameter on its own scale (the dispersion $`\sigma`$ under `repar = 2`) |
+| `"variance"` | $`\mathrm{Var}(Y)`$ |
+| `"quantile"` | quantiles of $`Y`$ at the probabilities `at` |
+| `"score"` | the latent score at $`E(Y)`$ ($`K\,E(Y)`$ under `"mid"`) |
+| `"expected_score"` | the expected recorded score $`\sum_s s\,P(S = s)`$ |
 
-- $`\log L(\hat\theta)`$,
-- $`AIC=-2\log L(\hat\theta)+2k`$,
-- $`BIC=-2\log L(\hat\theta)+k\log n`$,
+``` r
 
-where $`k`$ is the number of estimated parameters and $`n`$ is the
-sample size.
+nd <- data.frame(time = c("6h", "12h", "24h"), age_c = 0, trt = 0)
+cbind(nd,
+      mu = predict(fit, nd),
+      score = predict(fit, nd, type = "score"),
+      expected_score = predict(fit, nd, type = "expected_score"))
+#>   time age_c trt        mu    score expected_score
+#> 1   6h     0   0 0.3875968 3.875968       3.873384
+#> 2  12h     0   0 0.4424592 4.424592       4.423637
+#> 3  24h     0   0 0.2553673 2.553673       2.539366
+predict(fit, nd, type = "quantile", at = c(0.25, 0.5, 0.75))
+#>          q_0.25     q_0.5    q_0.75
+#> [1,] 0.19959732 0.3644270 0.5557468
+#> [2,] 0.25391890 0.4305352 0.6207733
+#> [3,] 0.08600763 0.2067570 0.3832926
+```
 
-### Average marginal effects (AME)
+[`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
+gives the probability of each score, as a matrix or in long format:
+
+``` r
+
+round(brs_predict_scoreprob(fit, newdata = nd), 3)
+#>      score_0 score_1 score_2 score_3 score_4 score_5 score_6 score_7 score_8
+#> [1,]   0.042   0.134   0.152   0.151   0.141   0.124   0.102   0.077   0.051
+#> [2,]   0.023   0.095   0.127   0.140   0.142   0.135   0.121   0.100   0.072
+#> [3,]   0.158   0.235   0.180   0.139   0.105   0.076   0.052   0.032   0.017
+#>      score_9 score_10
+#> [1,]   0.024    0.003
+#> [2,]   0.039    0.005
+#> [3,]   0.005    0.000
+head(brs_predict_scoreprob(fit, newdata = nd, scores = 0:2, format = "long"))
+#>   id score       prob
+#> 1  1     0 0.04181922
+#> 2  1     1 0.13358466
+#> 3  1     2 0.15198673
+#> 4  2     0 0.02250122
+#> 5  2     1 0.09524590
+#> 6  2     2 0.12691577
+```
+
+## Score-scale quantities with standard errors
+
+[`brs_marginal()`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md)
+returns score probabilities (`type = "prob"`), expected scores
+(`"expected_score"`) or exceedance probabilities $`P(S \ge k)`$
+(`"exceed"`) with delta-method standard errors and Wald intervals,
+computed on the logit scale for probabilities and expected scores so
+they stay in range (contrasts use Wald intervals on the natural scale).
+`contrast` gives differences between pairs of rows of `newdata`;
+`c(i, j)` is row `i` minus row `j`:
+
+``` r
+
+brs_marginal(fit, nd, type = "exceed", k = 4)
+#>   time age_c trt row k  estimate  std.error     lower     upper
+#> 1   6h     0   0   1 4 0.5211590 0.05244215 0.4189245 0.6216513
+#> 2  12h     0   0   2 4 0.6149118 0.05076843 0.5119463 0.7085225
+#> 3  24h     0   0   3 4 0.2885185 0.04173023 0.2139919 0.3765655
+brs_marginal(fit, nd, type = "expected_score",
+             contrast = rbind(c(2, 1), c(3, 1)))
+#>   contrast row1 row2   estimate std.error      lower      upper
+#> 1    2 - 1    2    1  0.5502529 0.3675773 -0.1701853  1.2706912
+#> 2    3 - 1    3    1 -1.3340178 0.3497652 -2.0195451 -0.6484905
+```
+
+With `se_method = "simulation"`, the standard errors and percentile
+intervals come from `n_sim` draws of the parameters (set a seed first):
+
+``` r
+
+set.seed(1)
+brs_marginal(fit, nd[1:2, ], type = "expected_score", contrast = c(2, 1),
+             se_method = "simulation", n_sim = 200)
+#>   contrast row1 row2  estimate std.error      lower    upper
+#> 1    2 - 1    2    1 0.5502529 0.3636081 -0.1616128 1.275677
+```
+
+## Average marginal effects
 
 [`brs_marginaleffects()`](https://evandeilton.github.io/betaregscale/reference/brs_marginaleffects.md)
-computes AME by central finite differences:
-
-``` math
-\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h_j)-\hat g_i(x_{ij}-h_j)}{2h_j},
-\qquad h_j=h\max\{\mathrm{sd}(x_j),1\},
-```
-
-with $`\hat g_i`$ on the requested prediction scale (`response`, the
-mean $`E[Y]`$, or `link`) and $`h=10^{-5}`$ by default. Only numeric
-covariates are used; code a factor as 0/1 dummies to get its contrast.
-For binary covariates $`x_j\in\{0,1\}`$, it uses the discrete contrast
-$`\hat g(x_j=1)-\hat g(x_j=0)`$.
-
-### Score-scale probabilities
-
-For integer scores $`s\in\{0,\dots,K\}`$ ($`K`$ = `ncuts`, the maximum
-score),
-[`brs_predict_scoreprob()`](https://evandeilton.github.io/betaregscale/reference/brs_predict_scoreprob.md)
-computes, under `interval = "mid"`:
-
-``` math
-P(Y=s)=
-\begin{cases}
-F(\mathrm{lim}/K), & s=0,\\
-1-F((K-\mathrm{lim})/K), & s=K,\\
-F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), & 1\le s\le K-1.
-\end{cases}
-```
-
-Under `"right"` and `"left"` the cells are $`[s,s+1]/(K+1)`$, so
-$`P(Y=s)=F((s+1)/(K+1))-F(s/(K+1))`$ with $`F(0)=0`$ and $`F(1)=1`$. The
-probabilities sum to 1 whenever the cells partition $`[0,1]`$ (always
-for `"right"`/`"left"`, and for `"mid"` with `lim = 0.5`). They are
-directly aligned with interval geometry on the original instrument
-scale.
-
-### Cross-validation log score
-
-In
-[`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md),
-fold-level predictive quality includes:
-
-``` math
-\mathrm{log\_score}=\frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
-```
-
-where $`p_i`$ is the predictive contribution from the same
-censoring-rule piecewise definition shown above.
-
-It also reports:
-
-``` math
-\mathrm{RMSE}_{yt}=\sqrt{\frac{1}{n_{test}}\sum(y_{t,i}-\hat\mu_i)^2},
-\qquad
-\mathrm{MAE}_{yt}=\frac{1}{n_{test}}\sum|y_{t,i}-\hat\mu_i|.
-```
-
-## Reproducible workflow
-
-### 1) Simulate data and fit candidate models
+gives the average marginal effect of each numeric covariate on the mean
+(`type = "response"`) or on the linear predictor (`"link"`): a central
+difference for continuous covariates and the discrete change for 0/1
+covariates, averaged over the rows. Intervals use `n_sim` draws from the
+asymptotic normal law of the estimates. Factors are not included; code a
+factor as 0/1 dummies to get its contrast, or use
+[`brs_marginal()`](https://evandeilton.github.io/betaregscale/reference/brs_marginal.md)
+contrasts as above.
 
 ``` r
 
-set.seed(2026)
-n <- 220
-d <- data.frame(
-  x1 = rnorm(n),
-  x2 = rnorm(n),
-  z1 = rnorm(n)
-)
-
-sim <- brs_sim(
-  formula = ~ x1 + x2 | z1,
-  data = d,
-  beta = c(0.20, -0.45, 0.25),
-  zeta = c(0.15, -0.30),
-  ncuts = 100,
-  repar = 2
-)
-
-fit_fixed <- brs(y ~ x1 + x2, data = sim, repar = 2)
-fit_var <- brs(y ~ x1 + x2 | z1, data = sim, repar = 2)
+set.seed(2)
+ame <- brs_marginaleffects(fit, n_sim = 100, keep_draws = TRUE)
+ame
+#>   variable         ame  std.error     ci.lower    ci.upper model     type   n
+#> 1    age_c  0.02778234 0.01051475  0.007953519  0.05177403  mean response 240
+#> 2      trt -0.07703774 0.02756216 -0.137031764 -0.02828654  mean response 240
 ```
 
-### 2) Compare models in one table
+Effects on $`E(Y)`$ are on $`(0, 1)`$; multiply by $`K`$ for the score
+scale under `"mid"`.
 
 ``` r
 
-tab <- brs_table(
-  fixed = fit_fixed,
-  variable = fit_var,
-  sort_by = "AIC"
-)
-kbl10(tab)
+autoplot.brs_marginaleffects(ame, type = "forest")
 ```
 
-| model | nobs | npar | logLik | AIC | BIC | pseudo_r2 | exact | left | right | interval | prop_exact | prop_left | prop_right | prop_interval |
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| variable | 220 | 5 | -931.8646 | 1873.729 | 1890.697 | 0.1381 | 0 | 8 | 22 | 190 | 0 | 0.0364 | 0.1 | 0.8636 |
-| fixed | 220 | 4 | -939.3243 | 1886.649 | 1900.223 | 0.1381 | 0 | 8 | 22 | 190 | 0 | 0.0364 | 0.1 | 0.8636 |
+![](brs-analyst-tools_files/figure-html/ame-plot-1.png)
 
-### 3) Estimate average marginal effects
+## Residuals
+
+[`residuals()`](https://rdrr.io/r/stats/residuals.html) offers the types
+below. The randomized quantile residuals (`"rqr"`, Dunn and Smyth, 1996)
+are standard normal under the model whatever the censoring and are the
+recommended type for diagnostics.
+
+| `type` | definition |
+|:---|:---|
+| `"response"` (default) | `yt` minus the fitted mean |
+| `"pearson"` | response residual over the fitted SD |
+| `"deviance"` | beta deviance residual at `yt` |
+| `"rqr"` | $`\Phi^{-1}(u_i)`$, $`u_i`$ uniform on $`(F(l_i), F(u_i))`$, with 0 and 1 at the borders |
+| `"weighted"`, `"sweighted"` | residuals on the $`\mathrm{logit}(Y)`$ scale (Espinheira et al., 2008) |
+| `"cell_deviance"` | $`\mathrm{sign}_i\sqrt{-2\log P_i}`$ from the probability of the observed cell |
+
+All types except `"rqr"` and `"cell_deviance"` use one point of the
+cell, `yt`: $`s/K`$ under `"mid"` (so the border scores sit at
+$`10^{-5}`$ and $`1 - 10^{-5}`$) and the cell center under
+`"right"`/`"left"`. They are unreliable at the border scores. The cell
+deviance residuals are signed by the observed minus the expected score;
+for score data their squares add up to $`-2\log L`$:
 
 ``` r
 
-set.seed(2026) # For marginal effects simulation
-me_mean <- brs_marginaleffects(
-  fit_var,
-  model = "mean",
-  type = "response",
-  interval = TRUE,
-  n_sim = 120
-)
-kbl10(me_mean)
+set.seed(1)
+r_q <- residuals(fit, type = "rqr")
+c(mean = mean(r_q), sd = sd(r_q))
+#>      mean        sd 
+#> 0.0026605 0.9873903
+r_d <- residuals(fit, type = "cell_deviance")
+c(sum_sq = sum(r_d^2), minus2logLik = -2 * as.numeric(logLik(fit)))
+#>       sum_sq minus2logLik 
+#>     997.6295     997.6295
 ```
 
-| variable |   ame   | std.error | ci.lower | ci.upper | model |   type   |  n  |
-|:--------:|:-------:|:---------:|:--------:|:--------:|:-----:|:--------:|:---:|
-|    x1    | -0.1035 |  0.0183   | -0.1356  | -0.0604  | mean  | response | 220 |
-|    x2    | 0.0734  |  0.0171   |  0.0356  |  0.1036  | mean  | response | 220 |
+## Plots
+
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws up to six
+diagnostic panels of quantile residuals (four by default) in base
+graphics or, with `gg = TRUE`, ggplot2:
 
 ``` r
 
-
-set.seed(2026) # Reset seed for reproducibility
-me_precision <- brs_marginaleffects(
-  fit_var,
-  model = "precision",
-  type = "link",
-  interval = TRUE,
-  n_sim = 120
-)
-kbl10(me_precision)
+plot(fit, gg = TRUE)
 ```
 
-| variable |   ame   | std.error | ci.lower | ci.upper |   model   | type |  n  |
-|:--------:|:-------:|:---------:|:--------:|:--------:|:---------:|:----:|:---:|
-|    z1    | -0.3361 |  0.0808   | -0.4627  | -0.1581  | precision | link | 220 |
+![](brs-analyst-tools_files/figure-html/plot-1.png)
 
-### 4) Predict score probabilities
+[`autoplot.brs()`](https://evandeilton.github.io/betaregscale/reference/autoplot.brs.md)
+adds a calibration plot, the predicted score distribution, fitted CDFs
+and residuals by censoring type:
 
 ``` r
 
-P <- brs_predict_scoreprob(fit_var, scores = 0:10)
-dim(P)
-#> [1] 220  11
-kbl10(P[1:6, 1:5])
-```
-
-| score_0 | score_1 | score_2 | score_3 | score_4 |
-|:-------:|:-------:|:-------:|:-------:|:-------:|
-| 0.0146  | 0.0178  | 0.0146  | 0.0130  | 0.0121  |
-| 0.0215  | 0.0228  | 0.0178  | 0.0155  | 0.0141  |
-| 0.0465  | 0.0318  | 0.0216  | 0.0175  | 0.0151  |
-| 0.0731  | 0.0371  | 0.0233  | 0.0181  | 0.0152  |
-| 0.0076  | 0.0105  | 0.0090  | 0.0083  | 0.0078  |
-| 0.0050  | 0.0050  | 0.0039  | 0.0034  | 0.0030  |
-
-``` r
-
-kbl10(
-  data.frame(row_sum = rowSums(P)),
-  digits = 4
-)
-```
-
-| row_sum |
-|:-------:|
-| 0.1344  |
-| 0.1614  |
-| 0.2001  |
-| 0.2313  |
-| 0.0856  |
-| 0.0354  |
-| 0.0295  |
-| 0.0994  |
-| 0.1024  |
-| 0.1312  |
-
-`rowSums(P)` should be close to 1 (up to numerical tolerance and score
-subset selection).
-
-### 5) ggplot2 diagnostics
-
-``` r
-
-autoplot.brs(fit_var, type = "calibration")
+autoplot.brs(fit, type = "calibration")
 ```
 
 ![](brs-analyst-tools_files/figure-html/autoplot-1.png)
 
 ``` r
 
-autoplot.brs(fit_var, type = "score_dist", scores = 0:20)
+autoplot.brs(fit, type = "score_dist")
 ```
 
 ![](brs-analyst-tools_files/figure-html/autoplot-2.png)
 
-``` r
-
-autoplot.brs(fit_var, type = "cdf", max_curves = 4)
-```
-
-![](brs-analyst-tools_files/figure-html/autoplot-3.png)
+[`brs_cens()`](https://evandeilton.github.io/betaregscale/reference/brs_cens.md)
+summarizes the censoring types of a fit:
 
 ``` r
 
-autoplot.brs(fit_var, type = "residuals_by_delta", residual_type = "rqr")
+brs_cens(fit, gg = TRUE)
 ```
 
-![](brs-analyst-tools_files/figure-html/autoplot-4.png)
+![](brs-analyst-tools_files/figure-html/cens-1.png)
 
-### 6) Repeated k-fold cross-validation
+## Parametric bootstrap
+
+[`brs_bootstrap()`](https://evandeilton.github.io/betaregscale/reference/brs_bootstrap.md)
+draws new responses at the fitted shapes, re-coarsens them on the fit’s
+cells and refits the original formula, `R` times. It returns percentile,
+basic, normal or BCa intervals next to the Wald intervals; failed refits
+are counted and printed. Use `R` of at least 199 in practice; 49 is used
+here for speed.
 
 ``` r
 
-set.seed(2026) # For cross-validation reproducibility
-cv_res <- brs_cv(
-  y ~ x1 + x2 | z1,
-  data = sim,
-  k = 3,
-  repeats = 1,
-  repar = 2
-)
-
-kbl10(cv_res)
+set.seed(3)
+boot <- brs_bootstrap(fit, R = 49, keep_draws = TRUE)
+boot
+#> Bootstrap confidence intervals
+#>   Level: 0.95 | CI: percentile | Successful replicates: 49 / 49 | Attempts: 49 
+#>   Failed replicates: 0 (0.0% of attempts)
+#> 
+#>     parameter   estimate    se_boot    ci_lower   ci_upper  mcse_lower
+#> 1 (Intercept) -0.4574253 0.10590803 -0.62188294 -0.2784529 0.014002539
+#> 2     time12h  0.2262380 0.13772964 -0.01369945  0.4354400 0.021238726
+#> 3     time24h -0.6127630 0.14066571 -0.86158613 -0.3400873 0.042576014
+#> 4       age_c  0.1310349 0.05142949  0.03795532  0.2162490 0.009765608
+#> 5         trt -0.3632532 0.13790026 -0.61820543 -0.1155792 0.034133318
+#> 6       (phi) -1.2625569 0.08818543 -1.42443996 -1.0969682 0.014821330
+#>    mcse_upper  wald_lower wald_upper level
+#> 1 0.039331479 -0.70499315 -0.2098574  0.95
+#> 2 0.021264851 -0.07056248  0.5230386  0.95
+#> 3 0.024659677 -0.92888949 -0.2966365  0.95
+#> 4 0.007618617  0.02425109  0.2378187  0.95
+#> 5 0.030051529 -0.61610640 -0.1103999  0.95
+#> 6 0.031921648 -1.44051168 -1.0846021  0.95
 ```
-
-| repeat | fold | n_train | n_test | log_score | rmse_yt | mae_yt | converged | error |
-|:------:|:----:|:-------:|:------:|:---------:|:-------:|:------:|:---------:|:-----:|
-|   1    |  1   |   146   |   74   |  -4.3077  | 0.3215  | 0.2862 |   TRUE    |  NA   |
-|   1    |  2   |   147   |   73   |  -4.3171  | 0.3449  | 0.3032 |   TRUE    |  NA   |
-|   1    |  3   |   147   |   73   |  -4.1676  | 0.3454  | 0.3022 |   TRUE    |  NA   |
 
 ``` r
 
-kbl10(
-  data.frame(
-    metric = c("log_score", "rmse_yt", "mae_yt"),
-    mean = colMeans(cv_res[, c("log_score", "rmse_yt", "mae_yt")], na.rm = TRUE)
-  ),
-  digits = 4
-)
+autoplot.brs_bootstrap(boot, type = "ci_forest")
 ```
 
-|           |  metric   |  mean   |
-|:----------|:---------:|:-------:|
-| log_score | log_score | -4.2641 |
-| rmse_yt   |  rmse_yt  | 0.3373  |
-| mae_yt    |  mae_yt   | 0.2972  |
+![](brs-analyst-tools_files/figure-html/bootstrap-plot-1.png)
 
-## Practical interpretation
+## Cross-validation
 
-- Prefer the model with the lower AIC/BIC and better predictive
-  `log_score`.
-- Use AME on the response scale to communicate the expected change in
-  mean score (on the unit interval) resulting from small covariate
-  shifts.
-- Use score probabilities to translate model outputs back to clinically
-  interpretable scale categories.
-- Inspect calibration and residual-by-censoring plots before proceeding
-  with statistical inference.
+[`brs_cv()`](https://evandeilton.github.io/betaregscale/reference/brs_cv.md)
+runs repeated k-fold cross-validation. For each held-out fold it reports
+`log_score`, the mean log probability of the held-out observations
+(higher is better), and the RMSE and MAE of `yt` around the predicted
+mean:
+
+``` r
+
+set.seed(4)
+cv_full <- brs_cv(y ~ time + age_c + trt, data = nrs, k = 5, ncuts = 10)
+set.seed(4)
+cv_time <- brs_cv(y ~ time, data = nrs, k = 5, ncuts = 10)
+cv_full
+#>   repeat fold n_train n_test log_score   rmse_yt    mae_yt converged error
+#> 1      1    1     192     48 -2.028631 0.2001736 0.1618597      TRUE  <NA>
+#> 2      1    2     192     48 -2.168236 0.2422893 0.2152613      TRUE  <NA>
+#> 3      1    3     192     48 -2.185514 0.2470601 0.2150859      TRUE  <NA>
+#> 4      1    4     192     48 -2.076509 0.2360192 0.1934935      TRUE  <NA>
+#> 5      1    5     192     48 -2.040262 0.2026502 0.1702655      TRUE  <NA>
+c(full = mean(cv_full$log_score), time_only = mean(cv_time$log_score))
+#>      full time_only 
+#> -2.099831 -2.122464
+```
+
+Resetting the seed gives both models the same folds.
+
+## Tables
+
+[`brs_est()`](https://evandeilton.github.io/betaregscale/reference/brs_est.md)
+gives the coefficient table,
+[`brs_gof()`](https://evandeilton.github.io/betaregscale/reference/brs_gof.md)
+the fit criteria and
+[`brs_table()`](https://evandeilton.github.io/betaregscale/reference/brs_table.md)
+a comparison of several fits with their censoring counts:
+
+``` r
+
+brs_est(fit)
+#>      variable   estimate         se    z_value      p_value    ci_lower
+#> 1 (Intercept) -0.4574253 0.12631247  -3.621379 2.930372e-04 -0.70499315
+#> 2     time12h  0.2262380 0.15143162   1.493995 1.351770e-01 -0.07056248
+#> 3     time24h -0.6127630 0.16129199  -3.799091 1.452277e-04 -0.92888949
+#> 4       age_c  0.1310349 0.05448253   2.405081 1.616889e-02  0.02425109
+#> 5         trt -0.3632532 0.12900912  -2.815717 4.866855e-03 -0.61610640
+#> 6       (phi) -1.2625569 0.09079493 -13.905588 5.858310e-44 -1.44051168
+#>     ci_upper
+#> 1 -0.2098574
+#> 2  0.5230386
+#> 3 -0.2966365
+#> 4  0.2378187
+#> 5 -0.1103999
+#> 6 -1.0846021
+fit_time <- brs(y ~ time, data = nrs, ncuts = 10)
+brs_table(full = fit, time_only = fit_time, sort_by = "AIC")
+#>       model nobs npar    logLik      AIC      BIC pseudo_r2 exact left right
+#> 1      full  240    6 -498.8148 1009.630 1030.513    0.1668     0   24     0
+#> 2 time_only  240    4 -506.3028 1020.606 1034.528    0.1013     0   24     0
+#>   interval prop_exact prop_left prop_right prop_interval
+#> 1      216          0       0.1          0           0.9
+#> 2      216          0       0.1          0           0.9
+```
 
 ## References
 
-- Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
-  modelling rates and proportions. *Journal of Applied Statistics*,
-  31(7), 799-815. DOI: 10.1080/0266476042000214501. Validated online
-  via: <https://doi.org/10.1080/0266476042000214501>.
-- Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
-  Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS, and
-  ICOAP. *Arthritis Care and Research*, 63(S11), S240-S252. DOI:
-  10.1002/acr.20543. Validated online via:
-  <https://doi.org/10.1002/acr.20543>.
-- Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
-  Comparing NRS, VRS, and VAS pain scales in adults: a systematic
-  review. *Journal of Pain and Symptom Management*, 41(6), 1073-1093.
-  DOI: 10.1016/j.jpainsymman.2010.08.016. Validated online via:
-  <https://doi.org/10.1016/j.jpainsymman.2010.08.016>.
+- Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
+  *Journal of Computational and Graphical Statistics*, 5(3), 236–244.
+- Espinheira, P. L., Ferrari, S. L. P., and Cribari-Neto, F. (2008). On
+  beta regression residuals. *Journal of Applied Statistics*, 35(4),
+  407–419.
+- Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
+  Master’s dissertation, Universidade Federal do Paraná, Curitiba.
+  <https://hdl.handle.net/1884/86624>

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Advanced Workflows for High-Level Users • betaregscale</title>
+<title>Advanced workflows: dispersion, cutpoints and model comparison • betaregscale</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,7 +18,7 @@
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Advanced Workflows for High-Level Users">
+<meta property="og:title" content="Advanced workflows: dispersion, cutpoints and model comparison">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -43,9 +43,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -67,7 +67,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Advanced Workflows for High-Level Users</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Advanced workflows: dispersion, cutpoints and model comparison</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-advanced-workflows.Rmd" class="external-link"><code>vignettes/brs-advanced-workflows.Rmd</code></a></small>
@@ -76,1176 +76,313 @@
 
     
     
-<div class="section level2">
-<h2 id="audience-and-scope">Audience and scope<a class="anchor" aria-label="anchor" href="#audience-and-scope"></a>
-</h2>
-<p>This vignette is designed for analysts who are already familiar with
-beta regression and require a production-oriented workflow
-featuring:</p>
-<ol style="list-style-type: decimal">
-<li>reproducible model selection;</li>
-<li>inferential and predictive diagnostics;</li>
-<li>mixed-effects escalation (<code>brs</code> -&gt; <code>brsmm</code>)
-with Likelihood Ratio (LR) comparisons;</li>
-<li>high-signal reporting tables for technical decision-making.</li>
-</ol>
+<p>This vignette works through three modeling questions: whether the
+dispersion depends on covariates, whether the border scores need their
+own cutpoints, and how to compare models that differ in link, interval
+map or model family. The model and the notation are those of
+<code><a href="../articles/brs-intro.html">vignette("brs-intro")</a></code>. The data are simulated and small, so
+the results are illustrative.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
-</div>
 <div class="section level2">
-<h2 id="reproducible-simulation-and-data-checks">1) Reproducible simulation and data checks<a class="anchor" aria-label="anchor" href="#reproducible-simulation-and-data-checks"></a>
+<h2 id="variable-dispersion">Variable dispersion<a class="anchor" aria-label="anchor" href="#variable-dispersion"></a>
 </h2>
+<p>A two-part formula <code>y ~ x1 + x2 | z1</code> models the
+dispersion with its own linear predictor,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>σ</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msubsup><mi>z</mi><mi>i</mi><mi>⊤</mi></msubsup><mi>γ</mi></mrow><annotation encoding="application/x-tex">h(\sigma_i) = z_i^\top \gamma</annotation></semantics></math>
+(logit link by default under <code>repar = 2</code>).
+<code><a href="../reference/brs_sim.html">brs_sim()</a></code> takes the dispersion coefficients in
+<code>zeta</code>, on the link scale:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">150</span></span>
-<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
-<span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
-<span>  z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
-<span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">d</span>,</span>
-<span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="fl">0.55</span>, <span class="op">-</span><span class="fl">0.30</span><span class="op">)</span>,</span>
-<span>  zeta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.10</span>, <span class="fl">0.35</span><span class="op">)</span>,</span>
-<span>  link <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  link_phi <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  repar <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="center">left</th>
-<th align="center">right</th>
-<th align="center">yt</th>
-<th align="center">y</th>
-<th align="center">delta</th>
-<th align="center">x1</th>
-<th align="center">x2</th>
-<th align="center">z1</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">0.905</td>
-<td align="center">0.915</td>
-<td align="center">0.91</td>
-<td align="center">91</td>
-<td align="center">3</td>
-<td align="center">0.5206</td>
-<td align="center">0.0243</td>
-<td align="center">-0.1486</td>
-</tr>
-<tr class="even">
-<td align="center">0.005</td>
-<td align="center">0.015</td>
-<td align="center">0.01</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">-1.0797</td>
-<td align="center">0.3346</td>
-<td align="center">-0.1830</td>
-</tr>
-<tr class="odd">
-<td align="center">0.315</td>
-<td align="center">0.325</td>
-<td align="center">0.32</td>
-<td align="center">32</td>
-<td align="center">3</td>
-<td align="center">0.1392</td>
-<td align="center">0.9894</td>
-<td align="center">-0.8581</td>
-</tr>
-<tr class="even">
-<td align="center">0.425</td>
-<td align="center">0.435</td>
-<td align="center">0.43</td>
-<td align="center">43</td>
-<td align="center">3</td>
-<td align="center">-0.0847</td>
-<td align="center">0.5004</td>
-<td align="center">0.9582</td>
-</tr>
-<tr class="odd">
-<td align="center">0.005</td>
-<td align="center">0.015</td>
-<td align="center">0.01</td>
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">-0.6666</td>
-<td align="center">0.5769</td>
-<td align="center">-0.8391</td>
-</tr>
-<tr class="even">
-<td align="center">0.000</td>
-<td align="center">0.005</td>
-<td align="center">0.00</td>
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">-2.5161</td>
-<td align="center">1.1427</td>
-<td align="center">-0.7597</td>
-</tr>
-<tr class="odd">
-<td align="center">0.185</td>
-<td align="center">0.195</td>
-<td align="center">0.19</td>
-<td align="center">19</td>
-<td align="center">3</td>
-<td align="center">-0.7351</td>
-<td align="center">-0.7074</td>
-<td align="center">-0.8665</td>
-</tr>
-<tr class="even">
-<td align="center">0.095</td>
-<td align="center">0.105</td>
-<td align="center">0.10</td>
-<td align="center">10</td>
-<td align="center">3</td>
-<td align="center">-1.0201</td>
-<td align="center">-0.6186</td>
-<td align="center">1.6590</td>
-</tr>
-<tr class="odd">
-<td align="center">0.995</td>
-<td align="center">1.000</td>
-<td align="center">1.00</td>
-<td align="center">100</td>
-<td align="center">2</td>
-<td align="center">0.1136</td>
-<td align="center">-0.0083</td>
-<td align="center">0.5569</td>
-</tr>
-<tr class="even">
-<td align="center">0.165</td>
-<td align="center">0.175</td>
-<td align="center">0.17</td>
-<td align="center">17</td>
-<td align="center">3</td>
-<td align="center">-0.4738</td>
-<td align="center">0.3389</td>
-<td align="center">0.6014</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>    n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span>,</span>
-<span>    exact <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">delta</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>,</span>
-<span>    left <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">delta</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    right <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">delta</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">delta</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="center">n</th>
-<th align="center">exact</th>
-<th align="center">left</th>
-<th align="center">right</th>
-<th align="center">interval</th>
-</tr></thead>
-<tbody><tr class="odd">
-<td align="center">150</td>
-<td align="center">0</td>
-<td align="center">9</td>
-<td align="center">10</td>
-<td align="center">131</td>
-</tr></tbody>
-</table>
-<p><code><a href="../reference/brs_sim.html">brs_sim()</a></code> coarsens each draw exactly as the likelihood
-assumes, so the censoring is non-informative. Its <code>delta</code>
-argument can force one type on every row; <code>delta = 1</code> or
-<code>2</code> censors each row at the cell of its own score, which is
-informative censoring with no finite MLE, and <code><a href="../reference/brs_sim.html">brs_sim()</a></code>
-warns. Leave <code>delta = NULL</code> for studies of the estimator.</p>
-</div>
-<div class="section level2">
-<h2 id="fixed-effects-candidate-set-and-model-ranking">2) Fixed-effects candidate set and model ranking<a class="anchor" aria-label="anchor" href="#fixed-effects-candidate-set-and-model-ranking"></a>
-</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_logit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim</span>, link <span class="op">=</span> <span class="st">"logit"</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">fit_probit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim</span>, link <span class="op">=</span> <span class="st">"probit"</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">fit_cauchit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim</span>, link <span class="op">=</span> <span class="st">"cauchit"</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">tab_rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_table.html">brs_table</a></span><span class="op">(</span></span>
-<span>  logit <span class="op">=</span> <span class="va">fit_logit</span>,</span>
-<span>  probit <span class="op">=</span> <span class="va">fit_probit</span>,</span>
-<span>  cauchit <span class="op">=</span> <span class="va">fit_cauchit</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">tab_rank</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="6%">
-<col width="4%">
-<col width="4%">
-<col width="7%">
-<col width="6%">
-<col width="6%">
-<col width="7%">
-<col width="4%">
-<col width="4%">
-<col width="4%">
-<col width="6%">
-<col width="8%">
-<col width="7%">
-<col width="8%">
-<col width="10%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">model</th>
-<th align="center">nobs</th>
-<th align="center">npar</th>
-<th align="center">logLik</th>
-<th align="center">AIC</th>
-<th align="center">BIC</th>
-<th align="center">pseudo_r2</th>
-<th align="center">exact</th>
-<th align="center">left</th>
-<th align="center">right</th>
-<th align="center">interval</th>
-<th align="center">prop_exact</th>
-<th align="center">prop_left</th>
-<th align="center">prop_right</th>
-<th align="center">prop_interval</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">logit</td>
-<td align="center">150</td>
-<td align="center">5</td>
-<td align="center">-632.6093</td>
-<td align="center">1275.219</td>
-<td align="center">1290.272</td>
-<td align="center">0.2075</td>
-<td align="center">0</td>
-<td align="center">9</td>
-<td align="center">10</td>
-<td align="center">131</td>
-<td align="center">0</td>
-<td align="center">0.06</td>
-<td align="center">0.0667</td>
-<td align="center">0.8733</td>
-</tr>
-<tr class="even">
-<td align="center">probit</td>
-<td align="center">150</td>
-<td align="center">5</td>
-<td align="center">-632.4476</td>
-<td align="center">1274.895</td>
-<td align="center">1289.948</td>
-<td align="center">0.2095</td>
-<td align="center">0</td>
-<td align="center">9</td>
-<td align="center">10</td>
-<td align="center">131</td>
-<td align="center">0</td>
-<td align="center">0.06</td>
-<td align="center">0.0667</td>
-<td align="center">0.8733</td>
-</tr>
-<tr class="odd">
-<td align="center">cauchit</td>
-<td align="center">150</td>
-<td align="center">5</td>
-<td align="center">-633.4406</td>
-<td align="center">1276.881</td>
-<td align="center">1291.934</td>
-<td align="center">0.1334</td>
-<td align="center">0</td>
-<td align="center">9</td>
-<td align="center">10</td>
-<td align="center">131</td>
-<td align="center">0</td>
-<td align="center">0.06</td>
-<td align="center">0.0667</td>
-<td align="center">0.8733</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level2">
-<h2 id="inference-stack-wald-bootstrap-ame">3) Inference stack: Wald + bootstrap + AME<a class="anchor" aria-label="anchor" href="#inference-stack-wald-bootstrap-ame"></a>
-</h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="../reference/brs_est.html">brs_est</a></span><span class="op">(</span><span class="va">fit_logit</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="25%">
-<col width="13%">
-<col width="10%">
-<col width="12%">
-<col width="12%">
-<col width="13%">
-<col width="13%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">variable</th>
-<th align="center">estimate</th>
-<th align="center">se</th>
-<th align="center">z_value</th>
-<th align="center">p_value</th>
-<th align="center">ci_lower</th>
-<th align="center">ci_upper</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">(Intercept)</td>
-<td align="center">0.0880</td>
-<td align="center">0.1059</td>
-<td align="center">0.8306</td>
-<td align="center">0.4062</td>
-<td align="center">-0.1196</td>
-<td align="center">0.2956</td>
-</tr>
-<tr class="even">
-<td align="center">x1</td>
-<td align="center">0.6022</td>
-<td align="center">0.1051</td>
-<td align="center">5.7325</td>
-<td align="center">0.0000</td>
-<td align="center">0.3963</td>
-<td align="center">0.8081</td>
-</tr>
-<tr class="odd">
-<td align="center">x2</td>
-<td align="center">-0.3393</td>
-<td align="center">0.1240</td>
-<td align="center">-2.7371</td>
-<td align="center">0.0062</td>
-<td align="center">-0.5823</td>
-<td align="center">-0.0963</td>
-</tr>
-<tr class="even">
-<td align="center">(phi)_(Intercept)</td>
-<td align="center">-0.0823</td>
-<td align="center">0.1016</td>
-<td align="center">-0.8099</td>
-<td align="center">0.4180</td>
-<td align="center">-0.2814</td>
-<td align="center">0.1168</td>
-</tr>
-<tr class="odd">
-<td align="center">(phi)_z1</td>
-<td align="center">0.2621</td>
-<td align="center">0.0955</td>
-<td align="center">2.7447</td>
-<td align="center">0.0061</td>
-<td align="center">0.0749</td>
-<td align="center">0.4493</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_logit</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left"></th>
-<th align="center">2.5 %</th>
-<th align="center">97.5 %</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="center">-0.1196</td>
-<td align="center">0.2956</td>
-</tr>
-<tr class="even">
-<td align="left">x1</td>
-<td align="center">0.3963</td>
-<td align="center">0.8081</td>
-</tr>
-<tr class="odd">
-<td align="left">x2</td>
-<td align="center">-0.5823</td>
-<td align="center">-0.0963</td>
-</tr>
-<tr class="even">
-<td align="left">(phi)_(Intercept)</td>
-<td align="center">-0.2814</td>
-<td align="center">0.1168</td>
-</tr>
-<tr class="odd">
-<td align="left">(phi)_z1</td>
-<td align="center">0.0749</td>
-<td align="center">0.4493</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Draws are kept so that the plots below can reuse this single fit rather</span></span>
-<span><span class="co"># than resampling a second time.</span></span>
-<span><span class="va">boot_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span><span class="va">fit_logit</span>, R <span class="op">=</span> <span class="fl">30</span>, level <span class="op">=</span> <span class="fl">0.95</span>, keep_draws <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">boot_tab</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
-<colgroup>
-<col width="16%">
-<col width="8%">
-<col width="7%">
-<col width="8%">
-<col width="8%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="6%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">parameter</th>
-<th align="center">estimate</th>
-<th align="center">se_boot</th>
-<th align="center">ci_lower</th>
-<th align="center">ci_upper</th>
-<th align="center">mcse_lower</th>
-<th align="center">mcse_upper</th>
-<th align="center">wald_lower</th>
-<th align="center">wald_upper</th>
-<th align="center">level</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">(Intercept)</td>
-<td align="center">0.0880</td>
-<td align="center">0.1056</td>
-<td align="center">-0.0375</td>
-<td align="center">0.3209</td>
-<td align="center">0.0159</td>
-<td align="center">0.0409</td>
-<td align="center">-0.1196</td>
-<td align="center">0.2956</td>
-<td align="center">0.95</td>
-</tr>
-<tr class="even">
-<td align="center">x1</td>
-<td align="center">0.6022</td>
-<td align="center">0.1138</td>
-<td align="center">0.3534</td>
-<td align="center">0.7741</td>
-<td align="center">0.0529</td>
-<td align="center">0.0278</td>
-<td align="center">0.3963</td>
-<td align="center">0.8081</td>
-<td align="center">0.95</td>
-</tr>
-<tr class="odd">
-<td align="center">x2</td>
-<td align="center">-0.3393</td>
-<td align="center">0.1348</td>
-<td align="center">-0.5710</td>
-<td align="center">-0.1492</td>
-<td align="center">0.0224</td>
-<td align="center">0.0210</td>
-<td align="center">-0.5823</td>
-<td align="center">-0.0963</td>
-<td align="center">0.95</td>
-</tr>
-<tr class="even">
-<td align="center">(phi)_(Intercept)</td>
-<td align="center">-0.0823</td>
-<td align="center">0.1035</td>
-<td align="center">-0.2708</td>
-<td align="center">0.0564</td>
-<td align="center">0.0209</td>
-<td align="center">0.0156</td>
-<td align="center">-0.2814</td>
-<td align="center">0.1168</td>
-<td align="center">0.95</td>
-</tr>
-<tr class="odd">
-<td align="center">(phi)_z1</td>
-<td align="center">0.2621</td>
-<td align="center">0.1028</td>
-<td align="center">0.1054</td>
-<td align="center">0.4761</td>
-<td align="center">0.0180</td>
-<td align="center">0.0334</td>
-<td align="center">0.0749</td>
-<td align="center">0.4493</td>
-<td align="center">0.95</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span> <span class="co"># For marginal effects simulation</span></span>
-<span><span class="va">ame_mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit_logit</span>,</span>
-<span>  model <span class="op">=</span> <span class="st">"mean"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"response"</span>,</span>
-<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  n_sim <span class="op">=</span> <span class="fl">60</span>,</span>
-<span>  keep_draws <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">ame_mu</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="13%">
-<col width="12%">
-<col width="15%">
-<col width="13%">
-<col width="13%">
-<col width="9%">
-<col width="13%">
-<col width="6%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">variable</th>
-<th align="center">ame</th>
-<th align="center">std.error</th>
-<th align="center">ci.lower</th>
-<th align="center">ci.upper</th>
-<th align="center">model</th>
-<th align="center">type</th>
-<th align="center">n</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">x1</td>
-<td align="center">0.1366</td>
-<td align="center">0.0221</td>
-<td align="center">0.0964</td>
-<td align="center">0.176</td>
-<td align="center">mean</td>
-<td align="center">response</td>
-<td align="center">150</td>
-</tr>
-<tr class="even">
-<td align="center">x2</td>
-<td align="center">-0.0770</td>
-<td align="center">0.0248</td>
-<td align="center">-0.1196</td>
-<td align="center">-0.020</td>
-<td align="center">mean</td>
-<td align="center">response</td>
-<td align="center">150</td>
-</tr>
-</tbody>
-</table>
-<p>Each bootstrap replicate draws a new response at the fitted shapes
-and refits the original formula on a copy of the data, so factors,
-transformations and prepared data keep their structure; each row keeps
-its observation mechanism (exact, score, or analyst thresholds, which
-are treated as fixed and non-informative). Refits start from the fitted
-estimate and use the compiled Hessian. Failed replicates are counted in
-the printed header. <code>ci_type = "bca"</code> is also available: with
-parametric resampling and a leave-one-out jackknife it is an
-approximation (a warning says so once per session) and costs
-<code>R + n</code> fits instead of <code>R</code>; see
-<code><a href="../reference/brs_bootstrap.html">?brs_bootstrap</a></code>.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/autoplot.brs_bootstrap.html">autoplot.brs_bootstrap</a></span><span class="op">(</span></span>
-<span>    <span class="va">boot_tab</span>,</span>
-<span>    type <span class="op">=</span> <span class="st">"ci_forest"</span>,</span>
-<span>    title <span class="op">=</span> <span class="st">"Bootstrap (percentile) vs Wald intervals"</span></span>
-<span>  <span class="op">)</span></span>
-<span>  <span class="fu"><a href="../reference/autoplot.brs_marginaleffects.html">autoplot.brs_marginaleffects</a></span><span class="op">(</span><span class="va">ame_mu</span>, type <span class="op">=</span> <span class="st">"forest"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="brs-advanced-workflows_files/figure-html/inference-visual-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
-</div>
-<div class="section level2">
-<h2 id="prediction-layer-on-analyst-scale">4) Prediction layer on analyst scale<a class="anchor" aria-label="anchor" href="#prediction-layer-on-analyst-scale"></a>
-</h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">score_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_logit</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">score_prob</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="center">score_0</th>
-<th align="center">score_1</th>
-<th align="center">score_2</th>
-<th align="center">score_3</th>
-<th align="center">score_4</th>
-<th align="center">score_5</th>
-<th align="center">score_6</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">0.0150</td>
-<td align="center">0.0166</td>
-<td align="center">0.0131</td>
-<td align="center">0.0115</td>
-<td align="center">0.0105</td>
-<td align="center">0.0098</td>
-<td align="center">0.0093</td>
-</tr>
-<tr class="even">
-<td align="center">0.1131</td>
-<td align="center">0.0595</td>
-<td align="center">0.0376</td>
-<td align="center">0.0292</td>
-<td align="center">0.0244</td>
-<td align="center">0.0213</td>
-<td align="center">0.0191</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0292</td>
-<td align="center">0.0288</td>
-<td align="center">0.0219</td>
-<td align="center">0.0188</td>
-<td align="center">0.0169</td>
-<td align="center">0.0156</td>
-<td align="center">0.0146</td>
-</tr>
-<tr class="even">
-<td align="center">0.0793</td>
-<td align="center">0.0432</td>
-<td align="center">0.0276</td>
-<td align="center">0.0216</td>
-<td align="center">0.0182</td>
-<td align="center">0.0160</td>
-<td align="center">0.0144</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0610</td>
-<td align="center">0.0456</td>
-<td align="center">0.0317</td>
-<td align="center">0.0259</td>
-<td align="center">0.0225</td>
-<td align="center">0.0201</td>
-<td align="center">0.0184</td>
-</tr>
-<tr class="even">
-<td align="center">0.3873</td>
-<td align="center">0.0875</td>
-<td align="center">0.0471</td>
-<td align="center">0.0335</td>
-<td align="center">0.0264</td>
-<td align="center">0.0219</td>
-<td align="center">0.0189</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0260</td>
-<td align="center">0.0267</td>
-<td align="center">0.0206</td>
-<td align="center">0.0178</td>
-<td align="center">0.0161</td>
-<td align="center">0.0149</td>
-<td align="center">0.0140</td>
-</tr>
-<tr class="even">
-<td align="center">0.1375</td>
-<td align="center">0.0532</td>
-<td align="center">0.0315</td>
-<td align="center">0.0236</td>
-<td align="center">0.0194</td>
-<td align="center">0.0166</td>
-<td align="center">0.0147</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level2">
-<h2 id="out-of-sample-validation">5) Out-of-sample validation<a class="anchor" aria-label="anchor" href="#out-of-sample-validation"></a>
-</h2>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span> <span class="co"># For cross-validation reproducibility</span></span>
-<span><span class="va">cv_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
-<span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">sim</span>,</span>
-<span>  k <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  repeats <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  repar <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cv_tab</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="10%">
-<col width="7%">
-<col width="11%">
-<col width="10%">
-<col width="14%">
-<col width="11%">
-<col width="10%">
-<col width="14%">
-<col width="9%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">repeat</th>
-<th align="center">fold</th>
-<th align="center">n_train</th>
-<th align="center">n_test</th>
-<th align="center">log_score</th>
-<th align="center">rmse_yt</th>
-<th align="center">mae_yt</th>
-<th align="center">converged</th>
-<th align="center">error</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.1078</td>
-<td align="center">0.3298</td>
-<td align="center">0.2945</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="even">
-<td align="center">1</td>
-<td align="center">2</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.4249</td>
-<td align="center">0.3907</td>
-<td align="center">0.3447</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.0241</td>
-<td align="center">0.3290</td>
-<td align="center">0.2950</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="even">
-<td align="center">1</td>
-<td align="center">4</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.4575</td>
-<td align="center">0.3378</td>
-<td align="center">0.2984</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">5</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.2346</td>
-<td align="center">0.3401</td>
-<td align="center">0.2993</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="even">
-<td align="center">2</td>
-<td align="center">1</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.4746</td>
-<td align="center">0.3608</td>
-<td align="center">0.3105</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="odd">
-<td align="center">2</td>
-<td align="center">2</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.3551</td>
-<td align="center">0.3507</td>
-<td align="center">0.3146</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="even">
-<td align="center">2</td>
-<td align="center">3</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.1657</td>
-<td align="center">0.3262</td>
-<td align="center">0.2917</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="odd">
-<td align="center">2</td>
-<td align="center">4</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-3.9674</td>
-<td align="center">0.3667</td>
-<td align="center">0.3343</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="even">
-<td align="center">2</td>
-<td align="center">5</td>
-<td align="center">120</td>
-<td align="center">30</td>
-<td align="center">-4.4196</td>
-<td align="center">0.3247</td>
-<td align="center">0.2831</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level2">
-<h2 id="escalation-to-mixed-models">6) Escalation to mixed models<a class="anchor" aria-label="anchor" href="#escalation-to-mixed-models"></a>
-</h2>
-<div class="section level3">
-<h3 id="simulate-clustered-data-with-random-intercept-slope">6.1 Simulate clustered data with random intercept + slope<a class="anchor" aria-label="anchor" href="#simulate-clustered-data-with-random-intercept-slope"></a>
-</h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span><span class="va">ni</span> <span class="op">&lt;-</span> <span class="fl">25</span></span>
-<span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, each <span class="op">=</span> <span class="va">ni</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">n_mm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span>
-<span><span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n_mm</span><span class="op">)</span></span>
-<span><span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n_mm</span>, size <span class="op">=</span> <span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">g</span>, sd <span class="op">=</span> <span class="fl">0.40</span><span class="op">)</span></span>
-<span><span class="va">b1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">g</span>, sd <span class="op">=</span> <span class="fl">0.22</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">eta_mu</span> <span class="op">&lt;-</span> <span class="fl">0.20</span> <span class="op">+</span> <span class="fl">0.65</span> <span class="op">*</span> <span class="va">x1</span> <span class="op">-</span> <span class="fl">0.30</span> <span class="op">*</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">b0</span><span class="op">[</span><span class="va">id</span><span class="op">]</span> <span class="op">+</span> <span class="va">b1</span><span class="op">[</span><span class="va">id</span><span class="op">]</span> <span class="op">*</span> <span class="va">x1</span></span>
-<span><span class="va">eta_phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.20</span>, <span class="va">n_mm</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">eta_mu</span><span class="op">)</span></span>
-<span><span class="va">phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">eta_phi</span><span class="op">)</span></span>
-<span><span class="va">shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="va">mu</span>, phi <span class="op">=</span> <span class="va">phi</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="va">n_mm</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape1</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape2</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">dmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, id <span class="op">=</span> <span class="va">id</span>, x1 <span class="op">=</span> <span class="va">x1</span>, x2 <span class="op">=</span> <span class="va">x2</span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dmm</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="center">y</th>
-<th align="center">id</th>
-<th align="center">x1</th>
-<th align="center">x2</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">8</td>
-<td align="center">1</td>
-<td align="center">-0.5886</td>
-<td align="center">0</td>
-</tr>
-<tr class="even">
-<td align="center">89</td>
-<td align="center">1</td>
-<td align="center">-0.2773</td>
-<td align="center">1</td>
-</tr>
-<tr class="odd">
-<td align="center">9</td>
-<td align="center">1</td>
-<td align="center">-1.6193</td>
-<td align="center">0</td>
-</tr>
-<tr class="even">
-<td align="center">61</td>
-<td align="center">1</td>
-<td align="center">-0.1864</td>
-<td align="center">1</td>
-</tr>
-<tr class="odd">
-<td align="center">78</td>
-<td align="center">1</td>
-<td align="center">-0.5432</td>
-<td align="center">1</td>
-</tr>
-<tr class="even">
-<td align="center">77</td>
-<td align="center">1</td>
-<td align="center">-0.3511</td>
-<td align="center">1</td>
-</tr>
-<tr class="odd">
-<td align="center">100</td>
-<td align="center">1</td>
-<td align="center">0.7576</td>
-<td align="center">1</td>
-</tr>
-<tr class="even">
-<td align="center">53</td>
-<td align="center">1</td>
-<td align="center">-0.3713</td>
-<td align="center">1</td>
-</tr>
-<tr class="odd">
-<td align="center">0</td>
-<td align="center">1</td>
-<td align="center">-0.4505</td>
-<td align="center">1</td>
-</tr>
-<tr class="even">
-<td align="center">26</td>
-<td align="center">1</td>
-<td align="center">-0.1020</td>
-<td align="center">1</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="fit-evolutionary-sequence">6.2 Fit evolutionary sequence<a class="anchor" aria-label="anchor" href="#fit-evolutionary-sequence"></a>
-</h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_brs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">dmm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">fit_ri</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">dmm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">fit_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brsmm.html">brsmm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">x1</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">dmm</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">tab_lr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_brs</span>, <span class="va">fit_ri</span>, <span class="va">fit_rs</span>, test <span class="op">=</span> <span class="st">"Chisq"</span><span class="op">)</span></span>
-<span><span class="va">tab_lr</span></span>
-<span><span class="co">#&gt; Likelihood-ratio comparison of brs/brsmm models</span></span>
-<span><span class="co">#&gt; Rows M2, M3: one added random effect (variance on the boundary); Pr(&gt;Chisq) from the chi-bar-square mixture 1/2 chi2(Df - 1) + 1/2 chi2(Df).</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">300</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span>, z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">300</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span><span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">d</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.5</span><span class="op">)</span>,</span>
+<span>              zeta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="fl">0.15</span><span class="op">)</span>, <span class="fl">0.6</span><span class="op">)</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">sv</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;            Df  logLik    AIC    BIC  Chisq Chi Df Pr(&gt;Chisq)   </span></span>
-<span><span class="co">#&gt; M1 (brs)    4 -1057.0 2122.1 2136.1                            </span></span>
-<span><span class="co">#&gt; M2 (brsmm)  5 -1054.1 2118.2 2135.8 5.8355      1   0.007853 **</span></span>
-<span><span class="co">#&gt; M3 (brsmm)  7 -1052.2 2118.3 2143.0 3.8718      2   0.096701 . </span></span>
+<span><span class="co">#&gt;  0  1  2  3  4  5  6  7  8  9 10 </span></span>
+<span><span class="co">#&gt; 11 35 40 55 31 42 35 24 13 12  2</span></span></code></pre></div>
+<p>The constant-dispersion model is nested in the variable one, so
+<code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> gives a likelihood-ratio test on the added
+dispersion coefficients:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_const</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sv</span><span class="op">)</span></span>
+<span><span class="va">fit_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sv</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_const</span>, <span class="va">fit_var</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Likelihood-ratio comparison of brs/brsmm models</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          Df  logLik    AIC    BIC  Chisq Chi Df Pr(&gt;Chisq)    </span></span>
+<span><span class="co">#&gt; M1 (brs)  4 -611.69 1231.4 1246.2                             </span></span>
+<span><span class="co">#&gt; M2 (brs)  5 -588.92 1187.8 1206.4 45.541      1  1.495e-11 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_var</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; brs(formula = y ~ x1 + x2 | z1, data = sv)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Quantile residuals:</span></span>
+<span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span><span class="co">#&gt; -2.7415 -0.6239  0.0050  0.6938  2.8562 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; (Intercept) -0.16331    0.06319  -2.585  0.00975 ** </span></span>
+<span><span class="co">#&gt; x1           0.55034    0.04889  11.256  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; x2          -0.47818    0.08873  -5.389 7.08e-08 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (dispersion model for sigma with logit link):</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; (Intercept) -1.79655    0.08254 -21.767  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; z1           0.60411    0.09071   6.659 2.75e-11 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Log-likelihood: -588.9232 on 5 Df | AIC: 1187.8464 | BIC: 1206.3653 </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.1761  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 39 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 287 interval | 11 left | 2 right</span></span></code></pre></div>
+<p>The dispersion coefficients carry the <code>(phi)_</code> prefix;
+<code>coef(fit, model = "precision")</code> selects them, and
+<code>predict(type = "precision")</code> returns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\sigma_i</annotation></semantics></math>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_var</span>, model <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; (phi)_(Intercept)          (phi)_z1 </span></span>
+<span><span class="co">#&gt;        -1.7965462         0.6041058</span></span>
+<span><span class="va">nd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fl">0</span>, x2 <span class="op">=</span> <span class="fl">0</span>, z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">nd</span>, sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_var</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"precision"</span><span class="op">)</span>,</span>
+<span>      sd_latent <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_var</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"variance"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   x1 x2 z1      sigma sd_latent</span></span>
+<span><span class="co">#&gt; 1  0  0 -1 0.08312299  1.436760</span></span>
+<span><span class="co">#&gt; 2  0  0  0 0.14227201  1.879678</span></span>
+<span><span class="co">#&gt; 3  0  0  1 0.23282275  2.404564</span></span></code></pre></div>
+<p><code>brs_marginaleffects(fit, model = "precision")</code> gives
+average marginal effects on the dispersion submodel.</p>
+</div>
+<div class="section level2">
+<h2 id="boundary-cutpoints">Boundary cutpoints<a class="anchor" aria-label="anchor" href="#boundary-cutpoints"></a>
+</h2>
+<p>Rating data often pile up at 0 and at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>.
+With <code>cutpoints = "boundary"</code> the cutpoints between scores 0
+and 1 and between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+are estimated (see <code><a href="../articles/brs-intro.html">vignette("brs-intro")</a></code> for the
+parameterization and the requirements). Scores simulated with border
+cutpoints 0.12 and 0.88 instead of the 0.05 and 0.95 of the
+<code>"mid"</code> map:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">heap</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span><span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">d</span>, beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.6</span><span class="op">)</span>,</span>
+<span>                phi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="fl">0.2</span><span class="op">)</span>, ncuts <span class="op">=</span> <span class="fl">10</span>, cutpoints <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.12</span>, <span class="fl">0.88</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">heap</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  0  1  2  3  4  5  6  7  8  9 10 </span></span>
+<span><span class="co">#&gt; 33  9 32 38 44 36 40 27 24  5 12</span></span></code></pre></div>
+<p>The fixed map is nested at an interior point of the boundary model,
+so the likelihood-ratio test has 2 degrees of freedom
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>≥</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">K \ge 4</annotation></semantics></math>):</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_fix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">heap</span><span class="op">)</span></span>
+<span><span class="va">fit_bnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">heap</span>, cutpoints <span class="op">=</span> <span class="st">"boundary"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_fix</span>, <span class="va">fit_bnd</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Likelihood-ratio comparison of brs/brsmm models</span></span>
+<span><span class="co">#&gt; Rows M2: cutpoints "fixed" vs "boundary" (2 cutpoint parameters; the fixed map is an interior point; chi2 reference when both cutpoints are identified).</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          Df  logLik    AIC    BIC  Chisq Chi Df Pr(&gt;Chisq)    </span></span>
+<span><span class="co">#&gt; M1 (brs)  4 -664.39 1336.8 1351.6                             </span></span>
+<span><span class="co">#&gt; M2 (brs)  6 -636.12 1284.2 1306.5 56.541      2  5.276e-13 ***</span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> reports the estimated cutpoints on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>
+and on the score scale, with delta-method standard errors, next to their
+fixed values; <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>, <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> and
+<code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code> accept <code>model = "cutpoints"</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_bnd</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; brs(formula = y ~ x1 + x2, data = heap, cutpoints = "boundary")</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Quantile residuals:</span></span>
+<span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span><span class="co">#&gt; -2.4684 -0.6102 -0.0448  0.6593  2.7993 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; (Intercept)  0.02673    0.07589   0.352    0.725    </span></span>
+<span><span class="co">#&gt; x1           0.49265    0.05868   8.395  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; x2          -0.47655    0.10629  -4.483 7.35e-06 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (dispersion model for sigma with logit link):</span></span>
+<span><span class="co">#&gt;       Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; (phi) -1.42562    0.08684  -16.42   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Boundary cutpoints (logit scale; on (0, 1) and on the score scale, with delta-method SEs; 'fixed' = the map's value):</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error cutpoint SE(cut)  score SE(score) fixed</span></span>
+<span><span class="co">#&gt; c_lo (0|1)    1.5165     0.3784   0.1230  0.0084 1.2301    0.0838   0.5</span></span>
+<span><span class="co">#&gt; c_hi (9|10)  -1.3994     0.5067   0.8797  0.0121 8.7969    0.1206   9.5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Log-likelihood: -636.1209 on 6 Df | AIC: 1284.2418 | BIC: 1306.4645 </span></span>
+<span><span class="co">#&gt; Pseudo R-squared: 0.2617  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
+<span><span class="co">#&gt; Number of iterations: 35 (BFGS) </span></span>
+<span><span class="co">#&gt; Censoring: 255 interval | 33 left | 12 right</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_bnd</span>, model <span class="op">=</span> <span class="st">"cutpoints"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;               2.5 %     97.5 %</span></span>
+<span><span class="co">#&gt; (cut_lo)  0.7748769  2.2582010</span></span>
+<span><span class="co">#&gt; (cut_hi) -2.3924205 -0.4063316</span></span></code></pre></div>
+<p>The average predicted score distribution against the observed one
+shows what the two cutpoints change:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proportions.html" class="external-link">prop.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">heap</span><span class="op">$</span><span class="va">y</span>, levels <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>observed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">obs</span><span class="op">)</span>,</span>
+<span>            fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_fix</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>            boundary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_bnd</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          observed fixed boundary</span></span>
+<span><span class="co">#&gt; score_0     0.110 0.070    0.105</span></span>
+<span><span class="co">#&gt; score_1     0.030 0.121    0.030</span></span>
+<span><span class="co">#&gt; score_2     0.107 0.118    0.123</span></span>
+<span><span class="co">#&gt; score_3     0.127 0.115    0.132</span></span>
+<span><span class="co">#&gt; score_4     0.147 0.111    0.133</span></span>
+<span><span class="co">#&gt; score_5     0.120 0.106    0.127</span></span>
+<span><span class="co">#&gt; score_6     0.133 0.099    0.115</span></span>
+<span><span class="co">#&gt; score_7     0.090 0.090    0.098</span></span>
+<span><span class="co">#&gt; score_8     0.080 0.079    0.076</span></span>
+<span><span class="co">#&gt; score_9     0.017 0.065    0.018</span></span>
+<span><span class="co">#&gt; score_10    0.040 0.026    0.043</span></span></code></pre></div>
+<p>Cross-validation refits the cutpoints in each training fold and
+scores the held-out rows with them. A fold without one of the scores 0,
+1,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K - 1</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+cannot be fitted and is reported in the <code>error</code> column.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">cv_fix</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">heap</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">cv_bnd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">heap</span>, k <span class="op">=</span> <span class="fl">5</span>, cutpoints <span class="op">=</span> <span class="st">"boundary"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_fix</span><span class="op">$</span><span class="va">log_score</span><span class="op">)</span>, boundary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_bnd</span><span class="op">$</span><span class="va">log_score</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     fixed  boundary </span></span>
+<span><span class="co">#&gt; -2.222953 -2.138410</span></span></code></pre></div>
+<p>Pseudo
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math>
+and the midpoint residuals use the centers of the estimated border
+cells, so they are not directly comparable between fixed-map and
+boundary fits; compare those fits by likelihood or held-out log
+score.</p>
+</div>
+<div class="section level2">
+<h2 id="model-comparison">Model comparison<a class="anchor" aria-label="anchor" href="#model-comparison"></a>
+</h2>
+<div class="section level3">
+<h3 id="links-and-interval-maps">Links and interval maps<a class="anchor" aria-label="anchor" href="#links-and-interval-maps"></a>
+</h3>
+<p>Fits with different links for the same scores are not nested; compare
+them by AIC or BIC:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>logit <span class="op">=</span> <span class="st">"logit"</span>, probit <span class="op">=</span> <span class="st">"probit"</span>, cloglog <span class="op">=</span> <span class="st">"cloglog"</span><span class="op">)</span>,</span>
+<span>               <span class="kw">function</span><span class="op">(</span><span class="va">l</span><span class="op">)</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sv</span>, link <span class="op">=</span> <span class="va">l</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/brs_table.html">brs_table</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fits</span>, sort_by <span class="op">=</span> <span class="st">"AIC"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     model nobs npar    logLik      AIC      BIC pseudo_r2 exact left right</span></span>
+<span><span class="co">#&gt; 1 cloglog  300    5 -587.8171 1185.634 1204.153    0.1454     0   11     2</span></span>
+<span><span class="co">#&gt; 2   logit  300    5 -588.9232 1187.846 1206.365    0.1761     0   11     2</span></span>
+<span><span class="co">#&gt; 3  probit  300    5 -589.1080 1188.216 1206.735    0.2399     0   11     2</span></span>
+<span><span class="co">#&gt;   interval prop_exact prop_left prop_right prop_interval</span></span>
+<span><span class="co">#&gt; 1      287          0    0.0367     0.0067        0.9567</span></span>
+<span><span class="co">#&gt; 2      287          0    0.0367     0.0067        0.9567</span></span>
+<span><span class="co">#&gt; 3      287          0    0.0367     0.0067        0.9567</span></span></code></pre></div>
+<p>The same holds across interval maps: with <code>lim = 0.5</code> each
+map gives a pmf over
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">0, \ldots, K</annotation></semantics></math>,
+so <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>, <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">AIC()</a></code> and <code><a href="https://rdrr.io/r/stats/AIC.html" class="external-link">BIC()</a></code> are
+comparable across <code>interval = "mid"</code>, <code>"right"</code>
+and <code>"left"</code>, but the maps are not nested and
+<code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> refuses a likelihood-ratio test between them (see
+<code><a href="../articles/brs-intro.html">vignette("brs-intro")</a></code>).</p>
 </div>
 <div class="section level3">
-<h3 id="model-choice-by-llrlrt-anova">6.3 Model choice by LLR/LRT (ANOVA)<a class="anchor" aria-label="anchor" href="#model-choice-by-llrlrt-anova"></a>
+<h3 id="comparison-with-an-ordinal-model">Comparison with an ordinal model<a class="anchor" aria-label="anchor" href="#comparison-with-an-ordinal-model"></a>
 </h3>
-<p>The <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> methods provide a practical Likelihood Ratio
-Test (LLR) workflow:</p>
-<ul>
-<li>
-<code>M0 = brs</code> (no random effects);</li>
-<li>
-<code>M1 = brsmm</code> with random intercept
-(<code>~ 1 | id</code>);</li>
-<li>
-<code>M2 = brsmm</code> with random intercept + slope
-(<code>~ 1 + x1 | id</code>).</li>
-</ul>
-<p>In nested comparisons, the test statistic is:
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>R</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">{</mo><mi>ℓ</mi><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">complex</mtext></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>ℓ</mi><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">simple</mtext></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">LR=2\{\ell(\hat\theta_{\text{complex}})-\ell(\hat\theta_{\text{simple}})\}</annotation></semantics></math></p>
-<p>Both steps add one random-effect term whose variance is on the
-boundary of the parameter space under
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>H</mi><mn>0</mn></msub><annotation encoding="application/x-tex">H_0</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\sigma^2=0</annotation></semantics></math>).
-The reference distribution is then the mixture
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>χ</mi><mrow><mi>d</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></msubsup><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>χ</mi><mi>d</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\frac12\chi^2_{d-1}+\frac12\chi^2_{d}</annotation></semantics></math>
-(Self and Liang, 1987; Stram and Lee, 1994):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>χ</mi><mn>0</mn><mn>2</mn></msubsup><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>χ</mi><mn>1</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\frac12\chi^2_0+\frac12\chi^2_1</annotation></semantics></math>
-for <code>M0 -&gt; M1</code> and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>χ</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>χ</mi><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\frac12\chi^2_1+\frac12\chi^2_2</annotation></semantics></math>
-for <code>M1 -&gt; M2</code>, where the slope adds a variance and a
-covariance. <code><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova()</a></code> uses it for such rows and says so in
-its heading; the naive
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>χ</mi><mi>d</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\chi^2_d</annotation></semantics></math>
-p-value would be too large. A term that adds almost nothing to the
-likelihood is also flagged by <code><a href="../reference/brsmm.html">brsmm()</a></code> (“Variance component
-at the boundary”).</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tab_lr_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tab_lr</span><span class="op">)</span>, <span class="va">tab_lr</span>, row.names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
-<span><span class="va">tab_lr_df</span><span class="op">$</span><span class="va">decision</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>  <span class="st">"baseline"</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">tab_lr_df</span><span class="op">$</span><span class="va">`Pr(&gt;Chisq)`</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="st">"inspect AIC/BIC + diagnostics"</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">tab_lr_df</span><span class="op">$</span><span class="va">`Pr(&gt;Chisq)`</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="st">"prefer M1 over M0"</span>, <span class="st">"prefer M0 (parsimony)"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">tab_lr_df</span><span class="op">$</span><span class="va">`Pr(&gt;Chisq)`</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span>, <span class="st">"inspect AIC/BIC + diagnostics"</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">tab_lr_df</span><span class="op">$</span><span class="va">`Pr(&gt;Chisq)`</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="st">"prefer M2 over M1"</span>, <span class="st">"prefer M1 (parsimony)"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">tab_lr_df</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="14%">
-<col width="4%">
-<col width="12%">
-<col width="11%">
-<col width="11%">
-<col width="9%">
-<col width="9%">
-<col width="14%">
-<col width="11%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">model</th>
-<th align="center">Df</th>
-<th align="center">logLik</th>
-<th align="center">AIC</th>
-<th align="center">BIC</th>
-<th align="center">Chisq</th>
-<th align="center">Chi.Df</th>
-<th align="center">Pr..Chisq.</th>
-<th align="center">decision</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">M1 (brs)</td>
-<td align="center">4</td>
-<td align="center">-1057.029</td>
-<td align="center">2122.058</td>
-<td align="center">2136.144</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">baseline</td>
-</tr>
-<tr class="even">
-<td align="center">M2 (brsmm)</td>
-<td align="center">5</td>
-<td align="center">-1054.111</td>
-<td align="center">2118.223</td>
-<td align="center">2135.830</td>
-<td align="center">5.8355</td>
-<td align="center">1</td>
-<td align="center">0.0079</td>
-<td align="center">baseline</td>
-</tr>
-<tr class="odd">
-<td align="center">M3 (brsmm)</td>
-<td align="center">7</td>
-<td align="center">-1052.176</td>
-<td align="center">2118.351</td>
-<td align="center">2143.001</td>
-<td align="center">3.8718</td>
-<td align="center">2</td>
-<td align="center">0.0967</td>
-<td align="center">baseline</td>
-</tr>
-</tbody>
-</table>
+<p>Because the likelihood of <code><a href="../reference/brs.html">brs()</a></code> is the probability of
+the observed scores, it is on the same scale as the likelihood of an
+ordinal regression for the same scores, and the two can be compared by
+AIC. A cumulative logit model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>S</mi><mo>≤</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msub><mi>θ</mi><mi>s</mi></msub><mo>−</mo><msup><mi>x</mi><mi>⊤</mi></msup><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(S \le s) = \mathrm{logit}^{-1}(\theta_s - x^\top
+\beta)</annotation></semantics></math>, with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+free thresholds, can be fitted in a few lines of base R:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">heap</span><span class="op">)</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="va">heap</span><span class="op">$</span><span class="va">y</span></span>
+<span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="co"># Negative log-likelihood; thresholds kept ordered by positive increments</span></span>
+<span><span class="va">nll_ord</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="va">K</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">eta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">par</span><span class="op">[</span><span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">K</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">cum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="op">-</span><span class="va">eta</span>, <span class="va">theta</span>, <span class="st">"+"</span><span class="op">)</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">cum</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>, <span class="va">s</span> <span class="op">+</span> <span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="op">-</span> <span class="va">cum</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>, <span class="va">s</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">s</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">0.4</span><span class="op">)</span>, <span class="va">K</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">ord</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></span><span class="op">(</span><span class="va">start</span>, <span class="va">nll_ord</span>, method <span class="op">=</span> <span class="st">"BFGS"</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ord</span><span class="op">$</span><span class="va">convergence</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
+<span></span>
+<span><span class="va">ll</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>brs_fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit_fix</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        brs_boundary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit_bnd</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        cumulative_logit <span class="op">=</span> <span class="op">-</span><span class="va">ord</span><span class="op">$</span><span class="va">value</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_fix</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_bnd</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ord</span><span class="op">$</span><span class="va">par</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>logLik <span class="op">=</span> <span class="va">ll</span>, df <span class="op">=</span> <span class="va">df</span>, AIC <span class="op">=</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="va">ll</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">df</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                     logLik df      AIC</span></span>
+<span><span class="co">#&gt; brs_fixed        -664.3913  4 1336.783</span></span>
+<span><span class="co">#&gt; brs_boundary     -636.1209  6 1284.242</span></span>
+<span><span class="co">#&gt; cumulative_logit -636.4632 12 1296.926</span></span></code></pre></div>
+<p>The cumulative logit model spends
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+parameters on the thresholds; the beta model with boundary cutpoints
+uses two plus the dispersion. The same reasoning applies out of sample:
+<code>brs_loglik_contrib(fit, newdata)</code> and
+<code><a href="../reference/brsmm_cv.html">brsmm_cv()</a></code> return held-out log probabilities of the scores
+that can be set against those of any model giving a pmf on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">0, \ldots, K</annotation></semantics></math>,
+evaluated on the same rows or folds.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="random-effects-study-numeric-visual">7) Random-effects study (numeric + visual)<a class="anchor" aria-label="anchor" href="#random-effects-study-numeric-visual"></a>
+<h2 id="a-monte-carlo-study">A Monte Carlo study<a class="anchor" aria-label="anchor" href="#a-monte-carlo-study"></a>
 </h2>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brsmm_re_study.html">brsmm_re_study</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">rs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Random-effects study</span></span>
-<span><span class="co">#&gt; Groups: 10 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Random-effects (VarCorr):</span></span>
-<span><span class="co">#&gt;   Name                      Std.Dev.  Corr</span></span>
-<span><span class="co">#&gt;   (Intercept)                 0.3240</span></span>
-<span><span class="co">#&gt;   x1                          0.2200  0.9992</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ICC (logit(Y) scale, beta level-1 variance): 0.0804</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Summary by term (SD_model = model SD; shrinkage = Var(modes)/Var(model)):</span></span>
-<span><span class="co">#&gt;         term sd_model mean_mode sd_mode shrinkage_ratio shapiro_p</span></span>
-<span><span class="co">#&gt;  (Intercept)    0.324   -0.0044  0.2795          0.7441    0.1585</span></span>
-<span><span class="co">#&gt;           x1    0.220   -0.0030  0.1897          0.7436    0.1585</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">rs</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="18%">
-<col width="14%">
-<col width="15%">
-<col width="12%">
-<col width="23%">
-<col width="15%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">term</th>
-<th align="center">sd_model</th>
-<th align="center">mean_mode</th>
-<th align="center">sd_mode</th>
-<th align="center">shrinkage_ratio</th>
-<th align="center">shapiro_p</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">(Intercept)</td>
-<td align="center">0.324</td>
-<td align="center">-0.0044</td>
-<td align="center">0.2795</td>
-<td align="center">0.7441</td>
-<td align="center">0.1585</td>
-</tr>
-<tr class="even">
-<td align="center">x1</td>
-<td align="center">0.220</td>
-<td align="center">-0.0030</td>
-<td align="center">0.1897</td>
-<td align="center">0.7436</td>
-<td align="center">0.1585</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="va">rs</span><span class="op">$</span><span class="va">D</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left"></th>
-<th align="center">(Intercept)</th>
-<th align="center">x1</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="center">0.1050</td>
-<td align="center">0.0712</td>
-</tr>
-<tr class="even">
-<td align="left">x1</td>
-<td align="center">0.0712</td>
-<td align="center">0.0484</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span><span class="va">rs</span><span class="op">$</span><span class="va">Corr</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left"></th>
-<th align="center">(Intercept)</th>
-<th align="center">x1</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">(Intercept)</td>
-<td align="center">1.0000</td>
-<td align="center">0.9992</td>
-</tr>
-<tr class="even">
-<td align="left">x1</td>
-<td align="center">0.9992</td>
-<td align="center">1.0000</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/autoplot.brsmm.html">autoplot.brsmm</a></span><span class="op">(</span><span class="va">fit_rs</span>, type <span class="op">=</span> <span class="st">"ranef_caterpillar"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="../reference/autoplot.brsmm.html">autoplot.brsmm</a></span><span class="op">(</span><span class="va">fit_rs</span>, type <span class="op">=</span> <span class="st">"ranef_density"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="../reference/autoplot.brsmm.html">autoplot.brsmm</a></span><span class="op">(</span><span class="va">fit_rs</span>, type <span class="op">=</span> <span class="st">"ranef_pairs"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="../reference/autoplot.brsmm.html">autoplot.brsmm</a></span><span class="op">(</span><span class="va">fit_rs</span>, type <span class="op">=</span> <span class="st">"ranef_qq"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="brs-advanced-workflows_files/figure-html/ranef-plots-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
-</div>
-<div class="section level2">
-<h2 id="a-monte-carlo-study-design-of-lopes-2023-ch--3">8) A Monte Carlo study (design of Lopes, 2023, ch. 3)<a class="anchor" aria-label="anchor" href="#a-monte-carlo-study-design-of-lopes-2023-ch--3"></a>
-</h2>
-<p>A simulation study is a loop of <code><a href="../reference/brs_sim.html">brs_sim()</a></code> and
-<code><a href="../reference/brs.html">brs()</a></code> over a fixed design. The code below mirrors the
-dissertation’s design with a smaller grid: repar 2 with logit links,
-<code>interval = "mid"</code>, two scale lengths
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">K=10</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">K=100</annotation></semantics></math>),
-two sample sizes and three dispersion levels, 200 replicates per cell.
-It takes under a minute, so it is not run here.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<p>A simulation study of the estimator is a loop of
+<code><a href="../reference/brs_sim.html">brs_sim()</a></code> and <code><a href="../reference/brs.html">brs()</a></code> over a fixed design. The
+code below is a template (not run here): logit links,
+<code>interval = "mid"</code>, two scale lengths, two sample sizes and
+three dispersion levels, with bias, root mean squared error and coverage
+of the 95% Wald interval per cell. Increase <code>R</code> for precise
+coverages; with <code>R = 200</code> the Monte Carlo standard error of a
+coverage near 0.95 is about 0.015.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fl">200L</span></span>
 <span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.7</span><span class="op">)</span></span>
-<span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.08</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span><span class="op">)</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100L</span>, <span class="fl">500L</span><span class="op">)</span>, K <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10L</span>, <span class="fl">100L</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.08</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span><span class="op">)</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100L</span>, <span class="fl">500L</span><span class="op">)</span>,</span>
+<span>                    K <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10L</span>, <span class="fl">100L</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">one_cell</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sigma</span>, <span class="va">n</span>, <span class="va">K</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1000</span> <span class="op">+</span> <span class="va">n</span> <span class="op">+</span> <span class="va">K</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">sigma</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>   <span class="co"># fixed design</span></span>
 <span>  <span class="va">truth</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">beta</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">est</span> <span class="op">&lt;-</span> <span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">R</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">r</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">R</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span><span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">d</span>, beta <span class="op">=</span> <span class="va">beta</span>, phi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">)</span>, ncuts <span class="op">=</span> <span class="va">K</span><span class="op">)</span></span>
+<span>    <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span><span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">d</span>, beta <span class="op">=</span> <span class="va">beta</span>, phi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">qlogis</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">)</span>,</span>
+<span>                 ncuts <span class="op">=</span> <span class="va">K</span><span class="op">)</span></span>
 <span>    <span class="va">f</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">s</span><span class="op">)</span>, error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="op">||</span> <span class="va">f</span><span class="op">$</span><span class="va">convergence</span> <span class="op">!=</span> <span class="fl">0L</span><span class="op">)</span> <span class="kw">next</span></span>
 <span>    <span class="va">est</span><span class="op">[</span><span class="va">r</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
@@ -1258,233 +395,22 @@ It takes under a minute, so it is not run here.</p>
 <span>             cover <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">err</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">0.975</span><span class="op">)</span> <span class="op">*</span> <span class="va">se</span><span class="op">[</span><span class="va">ok</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Map</a></span><span class="op">(</span><span class="va">one_cell</span>, <span class="va">grid</span><span class="op">$</span><span class="va">sigma</span>, <span class="va">grid</span><span class="op">$</span><span class="va">n</span>, <span class="va">grid</span><span class="op">$</span><span class="va">K</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Results for the slope
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>β</mi><mn>1</mn></msub><mo>=</mo><mn>0.2</mn></mrow><annotation encoding="application/x-tex">\beta_1=0.2</annotation></semantics></math>
-and for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>σ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{logit}(\sigma)</annotation></semantics></math>
-(bias, root mean squared error and coverage of the 95% Wald interval,
-with the default compiled Hessian;
-<code>hessian_method = "numDeriv"</code> gives the same coverages):</p>
-<table style="width:100%;" class="table">
-<colgroup>
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-</colgroup>
-<thead><tr class="header">
-<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math></th>
-<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></th>
-<th align="right"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>σ</mi><annotation encoding="application/x-tex">\sigma</annotation></semantics></math></th>
-<th align="right">
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>
-bias</th>
-<th align="right">RMSE</th>
-<th align="right">cover</th>
-<th align="right">
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mspace width="0.167em"></mspace><mi>σ</mi></mrow><annotation encoding="application/x-tex">\mathrm{logit}\,\sigma</annotation></semantics></math>
-bias</th>
-<th align="right">RMSE</th>
-<th align="right">cover</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="right">10</td>
-<td align="right">100</td>
-<td align="right">0.08</td>
-<td align="right">0.003</td>
-<td align="right">0.057</td>
-<td align="right">0.925</td>
-<td align="right">-0.047</td>
-<td align="right">0.160</td>
-<td align="right">0.920</td>
-</tr>
-<tr class="even">
-<td align="right">10</td>
-<td align="right">100</td>
-<td align="right">0.20</td>
-<td align="right">0.009</td>
-<td align="right">0.092</td>
-<td align="right">0.925</td>
-<td align="right">-0.038</td>
-<td align="right">0.146</td>
-<td align="right">0.945</td>
-</tr>
-<tr class="odd">
-<td align="right">10</td>
-<td align="right">100</td>
-<td align="right">0.40</td>
-<td align="right">-0.011</td>
-<td align="right">0.127</td>
-<td align="right">0.945</td>
-<td align="right">-0.024</td>
-<td align="right">0.141</td>
-<td align="right">0.945</td>
-</tr>
-<tr class="even">
-<td align="right">10</td>
-<td align="right">500</td>
-<td align="right">0.08</td>
-<td align="right">0.000</td>
-<td align="right">0.029</td>
-<td align="right">0.920</td>
-<td align="right">-0.013</td>
-<td align="right">0.067</td>
-<td align="right">0.930</td>
-</tr>
-<tr class="odd">
-<td align="right">10</td>
-<td align="right">500</td>
-<td align="right">0.20</td>
-<td align="right">0.005</td>
-<td align="right">0.039</td>
-<td align="right">0.975</td>
-<td align="right">-0.004</td>
-<td align="right">0.061</td>
-<td align="right">0.945</td>
-</tr>
-<tr class="even">
-<td align="right">10</td>
-<td align="right">500</td>
-<td align="right">0.40</td>
-<td align="right">-0.003</td>
-<td align="right">0.060</td>
-<td align="right">0.945</td>
-<td align="right">-0.013</td>
-<td align="right">0.059</td>
-<td align="right">0.945</td>
-</tr>
-<tr class="odd">
-<td align="right">100</td>
-<td align="right">100</td>
-<td align="right">0.08</td>
-<td align="right">-0.003</td>
-<td align="right">0.055</td>
-<td align="right">0.955</td>
-<td align="right">-0.047</td>
-<td align="right">0.132</td>
-<td align="right">0.965</td>
-</tr>
-<tr class="even">
-<td align="right">100</td>
-<td align="right">100</td>
-<td align="right">0.20</td>
-<td align="right">0.006</td>
-<td align="right">0.097</td>
-<td align="right">0.930</td>
-<td align="right">-0.043</td>
-<td align="right">0.138</td>
-<td align="right">0.935</td>
-</tr>
-<tr class="odd">
-<td align="right">100</td>
-<td align="right">100</td>
-<td align="right">0.40</td>
-<td align="right">0.014</td>
-<td align="right">0.113</td>
-<td align="right">0.940</td>
-<td align="right">-0.046</td>
-<td align="right">0.131</td>
-<td align="right">0.935</td>
-</tr>
-<tr class="even">
-<td align="right">100</td>
-<td align="right">500</td>
-<td align="right">0.08</td>
-<td align="right">0.002</td>
-<td align="right">0.031</td>
-<td align="right">0.920</td>
-<td align="right">-0.012</td>
-<td align="right">0.064</td>
-<td align="right">0.930</td>
-</tr>
-<tr class="odd">
-<td align="right">100</td>
-<td align="right">500</td>
-<td align="right">0.20</td>
-<td align="right">0.001</td>
-<td align="right">0.040</td>
-<td align="right">0.945</td>
-<td align="right">-0.003</td>
-<td align="right">0.059</td>
-<td align="right">0.955</td>
-</tr>
-<tr class="even">
-<td align="right">100</td>
-<td align="right">500</td>
-<td align="right">0.40</td>
-<td align="right">0.008</td>
-<td align="right">0.063</td>
-<td align="right">0.930</td>
-<td align="right">-0.004</td>
-<td align="right">0.057</td>
-<td align="right">0.940</td>
-</tr>
-</tbody>
-</table>
-<p>With 200 replicates the Monte Carlo standard error of a coverage near
-0.95 is about 0.015. The slopes are unbiased at both scale lengths; the
-dispersion is slightly underestimated at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n=100</annotation></semantics></math>
-(about
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>0.04</mn></mrow><annotation encoding="application/x-tex">-0.04</annotation></semantics></math>
-on the logit scale, a third of its RMSE) and the bias vanishes at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">n=500</annotation></semantics></math>.
-A coarse scale
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">K=10</annotation></semantics></math>)
-costs little precision relative to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">K=100</annotation></semantics></math>.</p>
-</div>
-<div class="section level2">
-<h2 id="practical-decision-checklist">9) Practical decision checklist<a class="anchor" aria-label="anchor" href="#practical-decision-checklist"></a>
-</h2>
-<ul>
-<li>Start with <code>brs</code> candidates (<code>link</code>,
-<code>repar</code>) and rank them using <code><a href="../reference/brs_table.html">brs_table()</a></code>.</li>
-<li>Add bootstrap analysis and Average Marginal Effects (AME) before
-escalating complexity.</li>
-<li>Use <code><a href="../reference/brs_cv.html">brs_cv()</a></code> for out-of-sample stability checks.</li>
-<li>Escalate to <code>brsmm</code> only when LR/AIC/BIC metrics and
-diagnostics clearly support it.</li>
-<li>For random slopes, always inspect <code><a href="../reference/brsmm_re_study.html">brsmm_re_study()</a></code> and
-the associated random-effects plots.</li>
-<li>Read the one-line warnings of
-<code><a href="../reference/brs.html">brs()</a></code>/<code><a href="../reference/brsmm.html">brsmm()</a></code> (gradient, Hessian, clamps,
-variance at the boundary) before any Wald statement;
-<code>fit$diagnostics</code> keeps the numbers.</li>
-</ul>
+<p>For mixed models the same loop uses <code><a href="../reference/brsmm_sim.html">brsmm_sim()</a></code> and
+<code><a href="../reference/brsmm.html">brsmm()</a></code>; the attribute <code>attr(sim, "truth")$par</code>
+holds the true parameters in the order of <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Lopes, J. E. (2023). <em>Modelos de regressão beta para dados de
+<ul>
+<li>Lopes, J. E. (2023). <em>Modelos de regressão beta para dados de
 escala</em>. Master’s dissertation, Universidade Federal do Paraná,
-Curitiba. <a href="https://hdl.handle.net/1884/86624" class="external-link uri">https://hdl.handle.net/1884/86624</a>.</p>
-<p>Self, S. G., and Liang, K.-Y. (1987). Asymptotic properties of
-maximum likelihood estimators and likelihood ratio tests under
-nonstandard conditions. <em>Journal of the American Statistical
-Association</em>, 82(398), 605-610.</p>
-<p>Stram, D. O., and Lee, J. W. (1994). Variance components testing in
-the longitudinal mixed effects model. <em>Biometrics</em>, 50(4),
-1171-1177.</p>
-<p>Ferrari, S. L. P. and Cribari-Neto, F. (2004). Beta regression for
-modelling rates and proportions. <em>Journal of Applied Statistics</em>,
-31(7), 799-815. DOI: 10.1080/0266476042000214501. Validated online via:
-<a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a>.</p>
-<p>Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
-Maximum-likelihood regression with beta-distributed dependent variables.
-<em>Psychological Methods</em>, 11(1), 54-71. DOI:
-10.1037/1082-989X.11.1.54. Validated online via: <a href="https://doi.org/10.1037/1082-989X.11.1.54" class="external-link uri">https://doi.org/10.1037/1082-989X.11.1.54</a>.</p>
-<p>Rue, H., Martino, S., and Chopin, N. (2009). Approximate Bayesian
-inference for latent Gaussian models by using integrated nested Laplace
-approximations. <em>Journal of the Royal Statistical Society: Series
-B</em>, 71(2), 319-392. DOI: 10.1111/j.1467-9868.2008.00700.x. Validated
-online via: <a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x" class="external-link uri">https://doi.org/10.1111/j.1467-9868.2008.00700.x</a>.</p>
+Curitiba. <a href="https://hdl.handle.net/1884/86624" class="external-link uri">https://hdl.handle.net/1884/86624</a>
+</li>
+<li>McCullagh, P. (1980). Regression models for ordinal data.
+<em>Journal of the Royal Statistical Society: Series B</em>, 42(2),
+109–142.</li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

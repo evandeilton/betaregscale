@@ -23,11 +23,12 @@ brs_cv(formula, data, k = 5L, repeats = 1L, ...)
 
 - k:
 
-  Number of folds.
+  Number of folds (default 5).
 
 - repeats:
 
-  Number of repeated k-fold runs.
+  Number of repeated k-fold runs (default 1); each repeat draws new
+  folds with the current RNG state.
 
 - ...:
 

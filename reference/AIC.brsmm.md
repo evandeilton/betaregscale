@@ -1,6 +1,7 @@
 # AIC for brsmm models
 
-AIC for brsmm models
+\\-2\ell + k\\p\\, with \\p\\ the number of parameters (fixed effects,
+precision, packed random-effect and cutpoint parameters).
 
 ## Usage
 
@@ -17,15 +18,18 @@ AIC(object, ..., k = 2)
 
 - ...:
 
-  Currently ignored.
+  Further fitted models (`brsmm`, `brs` or others with an
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html) method).
 
 - k:
 
-  Numeric penalty per parameter.
+  Numeric penalty per parameter (default 2).
 
 ## Value
 
-Numeric scalar.
+Numeric scalar; with several models, a data frame with columns `df` and
+`AIC`, one row per model, as
+[`stats::AIC()`](https://rdrr.io/r/stats/AIC.html).
 
 ## See also
 
@@ -51,5 +55,9 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 AIC(fit)
 #> [1] 192.3663
+AIC(brs(y ~ x1, data = prep), fit)
+#>                          df      AIC
+#> brs(y ~ x1, data = prep)  3 191.3041
+#> fit                       4 192.3663
 # }
 ```

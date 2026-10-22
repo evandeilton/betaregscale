@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Analyst Tools for betaregscale • betaregscale</title>
+<title>Analyst tools: predictions, residuals and validation • betaregscale</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,7 +18,7 @@
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Analyst Tools for betaregscale">
+<meta property="og:title" content="Analyst tools: predictions, residuals and validation">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -43,9 +43,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -67,7 +67,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Analyst Tools for betaregscale</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Analyst tools: predictions, residuals and validation</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-analyst-tools.Rmd" class="external-link"><code>vignettes/brs-analyst-tools.Rmd</code></a></small>
@@ -76,620 +76,412 @@
 
     
     
-<div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
-</h2>
-<p>This vignette presents the analyst-oriented tools of
-<strong>betaregscale</strong> for post-estimation workflows:</p>
-<ul>
-<li>
-<code><a href="../reference/brs_table.html">brs_table()</a></code>: model comparison tables.</li>
-<li>
-<code><a href="../reference/brs_marginaleffects.html">brs_marginaleffects()</a></code>: average marginal effects
-(AME).</li>
-<li>
-<code><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob()</a></code>: probabilities on the original
-score scale.</li>
-<li>
-<code><a href="../reference/autoplot.brs.html">autoplot.brs()</a></code>: <code>ggplot2</code> diagnostics.</li>
-<li>
-<code><a href="../reference/brs_cv.html">brs_cv()</a></code>: repeated k-fold cross-validation.</li>
-</ul>
-<p>The examples use bounded scale data under the interval-censored beta
-regression framework implemented in the package.</p>
+<p>This vignette shows the post-estimation tools for <code><a href="../reference/brs.html">brs()</a></code>
+fits: predictions on the mean and score scales, contrasts with standard
+errors, marginal effects, residuals, plots, the parametric bootstrap,
+cross-validation and summary tables. The model itself is described in
+<code><a href="../articles/brs-intro.html">vignette("brs-intro")</a></code>; the mixed-model versions of these
+tools are in <code><a href="../articles/brs-mm.html">vignette("brs-mm")</a></code>. Small numbers of
+replicates and folds keep the vignette fast, so the results are
+illustrative.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://evandeilton.github.io/betaregscale/">betaregscale</a></span><span class="op">)</span></span></code></pre></div>
-</div>
 <div class="section level2">
-<h2 id="mathematical-foundations">Mathematical foundations<a class="anchor" aria-label="anchor" href="#mathematical-foundations"></a>
+<h2 id="data-and-fit">Data and fit<a class="anchor" aria-label="anchor" href="#data-and-fit"></a>
 </h2>
-<div class="section level3">
-<h3 id="complete-likelihood-by-censoring-type">Complete likelihood by censoring type<a class="anchor" aria-label="anchor" href="#complete-likelihood-by-censoring-type"></a>
-</h3>
-<p>For each observation
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
-let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\delta_i\in\{0,1,2,3\}</annotation></semantics></math>
-indicate exact, left-censored, right-censored, or interval-censored
-status. With beta CDF
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(\cdot)</annotation></semantics></math>,
-beta density
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>⋅</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(\cdot)</annotation></semantics></math>,
-and interval endpoints
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msub><mi>l</mi><mi>i</mi></msub><mo>,</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[l_i,u_i]</annotation></semantics></math>,
-the contribution is:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>L</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>f</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>2</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo>;</mo><msub><mi>a</mi><mi>i</mi></msub><mo>,</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><mn>3</mn><mi>.</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
-L_i(\theta)=
-\begin{cases}
-f(y_i; a_i, b_i), &amp; \delta_i=0,\\
-F(u_i; a_i, b_i), &amp; \delta_i=1,\\
-1 - F(l_i; a_i, b_i), &amp; \delta_i=2,\\
-F(u_i; a_i, b_i)-F(l_i; a_i, b_i), &amp; \delta_i=3.
-\end{cases}
-</annotation></semantics></math></p>
-<p>This is the basis for fitting, prediction, and validation
-metrics.</p>
-</div>
-<div class="section level3">
-<h3 id="model-comparison-metrics">Model-comparison metrics<a class="anchor" aria-label="anchor" href="#model-comparison-metrics"></a>
-</h3>
-<p><code><a href="../reference/brs_table.html">brs_table()</a></code> reports:</p>
-<ul>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\log L(\hat\theta)</annotation></semantics></math>,</li>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">AIC=-2\log L(\hat\theta)+2k</annotation></semantics></math>,</li>
-<li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>I</mi><mi>C</mi><mo>=</mo><mi>−</mi><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>L</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>k</mi><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">BIC=-2\log L(\hat\theta)+k\log n</annotation></semantics></math>,</li>
-</ul>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
-is the number of estimated parameters and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
-is the sample size.</p>
-</div>
-<div class="section level3">
-<h3 id="average-marginal-effects-ame">Average marginal effects (AME)<a class="anchor" aria-label="anchor" href="#average-marginal-effects-ame"></a>
-</h3>
-<p><code><a href="../reference/brs_marginaleffects.html">brs_marginaleffects()</a></code> computes AME by central finite
-differences:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">A</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">E</mi></mrow><mi>j</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mfrac><mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>h</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>h</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mn>2</mn><msub><mi>h</mi><mi>j</mi></msub></mrow></mfrac><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>h</mi><mi>j</mi></msub><mo>=</mo><mi>h</mi><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">{</mo><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">d</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
-\mathrm{AME}_j=\frac{1}{n}\sum_{i=1}^n\frac{\hat g_i(x_{ij}+h_j)-\hat g_i(x_{ij}-h_j)}{2h_j},
-\qquad h_j=h\max\{\mathrm{sd}(x_j),1\},
-</annotation></semantics></math></p>
-<p>with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\hat g_i</annotation></semantics></math>
-on the requested prediction scale (<code>response</code>, the mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">[</mo><mi>Y</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">E[Y]</annotation></semantics></math>,
-or <code>link</code>) and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">h=10^{-5}</annotation></semantics></math>
-by default. Only numeric covariates are used; code a factor as 0/1
-dummies to get its contrast. For binary covariates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>j</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">x_j\in\{0,1\}</annotation></semantics></math>,
-it uses the discrete contrast
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>g</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mover><mi>g</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat g(x_j=1)-\hat g(x_j=0)</annotation></semantics></math>.</p>
-</div>
-<div class="section level3">
-<h3 id="score-scale-probabilities">Score-scale probabilities<a class="anchor" aria-label="anchor" href="#score-scale-probabilities"></a>
-</h3>
-<p>For integer scores
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">s\in\{0,\dots,K\}</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
-= <code>ncuts</code>, the maximum score),
-<code><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob()</a></code> computes, under
-<code>interval = "mid"</code>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mi>/</mi><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>s</mi><mo>=</mo><mn>0</mn><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>−</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>s</mi><mo>=</mo><mi>K</mi><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo>+</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo>−</mo><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mn>1</mn><mo>≤</mo><mi>s</mi><mo>≤</mo><mi>K</mi><mo>−</mo><mn>1</mn><mi>.</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
-P(Y=s)=
-\begin{cases}
-F(\mathrm{lim}/K), &amp; s=0,\\
-1-F((K-\mathrm{lim})/K), &amp; s=K,\\
-F((s+\mathrm{lim})/K)-F((s-\mathrm{lim})/K), &amp; 1\le s\le K-1.
-\end{cases}
-</annotation></semantics></math></p>
-<p>Under <code>"right"</code> and <code>"left"</code> the cells are
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mo>,</mo><mi>s</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">[s,s+1]/(K+1)</annotation></semantics></math>,
-so
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>=</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(Y=s)=F((s+1)/(K+1))-F(s/(K+1))</annotation></semantics></math>
-with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">F(0)=0</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">F(1)=1</annotation></semantics></math>.
-The probabilities sum to 1 whenever the cells partition
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0,1]</annotation></semantics></math>
-(always for <code>"right"</code>/<code>"left"</code>, and for
-<code>"mid"</code> with <code>lim = 0.5</code>). They are directly
-aligned with interval geometry on the original instrument scale.</p>
-</div>
-<div class="section level3">
-<h3 id="cross-validation-log-score">Cross-validation log score<a class="anchor" aria-label="anchor" href="#cross-validation-log-score"></a>
-</h3>
-<p>In <code><a href="../reference/brs_cv.html">brs_cv()</a></code>, fold-level predictive quality includes:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">_</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi></mrow><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>∈</mo><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></munder><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
-\mathrm{log\_score}=\frac{1}{n_{test}}\sum_{i \in test}\log(p_i),
-</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>
-is the predictive contribution from the same censoring-rule piecewise
-definition shown above.</p>
-<p>It also reports:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">R</mi><mi mathvariant="normal">M</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mrow><mi>y</mi><mi>t</mi></mrow></msub><mo>=</mo><msqrt><mrow><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac><mo>∑</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow></msqrt><mo>,</mo><mspace width="2.0em"></mspace><msub><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">E</mi></mrow><mrow><mi>y</mi><mi>t</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi>t</mi><mi>e</mi><mi>s</mi><mi>t</mi></mrow></msub></mfrac><mo>∑</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>−</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
-\mathrm{RMSE}_{yt}=\sqrt{\frac{1}{n_{test}}\sum(y_{t,i}-\hat\mu_i)^2},
-\qquad
-\mathrm{MAE}_{yt}=\frac{1}{n_{test}}\sum|y_{t,i}-\hat\mu_i|.
-</annotation></semantics></math></p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="reproducible-workflow">Reproducible workflow<a class="anchor" aria-label="anchor" href="#reproducible-workflow"></a>
-</h2>
-<div class="section level3">
-<h3 id="simulate-data-and-fit-candidate-models">1) Simulate data and fit candidate models<a class="anchor" aria-label="anchor" href="#simulate-data-and-fit-candidate-models"></a>
-</h3>
+<p>Simulated NRS-11 scores of 240 patients at three post-operative
+times, with age and a treatment indicator:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">220</span></span>
-<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
-<span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
-<span>  z1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2023</span><span class="op">)</span></span>
+<span><span class="va">nrs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"6h"</span>, <span class="st">"12h"</span>, <span class="st">"24h"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">80</span><span class="op">)</span>,</span>
+<span>                levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"6h"</span>, <span class="st">"12h"</span>, <span class="st">"24h"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">240</span>, <span class="fl">50</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  trt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">240</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
+<span><span class="va">nrs</span><span class="op">$</span><span class="va">age_c</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">nrs</span><span class="op">$</span><span class="va">age</span> <span class="op">-</span> <span class="fl">50</span><span class="op">)</span> <span class="op">/</span> <span class="fl">10</span></span>
+<span><span class="va">eta</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.6</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.3</span><span class="op">)</span><span class="op">[</span><span class="va">nrs</span><span class="op">$</span><span class="va">time</span><span class="op">]</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">nrs</span><span class="op">$</span><span class="va">age_c</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">nrs</span><span class="op">$</span><span class="va">trt</span></span>
+<span><span class="va">shp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_repar.html">brs_repar</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span>, phi <span class="op">=</span> <span class="fl">0.2</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">nrs</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="fl">240</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape1</span>, <span class="va">shp</span><span class="op">$</span><span class="va">shape2</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_sim.html">brs_sim</a></span><span class="op">(</span></span>
-<span>  formula <span class="op">=</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">d</span>,</span>
-<span>  beta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="op">-</span><span class="fl">0.45</span>, <span class="fl">0.25</span><span class="op">)</span>,</span>
-<span>  zeta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="op">-</span><span class="fl">0.30</span><span class="op">)</span>,</span>
-<span>  ncuts <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>  repar <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fit_fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">fit_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>, data <span class="op">=</span> <span class="va">sim</span>, repar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="compare-models-in-one-table">2) Compare models in one table<a class="anchor" aria-label="anchor" href="#compare-models-in-one-table"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_table.html">brs_table</a></span><span class="op">(</span></span>
-<span>  fixed <span class="op">=</span> <span class="va">fit_fixed</span>,</span>
-<span>  variable <span class="op">=</span> <span class="va">fit_var</span>,</span>
-<span>  sort_by <span class="op">=</span> <span class="st">"AIC"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">tab</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="6%">
-<col width="4%">
-<col width="4%">
-<col width="7%">
-<col width="6%">
-<col width="6%">
-<col width="7%">
-<col width="4%">
-<col width="4%">
-<col width="4%">
-<col width="6%">
-<col width="8%">
-<col width="7%">
-<col width="8%">
-<col width="10%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">model</th>
-<th align="center">nobs</th>
-<th align="center">npar</th>
-<th align="center">logLik</th>
-<th align="center">AIC</th>
-<th align="center">BIC</th>
-<th align="center">pseudo_r2</th>
-<th align="center">exact</th>
-<th align="center">left</th>
-<th align="center">right</th>
-<th align="center">interval</th>
-<th align="center">prop_exact</th>
-<th align="center">prop_left</th>
-<th align="center">prop_right</th>
-<th align="center">prop_interval</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">variable</td>
-<td align="center">220</td>
-<td align="center">5</td>
-<td align="center">-931.8646</td>
-<td align="center">1873.729</td>
-<td align="center">1890.697</td>
-<td align="center">0.1381</td>
-<td align="center">0</td>
-<td align="center">8</td>
-<td align="center">22</td>
-<td align="center">190</td>
-<td align="center">0</td>
-<td align="center">0.0364</td>
-<td align="center">0.1</td>
-<td align="center">0.8636</td>
-</tr>
-<tr class="even">
-<td align="center">fixed</td>
-<td align="center">220</td>
-<td align="center">4</td>
-<td align="center">-939.3243</td>
-<td align="center">1886.649</td>
-<td align="center">1900.223</td>
-<td align="center">0.1381</td>
-<td align="center">0</td>
-<td align="center">8</td>
-<td align="center">22</td>
-<td align="center">190</td>
-<td align="center">0</td>
-<td align="center">0.0364</td>
-<td align="center">0.1</td>
-<td align="center">0.8636</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="estimate-average-marginal-effects">3) Estimate average marginal effects<a class="anchor" aria-label="anchor" href="#estimate-average-marginal-effects"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span> <span class="co"># For marginal effects simulation</span></span>
-<span><span class="va">me_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit_var</span>,</span>
-<span>  model <span class="op">=</span> <span class="st">"mean"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"response"</span>,</span>
-<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  n_sim <span class="op">=</span> <span class="fl">120</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">me_mean</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="13%">
-<col width="12%">
-<col width="15%">
-<col width="13%">
-<col width="13%">
-<col width="9%">
-<col width="13%">
-<col width="6%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">variable</th>
-<th align="center">ame</th>
-<th align="center">std.error</th>
-<th align="center">ci.lower</th>
-<th align="center">ci.upper</th>
-<th align="center">model</th>
-<th align="center">type</th>
-<th align="center">n</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">x1</td>
-<td align="center">-0.1035</td>
-<td align="center">0.0183</td>
-<td align="center">-0.1356</td>
-<td align="center">-0.0604</td>
-<td align="center">mean</td>
-<td align="center">response</td>
-<td align="center">220</td>
-</tr>
-<tr class="even">
-<td align="center">x2</td>
-<td align="center">0.0734</td>
-<td align="center">0.0171</td>
-<td align="center">0.0356</td>
-<td align="center">0.1036</td>
-<td align="center">mean</td>
-<td align="center">response</td>
-<td align="center">220</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span> <span class="co"># Reset seed for reproducibility</span></span>
-<span><span class="va">me_precision</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit_var</span>,</span>
-<span>  model <span class="op">=</span> <span class="st">"precision"</span>,</span>
-<span>  type <span class="op">=</span> <span class="st">"link"</span>,</span>
-<span>  interval <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  n_sim <span class="op">=</span> <span class="fl">120</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">me_precision</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="13%">
-<col width="12%">
-<col width="15%">
-<col width="13%">
-<col width="13%">
-<col width="15%">
-<col width="8%">
-<col width="6%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">variable</th>
-<th align="center">ame</th>
-<th align="center">std.error</th>
-<th align="center">ci.lower</th>
-<th align="center">ci.upper</th>
-<th align="center">model</th>
-<th align="center">type</th>
-<th align="center">n</th>
-</tr></thead>
-<tbody><tr class="odd">
-<td align="center">z1</td>
-<td align="center">-0.3361</td>
-<td align="center">0.0808</td>
-<td align="center">-0.4627</td>
-<td align="center">-0.1581</td>
-<td align="center">precision</td>
-<td align="center">link</td>
-<td align="center">220</td>
-</tr></tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="predict-score-probabilities">4) Predict score probabilities<a class="anchor" aria-label="anchor" href="#predict-score-probabilities"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit_var</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">P</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 220  11</span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">P</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="center">score_0</th>
-<th align="center">score_1</th>
-<th align="center">score_2</th>
-<th align="center">score_3</th>
-<th align="center">score_4</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">0.0146</td>
-<td align="center">0.0178</td>
-<td align="center">0.0146</td>
-<td align="center">0.0130</td>
-<td align="center">0.0121</td>
-</tr>
-<tr class="even">
-<td align="center">0.0215</td>
-<td align="center">0.0228</td>
-<td align="center">0.0178</td>
-<td align="center">0.0155</td>
-<td align="center">0.0141</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0465</td>
-<td align="center">0.0318</td>
-<td align="center">0.0216</td>
-<td align="center">0.0175</td>
-<td align="center">0.0151</td>
-</tr>
-<tr class="even">
-<td align="center">0.0731</td>
-<td align="center">0.0371</td>
-<td align="center">0.0233</td>
-<td align="center">0.0181</td>
-<td align="center">0.0152</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0076</td>
-<td align="center">0.0105</td>
-<td align="center">0.0090</td>
-<td align="center">0.0083</td>
-<td align="center">0.0078</td>
-</tr>
-<tr class="even">
-<td align="center">0.0050</td>
-<td align="center">0.0050</td>
-<td align="center">0.0039</td>
-<td align="center">0.0034</td>
-<td align="center">0.0030</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>row_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">P</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="center">row_sum</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">0.1344</td>
-</tr>
-<tr class="even">
-<td align="center">0.1614</td>
-</tr>
-<tr class="odd">
-<td align="center">0.2001</td>
-</tr>
-<tr class="even">
-<td align="center">0.2313</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0856</td>
-</tr>
-<tr class="even">
-<td align="center">0.0354</td>
-</tr>
-<tr class="odd">
-<td align="center">0.0295</td>
-</tr>
-<tr class="even">
-<td align="center">0.0994</td>
-</tr>
-<tr class="odd">
-<td align="center">0.1024</td>
-</tr>
-<tr class="even">
-<td align="center">0.1312</td>
-</tr>
-</tbody>
-</table>
-<p><code>rowSums(P)</code> should be close to 1 (up to numerical
-tolerance and score subset selection).</p>
-</div>
-<div class="section level3">
-<h3 id="ggplot2-diagnostics">5) ggplot2 diagnostics<a class="anchor" aria-label="anchor" href="#ggplot2-diagnostics"></a>
-</h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"calibration"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="brs-analyst-tools_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"score_dist"</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
-<p><img src="brs-analyst-tools_files/figure-html/autoplot-2.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"cdf"</span>, max_curves <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<p><img src="brs-analyst-tools_files/figure-html/autoplot-3.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit_var</span>, type <span class="op">=</span> <span class="st">"residuals_by_delta"</span>, residual_type <span class="op">=</span> <span class="st">"rqr"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="brs-analyst-tools_files/figure-html/autoplot-4.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
-</div>
-<div class="section level3">
-<h3 id="repeated-k-fold-cross-validation">6) Repeated k-fold cross-validation<a class="anchor" aria-label="anchor" href="#repeated-k-fold-cross-validation"></a>
-</h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span> <span class="co"># For cross-validation reproducibility</span></span>
-<span><span class="va">cv_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span></span>
-<span>  <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">|</span> <span class="va">z1</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">sim</span>,</span>
-<span>  k <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  repeats <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  repar <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">kbl10</span><span class="op">(</span><span class="va">cv_res</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<colgroup>
-<col width="10%">
-<col width="7%">
-<col width="11%">
-<col width="10%">
-<col width="14%">
-<col width="11%">
-<col width="10%">
-<col width="14%">
-<col width="9%">
-</colgroup>
-<thead><tr class="header">
-<th align="center">repeat</th>
-<th align="center">fold</th>
-<th align="center">n_train</th>
-<th align="center">n_test</th>
-<th align="center">log_score</th>
-<th align="center">rmse_yt</th>
-<th align="center">mae_yt</th>
-<th align="center">converged</th>
-<th align="center">error</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">1</td>
-<td align="center">146</td>
-<td align="center">74</td>
-<td align="center">-4.3077</td>
-<td align="center">0.3215</td>
-<td align="center">0.2862</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="even">
-<td align="center">1</td>
-<td align="center">2</td>
-<td align="center">147</td>
-<td align="center">73</td>
-<td align="center">-4.3171</td>
-<td align="center">0.3449</td>
-<td align="center">0.3032</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">3</td>
-<td align="center">147</td>
-<td align="center">73</td>
-<td align="center">-4.1676</td>
-<td align="center">0.3454</td>
-<td align="center">0.3022</td>
-<td align="center">TRUE</td>
-<td align="center">NA</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">kbl10</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>    metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rmse_yt"</span>, <span class="st">"mae_yt"</span><span class="op">)</span>,</span>
-<span>    mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">cv_res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rmse_yt"</span>, <span class="st">"mae_yt"</span><span class="op">)</span><span class="op">]</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  digits <span class="op">=</span> <span class="fl">4</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left"></th>
-<th align="center">metric</th>
-<th align="center">mean</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">log_score</td>
-<td align="center">log_score</td>
-<td align="center">-4.2641</td>
-</tr>
-<tr class="even">
-<td align="left">rmse_yt</td>
-<td align="center">rmse_yt</td>
-<td align="center">0.3373</td>
-</tr>
-<tr class="odd">
-<td align="left">mae_yt</td>
-<td align="center">mae_yt</td>
-<td align="center">0.2972</td>
-</tr>
-</tbody>
-</table>
-</div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span> <span class="op">+</span> <span class="va">age_c</span> <span class="op">+</span> <span class="va">trt</span>, data <span class="op">=</span> <span class="va">nrs</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">fit</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; brs(formula = y ~ time + age_c + trt, data = nrs, ncuts = 10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (mean model with logit link):</span></span>
+<span><span class="co">#&gt; (Intercept)     time12h     time24h       age_c         trt </span></span>
+<span><span class="co">#&gt;     -0.4574      0.2262     -0.6128      0.1310     -0.3633 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients (dispersion model for sigma with logit link):</span></span>
+<span><span class="co">#&gt;   (phi) </span></span>
+<span><span class="co">#&gt; -1.2626</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="practical-interpretation">Practical interpretation<a class="anchor" aria-label="anchor" href="#practical-interpretation"></a>
+<h2 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
 </h2>
-<ul>
-<li>Prefer the model with the lower AIC/BIC and better predictive
-<code>log_score</code>.</li>
-<li>Use AME on the response scale to communicate the expected change in
-mean score (on the unit interval) resulting from small covariate
-shifts.</li>
-<li>Use score probabilities to translate model outputs back to
-clinically interpretable scale categories.</li>
-<li>Inspect calibration and residual-by-censoring plots before
-proceeding with statistical inference.</li>
-</ul>
+<p><code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> returns, by <code>type</code>:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"><code>type</code></th>
+<th align="left">value</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">
+<code>"response"</code> (default)</td>
+<td align="left">the mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>μ</mi></mrow><annotation encoding="application/x-tex">E(Y) = \mu</annotation></semantics></math>
+on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>
+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>"link"</code></td>
+<td align="left">the linear predictor of the mean</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>"precision"</code></td>
+<td align="left">the second parameter on its own scale (the dispersion
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>σ</mi><annotation encoding="application/x-tex">\sigma</annotation></semantics></math>
+under <code>repar = 2</code>)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>"variance"</code></td>
+<td align="left"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{Var}(Y)</annotation></semantics></math></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>"quantile"</code></td>
+<td align="left">quantiles of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>
+at the probabilities <code>at</code>
+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>"score"</code></td>
+<td align="left">the latent score at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E(Y)</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mspace width="0.167em"></mspace><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">K\,E(Y)</annotation></semantics></math>
+under <code>"mid"</code>)</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>"expected_score"</code></td>
+<td align="left">the expected recorded score
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>s</mi></msub><mi>s</mi><mspace width="0.167em"></mspace><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>S</mi><mo>=</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_s s\,P(S = s)</annotation></semantics></math>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"6h"</span>, <span class="st">"12h"</span>, <span class="st">"24h"</span><span class="op">)</span>, age_c <span class="op">=</span> <span class="fl">0</span>, trt <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">nd</span>,</span>
+<span>      mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">nd</span><span class="op">)</span>,</span>
+<span>      score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"score"</span><span class="op">)</span>,</span>
+<span>      expected_score <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"expected_score"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   time age_c trt        mu    score expected_score</span></span>
+<span><span class="co">#&gt; 1   6h     0   0 0.3875968 3.875968       3.873384</span></span>
+<span><span class="co">#&gt; 2  12h     0   0 0.4424592 4.424592       4.423637</span></span>
+<span><span class="co">#&gt; 3  24h     0   0 0.2553673 2.553673       2.539366</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          q_0.25     q_0.5    q_0.75</span></span>
+<span><span class="co">#&gt; [1,] 0.19959732 0.3644270 0.5557468</span></span>
+<span><span class="co">#&gt; [2,] 0.25391890 0.4305352 0.6207733</span></span>
+<span><span class="co">#&gt; [3,] 0.08600763 0.2067570 0.3832926</span></span></code></pre></div>
+<p><code><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob()</a></code> gives the probability of each
+score, as a matrix or in long format:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">nd</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      score_0 score_1 score_2 score_3 score_4 score_5 score_6 score_7 score_8</span></span>
+<span><span class="co">#&gt; [1,]   0.042   0.134   0.152   0.151   0.141   0.124   0.102   0.077   0.051</span></span>
+<span><span class="co">#&gt; [2,]   0.023   0.095   0.127   0.140   0.142   0.135   0.121   0.100   0.072</span></span>
+<span><span class="co">#&gt; [3,]   0.158   0.235   0.180   0.139   0.105   0.076   0.052   0.032   0.017</span></span>
+<span><span class="co">#&gt;      score_9 score_10</span></span>
+<span><span class="co">#&gt; [1,]   0.024    0.003</span></span>
+<span><span class="co">#&gt; [2,]   0.039    0.005</span></span>
+<span><span class="co">#&gt; [3,]   0.005    0.000</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/brs_predict_scoreprob.html">brs_predict_scoreprob</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">nd</span>, scores <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">2</span>, format <span class="op">=</span> <span class="st">"long"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   id score       prob</span></span>
+<span><span class="co">#&gt; 1  1     0 0.04181922</span></span>
+<span><span class="co">#&gt; 2  1     1 0.13358466</span></span>
+<span><span class="co">#&gt; 3  1     2 0.15198673</span></span>
+<span><span class="co">#&gt; 4  2     0 0.02250122</span></span>
+<span><span class="co">#&gt; 5  2     1 0.09524590</span></span>
+<span><span class="co">#&gt; 6  2     2 0.12691577</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="score-scale-quantities-with-standard-errors">Score-scale quantities with standard errors<a class="anchor" aria-label="anchor" href="#score-scale-quantities-with-standard-errors"></a>
+</h2>
+<p><code><a href="../reference/brs_marginal.html">brs_marginal()</a></code> returns score probabilities
+(<code>type = "prob"</code>), expected scores
+(<code>"expected_score"</code>) or exceedance probabilities
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>S</mi><mo>≥</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(S \ge k)</annotation></semantics></math>
+(<code>"exceed"</code>) with delta-method standard errors and Wald
+intervals, computed on the logit scale for probabilities and expected
+scores so they stay in range (contrasts use Wald intervals on the
+natural scale). <code>contrast</code> gives differences between pairs of
+rows of <code>newdata</code>; <code>c(i, j)</code> is row <code>i</code>
+minus row <code>j</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_marginal.html">brs_marginal</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"exceed"</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   time age_c trt row k  estimate  std.error     lower     upper</span></span>
+<span><span class="co">#&gt; 1   6h     0   0   1 4 0.5211590 0.05244215 0.4189245 0.6216513</span></span>
+<span><span class="co">#&gt; 2  12h     0   0   2 4 0.6149118 0.05076843 0.5119463 0.7085225</span></span>
+<span><span class="co">#&gt; 3  24h     0   0   3 4 0.2885185 0.04173023 0.2139919 0.3765655</span></span>
+<span><span class="fu"><a href="../reference/brs_marginal.html">brs_marginal</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"expected_score"</span>,</span>
+<span>             contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   contrast row1 row2   estimate std.error      lower      upper</span></span>
+<span><span class="co">#&gt; 1    2 - 1    2    1  0.5502529 0.3675773 -0.1701853  1.2706912</span></span>
+<span><span class="co">#&gt; 2    3 - 1    3    1 -1.3340178 0.3497652 -2.0195451 -0.6484905</span></span></code></pre></div>
+<p>With <code>se_method = "simulation"</code>, the standard errors and
+percentile intervals come from <code>n_sim</code> draws of the
+parameters (set a seed first):</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/brs_marginal.html">brs_marginal</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">nd</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="op">]</span>, type <span class="op">=</span> <span class="st">"expected_score"</span>, contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>             se_method <span class="op">=</span> <span class="st">"simulation"</span>, n_sim <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   contrast row1 row2  estimate std.error      lower    upper</span></span>
+<span><span class="co">#&gt; 1    2 - 1    2    1 0.5502529 0.3636081 -0.1616128 1.275677</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="average-marginal-effects">Average marginal effects<a class="anchor" aria-label="anchor" href="#average-marginal-effects"></a>
+</h2>
+<p><code><a href="../reference/brs_marginaleffects.html">brs_marginaleffects()</a></code> gives the average marginal effect
+of each numeric covariate on the mean (<code>type = "response"</code>)
+or on the linear predictor (<code>"link"</code>): a central difference
+for continuous covariates and the discrete change for 0/1 covariates,
+averaged over the rows. Intervals use <code>n_sim</code> draws from the
+asymptotic normal law of the estimates. Factors are not included; code a
+factor as 0/1 dummies to get its contrast, or use
+<code><a href="../reference/brs_marginal.html">brs_marginal()</a></code> contrasts as above.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">ame</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_marginaleffects.html">brs_marginaleffects</a></span><span class="op">(</span><span class="va">fit</span>, n_sim <span class="op">=</span> <span class="fl">100</span>, keep_draws <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">ame</span></span>
+<span><span class="co">#&gt;   variable         ame  std.error     ci.lower    ci.upper model     type   n</span></span>
+<span><span class="co">#&gt; 1    age_c  0.02778234 0.01051475  0.007953519  0.05177403  mean response 240</span></span>
+<span><span class="co">#&gt; 2      trt -0.07703774 0.02756216 -0.137031764 -0.02828654  mean response 240</span></span></code></pre></div>
+<p>Effects on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">E(Y)</annotation></semantics></math>
+are on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>;
+multiply by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+for the score scale under <code>"mid"</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs_marginaleffects.html">autoplot.brs_marginaleffects</a></span><span class="op">(</span><span class="va">ame</span>, type <span class="op">=</span> <span class="st">"forest"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="brs-analyst-tools_files/figure-html/ame-plot-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
+<h2 id="residuals">Residuals<a class="anchor" aria-label="anchor" href="#residuals"></a>
+</h2>
+<p><code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> offers the types below. The randomized
+quantile residuals (<code>"rqr"</code>, Dunn and Smyth, 1996) are
+standard normal under the model whatever the censoring and are the
+recommended type for diagnostics.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"><code>type</code></th>
+<th align="left">definition</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">
+<code>"response"</code> (default)</td>
+<td align="left">
+<code>yt</code> minus the fitted mean</td>
+</tr>
+<tr class="even">
+<td align="left"><code>"pearson"</code></td>
+<td align="left">response residual over the fitted SD</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>"deviance"</code></td>
+<td align="left">beta deviance residual at <code>yt</code>
+</td>
+</tr>
+<tr class="even">
+<td align="left"><code>"rqr"</code></td>
+<td align="left">
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">Φ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Phi^{-1}(u_i)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>u</mi><mi>i</mi></msub><annotation encoding="application/x-tex">u_i</annotation></semantics></math>
+uniform on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(F(l_i), F(u_i))</annotation></semantics></math>,
+with 0 and 1 at the borders</td>
+</tr>
+<tr class="odd">
+<td align="left">
+<code>"weighted"</code>, <code>"sweighted"</code>
+</td>
+<td align="left">residuals on the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">t</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{logit}(Y)</annotation></semantics></math>
+scale (Espinheira et al., 2008)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>"cell_deviance"</code></td>
+<td align="left">
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">n</mi></mrow><mi>i</mi></msub><msqrt><mrow><mi>−</mi><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msub><mi>P</mi><mi>i</mi></msub></mrow></msqrt></mrow><annotation encoding="application/x-tex">\mathrm{sign}_i\sqrt{-2\log P_i}</annotation></semantics></math>
+from the probability of the observed cell</td>
+</tr>
+</tbody>
+</table>
+<p>All types except <code>"rqr"</code> and <code>"cell_deviance"</code>
+use one point of the cell, <code>yt</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">s/K</annotation></semantics></math>
+under <code>"mid"</code> (so the border scores sit at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><annotation encoding="application/x-tex">10^{-5}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup></mrow><annotation encoding="application/x-tex">1 - 10^{-5}</annotation></semantics></math>)
+and the cell center under <code>"right"</code>/<code>"left"</code>. They
+are unreliable at the border scores. The cell deviance residuals are
+signed by the observed minus the expected score; for score data their
+squares add up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>L</mi></mrow><annotation encoding="application/x-tex">-2\log L</annotation></semantics></math>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">r_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"rqr"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">r_q</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">r_q</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      mean        sd </span></span>
+<span><span class="co">#&gt; 0.0026605 0.9873903</span></span>
+<span><span class="va">r_d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"cell_deviance"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>sum_sq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">r_d</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, minus2logLik <span class="op">=</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       sum_sq minus2logLik </span></span>
+<span><span class="co">#&gt;     997.6295     997.6295</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="plots">Plots<a class="anchor" aria-label="anchor" href="#plots"></a>
+</h2>
+<p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws up to six diagnostic panels of quantile
+residuals (four by default) in base graphics or, with
+<code>gg = TRUE</code>, ggplot2:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="brs-analyst-tools_files/figure-html/plot-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><code><a href="../reference/autoplot.brs.html">autoplot.brs()</a></code> adds a calibration plot, the predicted
+score distribution, fitted CDFs and residuals by censoring type:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"calibration"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="brs-analyst-tools_files/figure-html/autoplot-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs.html">autoplot.brs</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"score_dist"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="brs-analyst-tools_files/figure-html/autoplot-2.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><code><a href="../reference/brs_cens.html">brs_cens()</a></code> summarizes the censoring types of a fit:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_cens.html">brs_cens</a></span><span class="op">(</span><span class="va">fit</span>, gg <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="brs-analyst-tools_files/figure-html/cens-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
+<h2 id="parametric-bootstrap">Parametric bootstrap<a class="anchor" aria-label="anchor" href="#parametric-bootstrap"></a>
+</h2>
+<p><code><a href="../reference/brs_bootstrap.html">brs_bootstrap()</a></code> draws new responses at the fitted
+shapes, re-coarsens them on the fit’s cells and refits the original
+formula, <code>R</code> times. It returns percentile, basic, normal or
+BCa intervals next to the Wald intervals; failed refits are counted and
+printed. Use <code>R</code> of at least 199 in practice; 49 is used here
+for speed.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_bootstrap.html">brs_bootstrap</a></span><span class="op">(</span><span class="va">fit</span>, R <span class="op">=</span> <span class="fl">49</span>, keep_draws <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">boot</span></span>
+<span><span class="co">#&gt; Bootstrap confidence intervals</span></span>
+<span><span class="co">#&gt;   Level: 0.95 | CI: percentile | Successful replicates: 49 / 49 | Attempts: 49 </span></span>
+<span><span class="co">#&gt;   Failed replicates: 0 (0.0% of attempts)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     parameter   estimate    se_boot    ci_lower   ci_upper  mcse_lower</span></span>
+<span><span class="co">#&gt; 1 (Intercept) -0.4574253 0.10590803 -0.62188294 -0.2784529 0.014002539</span></span>
+<span><span class="co">#&gt; 2     time12h  0.2262380 0.13772964 -0.01369945  0.4354400 0.021238726</span></span>
+<span><span class="co">#&gt; 3     time24h -0.6127630 0.14066571 -0.86158613 -0.3400873 0.042576014</span></span>
+<span><span class="co">#&gt; 4       age_c  0.1310349 0.05142949  0.03795532  0.2162490 0.009765608</span></span>
+<span><span class="co">#&gt; 5         trt -0.3632532 0.13790026 -0.61820543 -0.1155792 0.034133318</span></span>
+<span><span class="co">#&gt; 6       (phi) -1.2625569 0.08818543 -1.42443996 -1.0969682 0.014821330</span></span>
+<span><span class="co">#&gt;    mcse_upper  wald_lower wald_upper level</span></span>
+<span><span class="co">#&gt; 1 0.039331479 -0.70499315 -0.2098574  0.95</span></span>
+<span><span class="co">#&gt; 2 0.021264851 -0.07056248  0.5230386  0.95</span></span>
+<span><span class="co">#&gt; 3 0.024659677 -0.92888949 -0.2966365  0.95</span></span>
+<span><span class="co">#&gt; 4 0.007618617  0.02425109  0.2378187  0.95</span></span>
+<span><span class="co">#&gt; 5 0.030051529 -0.61610640 -0.1103999  0.95</span></span>
+<span><span class="co">#&gt; 6 0.031921648 -1.44051168 -1.0846021  0.95</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs_bootstrap.html">autoplot.brs_bootstrap</a></span><span class="op">(</span><span class="va">boot</span>, type <span class="op">=</span> <span class="st">"ci_forest"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="brs-analyst-tools_files/figure-html/bootstrap-plot-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
+<h2 id="cross-validation">Cross-validation<a class="anchor" aria-label="anchor" href="#cross-validation"></a>
+</h2>
+<p><code><a href="../reference/brs_cv.html">brs_cv()</a></code> runs repeated k-fold cross-validation. For each
+held-out fold it reports <code>log_score</code>, the mean log
+probability of the held-out observations (higher is better), and the
+RMSE and MAE of <code>yt</code> around the predicted mean:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">cv_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span> <span class="op">+</span> <span class="va">age_c</span> <span class="op">+</span> <span class="va">trt</span>, data <span class="op">=</span> <span class="va">nrs</span>, k <span class="op">=</span> <span class="fl">5</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">cv_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs_cv.html">brs_cv</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span>, data <span class="op">=</span> <span class="va">nrs</span>, k <span class="op">=</span> <span class="fl">5</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">cv_full</span></span>
+<span><span class="co">#&gt;   repeat fold n_train n_test log_score   rmse_yt    mae_yt converged error</span></span>
+<span><span class="co">#&gt; 1      1    1     192     48 -2.028631 0.2001736 0.1618597      TRUE  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2      1    2     192     48 -2.168236 0.2422893 0.2152613      TRUE  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3      1    3     192     48 -2.185514 0.2470601 0.2150859      TRUE  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 4      1    4     192     48 -2.076509 0.2360192 0.1934935      TRUE  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 5      1    5     192     48 -2.040262 0.2026502 0.1702655      TRUE  &lt;NA&gt;</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>full <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_full</span><span class="op">$</span><span class="va">log_score</span><span class="op">)</span>, time_only <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cv_time</span><span class="op">$</span><span class="va">log_score</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      full time_only </span></span>
+<span><span class="co">#&gt; -2.099831 -2.122464</span></span></code></pre></div>
+<p>Resetting the seed gives both models the same folds.</p>
+</div>
+<div class="section level2">
+<h2 id="tables">Tables<a class="anchor" aria-label="anchor" href="#tables"></a>
+</h2>
+<p><code><a href="../reference/brs_est.html">brs_est()</a></code> gives the coefficient table,
+<code><a href="../reference/brs_gof.html">brs_gof()</a></code> the fit criteria and <code><a href="../reference/brs_table.html">brs_table()</a></code> a
+comparison of several fits with their censoring counts:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_est.html">brs_est</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      variable   estimate         se    z_value      p_value    ci_lower</span></span>
+<span><span class="co">#&gt; 1 (Intercept) -0.4574253 0.12631247  -3.621379 2.930372e-04 -0.70499315</span></span>
+<span><span class="co">#&gt; 2     time12h  0.2262380 0.15143162   1.493995 1.351770e-01 -0.07056248</span></span>
+<span><span class="co">#&gt; 3     time24h -0.6127630 0.16129199  -3.799091 1.452277e-04 -0.92888949</span></span>
+<span><span class="co">#&gt; 4       age_c  0.1310349 0.05448253   2.405081 1.616889e-02  0.02425109</span></span>
+<span><span class="co">#&gt; 5         trt -0.3632532 0.12900912  -2.815717 4.866855e-03 -0.61610640</span></span>
+<span><span class="co">#&gt; 6       (phi) -1.2625569 0.09079493 -13.905588 5.858310e-44 -1.44051168</span></span>
+<span><span class="co">#&gt;     ci_upper</span></span>
+<span><span class="co">#&gt; 1 -0.2098574</span></span>
+<span><span class="co">#&gt; 2  0.5230386</span></span>
+<span><span class="co">#&gt; 3 -0.2966365</span></span>
+<span><span class="co">#&gt; 4  0.2378187</span></span>
+<span><span class="co">#&gt; 5 -0.1103999</span></span>
+<span><span class="co">#&gt; 6 -1.0846021</span></span>
+<span><span class="va">fit_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/brs.html">brs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span>, data <span class="op">=</span> <span class="va">nrs</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/brs_table.html">brs_table</a></span><span class="op">(</span>full <span class="op">=</span> <span class="va">fit</span>, time_only <span class="op">=</span> <span class="va">fit_time</span>, sort_by <span class="op">=</span> <span class="st">"AIC"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       model nobs npar    logLik      AIC      BIC pseudo_r2 exact left right</span></span>
+<span><span class="co">#&gt; 1      full  240    6 -498.8148 1009.630 1030.513    0.1668     0   24     0</span></span>
+<span><span class="co">#&gt; 2 time_only  240    4 -506.3028 1020.606 1034.528    0.1013     0   24     0</span></span>
+<span><span class="co">#&gt;   interval prop_exact prop_left prop_right prop_interval</span></span>
+<span><span class="co">#&gt; 1      216          0       0.1          0           0.9</span></span>
+<span><span class="co">#&gt; 2      216          0       0.1          0           0.9</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ul>
-<li>Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
-modelling rates and proportions. <em>Journal of Applied Statistics</em>,
-31(7), 799-815. DOI: 10.1080/0266476042000214501. Validated online via:
-<a href="https://doi.org/10.1080/0266476042000214501" class="external-link uri">https://doi.org/10.1080/0266476042000214501</a>.</li>
-<li>Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
-Measures of adult pain: VAS, NRS, MPQ, SF-MPQ, CPGS, SF-36 BPS, and
-ICOAP. <em>Arthritis Care and Research</em>, 63(S11), S240-S252. DOI:
-10.1002/acr.20543. Validated online via: <a href="https://doi.org/10.1002/acr.20543" class="external-link uri">https://doi.org/10.1002/acr.20543</a>.</li>
-<li>Hjermstad, M. J., Fayers, P. M., Haugen, D. F., et al. (2011).
-Comparing NRS, VRS, and VAS pain scales in adults: a systematic review.
-<em>Journal of Pain and Symptom Management</em>, 41(6), 1073-1093. DOI:
-10.1016/j.jpainsymman.2010.08.016. Validated online via: <a href="https://doi.org/10.1016/j.jpainsymman.2010.08.016" class="external-link uri">https://doi.org/10.1016/j.jpainsymman.2010.08.016</a>.</li>
+<li>Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
+<em>Journal of Computational and Graphical Statistics</em>, 5(3),
+236–244.</li>
+<li>Espinheira, P. L., Ferrari, S. L. P., and Cribari-Neto, F. (2008).
+On beta regression residuals. <em>Journal of Applied Statistics</em>,
+35(4), 407–419.</li>
+<li>Lopes, J. E. (2023). <em>Modelos de regressão beta para dados de
+escala</em>. Master’s dissertation, Universidade Federal do Paraná,
+Curitiba. <a href="https://hdl.handle.net/1884/86624" class="external-link uri">https://hdl.handle.net/1884/86624</a>
+</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

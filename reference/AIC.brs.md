@@ -1,6 +1,6 @@
 # Akaike information criterion
 
-Akaike information criterion
+\\-2\ell + k\\p\\, with \\p\\ the number of estimated parameters.
 
 ## Usage
 
@@ -17,7 +17,8 @@ AIC(object, ..., k = 2)
 
 - ...:
 
-  Ignored.
+  Further fitted models (`brs`, `brsmm` or others with an
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html) method).
 
 - k:
 
@@ -25,7 +26,9 @@ AIC(object, ..., k = 2)
 
 ## Value
 
-Scalar AIC value.
+Scalar AIC value; with several models, a data frame with columns `df`
+and `AIC`, one row per model, as
+[`stats::AIC()`](https://rdrr.io/r/stats/AIC.html).
 
 ## See also
 
@@ -50,5 +53,10 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 AIC(fit)
 #> [1] 191.3041
+fit0 <- brs(y ~ 1, data = prep)
+AIC(fit0, fit)
+#>      df      AIC
+#> fit0  2 189.4692
+#> fit   3 191.3041
 # }
 ```

@@ -129,10 +129,9 @@ returned cells are those of the map, as
 [`brs`](https://evandeilton.github.io/betaregscale/reference/brs.md)
 expects for score data.
 
-A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
-`brs_sim()` and
+A Monte Carlo study of the estimator is a loop of `brs_sim()` and
 [`brs()`](https://evandeilton.github.io/betaregscale/reference/brs.md)
-over a fixed design; see the vignette
+over a fixed design; a template is in
 [`vignette("brs-advanced-workflows")`](https://evandeilton.github.io/betaregscale/articles/brs-advanced-workflows.md).
 
 ## References

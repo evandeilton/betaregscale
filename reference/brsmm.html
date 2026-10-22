@@ -28,9 +28,9 @@ random = ~ 1 | id gives a random intercept per group,
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -316,7 +316,7 @@ log-likelihood function in the nonlinear mixed-effects model.
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (dispersion model for sigma with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -1.0747     0.1715  -6.266 3.71e-10 ***</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
@@ -338,16 +338,16 @@ log-likelihood function in the nonlinear mixed-effects model.
 <span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu">brsmm</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">time</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">tc</span> <span class="op">|</span> <span class="va">id</span>, data <span class="op">=</span> <span class="va">nrs</span>, ncuts <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">m2</span><span class="op">)</span><span class="op">$</span><span class="va">varcorr</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  term type  estimate      lower     upper se_transformed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      SD (Intercept)   sd 0.6328837  0.3894562 1.0284643      0.2477267</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2               SD tc   sd 0.5474364  0.2490126 1.2034998      0.4019169</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083700 0.9748543      0.6672150</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      SD (Intercept)   sd 0.6328837  0.3894570 1.0284620      0.2477255</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2               SD tc   sd 0.5474364  0.2490143 1.2034916      0.4019135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Corr tc,(Intercept) corr 0.7034330 -0.4083615 0.9748538      0.6672098</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="ranef.html">ranef</a></span><span class="op">(</span><span class="va">m2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   (Intercept)         tc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.3540762  0.1152133</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   0.1124897 -0.1982327</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   1.1300445  0.6532920</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4  -0.2328539 -0.1960478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0.9638750  0.8034315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0.9638750  0.8034316</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   0.1412063  0.1006265</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Is the slope needed? One added random term: the p-value uses the</span></span></span>

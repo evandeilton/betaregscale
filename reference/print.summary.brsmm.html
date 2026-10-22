@@ -20,9 +20,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/brs-intro.html">Introduction to betaregscale</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced Workflows for High-Level Users</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed-Effects Beta Interval Regression with brsmm</a></li>
-    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst Tools for betaregscale</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-advanced-workflows.html">Advanced workflows: dispersion, cutpoints and model comparison</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-mm.html">Mixed models with brsmm</a></li>
+    <li><a class="dropdown-item" href="../articles/brs-analyst-tools.html">Analyst tools: predictions, residuals and validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -102,17 +102,17 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (mean model with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)   0.4213     0.8803   0.479    0.632</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x1           -0.3374     0.5362  -0.629    0.529</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x1           -0.3374     0.5361  -0.629    0.529</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Phi coefficients (precision model with logit link):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Coefficients (dispersion model for sigma with logit link):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  -0.5806     0.3281   -1.77   0.0768 .</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Random effects (SD and Corr; 95% Wald CI on the log / atanh scale; no tests, see anova()):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                Estimate  Lower Upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> SD (Intercept)   0.5339 0.1206 2.364</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Estimate  Lower  Upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> SD (Intercept)   0.5339 0.1206 2.3642</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mixed beta interval model (Laplace)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Observations: 20  | Groups: 4 </span>

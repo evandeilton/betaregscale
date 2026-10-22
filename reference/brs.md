@@ -441,7 +441,7 @@ summary(fit)
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> Phi coefficients (precision model with logit link):
+#> Coefficients (dispersion model for sigma with logit link):
 #>       Estimate Std. Error z value Pr(>|z|)    
 #> (phi) -0.87023    0.09603  -9.062   <2e-16 ***
 #> ---
@@ -449,7 +449,7 @@ summary(fit)
 #> ---
 #> Log-likelihood: -502.6418 on 7 Df | AIC: 1019.2835 | BIC: 1043.6480 
 #> Pseudo R-squared: 0.0801  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 39 (BFGS) 
+#> Number of iterations: 38 (BFGS) 
 #> Censoring: 187 interval | 50 left | 3 right 
 #> 
 confint(fit)
@@ -465,7 +465,7 @@ confint(fit)
 # Post-fit checks: no log-likelihood left to gain, negative definite Hessian, no clamps
 fit$diagnostics[c("grad_gain", "hessian_nd", "n_clamped")]
 #> $grad_gain
-#> [1] 1.549109e-11
+#> [1] 1.556122e-11
 #> 
 #> $hessian_nd
 #> [1] TRUE
