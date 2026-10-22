@@ -148,9 +148,9 @@ whatever the censoring and are the recommended type for diagnostics.
 All types except `"rqr"` and `"cell_deviance"` use one point of the cell,
 `yt`: $s/K$ under `"mid"` (so the border scores sit at $10^{-5}$ and
 $1 - 10^{-5}$) and the cell center under `"right"`/`"left"`. They are
-unreliable at the border scores. The cell deviance residuals are signed by the observed
-minus the expected score; for score data their squares add up to
-$-2\log L$:
+unreliable at the border scores. The cell deviance residuals are signed
+by the observed minus the expected score; for score data their squares
+add up to $-2\log L$:
 
 ```{r residuals}
 set.seed(1)

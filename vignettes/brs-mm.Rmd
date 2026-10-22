@@ -214,15 +214,15 @@ For `type = "rqr"` (randomized quantile residuals) and `"cell_deviance"`,
 `re` selects how the random effects enter:
 
 - `"conditional"` (default): at the modes $\hat b_g$. The modes are shrunk
-  toward zero, so these residuals are not exactly $N(0, 1)$ under the
+  toward zero, so the rqr residuals are not exactly $N(0, 1)$ under the
   model, especially for small groups.
 - `"marginal"`: from the marginal distribution of each observation, with
-  the random effects integrated out. Each residual is $N(0, 1)$ under the
-  model; residuals of the same group are correlated.
+  the random effects integrated out. The rqr residuals are $N(0, 1)$ under
+  the model; residuals of the same group are correlated.
 - `"posterior"`: at one draw of each $b_g$ from its posterior (importance
-  resampling with `n_draws` proposals per group, default 200). These are
-  close to independent $N(0, 1)$ under the model, without the shrinkage of
-  the modes.
+  resampling with `n_draws` proposals per group, default 200). The rqr
+  residuals are close to independent $N(0, 1)$ under the model, without
+  the shrinkage of the modes.
 
 ```{r residuals}
 set.seed(1)

@@ -186,7 +186,7 @@ each problem:
 |:--|:--|:--|
 | model matrix is rank deficient (error) | aliased columns | remove the named columns |
 | model matrix is nearly collinear | condition number above $10^4$ | drop, combine or center the named columns |
-| Gradient not ~0 at the estimate | a Newton step would still gain more than 0.01 in log-likelihood | refit with `method = "L-BFGS-B"`; rescale covariates |
+| Gradient not ~0 at the estimate | a Newton step would still gain more than 0.01 in log-likelihood | refit with the other `method` or rescaled covariates |
 | Hessian near-singular or not negative definite | a direction is nearly flat | `vcov()` gives `NA` there; use likelihood-ratio tests or the bootstrap |
 | observations on the clamp boundary | means or shapes at the clamps, e.g. a group entirely at one border | merge sparse groups or drop the separating covariate |
 
