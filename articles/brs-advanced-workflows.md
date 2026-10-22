@@ -74,7 +74,7 @@ summary(fit_var)
 #> ---
 #> Log-likelihood: -588.9232 on 5 Df | AIC: 1187.8464 | BIC: 1206.3653 
 #> Pseudo R-squared: 0.1761  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 42 (BFGS) 
+#> Number of iterations: 39 (BFGS) 
 #> Censoring: 287 interval | 11 left | 2 right
 ```
 
@@ -183,7 +183,7 @@ summary(fit_bnd)
 #> Censoring: 255 interval | 33 left | 12 right
 confint(fit_bnd, model = "cutpoints")
 #>               2.5 %     97.5 %
-#> (cut_lo)  0.7748769  2.2582009
+#> (cut_lo)  0.7748769  2.2582010
 #> (cut_hi) -2.3924205 -0.4063316
 ```
 
@@ -363,6 +363,6 @@ order of [`coef()`](https://rdrr.io/r/stats/coef.html).
 
 - Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
   Master’s dissertation, Universidade Federal do Paraná, Curitiba.
-  <https://hdl.handle.net/1884/86624>
+  <https://acervodigital.ufpr.br/xmlui/handle/1884/86624>
 - McCullagh, P. (1980). Regression models for ordinal data. *Journal of
   the Royal Statistical Society: Series B*, 42(2), 109–142.

@@ -22,7 +22,7 @@ Numeric Hessian matrix.
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
 Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
-https://hdl.handle.net/1884/86624.
+https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011). Measures
 of adult pain: Visual Analog Scale for Pain (VAS Pain), Numeric Rating
@@ -62,8 +62,8 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brs(y ~ x1, data = prep)
 brs_hessian(fit)
 #>             (Intercept)         x1       (phi)
-#> (Intercept) -13.7307616 -20.852140   0.6242412
-#> x1          -20.8521399 -35.094897   1.3723580
-#> (phi)         0.6242412   1.372358 -13.1835410
+#> (Intercept) -13.7307609 -20.852139   0.6242413
+#> x1          -20.8521387 -35.094894   1.3723584
+#> (phi)         0.6242413   1.372358 -13.1835402
 # }
 ```

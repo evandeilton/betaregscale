@@ -57,7 +57,7 @@ clamp is tightened to \\10^{-8}\\.
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
 Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
-https://hdl.handle.net/1884/86624.
+https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
 modelling rates and proportions. *Journal of Applied Statistics*,
@@ -101,6 +101,6 @@ print(rs)
 #>  (Intercept)   0.5339    0.0012   0.446          0.6976     0.824
 rs$summary
 #>          term  sd_model   mean_mode   sd_mode shrinkage_ratio shapiro_p
-#> 1 (Intercept) 0.5339184 0.001150958 0.4459553       0.6976425 0.8240296
+#> 1 (Intercept) 0.5339185 0.001151003 0.4459554       0.6976425 0.8240296
 # }
 ```

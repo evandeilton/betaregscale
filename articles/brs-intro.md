@@ -409,7 +409,7 @@ estimated cutpoints. A longer example is in
 
 - Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
   Master’s dissertation, Universidade Federal do Paraná, Curitiba.
-  <https://hdl.handle.net/1884/86624>
+  <https://acervodigital.ufpr.br/xmlui/handle/1884/86624>
 - Bayer, F. M. (2011). *Modelagem e inferência em regressão beta*. PhD
   thesis, Universidade Federal de Pernambuco.
 - Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for

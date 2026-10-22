@@ -115,7 +115,7 @@ Lopes (2023) also recommends the adjusted quantile residuals of Pereira
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
 Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
-https://hdl.handle.net/1884/86624.
+https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
 *Journal of Computational and Graphical Statistics*, **5**(3), 236–244.

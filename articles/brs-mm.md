@@ -184,11 +184,11 @@ matrix and standard deviations:
 
 head(ranef(fit_rs))
 #>   (Intercept)           tc
-#> 1   0.8194782 -0.029209222
+#> 1   0.8194782 -0.029209224
 #> 2  -1.5034029 -0.100498130
 #> 3  -1.5294370 -0.087103237
-#> 4  -0.5462813 -0.002064520
-#> 5  -0.7803565 -0.001166132
+#> 4  -0.5462813 -0.002064519
+#> 5  -0.7803565 -0.001166131
 #> 6  -0.9184533 -0.055430537
 fit_rs$random$D
 #>            [,1]       [,2]
@@ -325,11 +325,11 @@ not needed in `newdata`:
 nd <- data.frame(tc = c(-1, 1), trt = 1)
 brs_marginal(fit_ri, nd, type = "expected_score")
 #>   tc trt row estimate std.error    lower    upper
-#> 1 -1   1   1 4.433166 0.6380772 3.242149 5.693117
+#> 1 -1   1   1 4.433166 0.6380770 3.242149 5.693117
 #> 2  1   1   2 3.048002 0.5686567 2.057841 4.259101
 brs_marginal(fit_ri, nd, type = "expected_score", conditional = TRUE)
 #>   tc trt row estimate std.error    lower    upper
-#> 1 -1   1   1 4.308536 0.7745230 2.895803 5.843569
+#> 1 -1   1   1 4.308536 0.7745227 2.895803 5.843569
 #> 2  1   1   2 2.684320 0.6323208 1.633255 4.081798
 ```
 
@@ -340,7 +340,7 @@ visit in $`P(S \ge 5)`$, are given by `contrast`:
 
 brs_marginal(fit_ri, nd, type = "exceed", k = 5, contrast = c(2, 1))
 #>   contrast row1 row2 k   estimate  std.error      lower       upper
-#> 1    2 - 1    2    1 5 -0.1981716 0.06312098 -0.3218864 -0.07445672
+#> 1    2 - 1    2    1 5 -0.1981716 0.06312096 -0.3218864 -0.07445675
 ```
 
 ## Residuals
@@ -446,7 +446,7 @@ simulates from given boundary cutpoints.
 
 - Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
   Master’s dissertation, Universidade Federal do Paraná, Curitiba.
-  <https://hdl.handle.net/1884/86624>
+  <https://acervodigital.ufpr.br/xmlui/handle/1884/86624>
 - Pinheiro, J. C., and Bates, D. M. (1995). Approximations to the
   log-likelihood function in the nonlinear mixed-effects model. *Journal
   of Computational and Graphical Statistics*, 4(1), 12–35.

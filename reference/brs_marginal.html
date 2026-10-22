@@ -19,7 +19,7 @@ quantities) or set to zero (conditional = TRUE)."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ quantities) or set to zero (conditional = TRUE)."><meta property="og:image" cont
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Population-averaged score probabilities, expected scores and exceedance</h1>
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v3.1.0/R/marginal.R" class="external-link"><code>R/marginal.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/R/marginal.R" class="external-link"><code>R/marginal.R</code></a></small>
       <div class="d-none name"><code>brs_marginal.Rd</code></div>
     </div>
 
@@ -210,26 +210,26 @@ and the grouping variable are not needed.</p>
 <span class="r-in"><span><span class="co"># Population-averaged mean score and P(S &gt;= 4) at each time</span></span></span>
 <span class="r-in"><span><span class="fu">brs_marginal</span><span class="op">(</span><span class="va">m</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"expected_score"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time row estimate std.error    lower    upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   6h   1 2.765695 0.3641912 2.111009 3.532504</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  12h   2 3.851484 0.4053013 3.093410 4.669726</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  24h   3 3.270770 0.3888986 2.558315 4.073039</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   6h   1 2.765696 0.3641913 2.111009 3.532505</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  12h   2 3.851484 0.4053020 3.093409 4.669728</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  24h   3 3.270772 0.3888986 2.558317 4.073042</span>
 <span class="r-in"><span><span class="fu">brs_marginal</span><span class="op">(</span><span class="va">m</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"exceed"</span>, k <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time row k  estimate  std.error     lower     upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   6h   1 4 0.3343304 0.05886990 0.2302121 0.4575490</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  12h   2 4 0.5081511 0.06331141 0.3860665 0.6292713</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  24h   3 4 0.4157591 0.06246982 0.3006362 0.5408725</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   6h   1 4 0.3343305 0.05886989 0.2302123 0.4575491</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  12h   2 4 0.5081511 0.06331149 0.3860663 0.6292714</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  24h   3 4 0.4157595 0.06246979 0.3006367 0.5408728</span>
 <span class="r-in"><span><span class="co"># Same at b = 0 (a typical patient): not the population average</span></span></span>
 <span class="r-in"><span><span class="fu">brs_marginal</span><span class="op">(</span><span class="va">m</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"expected_score"</span>, conditional <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   time row estimate std.error    lower    upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   6h   1 2.505481 0.3874073 1.824161 3.337397</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  12h   2 3.693577 0.4560510 2.852212 4.622623</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  24h   3 3.050062 0.4262105 2.283504 3.942475</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   6h   1 2.505482 0.3874073 1.824162 3.337397</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  12h   2 3.693577 0.4560519 2.852210 4.622625</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  24h   3 3.050064 0.4262106 2.283506 3.942478</span>
 <span class="r-in"><span><span class="co"># Change from 6h: 12h - 6h and 24h - 6h</span></span></span>
 <span class="r-in"><span><span class="fu">brs_marginal</span><span class="op">(</span><span class="va">m</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"expected_score"</span>,</span></span>
 <span class="r-in"><span>             contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   contrast row1 row2  estimate std.error      lower    upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    2 - 1    2    1 1.0857891 0.4060157  0.2900130 1.881565</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    3 - 1    3    1 0.5050746 0.3970664 -0.2731613 1.283311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    2 - 1    2    1 1.0857885 0.4060150  0.2900137 1.881563</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    3 - 1    3    1 0.5050766 0.3970665 -0.2731594 1.283313</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

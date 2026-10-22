@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Mixed models with brsmm</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v3.1.0/vignettes/brs-mm.Rmd" class="external-link"><code>vignettes/brs-mm.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-mm.Rmd" class="external-link"><code>vignettes/brs-mm.Rmd</code></a></small>
       <div class="d-none name"><code>brs-mm.Rmd</code></div>
     </div>
 
@@ -264,11 +264,11 @@ standard deviations:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/ranef.html">ranef</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   (Intercept)           tc</span></span>
-<span><span class="co">#&gt; 1   0.8194782 -0.029209222</span></span>
+<span><span class="co">#&gt; 1   0.8194782 -0.029209224</span></span>
 <span><span class="co">#&gt; 2  -1.5034029 -0.100498130</span></span>
 <span><span class="co">#&gt; 3  -1.5294370 -0.087103237</span></span>
-<span><span class="co">#&gt; 4  -0.5462813 -0.002064520</span></span>
-<span><span class="co">#&gt; 5  -0.7803565 -0.001166132</span></span>
+<span><span class="co">#&gt; 4  -0.5462813 -0.002064519</span></span>
+<span><span class="co">#&gt; 5  -0.7803565 -0.001166131</span></span>
 <span><span class="co">#&gt; 6  -0.9184533 -0.055430537</span></span>
 <span><span class="va">fit_rs</span><span class="op">$</span><span class="va">random</span><span class="op">$</span><span class="va">D</span></span>
 <span><span class="co">#&gt;            [,1]       [,2]</span></span>
@@ -388,11 +388,11 @@ instead. The grouping variable is not needed in
 <code class="sourceCode R"><span><span class="va">nd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>tc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, trt <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/brs_marginal.html">brs_marginal</a></span><span class="op">(</span><span class="va">fit_ri</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"expected_score"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   tc trt row estimate std.error    lower    upper</span></span>
-<span><span class="co">#&gt; 1 -1   1   1 4.433166 0.6380772 3.242149 5.693117</span></span>
+<span><span class="co">#&gt; 1 -1   1   1 4.433166 0.6380770 3.242149 5.693117</span></span>
 <span><span class="co">#&gt; 2  1   1   2 3.048002 0.5686567 2.057841 4.259101</span></span>
 <span><span class="fu"><a href="../reference/brs_marginal.html">brs_marginal</a></span><span class="op">(</span><span class="va">fit_ri</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"expected_score"</span>, conditional <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   tc trt row estimate std.error    lower    upper</span></span>
-<span><span class="co">#&gt; 1 -1   1   1 4.308536 0.7745230 2.895803 5.843569</span></span>
+<span><span class="co">#&gt; 1 -1   1   1 4.308536 0.7745227 2.895803 5.843569</span></span>
 <span><span class="co">#&gt; 2  1   1   2 2.684320 0.6323208 1.633255 4.081798</span></span></code></pre></div>
 <p>Differences between rows, such as the change from the first to the
 last visit in
@@ -401,7 +401,7 @@ are given by <code>contrast</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/brs_marginal.html">brs_marginal</a></span><span class="op">(</span><span class="va">fit_ri</span>, <span class="va">nd</span>, type <span class="op">=</span> <span class="st">"exceed"</span>, k <span class="op">=</span> <span class="fl">5</span>, contrast <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   contrast row1 row2 k   estimate  std.error      lower       upper</span></span>
-<span><span class="co">#&gt; 1    2 - 1    2    1 5 -0.1981716 0.06312098 -0.3218864 -0.07445672</span></span></code></pre></div>
+<span><span class="co">#&gt; 1    2 - 1    2    1 5 -0.1981716 0.06312096 -0.3218864 -0.07445675</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="residuals">Residuals<a class="anchor" aria-label="anchor" href="#residuals"></a>
@@ -508,7 +508,7 @@ cutpoints.</p>
 <ul>
 <li>Lopes, J. E. (2023). <em>Modelos de regressão beta para dados de
 escala</em>. Master’s dissertation, Universidade Federal do Paraná,
-Curitiba. <a href="https://hdl.handle.net/1884/86624" class="external-link uri">https://hdl.handle.net/1884/86624</a>
+Curitiba. <a href="https://acervodigital.ufpr.br/xmlui/handle/1884/86624" class="external-link uri">https://acervodigital.ufpr.br/xmlui/handle/1884/86624</a>
 </li>
 <li>Pinheiro, J. C., and Bates, D. M. (1995). Approximations to the
 log-likelihood function in the nonlinear mixed-effects model.

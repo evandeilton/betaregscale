@@ -375,7 +375,7 @@ are not directly comparable between fixed-map and boundary fits.
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
 Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
-https://hdl.handle.net/1884/86624.
+https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 Ferrari, S. L. P., and Cribari-Neto, F. (2004). Beta regression for
 modelling rates and proportions. *Journal of Applied Statistics*,
@@ -449,7 +449,7 @@ summary(fit)
 #> ---
 #> Log-likelihood: -502.6418 on 7 Df | AIC: 1019.2835 | BIC: 1043.6480 
 #> Pseudo R-squared: 0.0801  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 39 (BFGS) 
+#> Number of iterations: 38 (BFGS) 
 #> Censoring: 187 interval | 50 left | 3 right 
 #> 
 confint(fit)
@@ -465,7 +465,7 @@ confint(fit)
 # Post-fit checks: no log-likelihood left to gain, negative definite Hessian, no clamps
 fit$diagnostics[c("grad_gain", "hessian_nd", "n_clamped")]
 #> $grad_gain
-#> [1] 1.549109e-11
+#> [1] 1.556122e-11
 #> 
 #> $hessian_nd
 #> [1] TRUE

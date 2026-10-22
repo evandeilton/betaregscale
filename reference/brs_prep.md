@@ -150,7 +150,7 @@ warning but are kept.
 
 Lopes, J. E. (2023). *Modelos de regressao beta para dados de escala*.
 Master's dissertation, Universidade Federal do Parana, Curitiba. URI:
-https://hdl.handle.net/1884/86624.
+https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 ## See also
 

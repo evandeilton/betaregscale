@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">betaregscale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">3.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Analyst tools: predictions, residuals and validation</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v3.1.0/vignettes/brs-analyst-tools.Rmd" class="external-link"><code>vignettes/brs-analyst-tools.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-analyst-tools.Rmd" class="external-link"><code>vignettes/brs-analyst-tools.Rmd</code></a></small>
       <div class="d-none name"><code>brs-analyst-tools.Rmd</code></div>
     </div>
 
@@ -396,19 +396,19 @@ for speed.</p>
 <span><span class="co">#&gt;   Failed replicates: 0 (0.0% of attempts)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     parameter   estimate    se_boot    ci_lower   ci_upper  mcse_lower</span></span>
-<span><span class="co">#&gt; 1 (Intercept) -0.4574253 0.10590803 -0.62188294 -0.2784529 0.014002540</span></span>
-<span><span class="co">#&gt; 2     time12h  0.2262380 0.13772964 -0.01369944  0.4354400 0.021238725</span></span>
+<span><span class="co">#&gt; 1 (Intercept) -0.4574253 0.10590803 -0.62188294 -0.2784529 0.014002539</span></span>
+<span><span class="co">#&gt; 2     time12h  0.2262380 0.13772964 -0.01369945  0.4354400 0.021238726</span></span>
 <span><span class="co">#&gt; 3     time24h -0.6127630 0.14066571 -0.86158613 -0.3400873 0.042576014</span></span>
 <span><span class="co">#&gt; 4       age_c  0.1310349 0.05142949  0.03795532  0.2162490 0.009765608</span></span>
 <span><span class="co">#&gt; 5         trt -0.3632532 0.13790026 -0.61820543 -0.1155792 0.034133318</span></span>
-<span><span class="co">#&gt; 6       (phi) -1.2625569 0.08818543 -1.42443996 -1.0969682 0.014821331</span></span>
+<span><span class="co">#&gt; 6       (phi) -1.2625569 0.08818543 -1.42443996 -1.0969682 0.014821330</span></span>
 <span><span class="co">#&gt;    mcse_upper  wald_lower wald_upper level</span></span>
-<span><span class="co">#&gt; 1 0.039331473 -0.70499315 -0.2098574  0.95</span></span>
-<span><span class="co">#&gt; 2 0.021264852 -0.07056248  0.5230386  0.95</span></span>
-<span><span class="co">#&gt; 3 0.024659678 -0.92888949 -0.2966365  0.95</span></span>
+<span><span class="co">#&gt; 1 0.039331479 -0.70499315 -0.2098574  0.95</span></span>
+<span><span class="co">#&gt; 2 0.021264851 -0.07056248  0.5230386  0.95</span></span>
+<span><span class="co">#&gt; 3 0.024659677 -0.92888949 -0.2966365  0.95</span></span>
 <span><span class="co">#&gt; 4 0.007618617  0.02425109  0.2378187  0.95</span></span>
 <span><span class="co">#&gt; 5 0.030051529 -0.61610640 -0.1103999  0.95</span></span>
-<span><span class="co">#&gt; 6 0.031921649 -1.44051168 -1.0846021  0.95</span></span></code></pre></div>
+<span><span class="co">#&gt; 6 0.031921648 -1.44051168 -1.0846021  0.95</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/autoplot.brs_bootstrap.html">autoplot.brs_bootstrap</a></span><span class="op">(</span><span class="va">boot</span>, type <span class="op">=</span> <span class="st">"ci_forest"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="brs-analyst-tools_files/figure-html/bootstrap-plot-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
@@ -451,7 +451,7 @@ comparison of several fits with their censoring counts:</p>
 <span><span class="co">#&gt; 3     time24h -0.6127630 0.16129199  -3.799091 1.452277e-04 -0.92888949</span></span>
 <span><span class="co">#&gt; 4       age_c  0.1310349 0.05448253   2.405081 1.616889e-02  0.02425109</span></span>
 <span><span class="co">#&gt; 5         trt -0.3632532 0.12900912  -2.815717 4.866855e-03 -0.61610640</span></span>
-<span><span class="co">#&gt; 6       (phi) -1.2625569 0.09079493 -13.905588 5.858308e-44 -1.44051168</span></span>
+<span><span class="co">#&gt; 6       (phi) -1.2625569 0.09079493 -13.905588 5.858310e-44 -1.44051168</span></span>
 <span><span class="co">#&gt;     ci_upper</span></span>
 <span><span class="co">#&gt; 1 -0.2098574</span></span>
 <span><span class="co">#&gt; 2  0.5230386</span></span>
@@ -480,7 +480,7 @@ On beta regression residuals. <em>Journal of Applied Statistics</em>,
 35(4), 407–419.</li>
 <li>Lopes, J. E. (2023). <em>Modelos de regressão beta para dados de
 escala</em>. Master’s dissertation, Universidade Federal do Paraná,
-Curitiba. <a href="https://hdl.handle.net/1884/86624" class="external-link uri">https://hdl.handle.net/1884/86624</a>
+Curitiba. <a href="https://acervodigital.ufpr.br/xmlui/handle/1884/86624" class="external-link uri">https://acervodigital.ufpr.br/xmlui/handle/1884/86624</a>
 </li>
 </ul>
 </div>
