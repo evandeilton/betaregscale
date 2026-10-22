@@ -37,6 +37,29 @@
   sub("^\\(phi\\)_", "", nms)
 }
 
+#' Headings of the two coefficient blocks in print/summary
+#'
+#' The parameters modeled depend on `repar`: shapes p and q (0), mean and
+#' precision phi (1), mean and dispersion sigma = 1/(1 + a + b) (2).
+#' @param repar Parameterization of the fit (`NULL` is treated as 2).
+#' @param link,link_phi Link names of the two submodels.
+#' @return Character vector of length 2: headings of the first and second block.
+#' @keywords internal
+#' @noRd
+.brs_block_labels <- function(repar, link, link_phi) {
+  repar <- if (is.null(repar)) 2L else as.integer(repar)
+  first <- if (repar == 0L) "shape p model" else "mean model"
+  second <- switch(as.character(repar),
+    "0" = "shape q model",
+    "1" = "precision model for phi",
+    "dispersion model for sigma"
+  )
+  c(
+    paste0("Coefficients (", first, " with ", link, " link):\n"),
+    paste0("Coefficients (", second, " with ", link_phi, " link):\n")
+  )
+}
+
 #' Convert internal Cholesky RE names to readable display names
 #'
 #' Mapping:
@@ -210,11 +233,16 @@ logLik.brs <- function(object, ...) {
 
 #' Akaike information criterion
 #'
+#' @description
+#' \eqn{-2\ell + k\,p}, with \eqn{p} the number of estimated parameters.
+#'
 #' @param object A fitted \code{"brs"} object.
-#' @param ... Ignored.
+#' @param ... Further fitted models (\code{brs}, \code{brsmm} or others with an
+#'   \code{AIC()} method).
 #' @param k    Penalty per parameter (default 2).
 #'
-#' @return Scalar AIC value.
+#' @return Scalar AIC value; with several models, a data frame with columns
+#'   \code{df} and \code{AIC}, one row per model, as \code{stats::AIC()}.
 #'
 #' @seealso \code{\link{brs}}, \code{\link{logLik.brs}}, \code{\link{BIC.brs}},
 #'   \code{\link{brs_gof}}
@@ -231,6 +259,8 @@ logLik.brs <- function(object, ...) {
 #' prep <- brs_prep(dat, ncuts = 100)
 #' fit <- brs(y ~ x1, data = prep)
 #' AIC(fit)
+#' fit0 <- brs(y ~ 1, data = prep)
+#' AIC(fit0, fit)
 #' }
 #'
 #' @method AIC brs
@@ -238,7 +268,15 @@ logLik.brs <- function(object, ...) {
 #' @export
 AIC.brs <- function(object, ..., k = 2) {
   .check_class(object)
-  k * object$npar - 2 * object$value
+  dots <- list(...)
+  if (!length(dots)) {
+    return(k * object$npar - 2 * object$value)
+  }
+  # Several models: table as stats::AIC(), each by its own AIC() method
+  cl <- match.call()
+  cl$k <- NULL
+  .brs_ic_table(c(list(object), dots), as.character(cl[-1L]),
+                function(m) stats::AIC(m, k = k), name = "AIC")
 }
 
 
@@ -290,7 +328,7 @@ BIC.brs <- function(object, ..., n = c("obs", "groups")) {
   # Several models: each by its own BIC() (n = observations for brsmm)
   cl <- match.call()
   cl$n <- NULL
-  .brs_bic_table(c(list(object), dots), as.character(cl[-1L]),
+  .brs_ic_table(c(list(object), dots), as.character(cl[-1L]),
                  function(m) stats::BIC(m))
 }
 
@@ -612,8 +650,9 @@ print.summary.brs <- function(x,
   print(round(rq, digits))
   cat("\n")
 
-  # Mean model
-  cat("Coefficients (mean model with", x$link, "link):\n")
+  # First block: mean, or shape p under repar = 0
+  labs <- .brs_block_labels(x$repar, x$link, x$link_phi)
+  cat(labs[1])
   stats::printCoefmat(x$coefficients$mean,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
@@ -622,8 +661,8 @@ print.summary.brs <- function(x,
   )
   cat("\n")
 
-  # Precision model
-  cat(paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n"))
+  # Second block: precision, dispersion or shape q, by repar
+  cat(labs[2])
   tab_phi_display <- x$coefficients$precision
   rownames(tab_phi_display) <- .pretty_phi_names(rownames(tab_phi_display))
   stats::printCoefmat(tab_phi_display,
@@ -711,11 +750,12 @@ print.brs <- function(x,
   print(x$call)
   cat("\n")
 
-  cat("Coefficients (mean model with", x$link, "link):\n")
+  labs <- .brs_block_labels(x$repar, x$link, x$link_phi)
+  cat(labs[1])
   print(round(x$coefficients$mean, digits))
   cat("\n")
 
-  cat("Phi coefficients (precision model with", x$link_phi, "link):\n")
+  cat(labs[2])
   prec_display <- x$coefficients$precision
   names(prec_display) <- .pretty_phi_names(names(prec_display))
   print(round(prec_display, digits))

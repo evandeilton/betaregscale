@@ -11,9 +11,10 @@ brs_cv(formula, data, k = 5L, repeats = 1L, ...)
 
 \item{data}{Data frame.}
 
-\item{k}{Number of folds.}
+\item{k}{Number of folds (default 5).}
 
-\item{repeats}{Number of repeated k-fold runs.}
+\item{repeats}{Number of repeated k-fold runs (default 1); each repeat
+draws new folds with the current RNG state.}
 
 \item{...}{Additional arguments forwarded to \code{\link{brs}}
 (e.g., \code{repar}, \code{link}, \code{interval}, \code{method}).}

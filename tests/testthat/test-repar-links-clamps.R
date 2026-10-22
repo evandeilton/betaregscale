@@ -629,3 +629,30 @@ test_that("repar 1 starting values with the log precision link are moment-based"
   st2 <- betaregscale:::compute_start(y ~ x | z, s2, repar = 2L)
   expect_true(all(is.finite(st2)))
 })
+
+test_that("print and summary name the second block by repar", {
+  set.seed(31)
+  d <- data.frame(x = rnorm(150), id = factor(rep(1:15, each = 10)))
+  s2 <- brs_sim(~ x, data = d, beta = c(0.2, 0.4), phi = qlogis(0.2), ncuts = 10)
+  s1 <- brs_sim(~ x, data = d, beta = c(0.2, 0.4), phi = log(5), ncuts = 10,
+                repar = 1)
+  s0 <- brs_sim(~ x, data = d, beta = c(log(3), 0.2), phi = log(2), ncuts = 10,
+                repar = 0)
+  f2 <- brs(y ~ x, data = s2)
+  f1 <- brs(y ~ x, data = s1, repar = 1)
+  f0 <- brs(y ~ x, data = s0, repar = 0)
+  expect_output(print(f2), "dispersion model for sigma with logit link", fixed = TRUE)
+  expect_output(print(summary(f2)), "dispersion model for sigma with logit link",
+                fixed = TRUE)
+  expect_output(print(summary(f2)), "mean model with logit link", fixed = TRUE)
+  expect_output(print(summary(f1)), "precision model for phi with log link", fixed = TRUE)
+  expect_output(print(f0), "shape p model with log link", fixed = TRUE)
+  expect_output(print(summary(f0)), "shape q model with log link", fixed = TRUE)
+  expect_false(any(grepl("Phi coefficients", capture.output(print(summary(f2))))))
+  # Mixed models use the same headings
+  sm <- brsmm_sim(~ x, random = ~ 1 | id, data = d, beta = c(0.2, 0.4),
+                  phi = qlogis(0.2), re_sd = 0.8, ncuts = 10)
+  m <- brsmm(y ~ x, random = ~ 1 | id, data = sm)
+  expect_output(print(m), "dispersion model for sigma with logit link", fixed = TRUE)
+  expect_output(print(summary(m)), "dispersion model for sigma with logit link", fixed = TRUE)
+})

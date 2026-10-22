@@ -294,11 +294,17 @@ logLik.brsmm <- function(object, ...) {
 
 #' AIC for brsmm models
 #'
-#' @param object A fitted \code{"brsmm"} object.
-#' @param ... Currently ignored.
-#' @param k Numeric penalty per parameter.
+#' @description
+#' \eqn{-2\ell + k\,p}, with \eqn{p} the number of parameters (fixed
+#' effects, precision, packed random-effect and cutpoint parameters).
 #'
-#' @return Numeric scalar.
+#' @param object A fitted \code{"brsmm"} object.
+#' @param ... Further fitted models (\code{brsmm}, \code{brs} or others with an
+#'   \code{AIC()} method).
+#' @param k Numeric penalty per parameter (default 2).
+#'
+#' @return Numeric scalar; with several models, a data frame with columns
+#'   \code{df} and \code{AIC}, one row per model, as \code{stats::AIC()}.
 #'
 #' @seealso \code{\link{brsmm}}, \code{\link{logLik.brsmm}},
 #'   \code{\link{BIC.brsmm}}, \code{\link{brs_gof}}
@@ -316,6 +322,7 @@ logLik.brsmm <- function(object, ...) {
 #' prep <- brs_prep(dat, ncuts = 100)
 #' fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 #' AIC(fit)
+#' AIC(brs(y ~ x1, data = prep), fit)
 #' }
 #'
 #' @method AIC brsmm
@@ -323,7 +330,15 @@ logLik.brsmm <- function(object, ...) {
 #' @export
 AIC.brsmm <- function(object, ..., k = 2) {
   .check_class_mm(object)
-  -2 * object$value + k * object$npar
+  dots <- list(...)
+  if (!length(dots)) {
+    return(-2 * object$value + k * object$npar)
+  }
+  # Several models: table as stats::AIC(), each by its own AIC() method
+  cl <- match.call()
+  cl$k <- NULL
+  .brs_ic_table(c(list(object), dots), as.character(cl[-1L]),
+                function(m) stats::AIC(m, k = k), name = "AIC")
 }
 
 
@@ -389,18 +404,21 @@ BIC.brsmm <- function(object, ..., n = c("obs", "groups")) {
   # Several models: table as stats::BIC(), with the same n rule for each
   cl <- match.call()
   cl$n <- NULL
-  .brs_bic_table(c(list(object), dots), as.character(cl[-1L]), one)
+  .brs_ic_table(c(list(object), dots), as.character(cl[-1L]), one)
 }
 
-# BIC table of several models (as stats::BIC()): df and BIC by `one()`.
-.brs_bic_table <- function(mods, labels, one) {
+# Information-criterion table of several models (as stats::AIC()/BIC()):
+# df and the criterion computed by `one()`, in a column named `name`.
+.brs_ic_table <- function(mods, labels, one, name = "BIC") {
   nob <- vapply(mods, function(m) as.numeric(stats::nobs(m)), numeric(1))
   if (length(unique(nob)) > 1L) {
     warning("models are not all fitted to the same number of observations",
             call. = FALSE)
   }
   df <- vapply(mods, function(m) as.numeric(attr(stats::logLik(m), "df")), numeric(1))
-  data.frame(df = df, BIC = vapply(mods, one, numeric(1)), row.names = labels)
+  out <- data.frame(df = df, vapply(mods, one, numeric(1)), row.names = labels)
+  names(out)[2L] <- name
+  out
 }
 
 
@@ -648,9 +666,9 @@ predict.brsmm <- function(object,
 #' \code{re} applies to \code{type = "rqr"} and \code{"cell_deviance"}:
 #' \describe{
 #'   \item{\code{"conditional"}}{(default) at the conditional modes
-#'     \eqn{\hat b_g}. The modes are shrunk toward zero, so these residuals
-#'     are not exactly \eqn{N(0, 1)} under the model; the shrinkage is
-#'     strongest for small groups.}
+#'     \eqn{\hat b_g}. The modes are shrunk toward zero, so the \code{"rqr"}
+#'     residuals are not exactly \eqn{N(0, 1)} under the model; the shrinkage
+#'     is strongest for small groups.}
 #'   \item{\code{"marginal"}}{from the marginal (population-averaged)
 #'     distribution of each observation, with the random effects integrated
 #'     out: \eqn{v_i \sim U(F_m(l_i), F_m(u_i))}, \eqn{F_m(y) = \int F(y \mid
@@ -660,9 +678,9 @@ predict.brsmm <- function(object,
 #'     \eqn{s_i}). The rule integrates \eqn{z = u/\mathrm{SD}(u)} over
 #'     \eqn{[-8.5, 8.5]}, so marginal probabilities below about
 #'     \eqn{10^{-15}} are approximate (this matters for
-#'     \code{"cell_deviance"} in extreme tails only). Each residual is
-#'     \eqn{N(0, 1)} under the model; residuals of the same group are
-#'     correlated, since they share the group's random effects.}
+#'     \code{"cell_deviance"} in extreme tails only). Each \code{"rqr"}
+#'     residual is \eqn{N(0, 1)} under the model; residuals of the same group
+#'     are correlated, since they share the group's random effects.}
 #'   \item{\code{"posterior"}}{at one draw of each \eqn{b_g} from its
 #'     posterior given the group's data, by sampling-importance-resampling:
 #'     \code{n_draws} proposals from \eqn{N(\hat b_g, H_g^{-1})}
@@ -670,11 +688,11 @@ predict.brsmm <- function(object,
 #'     differences; the prior \eqn{N(0, \hat D)} shape when it is not positive
 #'     definite) weighted by posterior over proposal density, and one of them
 #'     kept. At the true parameters, \eqn{(b_g, y_g)} with \eqn{b_g} drawn
-#'     from its posterior has the joint law of the model, so these residuals
-#'     are independent \eqn{N(0, 1)} (up to the resampling approximation, of
-#'     order \code{1/n_draws}) without the shrinkage of the modes; at the
-#'     estimates this holds approximately. Unlike the marginal residuals, the
-#'     residuals of a group are then nearly independent.}
+#'     from its posterior has the joint law of the model, so the \code{"rqr"}
+#'     residuals are independent \eqn{N(0, 1)} (up to the resampling
+#'     approximation, of order \code{1/n_draws}) without the shrinkage of the
+#'     modes; at the estimates this holds approximately. Unlike the marginal
+#'     residuals, the residuals of a group are then nearly independent.}
 #' }
 #' \code{"rqr"} residuals use \eqn{v_i} uniform on \eqn{(F(l_i), F(u_i))}
 #' (survival scale above the median, to keep the precision of upper-tail
@@ -990,8 +1008,9 @@ print.summary.brsmm <- function(x,
   print(round(rq, digits))
   cat("\n")
 
-  # Mean model
-  cat("Coefficients (mean model with", x$link, "link):\n")
+  # First block: mean, or shape p under repar = 0
+  labs <- .brs_block_labels(x$repar, x$link, x$link_phi)
+  cat(labs[1])
   stats::printCoefmat(x$coefficients$mean,
     digits = digits,
     P.values = TRUE, has.Pvalue = TRUE,
@@ -1000,8 +1019,8 @@ print.summary.brsmm <- function(x,
   )
   cat("\n")
 
-  # Precision model
-  cat(paste0("Phi coefficients (precision model with ", x$link_phi, " link):\n"))
+  # Second block: precision, dispersion or shape q, by repar
+  cat(labs[2])
   tab_phi_display <- x$coefficients$precision
   rownames(tab_phi_display) <- .pretty_phi_names(rownames(tab_phi_display))
   stats::printCoefmat(tab_phi_display,
@@ -1101,11 +1120,12 @@ print.brsmm <- function(x,
     x$int_method
   )
 
-  cat("Coefficients (mean model with", x$link, "link):\n")
+  labs <- .brs_block_labels(x$repar, x$link, x$link_phi)
+  cat(labs[1])
   print(round(x$coefficients$mean, digits))
   cat("\n")
 
-  cat("Phi coefficients (precision model with", x$link_phi, "link):\n")
+  cat(labs[2])
   prec_display <- x$coefficients$precision
   names(prec_display) <- .pretty_phi_names(names(prec_display))
   print(round(prec_display, digits))

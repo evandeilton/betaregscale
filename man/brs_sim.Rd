@@ -95,8 +95,8 @@ below \eqn{c_{lo}}, score \eqn{K} at or above \eqn{c_{hi}}, the cells of
 0.5}; the returned cells are those of the map, as \code{\link{brs}} expects
 for score data.
 
-A Monte Carlo study in the design of Lopes (2023, ch. 3) is a loop of
-\code{brs_sim()} and \code{brs()} over a fixed design; see the vignette
+A Monte Carlo study of the estimator is a loop of \code{brs_sim()} and
+\code{brs()} over a fixed design; a template is in
 \code{vignette("brs-advanced-workflows")}.
 }
 \examples{

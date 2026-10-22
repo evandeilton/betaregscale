@@ -77,6 +77,13 @@
 
 ## Other changes
 
+* `AIC()` of `brs` and `brsmm` fits returns a `df`/`AIC` table when given
+  several models, as `BIC()` does; extra models were ignored before. The
+  single-model value is unchanged.
+* `print()` and `summary()` name the second coefficient block by `repar`:
+  dispersion model for sigma (`repar = 2`), precision model for phi
+  (`repar = 1`) or shape q model (`repar = 0`, where the first block is the
+  shape p model). It was labeled a precision model under every `repar`.
 * Fits whose Hessian is not negative definite now also warn when the largest
   absolute gradient exceeds 0.1, since the remaining log-likelihood gain
   cannot be measured there. This can add a warning to some fixed-map fits.
@@ -85,6 +92,10 @@
 
 ## Documentation
 
+* The README is a short landing page. The vignettes are organized as:
+  model and theory (`brs-intro`), mixed models (`brs-mm`), post-estimation
+  tools (`brs-analyst-tools`) and variable dispersion, boundary cutpoints
+  and model comparison (`brs-advanced-workflows`).
 * The help of `brs()`, `brs_check()` and `anova()`, and the introduction
   vignette, state that `logLik()`, `AIC()` and `BIC()` are comparable across
   `interval` maps for score data, since each map gives a probability mass

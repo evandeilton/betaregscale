@@ -42,9 +42,9 @@ are evaluated at the conditional modes of the random effects
 \code{re} applies to \code{type = "rqr"} and \code{"cell_deviance"}:
 \describe{
   \item{\code{"conditional"}}{(default) at the conditional modes
-    \eqn{\hat b_g}. The modes are shrunk toward zero, so these residuals
-    are not exactly \eqn{N(0, 1)} under the model; the shrinkage is
-    strongest for small groups.}
+    \eqn{\hat b_g}. The modes are shrunk toward zero, so the \code{"rqr"}
+    residuals are not exactly \eqn{N(0, 1)} under the model; the shrinkage
+    is strongest for small groups.}
   \item{\code{"marginal"}}{from the marginal (population-averaged)
     distribution of each observation, with the random effects integrated
     out: \eqn{v_i \sim U(F_m(l_i), F_m(u_i))}, \eqn{F_m(y) = \int F(y \mid
@@ -54,9 +54,9 @@ are evaluated at the conditional modes of the random effects
     \eqn{s_i}). The rule integrates \eqn{z = u/\mathrm{SD}(u)} over
     \eqn{[-8.5, 8.5]}, so marginal probabilities below about
     \eqn{10^{-15}} are approximate (this matters for
-    \code{"cell_deviance"} in extreme tails only). Each residual is
-    \eqn{N(0, 1)} under the model; residuals of the same group are
-    correlated, since they share the group's random effects.}
+    \code{"cell_deviance"} in extreme tails only). Each \code{"rqr"}
+    residual is \eqn{N(0, 1)} under the model; residuals of the same group
+    are correlated, since they share the group's random effects.}
   \item{\code{"posterior"}}{at one draw of each \eqn{b_g} from its
     posterior given the group's data, by sampling-importance-resampling:
     \code{n_draws} proposals from \eqn{N(\hat b_g, H_g^{-1})}
@@ -64,11 +64,11 @@ are evaluated at the conditional modes of the random effects
     differences; the prior \eqn{N(0, \hat D)} shape when it is not positive
     definite) weighted by posterior over proposal density, and one of them
     kept. At the true parameters, \eqn{(b_g, y_g)} with \eqn{b_g} drawn
-    from its posterior has the joint law of the model, so these residuals
-    are independent \eqn{N(0, 1)} (up to the resampling approximation, of
-    order \code{1/n_draws}) without the shrinkage of the modes; at the
-    estimates this holds approximately. Unlike the marginal residuals, the
-    residuals of a group are then nearly independent.}
+    from its posterior has the joint law of the model, so the \code{"rqr"}
+    residuals are independent \eqn{N(0, 1)} (up to the resampling
+    approximation, of order \code{1/n_draws}) without the shrinkage of the
+    modes; at the estimates this holds approximately. Unlike the marginal
+    residuals, the residuals of a group are then nearly independent.}
 }
 \code{"rqr"} residuals use \eqn{v_i} uniform on \eqn{(F(l_i), F(u_i))}
 (survival scale above the median, to keep the precision of upper-tail

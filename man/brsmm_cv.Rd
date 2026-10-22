@@ -24,7 +24,7 @@ brsmm_cv(
 
 \item{k}{Number of folds (default 10).}
 
-\item{repeats}{Number of repeated k-fold runs.}
+\item{repeats}{Number of repeated k-fold runs (default 1).}
 
 \item{folds}{Optional fold assignment: a vector named by the group levels
 (read by name when its unique names are exactly the levels), or else a

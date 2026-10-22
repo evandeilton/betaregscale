@@ -9,8 +9,9 @@
 #'
 #' @param formula Model formula passed to \code{\link{brs}}.
 #' @param data Data frame.
-#' @param k Number of folds.
-#' @param repeats Number of repeated k-fold runs.
+#' @param k Number of folds (default 5).
+#' @param repeats Number of repeated k-fold runs (default 1); each repeat
+#'   draws new folds with the current RNG state.
 #' @param ... Additional arguments forwarded to \code{\link{brs}}
 #'   (e.g., \code{repar}, \code{link}, \code{interval}, \code{method}).
 #'
@@ -261,7 +262,7 @@ brs_cv <- function(formula,
 #'   \code{\link{brsmm}}.
 #' @param data Data frame.
 #' @param k Number of folds (default 10).
-#' @param repeats Number of repeated k-fold runs.
+#' @param repeats Number of repeated k-fold runs (default 1).
 #' @param folds Optional fold assignment: a vector named by the group levels
 #'   (read by name when its unique names are exactly the levels), or else a
 #'   vector with one fold label per row of \code{data}, constant within each
