@@ -228,6 +228,6 @@ of `coef()`.
 
 - Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
   Master's dissertation, Universidade Federal do Paraná, Curitiba.
-  <https://hdl.handle.net/1884/86624>
+  <https://acervodigital.ufpr.br/xmlui/handle/1884/86624>
 - McCullagh, P. (1980). Regression models for ordinal data. *Journal of
   the Royal Statistical Society: Series B*, 42(2), 109–142.

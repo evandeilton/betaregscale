@@ -239,4 +239,4 @@ brs_table(full = fit, time_only = fit_time, sort_by = "AIC")
   407–419.
 - Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
   Master's dissertation, Universidade Federal do Paraná, Curitiba.
-  <https://hdl.handle.net/1884/86624>
+  <https://acervodigital.ufpr.br/xmlui/handle/1884/86624>

@@ -283,7 +283,7 @@ given boundary cutpoints.
 
 - Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
   Master's dissertation, Universidade Federal do Paraná, Curitiba.
-  <https://hdl.handle.net/1884/86624>
+  <https://acervodigital.ufpr.br/xmlui/handle/1884/86624>
 - Pinheiro, J. C., and Bates, D. M. (1995). Approximations to the
   log-likelihood function in the nonlinear mixed-effects model. *Journal
   of Computational and Graphical Statistics*, 4(1), 12–35.

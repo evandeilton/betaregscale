@@ -78,7 +78,7 @@ brs_repar(mu = c(0.2, 0.5, 0.8), phi = 0.1, repar = 2)
 \references{
 Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 Master's dissertation, Universidade Federal do Parana, Curitiba.
-URI: https://hdl.handle.net/1884/86624.
+URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 Ferrari, S. L. P., and Cribari-Neto, F. (2004).
 Beta regression for modelling rates and proportions.
