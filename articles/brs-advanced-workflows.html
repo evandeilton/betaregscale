@@ -70,7 +70,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Advanced workflows: dispersion, cutpoints and model comparison</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/main/vignettes/brs-advanced-workflows.Rmd" class="external-link"><code>vignettes/brs-advanced-workflows.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/evandeilton/betaregscale/blob/v3.1.1/vignettes/brs-advanced-workflows.Rmd" class="external-link"><code>vignettes/brs-advanced-workflows.Rmd</code></a></small>
       <div class="d-none name"><code>brs-advanced-workflows.Rmd</code></div>
     </div>
 
@@ -142,7 +142,7 @@ dispersion coefficients:</p>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Log-likelihood: -588.9232 on 5 Df | AIC: 1187.8464 | BIC: 1206.3653 </span></span>
 <span><span class="co">#&gt; Pseudo R-squared: 0.1761  (midpoint approx.; interpret with caution for heavily censored data) </span></span>
-<span><span class="co">#&gt; Number of iterations: 39 (BFGS) </span></span>
+<span><span class="co">#&gt; Number of iterations: 42 (BFGS) </span></span>
 <span><span class="co">#&gt; Censoring: 287 interval | 11 left | 2 right</span></span></code></pre></div>
 <p>The dispersion coefficients carry the <code>(phi)_</code> prefix;
 <code>coef(fit, model = "precision")</code> selects them, and
@@ -240,7 +240,7 @@ fixed values; <code><a href="https://rdrr.io/r/stats/coef.html" class="external-
 <span><span class="co">#&gt; Censoring: 255 interval | 33 left | 12 right</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_bnd</span>, model <span class="op">=</span> <span class="st">"cutpoints"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;               2.5 %     97.5 %</span></span>
-<span><span class="co">#&gt; (cut_lo)  0.7748769  2.2582010</span></span>
+<span><span class="co">#&gt; (cut_lo)  0.7748769  2.2582009</span></span>
 <span><span class="co">#&gt; (cut_hi) -2.3924205 -0.4063316</span></span></code></pre></div>
 <p>The average predicted score distribution against the observed one
 shows what the two cutpoints change:</p>

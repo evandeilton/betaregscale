@@ -74,7 +74,7 @@ summary(fit_var)
 #> ---
 #> Log-likelihood: -588.9232 on 5 Df | AIC: 1187.8464 | BIC: 1206.3653 
 #> Pseudo R-squared: 0.1761  (midpoint approx.; interpret with caution for heavily censored data) 
-#> Number of iterations: 39 (BFGS) 
+#> Number of iterations: 42 (BFGS) 
 #> Censoring: 287 interval | 11 left | 2 right
 ```
 
@@ -183,7 +183,7 @@ summary(fit_bnd)
 #> Censoring: 255 interval | 33 left | 12 right
 confint(fit_bnd, model = "cutpoints")
 #>               2.5 %     97.5 %
-#> (cut_lo)  0.7748769  2.2582010
+#> (cut_lo)  0.7748769  2.2582009
 #> (cut_hi) -2.3924205 -0.4063316
 ```
 
