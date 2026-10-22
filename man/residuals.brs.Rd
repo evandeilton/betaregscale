@@ -113,7 +113,7 @@ c(sum(r_d^2), -2 * as.numeric(logLik(fit)))
 \references{
 Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 Master's dissertation, Universidade Federal do Parana, Curitiba.
-URI: https://hdl.handle.net/1884/86624.
+URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
 \emph{Journal of Computational and Graphical Statistics}, \bold{5}(3),

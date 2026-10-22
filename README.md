@@ -98,7 +98,7 @@ described in
 
 - Lopes, J. E. (2023). *Modelos de regressão beta para dados de escala*.
   Master's dissertation, Universidade Federal do Paraná, Curitiba.
-  <https://hdl.handle.net/1884/86624>
+  <https://acervodigital.ufpr.br/xmlui/handle/1884/86624>
 
 Other references:
 

@@ -1,3 +1,7 @@
+# betaregscale 3.1.1
+
+* The dissertation reference now links to the repository page directly.
+
 # betaregscale 3.1.0
 
 ## New features

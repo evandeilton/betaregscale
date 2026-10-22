@@ -1,7 +1,9 @@
 ## Submission
 
-Update of `betaregscale` to version 3.1.0. The changes are listed in
-`NEWS.md`.
+Update from 2.7.4 (current CRAN version) to 3.1.1; version 3.0.0 was not
+submitted to CRAN, so this update includes its changes (see `NEWS.md`,
+including the breaking changes listed under 3.0.0). There are no reverse
+dependencies.
 
 ## Test environments
 
@@ -15,15 +17,15 @@ Update of `betaregscale` to version 3.1.0. The changes are listed in
 * checking CRAN incoming feasibility ... NOTE
 
   Found the following (possibly) invalid URLs:
-    URL: https://hdl.handle.net/1884/86624
+    URL: https://acervodigital.ufpr.br/xmlui/handle/1884/86624
       Status: Error
       Message: libcurl error code 60:
         SSL certificate OpenSSL verify result: unable to get local issuer
-        certificate (20) (Status without verification: OK)
+        certificate (20)
 
-  This is the persistent handle of a master's dissertation. It redirects to
-  `acervodigital.ufpr.br`, whose server does not send its intermediate
-  certificate; the link opens in web browsers.
+  This is the repository page of a master's dissertation. It opens without
+  SSL verification: the server does not send its intermediate certificate,
+  and it may respond slowly.
 
 * checking HTML version of manual ... NOTE
 
@@ -33,10 +35,4 @@ Update of `betaregscale` to version 3.1.0. The changes are listed in
 
 ## Installed size
 
-Reported as INFO, not as a NOTE: 7.5 Mb, of which libs 5.0 Mb. It can be
-larger on Linux builds that add `-g` to `CXXFLAGS`, since the shared library
-then carries debug information.
-
-## Reverse dependencies
-
-There are no reverse dependencies.
+Reported as INFO, not as a NOTE: 6.6 Mb, of which libs 5.0 Mb.

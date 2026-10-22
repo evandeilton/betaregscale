@@ -170,7 +170,7 @@ brs_check(c(30, 60), ncuts = 100, delta = c(1L, 2L))
 \references{
 Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 Master's dissertation, Universidade Federal do Parana, Curitiba.
-URI: https://hdl.handle.net/1884/86624.
+URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 
 Smithson, M., and Verkuilen, J. (2006). A better lemon squeezer?
 Maximum-likelihood regression with beta-distributed dependent variables.

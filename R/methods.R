@@ -504,7 +504,7 @@ model.matrix.brs <- function(object,
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
+#' URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 #'
 #' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
 #' Beta regression for modelling rates and proportions.
@@ -891,7 +891,7 @@ fitted.brs <- function(object, type = c("mu", "phi"), ...) {
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
+#' URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 #'
 #' Dunn, P. K., and Smyth, G. K. (1996). Randomized quantile residuals.
 #' \emph{Journal of Computational and Graphical Statistics}, \bold{5}(3),
@@ -1071,7 +1071,7 @@ residuals.brs <- function(object,
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
+#' URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 #'
 #' @examples
 #' set.seed(2023)
@@ -1289,7 +1289,7 @@ predict.brs <- function(object, newdata = NULL,
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
+#' URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 #'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
@@ -1350,7 +1350,7 @@ brs_gof <- function(object) {
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
+#' URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 #'
 #' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
 #' Beta regression for modelling rates and proportions.
@@ -1431,7 +1431,7 @@ brs_est <- function(object, alpha = 0.05) {
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
+#' URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 #'
 #' Ferrari, S. L. P., and Cribari-Neto, F. (2004).
 #' Beta regression for modelling rates and proportions.
@@ -1485,7 +1485,7 @@ brs_coef <- function(fit, alpha = 0.05) {
 #' @references
 #' Lopes, J. E. (2023). \emph{Modelos de regressao beta para dados de escala}.
 #' Master's dissertation, Universidade Federal do Parana, Curitiba.
-#' URI: https://hdl.handle.net/1884/86624.
+#' URI: https://acervodigital.ufpr.br/xmlui/handle/1884/86624.
 #'
 #' Hawker, G. A., Mian, S., Kendzerska, T., and French, M. (2011).
 #' Measures of adult pain: Visual Analog Scale for Pain (VAS Pain),
