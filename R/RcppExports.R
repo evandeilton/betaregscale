@@ -82,8 +82,8 @@
     invisible(.Call(`_betaregscale_brsmm_reset_cache`))
 }
 
-.brsmm_loglik_eigen <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points) {
-    .Call(`_betaregscale_brsmm_loglik_eigen`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points)
+.brsmm_loglik_cpp <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points) {
+    .Call(`_betaregscale_brsmm_loglik_cpp`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points)
 }
 
 .brs_log_penalty_cpp <- function() {
@@ -94,8 +94,8 @@
     .Call(`_betaregscale_brsmm_loglik_groups_cpp`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, method, n_points)
 }
 
-.brsmm_group_modes_eigen <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar) {
-    .Call(`_betaregscale_brsmm_group_modes_eigen`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar)
+.brsmm_group_modes_cpp <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar) {
+    .Call(`_betaregscale_brsmm_group_modes_cpp`, param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar)
 }
 
 .brsmm_mode_diag_cpp <- function(param, X, Z, Xr, y_left, y_right, yt, delta, group, link_mu, link_phi, repar, warm) {

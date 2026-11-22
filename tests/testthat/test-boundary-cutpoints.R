@@ -365,7 +365,7 @@ test_that("brsmm estimates boundary cutpoints with a random intercept", {
       fn <- function(par) {
         cs <- .brs_cut_setup(.brs_cut_fixed_Y(mb), 10L, 0.5, "mid")
         e <- .brs_cut_endpoints(.brs_cut_values(par[5:6], 10L, cs$anchors), cs)
-        .brsmm_loglik_eigen(par[1:4], mb$model_matrices$X, mb$model_matrices$Z,
+        .brsmm_loglik_cpp(par[1:4], mb$model_matrices$X, mb$model_matrices$Z,
                             mb$model_matrices$Xr, e$left, e$right,
                             as.numeric(mb$Y[, "yt"]), mb$delta, mb$group_index,
                             0L, 0L, 2L, 1L, 9L)

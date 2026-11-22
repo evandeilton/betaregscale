@@ -6,8 +6,7 @@
 // from the previous call. Gradients differentiate each approximation itself
 // (implicit-function theorem for the mode, divided differences for the
 // symmetric-root quadrature scaling C^-1/2). A group whose curvature is not positive definite at the
-// mode contributes LOG_PENALTY (no eigenvalue floor). The R names of the two
-// original exports are kept from the Eigen backend.
+// mode contributes LOG_PENALTY (no eigenvalue floor).
 
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
@@ -41,7 +40,7 @@ struct RandStruct {
 };
 
 // Unpack theta_re; a zero or infinite L_ii makes P non-finite, so every h()
-// becomes LOG_PENALTY (as in the Eigen backend).
+// becomes LOG_PENALTY.
 inline RandStruct unpack_re(const arma::vec &theta_re, int q) {
   RandStruct rs;
   rs.q_re = q;
@@ -621,8 +620,8 @@ inline arma::vec group_loglik(MixedSetup &m, int method) {
 
 // Marginal log-likelihood by Laplace / AGHQ / QMC; param = [beta, gamma, theta_re].
 // Structural errors stop; a group without a valid mode adds LOG_PENALTY.
-// [[Rcpp::export(name = ".brsmm_loglik_eigen", rng = false)]]
-double brsmm_loglik_eigen(const arma::vec &param, const arma::mat &X,
+// [[Rcpp::export(name = ".brsmm_loglik_cpp", rng = false)]]
+double brsmm_loglik_cpp(const arma::vec &param, const arma::mat &X,
                           const arma::mat &Z, const arma::mat &Xr,
                           const arma::vec &y_left, const arma::vec &y_right,
                           const arma::vec &yt,
@@ -644,7 +643,7 @@ double brsmm_loglik_eigen(const arma::vec &param, const arma::mat &X,
 double brs_log_penalty_cpp() { return LOG_PENALTY; }
 
 // Marginal log-likelihood contribution of each group (length G, group order);
-// the terms that brsmm_loglik_eigen() adds up.
+// the terms that brsmm_loglik_cpp() adds up.
 // [[Rcpp::export(name = ".brsmm_loglik_groups_cpp", rng = false)]]
 arma::vec brsmm_loglik_groups_cpp(const arma::vec &param, const arma::mat &X,
                                   const arma::mat &Z, const arma::mat &Xr,
@@ -659,8 +658,8 @@ arma::vec brsmm_loglik_groups_cpp(const arma::vec &param, const arma::mat &X,
 }
 
 // Posterior mode of each group's random effects (G x q_re).
-// [[Rcpp::export(name = ".brsmm_group_modes_eigen", rng = false)]]
-arma::mat brsmm_group_modes_eigen(const arma::vec &param, const arma::mat &X,
+// [[Rcpp::export(name = ".brsmm_group_modes_cpp", rng = false)]]
+arma::mat brsmm_group_modes_cpp(const arma::vec &param, const arma::mat &X,
                                   const arma::mat &Z, const arma::mat &Xr,
                                   const arma::vec &y_left,
                                   const arma::vec &y_right,
