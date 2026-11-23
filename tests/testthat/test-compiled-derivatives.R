@@ -28,7 +28,7 @@
   list(X = X, Z = matrix(1, nrow(p), 1), Xr = X, l = p$left, r = p$right, yt = p$yt,
        delta = as.integer(p$delta), group = as.integer(factor(p$id)))
 }
-.cd_ll <- function(P, par, me, np) betaregscale:::.brsmm_loglik_eigen(
+.cd_ll <- function(P, par, me, np) betaregscale:::.brsmm_loglik_cpp(
   par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta, P$group, 0L, 0L, 2L, me, np)
 .cd_gr <- function(P, par, me, np) betaregscale:::.brsmm_grad_cpp(
   par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta, P$group, 0L, 0L, 2L, me, np)
@@ -182,7 +182,7 @@ test_that("NaN parameters give the penalty; +-Inf map to the bounds (C++ = R mir
 
 test_that("AGHQ converges to brute-force integration as n_points grows (q_re = 2)", {
   P <- .cd_slope(4L, 10L, 5L); par <- c(0.2, 0.5, -3.4, log(0.5), 0.2, log(0.3))
-  modes <- betaregscale:::.brsmm_group_modes_eigen(par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta,
+  modes <- betaregscale:::.brsmm_group_modes_cpp(par, P$X, P$Z, P$Xr, P$l, P$r, P$yt, P$delta,
                                                    P$group, 0L, 0L, 2L)
   L <- matrix(c(exp(par[4]), par[5], 0, exp(par[6])), 2); D <- L %*% t(L); Pm <- solve(D)
   u <- seq(-9, 9, by = 0.15); U <- as.matrix(expand.grid(u, u)); bf <- 0
@@ -237,7 +237,7 @@ test_that("NA in delta stops in R and in the compiled code (no NaN -> integer UB
   expect_error(betaregscale:::.brs_loglik_fixed_cpp(c(0, 0, 0), X, q$left, q$right, q$yt,
                replace(as.numeric(q$delta), 3, NaN), 0L, 0L, 2L), "found NA at row 3")
   g <- rep(1:4, each = 10)
-  expect_error(betaregscale:::.brsmm_loglik_eigen(c(0, 0, 0, 0), X, Z, Z, q$left, q$right, q$yt,
+  expect_error(betaregscale:::.brsmm_loglik_cpp(c(0, 0, 0, 0), X, Z, Z, q$left, q$right, q$yt,
                dl, g, 0L, 0L, 2L, 0L, 11L), "delta.*found NA at row 3")
 })
 

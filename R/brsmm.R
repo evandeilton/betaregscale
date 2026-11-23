@@ -219,7 +219,6 @@ brsmm <- function(formula,
   link <- validated$link
   link_phi <- validated$link_phi
   interval <- validated$interval
-  # int_method check removed to support aghq and qmc
   if (!is.finite(n_points) || n_points < 1L) {
     stop("'n_points' must be >= 1.", call. = FALSE)
   }
@@ -333,7 +332,7 @@ brsmm <- function(formula,
   n_pts <- if (int_method == "qmc") qmc_points else n_points
 
   fn_ll <- function(par) {
-    .brsmm_loglik_eigen(
+    .brsmm_loglik_cpp(
       param = as.numeric(par),
       X = X,
       Z = Z,
@@ -372,7 +371,7 @@ brsmm <- function(formula,
     prob <- .brs_cut_problem(
       cs, k0 = p + q + k_re,
       ll0 = function(par0, l, r) {
-        .brsmm_loglik_eigen(
+        .brsmm_loglik_cpp(
           param = as.numeric(par0), X = X, Z = Z, Xr = Xr, y_left = l, y_right = r,
           yt = yt_vec, delta = delta, group = group_index, link_mu = lc_mu,
           link_phi = lc_phi, repar = repar, method = method_code, n_points = n_pts
@@ -463,7 +462,7 @@ brsmm <- function(formula,
   D <- L %*% t(L)
   sd_b_terms <- sqrt(diag(D))
 
-  gm <- .brsmm_group_modes_eigen(
+  gm <- .brsmm_group_modes_cpp(
     param = est[seq_len(p + q + k_re)],
     X = X,
     Z = Z,

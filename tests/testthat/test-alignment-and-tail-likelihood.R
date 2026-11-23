@@ -64,13 +64,13 @@ test_that("compiled brsmm likelihood rejects inconsistent dimensions", {
   par <- c(0, 0, 0, log(0.5))
   args <- list(par, X, Z, Xr, p$left, p$right, p$yt, as.integer(p$delta),
                as.integer(p$id), 0L, 0L, 2L, 0L, 11L)
-  expect_true(is.finite(do.call(betaregscale:::.brsmm_loglik_eigen, args)))
+  expect_true(is.finite(do.call(betaregscale:::.brsmm_loglik_cpp, args)))
   bad <- args; bad[[9]] <- as.integer(p$id)[-1]
-  expect_error(do.call(betaregscale:::.brsmm_loglik_eigen, bad), "rows")
+  expect_error(do.call(betaregscale:::.brsmm_loglik_cpp, bad), "rows")
   bad <- args; bad[[9]][1L] <- 0L
-  expect_error(do.call(betaregscale:::.brsmm_loglik_eigen, bad), ">= 1")
+  expect_error(do.call(betaregscale:::.brsmm_loglik_cpp, bad), ">= 1")
   bad <- args; bad[[4]] <- Xr[-1, , drop = FALSE]
-  expect_error(do.call(betaregscale:::.brsmm_loglik_eigen, bad), "rows")
+  expect_error(do.call(betaregscale:::.brsmm_loglik_cpp, bad), "rows")
 })
 
 test_that("NA in a random-slope variable gives a clear error", {
