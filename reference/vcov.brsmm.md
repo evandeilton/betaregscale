@@ -55,7 +55,7 @@ prep <- brs_prep(dat, ncuts = 100)
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 vcov(fit, model = "mean")
 #>             (Intercept)         x1
-#> (Intercept)   0.7749792 -0.4275346
-#> x1           -0.4275346  0.2874590
+#> (Intercept)   0.7750426 -0.4275981
+#> x1           -0.4275981  0.2875125
 # }
 ```

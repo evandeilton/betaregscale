@@ -59,7 +59,7 @@ print(fit)
 #> 
 #> Coefficients (dispersion model for sigma with logit link):
 #> (Intercept) 
-#>     -0.5806 
+#>     -0.5805 
 #> 
 #> Random-effects parameters:
 #> logSD.(Intercept)|id 

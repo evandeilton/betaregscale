@@ -2,6 +2,8 @@
 
 ## betaregscale 3.1.1
 
+CRAN release: 2026-10-22
+
 - The dissertation reference now links to the repository page directly.
 
 ## betaregscale 3.1.0

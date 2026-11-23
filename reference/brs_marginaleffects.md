@@ -128,7 +128,7 @@ fit <- brs(y ~ t12 + age, data = nrs, ncuts = 10)
 set.seed(6)
 brs_marginaleffects(fit, n_sim = 50)
 #>   variable         ame   std.error     ci.lower    ci.upper model     type   n
-#> 1      t12 0.224844538 0.043324091  0.148876732 0.303261197  mean response 120
+#> 1      t12 0.224844538 0.043324090  0.148876732 0.303261197  mean response 120
 #> 2      age 0.002873628 0.002248534 -0.001835917 0.006042961  mean response 120
 
 # On the 0-10 score scale (mid cells): multiply by K = 10

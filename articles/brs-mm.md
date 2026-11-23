@@ -184,12 +184,12 @@ matrix and standard deviations:
 
 head(ranef(fit_rs))
 #>   (Intercept)           tc
-#> 1   0.8194782 -0.029209222
-#> 2  -1.5034029 -0.100498130
-#> 3  -1.5294370 -0.087103237
+#> 1   0.8194782 -0.029209221
+#> 2  -1.5034029 -0.100498128
+#> 3  -1.5294370 -0.087103235
 #> 4  -0.5462813 -0.002064520
 #> 5  -0.7803565 -0.001166132
-#> 6  -0.9184533 -0.055430537
+#> 6  -0.9184533 -0.055430536
 fit_rs$random$D
 #>            [,1]       [,2]
 #> [1,] 1.14198316 0.03463383
@@ -325,12 +325,12 @@ not needed in `newdata`:
 nd <- data.frame(tc = c(-1, 1), trt = 1)
 brs_marginal(fit_ri, nd, type = "expected_score")
 #>   tc trt row estimate std.error    lower    upper
-#> 1 -1   1   1 4.433166 0.6380772 3.242149 5.693117
-#> 2  1   1   2 3.048002 0.5686567 2.057841 4.259101
+#> 1 -1   1   1 4.433166 0.6380776 3.242148 5.693118
+#> 2  1   1   2 3.048002 0.5686570 2.057840 4.259101
 brs_marginal(fit_ri, nd, type = "expected_score", conditional = TRUE)
 #>   tc trt row estimate std.error    lower    upper
-#> 1 -1   1   1 4.308536 0.7745230 2.895803 5.843569
-#> 2  1   1   2 2.684320 0.6323208 1.633255 4.081798
+#> 1 -1   1   1 4.308536 0.7745234 2.895802 5.843570
+#> 2  1   1   2 2.684320 0.6323210 1.633254 4.081799
 ```
 
 Differences between rows, such as the change from the first to the last
@@ -340,7 +340,7 @@ visit in $`P(S \ge 5)`$, are given by `contrast`:
 
 brs_marginal(fit_ri, nd, type = "exceed", k = 5, contrast = c(2, 1))
 #>   contrast row1 row2 k   estimate  std.error      lower       upper
-#> 1    2 - 1    2    1 5 -0.1981716 0.06312098 -0.3218864 -0.07445672
+#> 1    2 - 1    2    1 5 -0.1981716 0.06312096 -0.3218864 -0.07445675
 ```
 
 ## Residuals
@@ -389,7 +389,7 @@ cv_ri <- brsmm_cv(y ~ tc + trt, random = ~ 1 | id, data = s, k = 3, seed = 1)
 cv_ri
 #>   repeat fold n_groups_train n_groups_test n_train n_test log_score converged
 #> 1      1    1             20            10      80     40 -84.01975      TRUE
-#> 2      1    2             20            10      80     40 -85.92605      TRUE
+#> 2      1    2             20            10      80     40 -85.92603      TRUE
 #> 3      1    3             20            10      80     40 -87.83580      TRUE
 #>   error warning
 #> 1  <NA>    <NA>
@@ -400,7 +400,7 @@ cv_rs <- brsmm_cv(y ~ tc + trt, random = ~ 1 + tc | id, data = s,
                   folds = folds)
 c(ri = attr(cv_ri, "log_score"), rs = attr(cv_rs, "log_score"))
 #>        ri        rs 
-#> -257.7816 -259.1025
+#> -257.7816 -259.1024
 ```
 
 The total held-out log score is the log probability of the held-out

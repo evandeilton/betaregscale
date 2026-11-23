@@ -59,24 +59,24 @@ print(summary(fit))
 #> 
 #> Coefficients (mean model with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)
-#> (Intercept)   0.4213     0.8803   0.479    0.632
+#> (Intercept)   0.4213     0.8804   0.479    0.632
 #> x1           -0.3374     0.5362  -0.629    0.529
 #> 
 #> Coefficients (dispersion model for sigma with logit link):
 #>             Estimate Std. Error z value Pr(>|z|)  
-#> (Intercept)  -0.5806     0.3281   -1.77   0.0768 .
+#> (Intercept)  -0.5805     0.3281   -1.77   0.0768 .
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
 #> Random effects (SD and Corr; 95% Wald CI on the log / atanh scale; no tests, see anova()):
-#>                Estimate  Lower Upper
-#> SD (Intercept)   0.5339 0.1206 2.364
+#>                Estimate  Lower  Upper
+#> SD (Intercept)   0.5339 0.1206 2.3638
 #> ---
 #> Mixed beta interval model (Laplace)
 #> Observations: 20  | Groups: 4 
 #> Log-likelihood: -92.1831 on 4 Df | AIC: 192.3663 | BIC: 196.3492 
 #> Pseudo R-squared: 0.0029 
-#> Number of iterations: 28 (BFGS) 
+#> Number of iterations: 29 (BFGS) 
 #> Censoring: 18 interval | 1 left | 1 right 
 #> 
 # }

@@ -183,7 +183,7 @@ summary(fit_bnd)
 #> Censoring: 255 interval | 33 left | 12 right
 confint(fit_bnd, model = "cutpoints")
 #>               2.5 %     97.5 %
-#> (cut_lo)  0.7748769  2.2582009
+#> (cut_lo)  0.7748769  2.2582010
 #> (cut_hi) -2.3924205 -0.4063316
 ```
 

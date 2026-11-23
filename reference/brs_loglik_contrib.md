@@ -81,12 +81,12 @@ m <- brsmm(y ~ time, random = ~ 1 | id, data = nrs, ncuts = 10)
 ll_g <- brs_loglik_contrib(m)
 head(ll_g)
 #>         1         2         3         4         5         6 
-#> -6.019919 -6.321018 -7.271889 -5.779475 -8.037281 -8.350358 
+#> -6.019910 -6.321020 -7.271896 -5.779475 -8.037295 -8.350358 
 c(sum = sum(ll_g), logLik = as.numeric(logLik(m)))
 #>       sum    logLik 
 #> -192.9768 -192.9768 
 # Same groups, adaptive Gauss-Hermite with 31 nodes
 head(brs_loglik_contrib(m, int_method = "aghq", n_points = 31))
 #>         1         2         3         4         5         6 
-#> -6.002478 -6.304053 -7.253131 -5.763656 -8.019587 -8.333486 
+#> -6.002469 -6.304055 -7.253138 -5.763656 -8.019602 -8.333486 
 ```

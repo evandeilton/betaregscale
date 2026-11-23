@@ -124,9 +124,9 @@ prep <- brs_prep(dat, ncuts = 100)
 #> brs_prep: n = 20 | exact = 0, left = 1, right = 1, interval = 18
 fit <- brsmm(y ~ x1, random = ~ 1 | id, data = prep)
 head(residuals(fit))
-#> [1] -0.3855953 -0.2593261 -0.1856053  0.1906739  0.3643947  0.3286716
+#> [1] -0.3855983 -0.2593318 -0.1856083  0.1906682  0.3643917  0.3286712
 head(residuals(fit, type = "pearson"))
-#> [1] -1.3225377 -0.9366407 -0.6366001  0.6886807  1.2498226  1.1087368
+#> [1] -1.3225406 -0.9366526 -0.6366068  0.6886541  1.2498056  1.1087312
 # }
 # Quantile residuals without the shrinkage of the conditional modes
 d <- expand.grid(visit = 1:5, id = 1:60)
